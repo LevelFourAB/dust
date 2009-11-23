@@ -1,4 +1,4 @@
-package se.l4.dust.core.internal;
+package se.l4.dust.core.internal.asset;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,13 +17,15 @@ import javax.ws.rs.ext.Provider;
 
 import org.jboss.resteasy.util.HttpHeaderNames;
 
+import se.l4.dust.api.asset.Asset;
+
 @Provider
 @Produces("*/*")
-public class URLWriter
-	implements MessageBodyWriter<URL>
+public class AssetWriter
+	implements MessageBodyWriter<Asset>
 {
 
-	public long getSize(URL t, Class<?> type, Type genericType,
+	public long getSize(Asset t, Class<?> type, Type genericType,
 			Annotation[] annotations, MediaType mediaType)
 	{
 		return -1;
@@ -32,28 +34,33 @@ public class URLWriter
 	public boolean isWriteable(Class<?> type, Type genericType,
 			Annotation[] annotations, MediaType mediaType)
 	{
-		return true;
+		return Asset.class.isAssignableFrom(type);
 	}
 
-	public void writeTo(URL t, Class<?> type, Type genericType,
+	public void writeTo(Asset t, Class<?> type, Type genericType,
 			Annotation[] annotations, MediaType mediaType,
 			MultivaluedMap<String, Object> httpHeaders,
 			OutputStream entityStream)
 		throws IOException, WebApplicationException
 	{
-		URLConnection connection = t.openConnection();
+		URL url = t.getURL();
+		URLConnection connection = url.openConnection();
+		
+		httpHeaders.putSingle(HttpHeaderNames.EXPIRES, "Sat, 1 Jan 2400 00:00:00 GMT");
+		httpHeaders.putSingle(HttpHeaderNames.CACHE_CONTROL, "public");
+		
 		
 		InputStream stream = null;
 		try
 		{
 			stream = connection.getInputStream();
 //			long lastModified = connection.getLastModified();
-			int length = connection.getContentLength();
-			
-			if(length != -1)
-			{
-				 httpHeaders.putSingle(HttpHeaderNames.CONTENT_LENGTH, Integer.toString(length));
-			}
+//			int length = connection.getContentLength();
+//			
+//			if(length != -1)
+//			{
+//				 httpHeaders.putSingle(HttpHeaderNames.CONTENT_LENGTH, Integer.toString(length));
+//			}
 			
 			byte[] buffer = new byte[1024];
 			int l;

@@ -3,6 +3,7 @@ package se.l4.dust.core.internal.template.components;
 import org.jdom.JDOMException;
 
 import se.l4.dust.core.internal.template.dom.ContentPreload;
+import se.l4.dust.core.internal.template.dom.ExpressionParser;
 import se.l4.dust.core.internal.template.dom.TemplateComponent;
 import se.l4.dust.core.internal.template.dom.TemplateEmitter;
 import se.l4.dust.core.template.TemplateModule;
@@ -21,9 +22,9 @@ public class ParameterComponent
 	}
 	
 	@Override
-	public void preload()
+	public void preload(ExpressionParser expressionParser)
 	{
-		super.preload();
+		super.preload(expressionParser);
 		
 		if(false == getParent() instanceof TemplateComponent)
 		{

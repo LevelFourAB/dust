@@ -6,6 +6,8 @@ import org.jdom.Content;
 import org.jdom.JDOMException;
 import org.jdom.Text;
 
+import se.l4.dust.dom.Element;
+
 /**
  * Text node that supports inline expressions.
  * 
@@ -14,10 +16,13 @@ import org.jdom.Text;
  */
 public class TemplateText
 	extends Text
-	implements ContentPreload
+	implements ContentPreload, LocationAware
 {
 	private List<Content> content;
 	private String lastValue;
+	
+	private int line = -1;
+	private int column = -1;
 	
 	public TemplateText()
 	{
@@ -36,8 +41,24 @@ public class TemplateText
 		return content;
 	}
 
-	public void preload()
+	public void preload(ExpressionParser expressionParser)
 	{
-		content = ExpressionParser.parse(value);
+		content = expressionParser.parse(value, (Element) getParentElement());
+	}
+
+	public int getColumn()
+	{
+		return column;
+	}
+
+	public int getLine()
+	{
+		return line;
+	}
+
+	public void setLocation(int line, int column)
+	{
+		this.line = line;
+		this.column = column;
 	}
 }

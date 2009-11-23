@@ -11,6 +11,8 @@ public class Dust
 {
 	public static final String HTML = "text/html; charset=UTF-8";
 	
+	public static final String DUST_PRODUCTION = "dust.production";
+	
 	private Dust()
 	{
 	}

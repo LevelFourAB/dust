@@ -54,5 +54,8 @@ public interface NamespaceManager
 	 */
 	Namespace getNamespaceByPrefix(String prefix);
 
+	Namespace getNamespaceByURI(String uri);
+	
 	URL getResource(Namespace ns, String resource);
+
 }

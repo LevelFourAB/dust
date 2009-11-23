@@ -6,9 +6,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdom.Namespace;
 
-import se.l4.dust.api.NamespaceManager;
-
 import com.google.inject.Singleton;
+
+import se.l4.dust.api.NamespaceManager;
 
 @Singleton
 public class NamespaceManagerImpl
@@ -17,17 +17,20 @@ public class NamespaceManagerImpl
 	private final Map<String, Namespace> packages;
 	private final Map<Namespace, Locator> locators;
 	private final Map<String, Namespace> prefixes;
+	private final Map<String, Namespace> urls;
 	
 	public NamespaceManagerImpl()
 	{
 		packages = new ConcurrentHashMap<String, Namespace>();
 		locators = new ConcurrentHashMap<Namespace, Locator>();
 		prefixes = new ConcurrentHashMap<String, Namespace>();
+		urls = new ConcurrentHashMap<String, Namespace>();
 	}
 
 	private void prefix(Namespace ns)
 	{
 		prefixes.put(ns.getPrefix(), ns);
+		urls.put(ns.getURI(), ns);
 	}
 	
 	public void bind(Namespace ns, Class<?> pkgBase)
@@ -66,6 +69,11 @@ public class NamespaceManagerImpl
 	public Namespace getNamespaceByPrefix(String prefix)
 	{
 		return prefixes.get(prefix);
+	}
+	
+	public Namespace getNamespaceByURI(String uri)
+	{
+		return urls.get(uri);
 	}
 	
 	public URL getResource(Namespace ns, String resource)

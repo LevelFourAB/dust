@@ -8,6 +8,7 @@ import org.jdom.JDOMException;
 import org.jdom.Namespace;
 
 import se.l4.dust.api.TemplateException;
+import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.core.internal.template.components.ParameterComponent;
 import se.l4.dust.dom.Element;
 
@@ -37,13 +38,23 @@ public abstract class TemplateComponent
 		this.column = column;
 	}
 	
-	public void preload()
+	public int getLine()
+	{
+		return line;
+	}
+	
+	public int getColumn()
+	{
+		return column;
+	}
+	
+	public void preload(ExpressionParser expressionParser)
 	{
 		for(Attribute a : getAttributes())
 		{
 			if(a instanceof TemplateAttribute)
 			{
-				((TemplateAttribute) a).preload();
+				((TemplateAttribute) a).preload(expressionParser);
 			}
 		}
 	}
@@ -70,7 +81,7 @@ public abstract class TemplateComponent
 			Object previousRoot)
 		throws JDOMException;
 	
-	protected ExpressionNode getExpressionNode(String attr, boolean required)
+	protected PropertyContent getExpressionNode(String attr, boolean required)
 	{
 		TemplateAttribute ta = (TemplateAttribute) getAttribute(attr);
 		if(ta == null)
@@ -92,12 +103,12 @@ public abstract class TemplateComponent
 		}
 		
 		Content cc = c.get(0);
-		if(false == cc instanceof ExpressionNode)
+		if(false == cc instanceof PropertyContent)
 		{
 			throwException("Expected expression (${expression}) in " + attr + " but found " + cc);
 		}
 		
-		return (ExpressionNode) cc;
+		return (PropertyContent) cc;
 	}
 
 	protected ParameterComponent getParameter(String name, boolean required)

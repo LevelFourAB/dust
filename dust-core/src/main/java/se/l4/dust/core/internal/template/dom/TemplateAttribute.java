@@ -6,6 +6,9 @@ import org.jdom.Attribute;
 import org.jdom.Content;
 import org.jdom.Namespace;
 
+import se.l4.dust.api.template.PropertyContent;
+import se.l4.dust.dom.Element;
+
 public class TemplateAttribute
 	extends Attribute
 	implements ContentPreload
@@ -44,9 +47,9 @@ public class TemplateAttribute
 		return content;
 	}
 
-	public void preload()
+	public void preload(ExpressionParser expressionParser)
 	{
-		content = ExpressionParser.parse(value);
+		content = expressionParser.parse(value, (Element) getParent());
 	}
 	
 	public Object getValue(Object root)
@@ -54,9 +57,9 @@ public class TemplateAttribute
 		if(content.size() == 1)
 		{
 			Content c = content.get(0);
-			if(c instanceof ExpressionNode)
+			if(c instanceof PropertyContent)
 			{
-				return ((ExpressionNode) c).getValue(root);
+				return ((PropertyContent) c).getValue(root);
 			}
 			else
 			{
@@ -68,9 +71,9 @@ public class TemplateAttribute
 			StringBuilder value = new StringBuilder();
 			for(Content c : content)
 			{
-				if(c instanceof ExpressionNode)
+				if(c instanceof PropertyContent)
 				{
-					value.append(((ExpressionNode) c).getValue(root));
+					value.append(((PropertyContent) c).getValue(root));
 				}
 				else
 				{

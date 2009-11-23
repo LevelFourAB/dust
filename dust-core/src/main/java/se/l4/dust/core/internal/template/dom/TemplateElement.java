@@ -44,14 +44,24 @@ public class TemplateElement
 		this.line = line;
 		this.column = column;
 	}
+	
+	public int getColumn()
+	{
+		return column;
+	}
+	
+	public int getLine()
+	{
+		return line;
+	}
 
-	public void preload()
+	public void preload(ExpressionParser expressionParser)
 	{
 		for(Attribute a : getAttributes())
 		{
 			if(a instanceof TemplateAttribute)
 			{
-				((TemplateAttribute) a).preload();
+				((TemplateAttribute) a).preload(expressionParser);
 			}
 		}
 	}

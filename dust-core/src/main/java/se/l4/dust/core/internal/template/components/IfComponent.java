@@ -3,21 +3,22 @@ package se.l4.dust.core.internal.template.components;
 import org.jdom.Content;
 import org.jdom.JDOMException;
 
+import com.google.inject.Singleton;
+
+import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.core.internal.template.dom.ContentPreload;
-import se.l4.dust.core.internal.template.dom.ExpressionNode;
+import se.l4.dust.core.internal.template.dom.ExpressionParser;
 import se.l4.dust.core.internal.template.dom.TemplateComponent;
 import se.l4.dust.core.internal.template.dom.TemplateEmitter;
 import se.l4.dust.core.template.TemplateModule;
 import se.l4.dust.dom.Element;
-
-import com.google.inject.Singleton;
 
 @Singleton
 public class IfComponent
 	extends TemplateComponent
 	implements ContentPreload
 {
-	private ExpressionNode test;
+	private PropertyContent test;
 	private ParameterComponent elseElement;
 	
 	public IfComponent()
@@ -26,9 +27,9 @@ public class IfComponent
 	}
 
 	@Override
-	public void preload()
+	public void preload(ExpressionParser expressionParser)
 	{
-		super.preload();
+		super.preload(expressionParser);
 		
 		test = getExpressionNode("test", true);
 		

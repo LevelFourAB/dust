@@ -13,31 +13,37 @@ import org.jdom.Parent;
 import org.jdom.input.SAXBuilder;
 import org.jdom.input.SAXHandler;
 
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+import se.l4.crayon.Environment;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.core.internal.template.dom.ContentPreload;
+import se.l4.dust.core.internal.template.dom.ExpressionParser;
 import se.l4.dust.core.internal.template.dom.TemplateFactory;
 import se.l4.dust.core.internal.template.dom.TemplateSAXHandler;
 import se.l4.dust.core.template.TemplateCache;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
 
-import com.google.common.base.Function;
-import com.google.common.collect.MapMaker;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 @Singleton
 public class TemplateCacheImpl
 	implements TemplateCache
 {
-	private final ConcurrentMap<URL, Document> templates;
 	private final SAXBuilder builder;
 	private final TemplateManager manager;
+	private final ExpressionParser expressionParser;
+	private final InnerCache inner;
 	
 	@Inject
-	public TemplateCacheImpl(final TemplateFactory factory, TemplateManager manager)
+	public TemplateCacheImpl(final TemplateFactory factory, TemplateManager manager,
+			ExpressionParser expressionPareser,
+			Environment env)
 	{
 		this.manager = manager;
+		this.expressionParser = expressionPareser;
 		
 		builder = new SAXBuilder()
 		{
@@ -50,19 +56,14 @@ public class TemplateCacheImpl
 		builder.setReuseParser(false);
 //		builder.setFactory(factory);
 		
-		templates = new MapMaker()
-			.makeComputingMap(new Function<URL, Document>()
-			{
-				public Document apply(URL url)
-				{
-					return loadTemplate(url);
-				}
-			});
+		inner = env == Environment.DEVELOPMENT 
+			? new DevelopmentCache()
+			: new ProductionCache();
 	}
 	
 	public Document getTemplate(URL url)
 	{
-		return templates.get(url);
+		return inner.getTemplate(url);
 	}
 	
 	private Document loadTemplate(URL url)
@@ -84,20 +85,30 @@ public class TemplateCacheImpl
 		}
 	}
 	
-	private void preload(Parent p) throws JDOMException
+	private void preload(Parent p)
+		throws JDOMException
 	{
 		for(Content c : (List<Content>) p.getContent())
 		{
 			if(c instanceof ContentPreload)
 			{
-				((ContentPreload) c).preload();
+				((ContentPreload) c).preload(expressionParser);
+			}
+			
+			if(c instanceof Parent)
+			{
+				preload((Parent) c);
 			}
 			
 			if(c instanceof Element)
 			{
+				/*
+				 * Remove component namespaces after the element has been
+				 * preloaded, otherwise searching upwards for expressions
+				 * is impossible
+				 */
 				Element e = (Element) c;
 				
-				// Remove component namespaces
 				List<Namespace> removable = new ArrayList<Namespace>(10);
 				for(Namespace ns : e.getAdditionalNamespaces())
 				{
@@ -112,11 +123,43 @@ public class TemplateCacheImpl
 					e.removeNamespaceDeclaration(ns);
 				}
 			}
-			
-			if(c instanceof Parent)
+		}
+	}
+	
+	private interface InnerCache
+	{
+		Document getTemplate(URL url);
+	}
+	
+	private class ProductionCache
+		implements InnerCache
+	{
+		private final ConcurrentMap<URL, Document> templates;
+		
+		public ProductionCache()
+		{
+			templates = new MapMaker()
+			.makeComputingMap(new Function<URL, Document>()
 			{
-				preload((Parent) c);
-			}
+				public Document apply(URL url)
+				{
+					return loadTemplate(url);
+				}
+			});
+		}
+		
+		public Document getTemplate(URL url)
+		{
+			return templates.get(url);
+		}
+	}
+	
+	private class DevelopmentCache
+		implements InnerCache
+	{
+		public Document getTemplate(URL url)
+		{
+			return loadTemplate(url);
 		}
 	}
 }

@@ -6,10 +6,10 @@ import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
+import com.google.inject.Inject;
+
 import se.l4.dust.api.ComponentException;
 import se.l4.dust.api.TemplateException;
-
-import com.google.inject.Inject;
 
 /**
  * Custom {@link SAXHandler} for template parsing, used so that better error
@@ -49,8 +49,8 @@ public class TemplateSAXHandler
 			if(l != null)
 			{
 				// We have access to location information so we enhance the error message
-				String msg = String.format("Error on line %s, column %s: %s", 
-					l.getLineNumber(), l.getColumnNumber(), e.getMessage());
+				String msg = String.format("Error on line %s: %s", 
+					l.getLineNumber(), e.getMessage());
 				throw new TemplateException(msg, e);
 			}
 			else

@@ -2,14 +2,14 @@ package se.l4.dust.core.internal.template.dom;
 
 import java.io.Serializable;
 
-import org.jdom.Content;
 import org.mvel2.MVEL;
 import org.mvel2.ParserContext;
 
+import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.core.template.EscapeHelper;
 
 public class ExpressionNode
-	extends Content
+	extends PropertyContent
 {
 	private Serializable expression;
 	private Serializable setter;
@@ -23,22 +23,18 @@ public class ExpressionNode
 		this.setter = MVEL.compileSetExpression(expression);
 	}
 	
+	@Override
 	public Object getValue(Object root)
 	{
 		return MVEL.executeExpression(expression, root);
 	}
 	
+	@Override
 	public void setValue(Object root, Object value)
 	{
 		MVEL.executeSetExpression(setter, root, value);
 	}
 	
-	@Override
-	public String getValue()
-	{
-		return null;
-	}
-
 	@Override
 	public String toString()
 	{

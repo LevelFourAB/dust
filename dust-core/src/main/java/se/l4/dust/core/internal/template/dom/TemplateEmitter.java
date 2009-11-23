@@ -8,12 +8,13 @@ import org.jdom.DocType;
 import org.jdom.JDOMException;
 import org.jdom.Text;
 
+import com.google.inject.Inject;
+
 import se.l4.dust.api.TemplateFilter;
 import se.l4.dust.api.TemplateManager;
+import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
-
-import com.google.inject.Inject;
 
 /**
  * Class that drives the transformation of a template into a rendered document.
@@ -127,9 +128,9 @@ public class TemplateEmitter
 			TemplateText tt = (TemplateText) in;
 			for(Content c : tt.getContent())
 			{
-				if(c instanceof ExpressionNode)
+				if(c instanceof PropertyContent)
 				{
-					Object o = ((ExpressionNode) c).getValue(data);
+					Object o = ((PropertyContent) c).getValue(data);
 					parent.addContent(new Text(String.valueOf(o)));
 				}
 				else

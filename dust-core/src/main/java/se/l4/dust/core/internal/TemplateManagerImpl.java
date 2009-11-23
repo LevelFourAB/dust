@@ -9,16 +9,16 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.jdom.Namespace;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
+
 import se.l4.dust.api.ComponentException;
 import se.l4.dust.api.TemplateFilter;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Component;
 import se.l4.dust.api.template.PropertySource;
 import se.l4.dust.core.internal.template.dom.TemplateComponent;
-
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Singleton;
 
 @Singleton
 public class TemplateManagerImpl
@@ -53,10 +53,17 @@ public class TemplateManagerImpl
 	
 	public void addComponent(Namespace ns, Class<?> component)
 	{
+		String[] names = null;
+		
 		Component annotation = component.getAnnotation(Component.class);
 		if(annotation != null)
 		{
-			addComponent(ns, component, annotation.value());
+			names = annotation.value();
+		}
+		
+		if(names != null && names.length > 0)
+		{
+			addComponent(ns, component, names);
 		}
 		else
 		{

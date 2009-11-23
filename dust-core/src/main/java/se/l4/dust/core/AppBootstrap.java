@@ -6,6 +6,8 @@ import javax.servlet.ServletContextEvent;
 import com.google.inject.Injector;
 
 import se.l4.crayon.Configurator;
+import se.l4.crayon.Environment;
+import se.l4.dust.Dust;
 import se.l4.dust.core.internal.ServletContextModule;
 
 
@@ -23,8 +25,11 @@ public abstract class AppBootstrap
 	@Override
 	protected Injector getInjector(ServletContext sce)
 	{
+		String productionStr = sce.getInitParameter(Dust.DUST_PRODUCTION);
+		boolean production = "true".equalsIgnoreCase(productionStr);
+			
 		// New context, let's initialize the system
-		configurator = new Configurator()
+		configurator = new Configurator(production ? Environment.PRODUCTION : Environment.DEVELOPMENT)
 			.addInstance(new ServletContextModule(sce))
 			.add(NormalWebModule.class);
 	

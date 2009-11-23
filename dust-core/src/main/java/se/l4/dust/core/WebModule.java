@@ -20,6 +20,9 @@ import org.jboss.resteasy.spi.HttpResponse;
 import org.jboss.resteasy.spi.Registry;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
+import com.google.inject.Binder;
+import com.google.inject.Provider;
+
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Dependencies;
 import se.l4.crayon.annotation.Description;
@@ -28,18 +31,17 @@ import se.l4.dust.api.PageManager;
 import se.l4.dust.api.PageProviderManager;
 import se.l4.dust.api.RequestScoped;
 import se.l4.dust.api.SessionScoped;
+import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.WebScopes;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.core.asset.AssetProvider;
 import se.l4.dust.core.internal.NamespaceManagerImpl;
 import se.l4.dust.core.internal.PageProviderManagerImpl;
-import se.l4.dust.core.internal.URLWriter;
 import se.l4.dust.core.internal.asset.AssetManagerImpl;
+import se.l4.dust.core.internal.asset.AssetPropertySource;
+import se.l4.dust.core.internal.asset.AssetWriter;
 import se.l4.dust.core.template.TemplateModule;
 import se.l4.dust.core.template.TemplateWriter;
-
-import com.google.inject.Binder;
-import com.google.inject.Provider;
 
 @Dependencies(TemplateModule.class)
 public class WebModule
@@ -155,6 +157,14 @@ public class WebModule
 		manager.add(AssetProvider.class);
 	}
 	
+	@Contribution(name="asset-property-source")
+	public void contributeAssetPropertySource(TemplateManager manager,
+			AssetPropertySource source)
+	{
+		manager.addPropertySource("asset", source);
+		manager.addPropertySource("a", source);
+	}
+	
 	@Contribution(name="jax-rs-providers")
 	public void contributeDefaultMessageProviders(ResteasyProviderFactory factory,
 			ByteArrayProvider p1,
@@ -167,7 +177,7 @@ public class WebModule
 			IIOImageProvider p8,
 			DataSourceProvider p9,
 			TemplateWriter p10,
-			URLWriter p11)
+			AssetWriter p11)
 	{
 		factory.addMessageBodyReader(p1);
 		factory.addMessageBodyWriter(p1);

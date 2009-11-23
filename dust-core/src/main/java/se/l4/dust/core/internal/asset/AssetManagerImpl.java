@@ -5,20 +5,20 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.jdom.Namespace;
 
-import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.asset.Asset;
-import se.l4.dust.api.asset.AssetManager;
-
 import com.google.common.base.Function;
 import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.asset.Asset;
+import se.l4.dust.api.asset.AssetManager;
+
 @Singleton
 public class AssetManagerImpl
 	implements AssetManager
 {
-	private static final Asset NULL_ASSET = new AssetImpl(null, null, null);
+	private static final Asset NULL_ASSET = new AssetImpl(null, null, null, null);
 	
 	private final ConcurrentMap<Namespace, ConcurrentMap<String, Asset>> cache;
 	private final NamespaceManager manager;
@@ -64,7 +64,7 @@ public class AssetManagerImpl
 				return NULL_ASSET;
 			}
 			
-			return new AssetImpl(namespace, from, url);
+			return new AssetImpl(manager, namespace, from, url);
 		}
 	}
 }

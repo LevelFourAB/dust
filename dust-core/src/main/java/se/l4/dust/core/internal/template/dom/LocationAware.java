@@ -10,4 +10,8 @@ package se.l4.dust.core.internal.template.dom;
 public interface LocationAware
 {
 	void setLocation(int line, int column);
+	
+	int getLine();
+	
+	int getColumn();
 }

@@ -13,4 +13,6 @@ public abstract class PropertyContent
 	}
 	
 	public abstract Object getValue(Object root);
+	
+	public abstract void setValue(Object root, Object data);
 }
