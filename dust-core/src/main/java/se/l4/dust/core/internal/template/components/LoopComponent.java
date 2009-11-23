@@ -5,8 +5,6 @@ import java.util.List;
 import org.jdom.Content;
 import org.jdom.JDOMException;
 
-import com.google.inject.Singleton;
-
 import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.core.internal.template.dom.ExpressionParser;
 import se.l4.dust.core.internal.template.dom.TemplateComponent;
@@ -21,7 +19,6 @@ import se.l4.dust.dom.Element;
  * @author Andreas Holstenson
  *
  */
-@Singleton
 public class LoopComponent
 	extends TemplateComponent
 {

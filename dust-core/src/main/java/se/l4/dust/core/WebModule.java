@@ -20,30 +20,24 @@ import org.jboss.resteasy.spi.HttpResponse;
 import org.jboss.resteasy.spi.Registry;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
-import com.google.inject.Binder;
-import com.google.inject.Provider;
-
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Dependencies;
 import se.l4.crayon.annotation.Description;
 import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.PageManager;
 import se.l4.dust.api.PageProviderManager;
-import se.l4.dust.api.RequestScoped;
-import se.l4.dust.api.SessionScoped;
-import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.WebScopes;
-import se.l4.dust.api.asset.AssetManager;
-import se.l4.dust.core.asset.AssetProvider;
+import se.l4.dust.api.annotation.RequestScoped;
+import se.l4.dust.api.annotation.SessionScoped;
 import se.l4.dust.core.internal.NamespaceManagerImpl;
 import se.l4.dust.core.internal.PageProviderManagerImpl;
-import se.l4.dust.core.internal.asset.AssetManagerImpl;
-import se.l4.dust.core.internal.asset.AssetPropertySource;
-import se.l4.dust.core.internal.asset.AssetWriter;
+import se.l4.dust.core.internal.asset.AssetModule;
 import se.l4.dust.core.template.TemplateModule;
 import se.l4.dust.core.template.TemplateWriter;
 
-@Dependencies(TemplateModule.class)
+import com.google.inject.Binder;
+import com.google.inject.Provider;
+
+@Dependencies({ TemplateModule.class, AssetModule.class })
 public class WebModule
 {
 	@Description(name="web")
@@ -56,7 +50,6 @@ public class WebModule
 		// Bind own services
 		binder.bind(PageProviderManager.class).to(PageProviderManagerImpl.class);
 		binder.bind(NamespaceManager.class).to(NamespaceManagerImpl.class);
-		binder.bind(AssetManager.class).to(AssetManagerImpl.class);
 		
 		// Bind servlet interfaces
 		binder.bind(HttpServletRequest.class).toProvider(
@@ -151,20 +144,6 @@ public class WebModule
 		
 	}
 	
-	@Contribution(name="asset-page")
-	public void contributeAssetPage(PageManager manager)
-	{
-		manager.add(AssetProvider.class);
-	}
-	
-	@Contribution(name="asset-property-source")
-	public void contributeAssetPropertySource(TemplateManager manager,
-			AssetPropertySource source)
-	{
-		manager.addPropertySource("asset", source);
-		manager.addPropertySource("a", source);
-	}
-	
 	@Contribution(name="jax-rs-providers")
 	public void contributeDefaultMessageProviders(ResteasyProviderFactory factory,
 			ByteArrayProvider p1,
@@ -176,8 +155,7 @@ public class WebModule
 			StringTextStar p7,
 			IIOImageProvider p8,
 			DataSourceProvider p9,
-			TemplateWriter p10,
-			AssetWriter p11)
+			TemplateWriter p10)
 	{
 		factory.addMessageBodyReader(p1);
 		factory.addMessageBodyWriter(p1);
@@ -206,6 +184,5 @@ public class WebModule
 		factory.addMessageBodyWriter(p2);
 		
 		factory.addMessageBodyWriter(p10);
-		factory.addMessageBodyWriter(p11);
 	}
 }

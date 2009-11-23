@@ -5,14 +5,14 @@ import java.util.regex.Pattern;
 
 import org.jdom.Namespace;
 
-import com.google.inject.Inject;
-
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.api.template.PropertySource;
 import se.l4.dust.core.internal.template.dom.TemplateUtils;
 import se.l4.dust.dom.Element;
+
+import com.google.inject.Inject;
 
 public class AssetPropertySource
 	implements PropertySource
@@ -35,7 +35,7 @@ public class AssetPropertySource
 		{
 			TemplateUtils.throwException(parent, "No namespace present in " 
 				+ propertyExpression 
-				+ "; Expected format to be ns:path/to/file, where ns is declared in the template"
+				+ "; Expected format to be ${asset:ns:path/to/file}, where ns is declared in the calling template"
 			);
 		}
 		

@@ -9,9 +9,6 @@ import se.l4.dust.core.internal.template.dom.TemplateEmitter;
 import se.l4.dust.core.template.TemplateModule;
 import se.l4.dust.dom.Element;
 
-import com.google.inject.Singleton;
-
-@Singleton
 public class ParameterComponent
 	extends TemplateComponent
 	implements ContentPreload

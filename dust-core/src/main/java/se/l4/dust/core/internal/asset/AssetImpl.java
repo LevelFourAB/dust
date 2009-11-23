@@ -12,10 +12,10 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.jdom.Namespace;
 
-import com.sun.org.apache.xml.internal.security.utils.Base64;
-
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
+
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 public class AssetImpl
 	implements Asset

@@ -3,8 +3,6 @@ package se.l4.dust.core.internal.template.components;
 import org.jdom.Content;
 import org.jdom.JDOMException;
 
-import com.google.inject.Singleton;
-
 import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.core.internal.template.dom.ContentPreload;
 import se.l4.dust.core.internal.template.dom.ExpressionParser;
@@ -13,7 +11,6 @@ import se.l4.dust.core.internal.template.dom.TemplateEmitter;
 import se.l4.dust.core.template.TemplateModule;
 import se.l4.dust.dom.Element;
 
-@Singleton
 public class IfComponent
 	extends TemplateComponent
 	implements ContentPreload

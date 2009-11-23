@@ -10,15 +10,12 @@ import org.jdom.Attribute;
 import org.jdom.Content;
 import org.jdom.JDOMException;
 
-import com.google.inject.Singleton;
-
 import se.l4.dust.core.internal.template.dom.TemplateAttribute;
 import se.l4.dust.core.internal.template.dom.TemplateComponent;
 import se.l4.dust.core.internal.template.dom.TemplateEmitter;
 import se.l4.dust.core.template.TemplateModule;
 import se.l4.dust.dom.Element;
 
-@Singleton
 public class LinkComponent
 	extends TemplateComponent
 {

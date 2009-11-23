@@ -1,18 +1,21 @@
 package se.l4.dust.core.internal.asset;
 
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdom.Namespace;
+
+import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.asset.Asset;
+import se.l4.dust.api.asset.AssetManager;
+import se.l4.dust.api.asset.AssetSource;
 
 import com.google.common.base.Function;
 import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
-import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.asset.Asset;
-import se.l4.dust.api.asset.AssetManager;
 
 @Singleton
 public class AssetManagerImpl
@@ -22,11 +25,13 @@ public class AssetManagerImpl
 	
 	private final ConcurrentMap<Namespace, ConcurrentMap<String, Asset>> cache;
 	private final NamespaceManager manager;
+	private final List<AssetSource> sources;
 	
 	@Inject
 	public AssetManagerImpl(NamespaceManager manager)
 	{
 		this.manager = manager;
+		sources = new CopyOnWriteArrayList<AssetSource>();
 		
 		cache = new MapMaker()
 			.makeComputingMap(new Function<Namespace, ConcurrentMap<String, Asset>>()
@@ -36,6 +41,11 @@ public class AssetManagerImpl
 					return new MapMaker().makeComputingMap(new AssetLocator(from));
 				}
 			});
+	}
+	
+	public void addSource(AssetSource source)
+	{
+		sources.add(source);
 	}
 	
 	public Asset locate(Namespace ns, String file)
@@ -58,13 +68,16 @@ public class AssetManagerImpl
 		
 		public Asset apply(String from)
 		{
-			URL url = manager.getResource(namespace, from);
-			if(url == null)
+			for(AssetSource source : sources)
 			{
-				return NULL_ASSET;
+				URL url = source.locate(namespace, from);
+				if(url != null)
+				{
+					return new AssetImpl(manager, namespace, from, url);
+				}
 			}
 			
-			return new AssetImpl(manager, namespace, from, url);
+			return NULL_ASSET;
 		}
 	}
 }
