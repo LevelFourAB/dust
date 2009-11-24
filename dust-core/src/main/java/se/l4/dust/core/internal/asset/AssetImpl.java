@@ -12,10 +12,10 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.jdom.Namespace;
 
+import com.sun.org.apache.xml.internal.security.utils.Base64;
+
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
-
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 public class AssetImpl
 	implements Asset
@@ -38,11 +38,22 @@ public class AssetImpl
 		{
 			checksum = getChecksum(url);
 			
-			String prefix = manager.getNamespaceByURI(ns.getURI())
-				.getPrefix();
+			Namespace nns = manager.getNamespaceByURI(ns.getURI());
+			if(nns == null)
+			{
+				throw new RuntimeException("Namespace " + ns.getURI() + " is not bound to NamespaceManager");
+			}
 			
-			uri = UriBuilder.fromPath("/asset/{ns}/{checksum}/{name}")
-					.build(prefix, checksum, name);
+			String prefix = nns.getPrefix();
+			String version = manager.getVersion(nns);
+			
+			UriBuilder builder = UriBuilder.fromPath("/asset/{ns}/{version}");
+			for(String s : name.split("/"))
+			{
+				builder.path(s);
+			}
+			
+			uri = builder.build(prefix, version);
 		}
 		
 		this.checksum = checksum;

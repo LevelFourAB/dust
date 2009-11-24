@@ -2,14 +2,15 @@ package se.l4.dust.core.internal.asset;
 
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
+import com.google.inject.Binder;
+
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Description;
+import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.PageManager;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.core.asset.AssetProvider;
-
-import com.google.inject.Binder;
 
 public class AssetModule
 {
@@ -38,6 +39,16 @@ public class AssetModule
 			AssetManager manager,
 			ClasspathAssetSource source)
 	{
+		manager.addSource(source);
+	}
+	
+	@Contribution(name="asset-context")
+	public void contributeContextSource(
+			NamespaceManager namespaces,
+			AssetManager manager,
+			ContextAssetSource source)
+	{
+		namespaces.bindSimple(ContextAssetSource.NAMESPACE, "KAKA");
 		manager.addSource(source);
 	}
 	

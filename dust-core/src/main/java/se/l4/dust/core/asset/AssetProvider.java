@@ -31,10 +31,10 @@ public class AssetProvider
 	
 	@GET
 	@GZIP
-	@Path("{ns}/{checksum}/{path:.+}")
+	@Path("{ns}/{version}/{path:.+}")
 	public Object serve(
 			@PathParam("ns") String prefix, 
-			@PathParam("checksum") String checksum, 
+			@PathParam("version") String version, 
 			@PathParam("path") String path)
 	{
 		Namespace ns = namespaces.getNamespaceByPrefix(prefix);
@@ -44,7 +44,7 @@ public class AssetProvider
 		}
 		
 		Asset a = manager.locate(ns, path);
-		if(a == null || false == checksum.equals(a.getChecksum()))
+		if(a == null/* || false == checksum.equals(a.getChecksum())*/)
 		{
 			return Response.status(404).build();
 		}

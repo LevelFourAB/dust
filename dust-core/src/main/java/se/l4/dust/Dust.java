@@ -1,5 +1,7 @@
 package se.l4.dust;
 
+import javax.ws.rs.Produces;
+
 /**
  * Set of usable properties and methods that are common throughout applications
  * using Dust.
@@ -9,8 +11,17 @@ package se.l4.dust;
  */
 public class Dust
 {
+	/** 
+	 * Standard content type for HTML pages for use with {@link Produces}.
+	 * Charset encoding will be set to UTF-8. 
+	 */
 	public static final String HTML = "text/html; charset=UTF-8";
 	
+	/**
+	 * Parameter flag for defining if production mode should be used. This
+	 * should be set in the {@code web.xml} of the application to {@code true}
+	 * before deployment.
+	 */
 	public static final String DUST_PRODUCTION = "dust.production";
 	
 	private Dust()

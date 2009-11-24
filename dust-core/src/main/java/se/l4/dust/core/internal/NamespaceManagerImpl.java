@@ -18,6 +18,7 @@ public class NamespaceManagerImpl
 	private final Map<Namespace, Locator> locators;
 	private final Map<String, Namespace> prefixes;
 	private final Map<String, Namespace> urls;
+	private final Map<String, String> versions;
 	
 	public NamespaceManagerImpl()
 	{
@@ -25,6 +26,7 @@ public class NamespaceManagerImpl
 		locators = new ConcurrentHashMap<Namespace, Locator>();
 		prefixes = new ConcurrentHashMap<String, Namespace>();
 		urls = new ConcurrentHashMap<String, Namespace>();
+		versions = new ConcurrentHashMap<String, String>();
 	}
 
 	private void prefix(Namespace ns)
@@ -33,32 +35,67 @@ public class NamespaceManagerImpl
 		urls.put(ns.getURI(), ns);
 	}
 	
+	private String generateVersion(Namespace ns)
+	{
+		return Long.toHexString(System.currentTimeMillis());
+	}
+	
 	public void bind(Namespace ns, Class<?> pkgBase)
+	{
+		bind(ns, pkgBase, generateVersion(ns));
+	}
+	
+	public void bind(Namespace ns, Class<?> pkgBase, String version)
 	{
 		String pkg = pkgBase.getPackage().getName();
 		packages.put(pkg, ns);
 		locators.put(ns, 
 			new ClassLoaderLocator(pkgBase.getClassLoader(), pkg)
 		);
+		versions.put(ns.getURI(), version);
 		prefix(ns);
 	}
 	
 	public void bind(Namespace ns, Package pkg)
 	{
+		bind(ns, pkg, generateVersion(ns));
+	}
+	
+	public void bind(Namespace ns, Package pkg, String version)
+	{
 		packages.put(pkg.getName(), ns);
 		locators.put(ns, 
 			new ClassLoaderLocator(getClass().getClassLoader(), pkg.getName())
 		);
+		versions.put(ns.getURI(), version);
 		prefix(ns);
 	}
 	
 	public void bind(Namespace ns, String pkg)
 	{
+		bind(ns, pkg, generateVersion(ns));
+	}
+	
+	public void bind(Namespace ns, String pkg, String version)
+	{
 		packages.put(pkg, ns);
 		locators.put(ns, 
 			new ClassLoaderLocator(getClass().getClassLoader(), pkg)
 		);
+		versions.put(ns.getURI(), version);
 		prefix(ns);
+	}
+	
+	public void bindSimple(Namespace ns, String version)
+	{
+		urls.put(ns.getURI(), ns);
+		versions.put(ns.getURI(), version);
+		prefix(ns);
+	}
+	
+	public boolean isBound(Namespace ns)
+	{
+		return urls.containsKey(ns.getURI());
 	}
 	
 	public Namespace getBinding(String pkg)
@@ -85,6 +122,11 @@ public class NamespaceManagerImpl
 		}
 		
 		return locator.locateResource(resource);
+	}
+	
+	public String getVersion(Namespace ns)
+	{
+		return versions.get(ns.getURI());
 	}
 	
 	private static interface Locator

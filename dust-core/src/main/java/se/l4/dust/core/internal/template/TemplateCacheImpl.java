@@ -19,6 +19,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import se.l4.crayon.Environment;
+import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.core.internal.template.dom.ContentPreload;
 import se.l4.dust.core.internal.template.dom.ExpressionParser;
@@ -36,13 +37,18 @@ public class TemplateCacheImpl
 	private final TemplateManager manager;
 	private final ExpressionParser expressionParser;
 	private final InnerCache inner;
+	private final NamespaceManager namespaces;
 	
 	@Inject
-	public TemplateCacheImpl(final TemplateFactory factory, TemplateManager manager,
+	public TemplateCacheImpl(
+			final TemplateFactory factory, 
+			TemplateManager manager,
+			NamespaceManager namespaces,
 			ExpressionParser expressionPareser,
 			Environment env)
 	{
 		this.manager = manager;
+		this.namespaces = namespaces;
 		this.expressionParser = expressionPareser;
 		
 		builder = new SAXBuilder()
@@ -112,7 +118,7 @@ public class TemplateCacheImpl
 				List<Namespace> removable = new ArrayList<Namespace>(10);
 				for(Namespace ns : e.getAdditionalNamespaces())
 				{
-					if(manager.isComponentNamespace(ns))
+					if(namespaces.isBound(ns) || manager.isComponentNamespace(ns))
 					{
 						removable.add(ns);
 					}

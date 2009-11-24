@@ -14,13 +14,23 @@ import org.jdom.Namespace;
 public interface NamespaceManager
 {
 	/**
-	 * Bind the given namespace to a package name. This allows for automatic
-	 * page and component discovery.
+	 * Bind the given namespace to a package name generating a version for it. 
+	 * This allows for automatic page and component discovery.
 	 * 
 	 * @param ns
 	 * @param pkg
 	 */
 	void bind(Namespace ns, String pkg);
+	
+	/**
+	 * Bind the given namespace to a package name. This allows for automatic
+	 * page and component discovery.
+	 * 
+	 * @param ns
+	 * @param pkg
+	 * @param version
+	 */
+	void bind(Namespace ns, String pkg, String version);
 	
 	/**
 	 * Bind the given namespace to a package name.
@@ -30,6 +40,8 @@ public interface NamespaceManager
 	 */
 	void bind(Namespace ns, Package pkg);
 	
+	void bind(Namespace ns, Package pkg, String version);
+	
 	/**
 	 * Bind the given namespace to a package name.
 	 * 
@@ -37,6 +49,25 @@ public interface NamespaceManager
 	 * @param pkgBase
 	 */
 	void bind(Namespace ns, Class<?> pkgBase);
+	
+	void bind(Namespace ns, Class<?> pkgBase, String version);
+	
+	/**
+	 * Bind the given namespace without tying it to a package. This allows
+	 * it to be accssed via other method in the class but will not enable
+	 * page and component detection for the namespace.
+	 * 
+	 * @param ns
+	 */
+	void bindSimple(Namespace ns, String version);
+	
+	/**
+	 * Check if the namespace has been bound.
+	 * 
+	 * @param ns
+	 * @return
+	 */
+	boolean isBound(Namespace ns);
 	
 	/**
 	 * Get the namespace of a package if any exists.
@@ -58,4 +89,5 @@ public interface NamespaceManager
 	
 	URL getResource(Namespace ns, String resource);
 
+	String getVersion(Namespace ns);
 }
