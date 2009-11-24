@@ -2,8 +2,6 @@ package se.l4.dust.core.internal.asset;
 
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
-import com.google.inject.Binder;
-
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Description;
 import se.l4.dust.api.NamespaceManager;
@@ -12,12 +10,21 @@ import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.core.asset.AssetProvider;
 
+import com.google.inject.Binder;
+
 public class AssetModule
 {
 	@Description(name="asset")
 	public void configure(Binder binder)
 	{
 		binder.bind(AssetManager.class).to(AssetManagerImpl.class);
+	}
+	
+	@Contribution(name="asset-protect")
+	public void contributeDefaultProtectedExtensions(AssetManager manager)
+	{
+		manager.addProtectedExtension("xml");
+		manager.addProtectedExtension("class");
 	}
 	
 	@Contribution(name="asset-page")

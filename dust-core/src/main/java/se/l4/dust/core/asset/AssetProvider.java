@@ -8,12 +8,12 @@ import javax.ws.rs.core.Response;
 import org.jboss.resteasy.annotations.GZIP;
 import org.jdom.Namespace;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 @Singleton
 @Path("asset")
@@ -43,8 +43,27 @@ public class AssetProvider
 			return Response.status(404).build();
 		}
 		
+		int idx = path.lastIndexOf('.');
+		String checksum = null;
+		if(idx >= 0)
+		{
+			// Check extension to get if we need checksum
+			String extension = path.substring(idx + 1);
+			if(manager.isProtectedExtension(extension))
+			{
+				int idx2 = path.lastIndexOf('.', idx-1);
+				checksum = path.substring(idx2+1, idx);
+				path = path.substring(0, idx2) + "." + extension;
+			}
+		}
+		
 		Asset a = manager.locate(ns, path);
-		if(a == null/* || false == checksum.equals(a.getChecksum())*/)
+		if(a == null)
+		{
+			return Response.status(404).build();
+		}
+		
+		if(checksum != null && false == checksum.equals(a.getChecksum()))
 		{
 			return Response.status(404).build();
 		}

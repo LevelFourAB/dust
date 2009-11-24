@@ -12,10 +12,10 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.jdom.Namespace;
 
-import com.sun.org.apache.xml.internal.security.utils.Base64;
-
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
+
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 public class AssetImpl
 	implements Asset
@@ -26,7 +26,7 @@ public class AssetImpl
 	private final String checksum;
 	private final URI uri;
 	
-	public AssetImpl(NamespaceManager manager, Namespace ns, String name, URL url)
+	public AssetImpl(NamespaceManager manager, boolean protect, Namespace ns, String name, URL url)
 	{
 		this.ns = ns;
 		this.name = name;
@@ -36,8 +36,6 @@ public class AssetImpl
 		URI uri = null;
 		if(ns != null)
 		{
-			checksum = getChecksum(url);
-			
 			Namespace nns = manager.getNamespaceByURI(ns.getURI());
 			if(nns == null)
 			{
@@ -45,13 +43,23 @@ public class AssetImpl
 			}
 			
 			String prefix = nns.getPrefix();
+			if(protect)
+			{
+				int idx = name.lastIndexOf('.');
+				String extension = name.substring(idx + 1);
+				checksum = getChecksum(url);
+
+				name = name.substring(0, idx) + "." + checksum + "." + extension; 
+			}
+			
 			String version = manager.getVersion(nns);
 			
-			UriBuilder builder = UriBuilder.fromPath("/asset/{ns}/{version}");
-			for(String s : name.split("/"))
-			{
-				builder.path(s);
-			}
+			UriBuilder builder = UriBuilder.fromPath("/asset/{ns}/{version}")
+				.path(name);
+//			for(String s : name.split("/"))
+//			{
+//				builder.path(s);
+//			}
 			
 			uri = builder.build(prefix, version);
 		}
