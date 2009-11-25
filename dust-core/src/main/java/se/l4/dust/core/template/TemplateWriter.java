@@ -17,12 +17,12 @@ import org.jdom.JDOMException;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
-import com.google.inject.Inject;
-
 import se.l4.dust.api.annotation.Template;
 import se.l4.dust.core.internal.template.dom.TemplateEmitter;
 import se.l4.dust.core.internal.template.dom.TemplateOutputter;
 import se.l4.dust.dom.Document;
+
+import com.google.inject.Inject;
 
 /**
  * {@link MessageBodyWriter} that renders the templates.
@@ -37,8 +37,8 @@ public class TemplateWriter
 {
 	private final TemplateEmitter emitter;
 	private final TemplateCache cache;
-	private final XMLOutputter htmlOut;
-	private final XMLOutputter xmlOut;
+	private final Format htmlFormat;
+	private final Format xmlFormat;
 
 	@Inject
 	public TemplateWriter(TemplateEmitter emitter, TemplateCache cache)
@@ -46,12 +46,11 @@ public class TemplateWriter
 		this.emitter = emitter;
 		this.cache = cache;
 		
-		Format f = Format.getCompactFormat();
-		f.setOmitDeclaration(true);
-		htmlOut = new TemplateOutputter(f);
+		htmlFormat = Format.getCompactFormat();
+		htmlFormat.setOmitDeclaration(true);
+		htmlFormat.setExpandEmptyElements(true);
 		
-		f = Format.getCompactFormat();
-		xmlOut = new TemplateOutputter(f);
+		xmlFormat = Format.getCompactFormat();
 	}
 	
 	public long getSize(Object t, Class<?> type, Type genericType,
@@ -104,15 +103,18 @@ public class TemplateWriter
 			Document template = cache.getTemplate(url); 
 			Document doc = emitter.process(template, t);
 			
+			Format format;
 			if("html".equals(mediaType.getSubtype()))
 			{
-				htmlOut.output(doc, entityStream);
-				httpHeaders.putSingle("Content-Type", mediaType);
+				format = htmlFormat;
 			}
 			else
 			{
-				xmlOut.output(doc, entityStream);
+				format = xmlFormat;
 			}
+			
+			XMLOutputter out = new TemplateOutputter(format);
+			out.output(doc, entityStream);
 		}
 		catch(JDOMException e)
 		{
