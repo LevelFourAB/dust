@@ -21,15 +21,13 @@ import org.jboss.resteasy.spi.HttpResponse;
 import org.jboss.resteasy.spi.Registry;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
-import com.google.inject.Binder;
-import com.google.inject.Provider;
-
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Dependencies;
 import se.l4.crayon.annotation.Description;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.PageProviderManager;
 import se.l4.dust.api.WebScopes;
+import se.l4.dust.api.annotation.ContextScoped;
 import se.l4.dust.api.annotation.RequestScoped;
 import se.l4.dust.api.annotation.SessionScoped;
 import se.l4.dust.core.internal.NamespaceManagerImpl;
@@ -37,6 +35,9 @@ import se.l4.dust.core.internal.PageProviderManagerImpl;
 import se.l4.dust.core.internal.asset.AssetModule;
 import se.l4.dust.core.template.TemplateModule;
 import se.l4.dust.core.template.TemplateWriter;
+
+import com.google.inject.Binder;
+import com.google.inject.Provider;
 
 @Dependencies({ TemplateModule.class, AssetModule.class })
 public class WebModule
@@ -47,6 +48,7 @@ public class WebModule
 		// Bind scopes
 		binder.bindScope(SessionScoped.class, WebScopes.SESSION);
 		binder.bindScope(RequestScoped.class, WebScopes.REQUEST);
+		binder.bindScope(ContextScoped.class, WebScopes.CONTEXT);
 		
 		// Bind own services
 		binder.bind(PageProviderManager.class).to(PageProviderManagerImpl.class);

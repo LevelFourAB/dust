@@ -27,9 +27,15 @@ public class Dust
 	public static final String DUST_PRODUCTION = "dust.production";
 	
 	/**
+	 * URI of context namespace, used to refer to files in the webapp context.
+	 */
+	public static final String CONTEXT_NAMESPACE_URI = "dust:context";
+	
+	/**
 	 * Context namespace, used to refer to files in the webapp context.
 	 */
-	public static final Namespace CONTEXT_NAMESPACE = Namespace.getNamespace("ctx", "dust:context");
+	public static final Namespace CONTEXT_NAMESPACE = Namespace.getNamespace("ctx", CONTEXT_NAMESPACE_URI);
+	
 	
 	private Dust()
 	{
