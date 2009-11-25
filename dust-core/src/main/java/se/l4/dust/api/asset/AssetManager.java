@@ -22,6 +22,13 @@ public interface AssetManager
 	void addSource(AssetSource source);
 
 	/**
+	 * Add a source of assets to the manager.
+	 * 
+	 * @param source
+	 */
+	void addSource(Class<? extends AssetSource> source);
+	
+	/**
 	 * Get if the extension is protected and requires a checksum in the URL.
 	 * Certain filetypes should be protected when served from e.g. the 
 	 * classpath. The protected filetypes require that a checksum is calculated
@@ -42,4 +49,5 @@ public interface AssetManager
 	 * @param extension
 	 */
 	void addProtectedExtension(String extension);
+
 }

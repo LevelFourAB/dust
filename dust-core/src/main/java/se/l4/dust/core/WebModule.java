@@ -1,5 +1,6 @@
 package se.l4.dust.core;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -20,6 +21,9 @@ import org.jboss.resteasy.spi.HttpResponse;
 import org.jboss.resteasy.spi.Registry;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
+import com.google.inject.Binder;
+import com.google.inject.Provider;
+
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Dependencies;
 import se.l4.crayon.annotation.Description;
@@ -33,9 +37,6 @@ import se.l4.dust.core.internal.PageProviderManagerImpl;
 import se.l4.dust.core.internal.asset.AssetModule;
 import se.l4.dust.core.template.TemplateModule;
 import se.l4.dust.core.template.TemplateWriter;
-
-import com.google.inject.Binder;
-import com.google.inject.Provider;
 
 @Dependencies({ TemplateModule.class, AssetModule.class })
 public class WebModule
@@ -95,6 +96,21 @@ public class WebModule
 				public String toString()
 				{
 					return "HttpSession";
+				}
+			});
+		
+		binder.bind(ServletContext.class).toProvider(
+			new Provider<ServletContext>()
+			{
+				public ServletContext get()
+				{
+					return ResteasyProviderFactory.getContextData(ServletContext.class);
+				}
+				
+				@Override
+				public String toString()
+				{
+					return "ServletContext";
 				}
 			});
 		

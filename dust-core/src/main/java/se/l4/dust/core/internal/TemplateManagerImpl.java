@@ -28,7 +28,7 @@ public class TemplateManagerImpl
 	private final Set<Namespace> namespaces;
 	private final Injector injector;
 	private final List<TemplateFilter> filters;
-	private final ConcurrentMap<String, PropertySource> propertySources;
+	private final ConcurrentMap<String, Object> propertySources;
 	
 	@Inject
 	public TemplateManagerImpl(Injector injector)
@@ -39,7 +39,7 @@ public class TemplateManagerImpl
 		namespaces = new CopyOnWriteArraySet<Namespace>();
 		
 		filters = new CopyOnWriteArrayList<TemplateFilter>();
-		propertySources = new ConcurrentHashMap<String, PropertySource>();
+		propertySources = new ConcurrentHashMap<String, Object>();
 	}
 
 	public void addComponent(Class<? extends TemplateComponent> type)
@@ -113,9 +113,24 @@ public class TemplateManagerImpl
 		propertySources.put(prefix, source);
 	}
 	
+	public void addPropertySource(String prefix, Class<? extends PropertySource> provider)
+	{
+		propertySources.put(prefix, provider);
+	}
+	
 	public PropertySource getPropertySource(String prefix)
 	{
-		return propertySources.get(prefix);
+		Object o = propertySources.get(prefix);
+		if(o instanceof PropertySource)
+		{
+			return (PropertySource) o;
+		}
+		else if(o instanceof Class<?>)
+		{
+			return (PropertySource) injector.getInstance((Class<?>) o);
+		}
+		
+		return null;
 	}
 	
 	private static class Key

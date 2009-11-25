@@ -1,6 +1,7 @@
 package se.l4.dust.core.internal;
 
 import java.net.URL;
+import java.security.SecureRandom;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,6 +20,7 @@ public class NamespaceManagerImpl
 	private final Map<String, Namespace> prefixes;
 	private final Map<String, Namespace> urls;
 	private final Map<String, String> versions;
+	private final SecureRandom random;
 	
 	public NamespaceManagerImpl()
 	{
@@ -27,6 +29,8 @@ public class NamespaceManagerImpl
 		prefixes = new ConcurrentHashMap<String, Namespace>();
 		urls = new ConcurrentHashMap<String, Namespace>();
 		versions = new ConcurrentHashMap<String, String>();
+		
+		random = new SecureRandom();
 	}
 
 	private void prefix(Namespace ns)
@@ -37,7 +41,7 @@ public class NamespaceManagerImpl
 	
 	private String generateVersion(Namespace ns)
 	{
-		return Long.toHexString(System.currentTimeMillis());
+		return Long.toHexString(random.nextLong());
 	}
 	
 	public void bind(Namespace ns, Class<?> pkgBase)
@@ -84,6 +88,11 @@ public class NamespaceManagerImpl
 		);
 		versions.put(ns.getURI(), version);
 		prefix(ns);
+	}
+	
+	public void bindSimple(Namespace ns)
+	{
+		bindSimple(ns, generateVersion(ns));
 	}
 	
 	public void bindSimple(Namespace ns, String version)

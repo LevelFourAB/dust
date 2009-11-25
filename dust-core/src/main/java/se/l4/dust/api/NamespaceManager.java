@@ -59,6 +59,15 @@ public interface NamespaceManager
 	 * 
 	 * @param ns
 	 */
+	void bindSimple(Namespace ns);
+	
+	/**
+	 * Bind the given namespace without tying it to a package. This allows
+	 * it to be accssed via other method in the class but will not enable
+	 * page and component detection for the namespace.
+	 * 
+	 * @param ns
+	 */
 	void bindSimple(Namespace ns, String version);
 	
 	/**

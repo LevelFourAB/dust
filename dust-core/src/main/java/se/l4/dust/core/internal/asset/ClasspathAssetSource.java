@@ -4,10 +4,11 @@ import java.net.URL;
 
 import org.jdom.Namespace;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.AssetSource;
-
-import com.google.inject.Inject;
 
 /**
  * Asset source that resolves from the classpath via the use of 
@@ -16,6 +17,7 @@ import com.google.inject.Inject;
  * @author Andreas Holstenson
  *
  */
+@Singleton
 public class ClasspathAssetSource
 	implements AssetSource
 {

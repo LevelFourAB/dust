@@ -17,11 +17,12 @@ import org.jdom.JDOMException;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
+import com.google.inject.Inject;
+
 import se.l4.dust.api.annotation.Template;
 import se.l4.dust.core.internal.template.dom.TemplateEmitter;
+import se.l4.dust.core.internal.template.dom.TemplateOutputter;
 import se.l4.dust.dom.Document;
-
-import com.google.inject.Inject;
 
 /**
  * {@link MessageBodyWriter} that renders the templates.
@@ -47,10 +48,10 @@ public class TemplateWriter
 		
 		Format f = Format.getCompactFormat();
 		f.setOmitDeclaration(true);
-		htmlOut = new XMLOutputter(f);
+		htmlOut = new TemplateOutputter(f);
 		
 		f = Format.getCompactFormat();
-		xmlOut = new XMLOutputter(f);
+		xmlOut = new TemplateOutputter(f);
 	}
 	
 	public long getSize(Object t, Class<?> type, Type genericType,
@@ -87,7 +88,7 @@ public class TemplateWriter
 		{
 			Template tpl = findAnnotation(annotations);
 			
-			Class<?> tplType = tpl.type();
+			Class<?> tplType = tpl.value();
 			String tplName = tpl.name();
 			if(tplName.equals(""))
 			{

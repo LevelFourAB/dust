@@ -3,13 +3,11 @@ package se.l4.dust.core.internal;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
 
 import org.jdom.Namespace;
 import org.scannotation.AnnotationDB;
 import org.scannotation.ClasspathUrlFinder;
-import org.scannotation.WarUrlFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +32,7 @@ public class DiscoveryModule
 	
 	@Contribution(name="discovery")
 	@Order("last")
-	public void discover(ServletContext ctx,
+	public void discover(/*ServletContext ctx,*/
 			NamespaceManager manager,
 			PageManager pages,
 			TemplateManager components)
@@ -49,7 +47,7 @@ public class DiscoveryModule
 		db.setScanParameterAnnotations(false);
 		
 		db.scanArchives(ClasspathUrlFinder.findClassPaths());
-		db.scanArchives(WarUrlFinder.findWebInfLibClasspaths(ctx));
+		//db.scanArchives(WarUrlFinder.findWebInfLibClasspaths(ctx));
 		
 		Map<String, Set<String>> index = db.getAnnotationIndex();
 		int p = handlePages(manager, pages, index);

@@ -8,7 +8,6 @@ import com.google.inject.Injector;
 import se.l4.crayon.Configurator;
 import se.l4.crayon.Environment;
 import se.l4.dust.Dust;
-import se.l4.dust.core.internal.ServletContextModule;
 
 
 public abstract class AppBootstrap
@@ -30,7 +29,6 @@ public abstract class AppBootstrap
 			
 		// New context, let's initialize the system
 		configurator = new Configurator(production ? Environment.PRODUCTION : Environment.DEVELOPMENT)
-			.addInstance(new ServletContextModule(sce))
 			.add(NormalWebModule.class);
 	
 		initialize(configurator);

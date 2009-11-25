@@ -37,4 +37,6 @@ public interface TemplateManager
 	void addPropertySource(String prefix, PropertySource source);
 	
 	PropertySource getPropertySource(String prefix);
+
+	void addPropertySource(String prefix, Class<? extends PropertySource> provider);
 }

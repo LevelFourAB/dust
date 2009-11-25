@@ -1,12 +1,12 @@
 package se.l4.dust.api;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 import com.google.inject.Key;
-import com.google.inject.OutOfScopeException;
 import com.google.inject.Provider;
 import com.google.inject.Scope;
 
@@ -34,7 +34,7 @@ public class WebScopes
 					
 					if(req == null)
 					{
-						throw new OutOfScopeException("Request scoped objects can only be used within HTTP requests");
+//						throw new OutOfScopeException("Request scoped objects can only be used within HTTP requests");
 					}
 					
 					String localKey = KEY + key.toString();
@@ -93,6 +93,42 @@ public class WebScopes
 				public String toString()
 				{
 					return "WebScopes.SESSION";
+				}
+			};
+		}
+	};
+	
+	public static final Scope CONTEXT = new Scope()
+	{
+		public <T> Provider<T> scope(final Key<T> key, final Provider<T> p)
+		{
+			return new Provider<T>()
+			{
+				@SuppressWarnings("unchecked")
+				public T get()
+				{
+					ServletContext ctx = 
+						ResteasyProviderFactory.getContextData(ServletContext.class);
+					
+					synchronized(ctx)
+					{
+						String localKey = KEY + key.toString();
+						
+						Object o = ctx.getAttribute(localKey);
+						if(o == null)
+						{
+							o = p.get();
+							ctx.setAttribute(localKey, o);
+						}
+						
+						return (T) o;
+					}
+				}
+				
+				@Override
+				public String toString()
+				{
+					return "WebScopes.CONTEXT";
 				}
 			};
 		}

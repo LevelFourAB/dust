@@ -9,15 +9,16 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.jdom.Namespace;
 
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
+
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.asset.AssetSource;
-
-import com.google.common.base.Function;
-import com.google.common.collect.MapMaker;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 @Singleton
 public class AssetManagerImpl
@@ -27,14 +28,16 @@ public class AssetManagerImpl
 	
 	private final ConcurrentMap<Namespace, ConcurrentMap<String, Asset>> cache;
 	private final NamespaceManager manager;
-	private final List<AssetSource> sources;
+	private final List<Object> sources;
 	private final Set<String> protectedExtensions;
+	private final Injector injector;
 	
 	@Inject
-	public AssetManagerImpl(NamespaceManager manager)
+	public AssetManagerImpl(NamespaceManager manager, Injector injector)
 	{
 		this.manager = manager;
-		sources = new CopyOnWriteArrayList<AssetSource>();
+		this.injector = injector;
+		sources = new CopyOnWriteArrayList<Object>();
 		
 		cache = new MapMaker()
 			.makeComputingMap(new Function<Namespace, ConcurrentMap<String, Asset>>()
@@ -49,6 +52,11 @@ public class AssetManagerImpl
 	}
 	
 	public void addSource(AssetSource source)
+	{
+		sources.add(source);
+	}
+	
+	public void addSource(Class<? extends AssetSource> source)
 	{
 		sources.add(source);
 	}
@@ -87,9 +95,13 @@ public class AssetManagerImpl
 			String extension = idx > 0 ? from.substring(idx+1) : "";
 			boolean protect = isProtectedExtension(extension);
 			
-			for(AssetSource source : sources)
+			for(Object source : sources)
 			{
-				URL url = source.locate(namespace, from);
+				AssetSource s = source instanceof AssetSource
+					? (AssetSource) source
+					: (AssetSource) injector.getInstance((Class<?>) source);
+				
+				URL url = s.locate(namespace, from);
 				if(url != null)
 				{
 					return new AssetImpl(manager, protect, namespace, from, url);

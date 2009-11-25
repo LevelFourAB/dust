@@ -2,6 +2,8 @@ package se.l4.dust;
 
 import javax.ws.rs.Produces;
 
+import org.jdom.Namespace;
+
 /**
  * Set of usable properties and methods that are common throughout applications
  * using Dust.
@@ -23,6 +25,11 @@ public class Dust
 	 * before deployment.
 	 */
 	public static final String DUST_PRODUCTION = "dust.production";
+	
+	/**
+	 * Context namespace, used to refer to files in the webapp context.
+	 */
+	public static final Namespace CONTEXT_NAMESPACE = Namespace.getNamespace("ctx", "dust:context");
 	
 	private Dust()
 	{

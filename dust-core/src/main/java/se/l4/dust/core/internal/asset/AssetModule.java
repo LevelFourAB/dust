@@ -2,15 +2,14 @@ package se.l4.dust.core.internal.asset;
 
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
+import com.google.inject.Binder;
+
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Description;
-import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.PageManager;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.core.asset.AssetProvider;
-
-import com.google.inject.Binder;
 
 public class AssetModule
 {
@@ -34,29 +33,17 @@ public class AssetModule
 	}
 	
 	@Contribution(name="asset-property-source")
-	public void contributeAssetPropertySource(TemplateManager manager,
-			AssetPropertySource source)
+	public void contributeAssetPropertySource(TemplateManager manager)
 	{
-		manager.addPropertySource("asset", source);
-		manager.addPropertySource("a", source);
+		manager.addPropertySource("asset", AssetPropertySource.class);
+		manager.addPropertySource("a", AssetPropertySource.class);
 	}
 	
-	@Contribution(name="asset-classpath")
-	public void contributeClasspathSource(
-			AssetManager manager,
-			ClasspathAssetSource source)
+	@Contribution(name="asset-sources")
+	public void contributeClasspathSource(AssetManager manager)
 	{
-		manager.addSource(source);
-	}
-	
-	@Contribution(name="asset-context")
-	public void contributeContextSource(
-			NamespaceManager namespaces,
-			AssetManager manager,
-			ContextAssetSource source)
-	{
-		namespaces.bindSimple(ContextAssetSource.NAMESPACE, "KAKA");
-		manager.addSource(source);
+		manager.addSource(ClasspathAssetSource.class);
+		manager.addSource(ContextAssetSource.class);
 	}
 	
 	@Contribution(name="asset-provider")
