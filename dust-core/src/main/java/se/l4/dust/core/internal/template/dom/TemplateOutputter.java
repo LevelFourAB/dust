@@ -14,6 +14,8 @@ import org.jdom.Text;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
+import se.l4.dust.core.internal.template.components.RawComponent;
+
 public class TemplateOutputter
 	extends XMLOutputter
 {
@@ -105,7 +107,13 @@ public class TemplateOutputter
 	protected void printElement(Writer out, Element element, int level, NamespaceStack namespaces)
 		throws IOException
 	{
-		if(element.getNamespace() == Namespace.NO_NAMESPACE)
+		if(element instanceof RawComponent)
+		{
+			out.write(element.getAttributeValue("content"));
+			
+			return;
+		}
+		else if(element.getNamespace() == Namespace.NO_NAMESPACE)
 		{
 			String name = element.getName();
 			if("script".equals(name))

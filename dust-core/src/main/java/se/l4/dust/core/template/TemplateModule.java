@@ -3,6 +3,9 @@ package se.l4.dust.core.template;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
 
+import com.google.inject.Binder;
+import com.google.inject.Injector;
+
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Description;
 import se.l4.dust.api.DocumentLinker;
@@ -17,11 +20,9 @@ import se.l4.dust.core.internal.template.components.IfComponent;
 import se.l4.dust.core.internal.template.components.LinkComponent;
 import se.l4.dust.core.internal.template.components.LoopComponent;
 import se.l4.dust.core.internal.template.components.ParameterComponent;
+import se.l4.dust.core.internal.template.components.RawComponent;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
-
-import com.google.inject.Binder;
-import com.google.inject.Injector;
 
 
 public class TemplateModule
@@ -48,6 +49,7 @@ public class TemplateModule
 		registry.addComponent(LoopComponent.class);
 		registry.addComponent(LinkComponent.class);
 		registry.addComponent(HolderComponent.class);
+		registry.addComponent(RawComponent.class);
 	}
 	
 	@Contribution(name="document-linker")
