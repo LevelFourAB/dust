@@ -13,11 +13,6 @@ import org.jdom.Parent;
 import org.jdom.input.SAXBuilder;
 import org.jdom.input.SAXHandler;
 
-import com.google.common.base.Function;
-import com.google.common.collect.MapMaker;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 import se.l4.crayon.Environment;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateManager;
@@ -28,6 +23,12 @@ import se.l4.dust.core.internal.template.dom.TemplateSAXHandler;
 import se.l4.dust.core.template.TemplateCache;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
+
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
 @Singleton
 public class TemplateCacheImpl
@@ -41,7 +42,7 @@ public class TemplateCacheImpl
 	
 	@Inject
 	public TemplateCacheImpl(
-			final TemplateFactory factory, 
+			final Provider<TemplateFactory> factory, 
 			TemplateManager manager,
 			NamespaceManager namespaces,
 			ExpressionParser expressionPareser,
@@ -56,7 +57,7 @@ public class TemplateCacheImpl
 			@Override
 			protected SAXHandler createContentHandler()
 			{
-				return new TemplateSAXHandler(factory);
+				return new TemplateSAXHandler(factory.get());
 			}
 		};
 		builder.setReuseParser(false);

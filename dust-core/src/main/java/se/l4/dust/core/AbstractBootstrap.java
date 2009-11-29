@@ -8,6 +8,8 @@ import org.jboss.resteasy.core.Dispatcher;
 import org.jboss.resteasy.spi.Registry;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
+import se.l4.dust.core.internal.PageDiscovery;
+
 import com.google.inject.Injector;
 
 public abstract class AbstractBootstrap
@@ -32,6 +34,15 @@ public abstract class AbstractBootstrap
 		ctx.setAttribute(ResteasyProviderFactory.class.getName(), factory);
 		ctx.setAttribute(Dispatcher.class.getName(), dispatcher);
 		ctx.setAttribute(Registry.class.getName(), registry);
+		
+		try
+		{
+			i.getInstance(PageDiscovery.class).discover(ctx);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	protected abstract Injector getInjector(ServletContext sce);

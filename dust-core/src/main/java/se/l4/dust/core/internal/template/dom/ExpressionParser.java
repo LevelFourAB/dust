@@ -6,12 +6,12 @@ import java.util.List;
 import org.jdom.Content;
 import org.jdom.Text;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.template.PropertySource;
 import se.l4.dust.dom.Element;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 @Singleton
 public class ExpressionParser
@@ -148,7 +148,7 @@ public class ExpressionParser
 		}
 		else
 		{
-			return new ExpressionNode(content);
+			return new ExpressionNode(null, TemplateUtils.getLine(parent), content);
 		}
 	}
 	

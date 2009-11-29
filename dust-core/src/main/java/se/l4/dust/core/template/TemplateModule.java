@@ -3,9 +3,6 @@ package se.l4.dust.core.template;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
 
-import com.google.inject.Binder;
-import com.google.inject.Injector;
-
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Description;
 import se.l4.dust.api.DocumentLinker;
@@ -13,6 +10,7 @@ import se.l4.dust.api.TemplateFilter;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.core.internal.DocumentLinkerImpl;
 import se.l4.dust.core.internal.TemplateManagerImpl;
+import se.l4.dust.core.internal.template.CyclePropertySource;
 import se.l4.dust.core.internal.template.TemplateCacheImpl;
 import se.l4.dust.core.internal.template.components.BodyComponent;
 import se.l4.dust.core.internal.template.components.HolderComponent;
@@ -23,6 +21,9 @@ import se.l4.dust.core.internal.template.components.ParameterComponent;
 import se.l4.dust.core.internal.template.components.RawComponent;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
+
+import com.google.inject.Binder;
+import com.google.inject.Injector;
 
 
 public class TemplateModule
@@ -40,16 +41,22 @@ public class TemplateModule
 	}
 	
 	@Contribution
-	public void contributeCommonComponents(TemplateManagerImpl registry)
+	public void contributeCommonComponents(TemplateManagerImpl manager)
 	{
-		registry.addComponent(ParameterComponent.class);
-		registry.addComponent(BodyComponent.class);
+		manager.addComponent(ParameterComponent.class);
+		manager.addComponent(BodyComponent.class);
 		
-		registry.addComponent(IfComponent.class);
-		registry.addComponent(LoopComponent.class);
-		registry.addComponent(LinkComponent.class);
-		registry.addComponent(HolderComponent.class);
-		registry.addComponent(RawComponent.class);
+		manager.addComponent(IfComponent.class);
+		manager.addComponent(LoopComponent.class);
+		manager.addComponent(LinkComponent.class);
+		manager.addComponent(HolderComponent.class);
+		manager.addComponent(RawComponent.class);
+	}
+	
+	@Contribution
+	public void contributePropertySources(TemplateManager manager)
+	{
+		manager.addPropertySource("cycle", CyclePropertySource.class);
 	}
 	
 	@Contribution(name="document-linker")

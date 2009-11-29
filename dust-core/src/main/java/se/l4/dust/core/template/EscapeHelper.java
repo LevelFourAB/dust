@@ -19,6 +19,6 @@ public class EscapeHelper
 	public static String url(String in) 
 		throws UnsupportedEncodingException
 	{
-		return URLEncoder.encode(in, "UTF-8");
+		return URLEncoder.encode(in, "UTF-8").replace("+", "%20");
 	}
 }

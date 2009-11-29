@@ -14,13 +14,13 @@ public class ExpressionNode
 	private Serializable expression;
 	private Serializable setter;
 	
-	public ExpressionNode(String expression)
+	public ExpressionNode(String file, int line, String expression)
 	{
 		ParserContext ctx = new ParserContext();
 		ctx.addImport("Escape", EscapeHelper.class);
 		
 		this.expression = MVEL.compileExpression(expression, ctx);
-		this.setter = MVEL.compileSetExpression(expression);
+		this.setter = MVEL.compileSetExpression(expression, ctx);
 	}
 	
 	@Override

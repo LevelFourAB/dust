@@ -3,20 +3,22 @@ package se.l4.dust.core.internal;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
 
 import org.jdom.Namespace;
 import org.scannotation.AnnotationDB;
 import org.scannotation.ClasspathUrlFinder;
+import org.scannotation.WarUrlFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.l4.crayon.annotation.Contribution;
-import se.l4.crayon.annotation.Order;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.PageManager;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Component;
+
+import com.google.inject.Inject;
 
 /**
  * Module that performs a single contribution scanning the classpath for
@@ -26,16 +28,25 @@ import se.l4.dust.api.annotation.Component;
  * @author Andreas Holstenson
  *
  */
-public class DiscoveryModule
+public class PageDiscovery
 {
-	private static final Logger logger = LoggerFactory.getLogger(DiscoveryModule.class);
+	private static final Logger logger = LoggerFactory.getLogger(PageDiscovery.class);
+	private final NamespaceManager manager;
+	private final PageManager pages;
+	private final TemplateManager components;
 	
-	@Contribution(name="discovery")
-	@Order("last")
-	public void discover(/*ServletContext ctx,*/
+	@Inject
+	public PageDiscovery(
 			NamespaceManager manager,
 			PageManager pages,
 			TemplateManager components)
+	{
+		this.manager = manager;
+		this.pages = pages;
+		this.components = components;
+	}
+
+	public void discover(ServletContext ctx)
 		throws Exception
 	{
 		logger.info("Attempting to discover classes within registered namespaces");
@@ -47,7 +58,7 @@ public class DiscoveryModule
 		db.setScanParameterAnnotations(false);
 		
 		db.scanArchives(ClasspathUrlFinder.findClassPaths());
-		//db.scanArchives(WarUrlFinder.findWebInfLibClasspaths(ctx));
+		db.scanArchives(WarUrlFinder.findWebInfLibClasspaths(ctx));
 		
 		Map<String, Set<String>> index = db.getAnnotationIndex();
 		int p = handlePages(manager, pages, index);

@@ -106,6 +106,13 @@ public class Element
 	
 	@SuppressWarnings("unchecked")
 	@Override
+	public List<Element> getChildren(String name)
+	{
+		return super.getChildren(name);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
 	public List<Element> getChildren(String name, Namespace ns)
 	{
 		return super.getChildren(name, ns);

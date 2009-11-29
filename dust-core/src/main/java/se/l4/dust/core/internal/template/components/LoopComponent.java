@@ -1,6 +1,6 @@
 package se.l4.dust.core.internal.template.components;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.jdom.Content;
 import org.jdom.JDOMException;
@@ -50,7 +50,7 @@ public class LoopComponent
 	{
 		Object sourceData = source.getValue(data);
 		// TODO: Use conversions
-		List<Object> items = (List) sourceData;
+		Collection<Object> items = (Collection) sourceData;
 		
 		for(Object o : items)
 		{

@@ -18,6 +18,7 @@ import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 
+import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.annotation.PrepareRender;
 import se.l4.dust.api.annotation.TemplateParam;
 import se.l4.dust.core.template.TemplateCache;
@@ -56,6 +57,10 @@ public class ClassTemplateComponent
 		
 		this.url = type.getResource(type.getSimpleName() + ".xml");
 		// TODO: If resource is not found
+		if(url == null)
+		{
+			throw new TemplateException("Could not find template for " + type);
+		}
 	}
 	
 	private MethodInjectorImpl createInjector()

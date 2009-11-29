@@ -109,7 +109,7 @@ public class TemplateOutputter
 	{
 		if(element instanceof RawComponent)
 		{
-			out.write(element.getAttributeValue("content"));
+			out.write(element.getAttributeValue("value"));
 			
 			return;
 		}

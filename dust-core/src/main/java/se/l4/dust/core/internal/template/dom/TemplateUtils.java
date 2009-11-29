@@ -29,4 +29,14 @@ public class TemplateUtils
 			throw new TemplateException(message);
 		}
 	}
+	
+	public static int getLine(Object e)
+	{
+		if(e instanceof LocationAware)
+		{
+			return ((LocationAware) e).getLine();
+		}
+		
+		return -1;
+	}
 }

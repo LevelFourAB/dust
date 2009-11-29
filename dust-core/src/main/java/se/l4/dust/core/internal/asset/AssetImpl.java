@@ -10,12 +10,11 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.ws.rs.core.UriBuilder;
 
+import org.apache.commons.codec.binary.Hex;
 import org.jdom.Namespace;
 
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
-
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 public class AssetImpl
 	implements Asset
@@ -73,7 +72,7 @@ public class AssetImpl
 		try
 		{
 			byte[] digest = digest(url);
-			return Base64.encode(digest);
+			return new String(Hex.encodeHex(digest));
 		}
 		catch(NoSuchAlgorithmException e)
 		{
