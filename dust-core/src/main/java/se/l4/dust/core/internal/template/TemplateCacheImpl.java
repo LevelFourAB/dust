@@ -12,6 +12,8 @@ import org.jdom.Namespace;
 import org.jdom.Parent;
 import org.jdom.input.SAXBuilder;
 import org.jdom.input.SAXHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import se.l4.crayon.Environment;
 import se.l4.dust.api.NamespaceManager;
@@ -34,6 +36,8 @@ import com.google.inject.Singleton;
 public class TemplateCacheImpl
 	implements TemplateCache
 {
+	private static final Logger logger = LoggerFactory.getLogger(TemplateCacheImpl.class);
+	
 	private final SAXBuilder builder;
 	private final TemplateManager manager;
 	private final ExpressionParser expressionParser;
@@ -66,6 +70,8 @@ public class TemplateCacheImpl
 		inner = env == Environment.DEVELOPMENT 
 			? new DevelopmentCache()
 			: new ProductionCache();
+			
+		logger.info("Template cache is in " + env + " mode");
 	}
 	
 	public Document getTemplate(URL url)

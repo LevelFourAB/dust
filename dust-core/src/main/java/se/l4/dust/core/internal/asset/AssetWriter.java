@@ -7,6 +7,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Calendar;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -15,6 +16,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import org.jboss.resteasy.util.DateUtil;
 import org.jboss.resteasy.util.HttpHeaderNames;
 
 import se.l4.dust.api.asset.Asset;
@@ -24,7 +26,16 @@ import se.l4.dust.api.asset.Asset;
 public class AssetWriter
 	implements MessageBodyWriter<Asset>
 {
-
+	private final String date;
+	
+	public AssetWriter()
+	{
+		Calendar c = Calendar.getInstance();
+		c.set(Calendar.YEAR, c.get(Calendar.YEAR) + 10);
+		
+		date = DateUtil.formatDate(c.getTime());
+	}
+	
 	public long getSize(Asset t, Class<?> type, Type genericType,
 			Annotation[] annotations, MediaType mediaType)
 	{
@@ -46,7 +57,7 @@ public class AssetWriter
 		URL url = t.getURL();
 		URLConnection connection = url.openConnection();
 		
-		httpHeaders.putSingle(HttpHeaderNames.EXPIRES, "Sat, 1 Jan 2400 00:00:00 GMT");
+		httpHeaders.putSingle(HttpHeaderNames.EXPIRES, date);
 		httpHeaders.putSingle(HttpHeaderNames.CACHE_CONTROL, "public");
 		
 		
