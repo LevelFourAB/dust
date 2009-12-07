@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.Calendar;
 
 import javax.ws.rs.Produces;
@@ -20,6 +18,7 @@ import org.jboss.resteasy.util.DateUtil;
 import org.jboss.resteasy.util.HttpHeaderNames;
 
 import se.l4.dust.api.asset.Asset;
+import se.l4.dust.api.asset.Resource;
 
 @Provider
 @Produces("*/*")
@@ -39,7 +38,8 @@ public class AssetWriter
 	public long getSize(Asset t, Class<?> type, Type genericType,
 			Annotation[] annotations, MediaType mediaType)
 	{
-		return -1;
+		Resource resource = t.getResource();
+		return resource.getContentLength();
 	}
 
 	public boolean isWriteable(Class<?> type, Type genericType,
@@ -54,24 +54,21 @@ public class AssetWriter
 			OutputStream entityStream)
 		throws IOException, WebApplicationException
 	{
-		URL url = t.getURL();
-		URLConnection connection = url.openConnection();
+		Resource resource = t.getResource();
 		
 		httpHeaders.putSingle(HttpHeaderNames.EXPIRES, date);
 		httpHeaders.putSingle(HttpHeaderNames.CACHE_CONTROL, "public");
 		
+		String contentType = resource.getContentType();
+		if(contentType != null && false == "".equals(contentType))
+		{
+			httpHeaders.putSingle(HttpHeaderNames.CONTENT_TYPE, contentType);
+		}
 		
 		InputStream stream = null;
 		try
 		{
-			stream = connection.getInputStream();
-//			long lastModified = connection.getLastModified();
-//			int length = connection.getContentLength();
-//			
-//			if(length != -1)
-//			{
-//				 httpHeaders.putSingle(HttpHeaderNames.CONTENT_LENGTH, Integer.toString(length));
-//			}
+			stream = resource.openStream();
 			
 			byte[] buffer = new byte[1024];
 			int l;

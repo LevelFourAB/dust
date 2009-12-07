@@ -1,5 +1,6 @@
 package se.l4.dust.core.internal.asset;
 
+import java.io.IOException;
 import java.net.URL;
 
 import org.jdom.Namespace;
@@ -9,6 +10,8 @@ import com.google.inject.Singleton;
 
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.AssetSource;
+import se.l4.dust.api.asset.Resource;
+import se.l4.dust.api.asset.UrlResource;
 
 /**
  * Asset source that resolves from the classpath via the use of 
@@ -29,9 +32,11 @@ public class ClasspathAssetSource
 		this.manager = manager;
 	}
 
-	public URL locate(Namespace ns, String path)
+	public Resource locate(Namespace ns, String path)
+		throws IOException
 	{
-		return manager.getResource(ns, path);
+		URL url = manager.getResource(ns, path);
+		return url == null? null : new UrlResource(url);
 	}
 
 }

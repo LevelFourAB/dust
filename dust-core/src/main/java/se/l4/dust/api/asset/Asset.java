@@ -1,7 +1,5 @@
 package se.l4.dust.api.asset;
 
-import java.net.URL;
-
 import org.jdom.Namespace;
 
 /**
@@ -36,9 +34,9 @@ public interface Asset
 	String getChecksum();
 	
 	/**
-	 * Get a URL where the contents of the asset can be found.
+	 * Get the resource with the contents of the asset.
 	 * 
 	 * @return
 	 */
-	URL getURL();
+	Resource getResource();
 }

@@ -3,7 +3,6 @@ package se.l4.dust.core.internal.asset;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
 import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -15,21 +14,28 @@ import org.jdom.Namespace;
 
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
+import se.l4.dust.api.asset.Resource;
 
 public class AssetImpl
 	implements Asset
 {
 	private final Namespace ns;
 	private final String name;
-	private final URL url;
+	private final Resource resource;
 	private final String checksum;
 	private final URI uri;
 	
-	public AssetImpl(NamespaceManager manager, boolean protect, Namespace ns, String name, URL url)
+	public AssetImpl(NamespaceManager manager, boolean protect, Namespace ns, String name, Resource resource)
 	{
+		if(manager != null && resource == null)
+		{
+			// Check manager for null assets
+			throw new IllegalArgumentException("Resource of asset can not be null (name " + name + " in " + ns + ")");
+		}
+		
 		this.ns = ns;
 		this.name = name;
-		this.url = url;
+		this.resource = resource;
 		
 		String checksum = "";
 		URI uri = null;
@@ -46,7 +52,7 @@ public class AssetImpl
 			{
 				int idx = name.lastIndexOf('.');
 				String extension = name.substring(idx + 1);
-				checksum = getChecksum(url);
+				checksum = getChecksum(resource);
 
 				name = name.substring(0, idx) + "." + checksum + "." + extension; 
 			}
@@ -55,10 +61,6 @@ public class AssetImpl
 			
 			UriBuilder builder = UriBuilder.fromPath("/asset/{ns}/{version}")
 				.path(name);
-//			for(String s : name.split("/"))
-//			{
-//				builder.path(s);
-//			}
 			
 			uri = builder.build(prefix, version);
 		}
@@ -67,11 +69,11 @@ public class AssetImpl
 		this.uri = uri;
 	}
 	
-	private String getChecksum(URL url)
+	private String getChecksum(Resource resource)
 	{
 		try
 		{
-			byte[] digest = digest(url);
+			byte[] digest = digest(resource);
 			return new String(Hex.encodeHex(digest));
 		}
 		catch(NoSuchAlgorithmException e)
@@ -84,13 +86,13 @@ public class AssetImpl
 		{
 		}
 		
-		throw new RuntimeException("Unable to access asset located at " + url);
+		throw new RuntimeException("Unable to access resource " + resource);
 	}
 	
-	private byte[] digest(URL url)
+	private byte[] digest(Resource resource)
 		throws IOException, NoSuchAlgorithmException, DigestException
 	{
-		InputStream stream = url.openStream();
+		InputStream stream = resource.openStream();
 		try
 		{
 			MessageDigest digest = MessageDigest.getInstance("SHA-1");
@@ -124,9 +126,9 @@ public class AssetImpl
 		return ns;
 	}
 
-	public URL getURL()
+	public Resource getResource()
 	{
-		return url;
+		return resource;
 	}
 
 	@Override

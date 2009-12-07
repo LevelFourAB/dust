@@ -1,6 +1,6 @@
 package se.l4.dust.api.asset;
 
-import java.net.URL;
+import java.io.IOException;
 
 import org.jdom.Namespace;
 
@@ -23,5 +23,6 @@ public interface AssetSource
 	 * @return
 	 * 		URL pointing to asset if found, otherwise {@code null}
 	 */
-	URL locate(Namespace ns, String pathToFile);
+	Resource locate(Namespace ns, String pathToFile)
+		throws IOException;
 }

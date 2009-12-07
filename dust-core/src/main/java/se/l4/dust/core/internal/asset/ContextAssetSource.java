@@ -1,5 +1,6 @@
 package se.l4.dust.core.internal.asset;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -14,6 +15,8 @@ import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.annotation.ContextScoped;
 import se.l4.dust.api.asset.AssetSource;
+import se.l4.dust.api.asset.Resource;
+import se.l4.dust.api.asset.UrlResource;
 
 @ContextScoped
 public class ContextAssetSource
@@ -30,7 +33,8 @@ public class ContextAssetSource
 		this.namespaces = namespaces;
 	}
 	
-	public URL locate(Namespace ns, String pathToFile)
+	public Resource locate(Namespace ns, String pathToFile)
+		throws IOException
 	{
 		if(Dust.CONTEXT_NAMESPACE.equals(ns))
 		{
@@ -41,7 +45,9 @@ public class ContextAssetSource
 			
 			try
 			{
-				return ctx.getResource("/" + pathToFile);
+				URL url = ctx.getResource("/" + pathToFile);
+				
+				return url == null ? null : new UrlResource(url) ;
 			}
 			catch(MalformedURLException e)
 			{

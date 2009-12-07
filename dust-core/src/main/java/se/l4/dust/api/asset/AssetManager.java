@@ -50,4 +50,26 @@ public interface AssetManager
 	 */
 	void addProtectedExtension(String extension);
 
+	/**
+	 * Add access to a temporary asset in the given namespace. This is useful
+	 * when assets are dynamically generated at runtime. Temporary assets can
+	 * not overwrite existing assets and trying to do so will result in an
+	 * error.
+	 * 
+	 * @param ns
+	 * @param path
+	 * @param resource
+	 */
+	void addTemporaryAsset(Namespace ns, String path, Resource resource);
+	
+	/**
+	 * Define that assets in the given namespace matching the regular expression
+	 * should be processed by the given classes before being used.
+	 * 
+	 * <p>
+	 * Processing is only done once for every asset.
+	 *  
+	 * @param processor
+	 */
+	void processAssets(Namespace namespace, String filter, Class<? extends AssetProcessor>... processor);
 }
