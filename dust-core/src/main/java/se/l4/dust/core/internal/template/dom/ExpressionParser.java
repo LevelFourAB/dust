@@ -6,6 +6,7 @@ import java.util.List;
 import org.jdom.Content;
 import org.jdom.Text;
 
+import se.l4.crayon.Environment;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.template.PropertySource;
 import se.l4.dust.dom.Element;
@@ -17,11 +18,13 @@ import com.google.inject.Singleton;
 public class ExpressionParser
 {
 	private final TemplateManager manager;
+	private final Environment env;
 
 	@Inject
-	public ExpressionParser(TemplateManager manager)
+	public ExpressionParser(TemplateManager manager, Environment env)
 	{
 		this.manager = manager;
+		this.env = env;
 	}
 	
 	public List<Content> parse(String value, Element parent)
@@ -148,7 +151,7 @@ public class ExpressionParser
 		}
 		else
 		{
-			return new ExpressionNode(null, TemplateUtils.getLine(parent), content);
+			return new ExpressionNode(null, TemplateUtils.getLine(parent), content, env == Environment.DEVELOPMENT);
 		}
 	}
 	

@@ -17,18 +17,27 @@ public class ExpressionNode
 	private Serializable setter;
 	private final String file;
 	private final int line;
+	private final String rawExpression;
 	
-	public ExpressionNode(String file, int line, String expression)
+	public ExpressionNode(String file, int line, String expression, boolean debug)
 	{
 		this.file = file;
 		this.line = line;
 		
 		ParserContext ctx = new ParserContext();
 		ctx.addImport("Escape", EscapeHelper.class);
-		ctx.setDebugSymbols(true);
 		
-		this.expression = MVEL.compileExpression(expression, ctx);
-		this.setter = MVEL.compileSetExpression(expression, ctx);
+		this.rawExpression = debug ? expression : null; 
+		
+		try
+		{
+			this.expression = MVEL.compileExpression(expression, ctx);
+			this.setter = MVEL.compileSetExpression(expression, ctx);
+		}
+		catch(Throwable t)
+		{
+			throw fail(t);
+		}		
 	}
 	
 	@Override
@@ -40,40 +49,41 @@ public class ExpressionNode
 		}
 		catch(CompileException e)
 		{
-			throw new TemplateException("Error in " + file + " near line " + line + ": " + e.getMessage(), e);
+			throw fail(e);
 		}
 	}
 	
 	@Override
 	public void setValue(Object root, Object value)
 	{
-		MVEL.executeSetExpression(setter, root, value);
+		try
+		{
+			MVEL.executeSetExpression(setter, root, value);
+		}
+		catch(CompileException e)
+		{
+			throw fail(e);
+		}
+	}
+	
+	private TemplateException fail(Throwable t)
+	{
+		if(rawExpression != null)
+		{
+			return new TemplateException(
+				"Error near line " + line 
+				+ " for ${" + rawExpression + "}:" + t.getMessage(), t
+			);
+		}
+		else
+		{
+			return new TemplateException("Error in near line " + line + ": " + t.getMessage(), t);
+		}
 	}
 	
 	@Override
 	public String toString()
 	{
 		return "ExpressionNode[" + expression + "]";
-	}
-	
-	public static void main(String[] args)
-	{
-		String s = "kaka";
-		
-		ParserContext ctx = new ParserContext();
-		ctx.addImport("Escape", EscapeHelper.class);
-		
-//		MVEL.eval("len()", s);
-	
-		try
-		{
-			Serializable expr = MVEL.compileExpression("len()", ctx);
-			MVEL.executeExpression(expr, s);
-		}
-		catch(Exception e)
-		{
-			System.out.println(e.getClass());
-			e.printStackTrace(System.out);
-		}
 	}
 }
