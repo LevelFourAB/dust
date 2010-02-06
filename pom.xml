@@ -1,0 +1,48 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>se.l4.dust</groupId>
+	<artifactId>dust-base</artifactId>
+	<version>0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>${pom.artifactId}</name>
+
+	<modules>
+		<module>dust-core</module>
+		<module>dust-css-sprites</module>
+	</modules>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<repositories>
+		<repository>
+			<id>jboss</id>
+			<name>JBoss</name>
+			<url>http://repository.jboss.org/maven2</url>
+		</repository>
+		<repository>
+			<id>crayon-releases</id>
+			<name>Crayon Releases</name>
+			<url>http://crayon-java.googlecode.com/svn/repository/releases</url>
+		</repository>
+	</repositories>
+
+	<properties>
+		<resteasy-version>2.0-beta-1</resteasy-version>
+		<crayon-version>0.3</crayon-version>
+	</properties>
+</project>
+

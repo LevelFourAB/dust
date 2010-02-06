@@ -2,25 +2,15 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>se.l4.dust</groupId>
+	<parent>
+		<groupId>se.l4.dust</groupId>
+		<artifactId>dust-base</artifactId>
+		<version>0.1-SNAPSHOT</version>
+	</parent>
+	
 	<artifactId>dust-css-sprites</artifactId>
-	<version>0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>${pom.artifactId}</name>
-	
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				
-				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 	
 	<repositories>
 		<repository>
@@ -28,7 +18,6 @@
 			<name>SmartSprites</name>
 			<url>http://download.csssprites.org/maven2/</url>
 		</repository>
-		
 	</repositories>
 
 	<dependencies>

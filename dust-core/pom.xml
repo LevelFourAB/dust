@@ -2,40 +2,22 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>se.l4.dust</groupId>
+	<parent>
+		<groupId>se.l4.dust</groupId>
+		<artifactId>dust-base</artifactId>
+		<version>0.1-SNAPSHOT</version>
+	</parent>
+	
 	<artifactId>dust-core</artifactId>
-	<version>0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>${pom.artifactId}</name>
 	
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				
-				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-<!--	
-	<repositories>
-		<repository>
-			<id>jboss</id>
-			<name>JBoss</name>
-			<url>http://repository.jboss.org/maven2</url>
-		</repository>
-		
-	</repositories>
--->
+
 	<dependencies>
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-jaxrs</artifactId>
-			<version>1.2.GA</version>
+			<version>${resteasy-version}</version>
 		</dependency>
 		
 		<dependency>
@@ -46,8 +28,8 @@
 		
 		<dependency>
  			<groupId>se.l4.crayon</groupId>
- 			<artifactId>crayon-osgi</artifactId>
- 			<version>0.3-SNAPSHOT</version>
+ 			<artifactId>crayon-core</artifactId>
+ 			<version>${crayon-version}</version>
  		</dependency>
  		
 		<dependency>
