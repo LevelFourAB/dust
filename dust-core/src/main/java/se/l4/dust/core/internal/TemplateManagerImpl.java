@@ -9,10 +9,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.jdom.Namespace;
 
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Singleton;
-
 import se.l4.dust.api.ComponentException;
 import se.l4.dust.api.TemplateFilter;
 import se.l4.dust.api.TemplateManager;
@@ -20,6 +16,18 @@ import se.l4.dust.api.annotation.Component;
 import se.l4.dust.api.template.PropertySource;
 import se.l4.dust.core.internal.template.dom.TemplateComponent;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
+
+/**
+ * Implementation of {@link TemplateManager}. The implementation keeps track
+ * of registered component classes, namespaces, property sources and filters.
+ * Namespaces are automatically registered based on calls to addComponent. 
+ * 
+ * @author Andreas Holstenson
+ *
+ */
 @Singleton
 public class TemplateManagerImpl
 	implements TemplateManager
@@ -42,6 +50,11 @@ public class TemplateManagerImpl
 		propertySources = new ConcurrentHashMap<String, Object>();
 	}
 
+	/**
+	 * Register an internal template component.
+	 * 
+	 * @param type
+	 */
 	public void addComponent(Class<? extends TemplateComponent> type)
 	{
 		// Instances of TemplateComponent need special handling to get their name

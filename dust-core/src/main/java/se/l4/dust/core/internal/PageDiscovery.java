@@ -22,7 +22,7 @@ import com.google.inject.Inject;
 
 /**
  * Module that performs a single contribution scanning the classpath for
- * classes that are either pages or components. It then checks if are
+ * classes that are either pages or components. It then checks if they are
  * within a registered package and if so registers them automatically.
  * 
  * @author Andreas Holstenson
@@ -61,13 +61,22 @@ public class PageDiscovery
 		db.scanArchives(WarUrlFinder.findWebInfLibClasspaths(ctx));
 		
 		Map<String, Set<String>> index = db.getAnnotationIndex();
-		int p = handlePages(manager, pages, index);
-		int c = handleComponents(manager, pages, components, index);
+		int p = handlePages(index);
+		int c = handleComponents(index);
 		
 		logger.info("Found " + p + " pages and " + c + " components");
 	}
 	
-	private int handlePages(NamespaceManager manager, PageManager pages, Map<String, Set<String>> s)
+	/**
+	 * Handle all pages found (everything annotated with {@link Path}).
+	 * 
+	 * @param manager
+	 * @param pages
+	 * @param s
+	 * @return
+	 * @throws Exception
+	 */
+	private int handlePages(Map<String, Set<String>> s)
 		throws Exception
 	{
 		int count = 0;
@@ -76,7 +85,7 @@ public class PageDiscovery
 		{
 			for(String className : classes)
 			{
-				Namespace ns = findNamespace(manager, className);
+				Namespace ns = findNamespace(className);
 				if(ns != null)
 				{
 					// This class is handled so we register it
@@ -89,7 +98,17 @@ public class PageDiscovery
 		return count;
 	}
 	
-	private int handleComponents(NamespaceManager manager, PageManager pages, TemplateManager components, Map<String, Set<String>> s)
+	/**
+	 * Handle all components (annotated with {@link Component}).
+	 * 
+	 * @param manager
+	 * @param pages
+	 * @param components
+	 * @param s
+	 * @return
+	 * @throws Exception
+	 */
+	private int handleComponents(Map<String, Set<String>> s)
 		throws Exception
 	{
 		int count = 0;
@@ -98,7 +117,7 @@ public class PageDiscovery
 		{
 			for(String className : classes)
 			{
-				Namespace ns = findNamespace(manager, className);
+				Namespace ns = findNamespace(className);
 				if(ns != null)
 				{
 					// This class is handled so we register it
@@ -126,7 +145,7 @@ public class PageDiscovery
 	 * @param className
 	 * @return
 	 */
-	private Namespace findNamespace(NamespaceManager manager, String className)
+	private Namespace findNamespace(String className)
 	{
 		int idx = className.lastIndexOf('.');
 		while(idx > 0)

@@ -7,9 +7,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdom.Namespace;
 
-import com.google.inject.Singleton;
-
 import se.l4.dust.api.NamespaceManager;
+
+import com.google.inject.Singleton;
 
 @Singleton
 public class NamespaceManagerImpl

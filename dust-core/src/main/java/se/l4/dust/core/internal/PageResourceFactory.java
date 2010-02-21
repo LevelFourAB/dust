@@ -8,10 +8,10 @@ import org.jboss.resteasy.spi.ResourceFactory;
 
 import se.l4.dust.api.PageProvider;
 
-
 /**
- * Resource factory that creates resources for ReastEasy based on 
- * {@link PageProvider}s.
+ * {@link ResourceFactory} that creates resources for RESTeasy based on 
+ * {@link PageProvider}s. This is how we can use Guice for creation of pages,
+ * which allows our pages to have different scopes.
  * 
  * @author Andreas Holstenson
  *

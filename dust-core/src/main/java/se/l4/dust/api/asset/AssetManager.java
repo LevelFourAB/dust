@@ -2,6 +2,48 @@ package se.l4.dust.api.asset;
 
 import org.jdom.Namespace;
 
+import se.l4.dust.api.NamespaceManager;
+
+/**
+ * Asset management, helps with locating and registering assets. Assets are
+ * files that are usually located within the classpath of a project. Assets
+ * are always bound to a namespace, given a namespace and a file name the
+ * manager looks through registered {@link AssetSource}s for the given resource.
+ * 
+ * <h2>Classpath source</h2>
+ * By default an {@link AssetSource} based on the classpath is registered, this
+ * source will lookup the package name for a given namespace (via 
+ * {@link NamespaceManager}) and will then perform a lookup of the file
+ * equivalent to classing {@link Package#getResource(String)} on a class located
+ * in the package.
+ * 
+ * <h2>Usage in templates</h2>
+ * If assets are used in a template the template must define their namespace
+ * as a xmlns-attribute. This is usually done on the top-level element of the
+ * template, but can be done anywhere where the asset usage is within scope.
+ * To resolve an asset to a string a property expansion is used as follows
+ * ${asset:namespace:path/to/file}. This property will be replaced with a URL
+ * that points to the given asset.
+ * 
+ * <h3>Example usage</h3>
+ * <pre>
+ * 	&lt;html xmlns:e="http://example.org"&gt;
+ * 		&lt;head&gt;
+ * 			&lt;link href="${asset:e:default.css}" rel="stylesheet" type="text/css"/&gt;
+ * 		&lt;/head&gt;
+ * 	&lt;/html&gt;
+ * </pre>
+ * 
+ * <h2>Namespace prefixes and URLs</h2>
+ * Usually one should bind namespaces containing a prefix (see 
+ * {@link Namespace#getPrefix()}) as it will be used when serving an asset
+ * over HTTP. The URL will normally be {@code /asset/prefix/path/to/file} where
+ * prefix was defined when binding in {@link NamespaceManager}. If no prefix
+ * has been set for namespace no assets from that namespace can be served.
+ * 
+ * @author Andreas Holstenson
+ *
+ */
 public interface AssetManager
 {
 	/**
