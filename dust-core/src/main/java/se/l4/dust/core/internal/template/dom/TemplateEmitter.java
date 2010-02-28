@@ -8,13 +8,13 @@ import org.jdom.DocType;
 import org.jdom.JDOMException;
 import org.jdom.Text;
 
-import com.google.inject.Inject;
-
 import se.l4.dust.api.TemplateFilter;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
+
+import com.google.inject.Inject;
 
 /**
  * Class that drives the transformation of a template into a rendered document.
@@ -36,18 +36,15 @@ public class TemplateEmitter
 		throws JDOMException
 	{
 		Document doc = new Document();
-		if(template.getDocType() != null)
-		{
-			doc.setDocType((DocType) template.getDocType().clone());
-		}
 		
 		Element tplRoot = template.getRootElement();
 		Element root = null;
+		DocType dt = null;
 		
 		if(tplRoot instanceof TemplateComponent)
 		{
 			TemplateComponent component = (TemplateComponent) tplRoot;
-			Element fakeRoot = new Element();
+			FakeElement fakeRoot = new FakeElement();
 			
 			component.process(this, fakeRoot, data, null, data);
 			
@@ -64,6 +61,9 @@ public class TemplateEmitter
 					+ children.size() + "; A document may only have one root element"
 				);
 			}
+			
+			// Copy DocType
+			dt = fakeRoot.getDocType();
 		}
 		else
 		{
@@ -77,6 +77,15 @@ public class TemplateEmitter
 		
 		
 		doc.setRootElement(root);
+		
+		// Transfer template DocType (overwrites component type)
+		if(template.getDocType() != null)
+		{
+			dt = template.getDocType();
+		}
+		
+		// Set the actual DocType
+		doc.setDocType((DocType) dt.clone());
 		
 		// Apply all filters
 		for(TemplateFilter f : registry.getFilters())

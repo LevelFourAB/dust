@@ -121,6 +121,12 @@ public class ClassTemplateComponent
 				Element templateRoot = template.getRootElement();
 				
 				emitter.process(root, parent, templateRoot, this, data);
+				
+				// Set DocType
+				if(parent instanceof FakeElement)
+				{
+					((FakeElement) parent).setDocType(template.getDocType());
+				}
 			}
 			catch(IOException e)
 			{
