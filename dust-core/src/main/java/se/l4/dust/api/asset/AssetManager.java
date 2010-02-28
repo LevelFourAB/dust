@@ -94,9 +94,7 @@ public interface AssetManager
 
 	/**
 	 * Add access to a temporary asset in the given namespace. This is useful
-	 * when assets are dynamically generated at runtime. Temporary assets can
-	 * not overwrite existing assets and trying to do so will result in an
-	 * error.
+	 * when assets are dynamically generated at runtime.
 	 * 
 	 * @param ns
 	 * @param path

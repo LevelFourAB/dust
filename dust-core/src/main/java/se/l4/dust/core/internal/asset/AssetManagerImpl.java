@@ -10,13 +10,6 @@ import java.util.regex.Pattern;
 
 import org.jdom.Namespace;
 
-import com.google.common.base.Function;
-import com.google.common.collect.MapMaker;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Singleton;
-import com.google.inject.internal.ComputationException;
-
 import se.l4.crayon.Environment;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
@@ -24,6 +17,13 @@ import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.asset.AssetSource;
 import se.l4.dust.api.asset.Resource;
+
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
+import com.google.inject.internal.ComputationException;
 
 @Singleton
 public class AssetManagerImpl
@@ -194,19 +194,7 @@ public class AssetManagerImpl
 					}
 				}
 				
-//					if(processed)
-//					{
-//						InputStream in = current.openStream();
-//						// TODO: Better caching policy for resources than just in-memory?
-//						resource = new MemoryResource(
-//							resource.getContentType(), 
-//							resource.getContentEncoding(), 
-//							in
-//						);
-//						
-//						in.close();
-//					}
-				
+				// Return the asset
 				return new AssetImpl(manager, protect, namespace, path, current);
 			}
 			
