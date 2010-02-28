@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.net.URL;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -70,6 +69,11 @@ public class TemplateWriter
 			}
 		}
 		
+		if(type.isAnnotationPresent(Template.class))
+		{
+			return true;
+		}
+		
 		return false;
 	}
 
@@ -87,20 +91,7 @@ public class TemplateWriter
 		{
 			Template tpl = findAnnotation(annotations);
 			
-			Class<?> tplType = tpl.value();
-			String tplName = tpl.name();
-			if(tplName.equals(""))
-			{
-				tplName = tplType.getSimpleName() + ".xml"; 
-			}
-			
-			URL url = tplType.getResource(tplName);
-			if(url == null)
-			{
-				throw new IOException("Could not find template " + tplName + " besides class " + tplType);
-			}
-			
-			Document template = cache.getTemplate(url); 
+			Document template = cache.getTemplate(type, tpl);
 			Document doc = emitter.process(template, t);
 			
 			Format format;

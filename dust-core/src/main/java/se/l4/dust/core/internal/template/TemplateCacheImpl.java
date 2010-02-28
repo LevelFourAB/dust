@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import se.l4.crayon.Environment;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateManager;
+import se.l4.dust.api.annotation.Template;
 import se.l4.dust.core.internal.template.dom.ContentPreload;
 import se.l4.dust.core.internal.template.dom.ExpressionParser;
 import se.l4.dust.core.internal.template.dom.TemplateFactory;
@@ -42,6 +43,7 @@ public class TemplateCacheImpl
 	private final TemplateManager manager;
 	private final ExpressionParser expressionParser;
 	private final InnerCache inner;
+	
 	private final NamespaceManager namespaces;
 	
 	@Inject
@@ -72,6 +74,62 @@ public class TemplateCacheImpl
 			: new ProductionCache();
 			
 		logger.info("Template cache is in " + env + " mode");
+	}
+	
+	/**
+	 * Resolve a template based on a class and possibly an annotation. This
+	 * is used internally to resolve a URL which used to load the template.
+	 * 
+	 * @param c
+	 * @param annotation
+	 * @return
+	 * @throws IOException
+	 */
+	public Document getTemplate(Class<?> c, Template annotation)
+		throws IOException
+	{
+		if(annotation != null)
+		{
+			return getTemplate0(c, annotation);
+		}
+		
+		Template t = c.getAnnotation(Template.class);
+		if(t != null)
+		{
+			return getTemplate0(c, t);
+		}
+		
+		return getTemplate(c, "");
+	}
+
+	private Document getTemplate0(Class<?> c, Template annotation)
+		throws IOException
+	{
+		if(annotation.value() == Object.class)
+		{
+			return getTemplate(c, annotation.name());
+		}
+		else
+		{
+			return getTemplate(annotation.value(), annotation.name());
+		}
+	}
+	
+	private Document getTemplate(Class<?> c, String name)
+		throws IOException
+	{
+		if(name.equals(""))
+		{
+			name = c.getSimpleName() + ".xml"; 
+		}
+		
+		URL url = c.getResource(name);
+		if(url == null)
+		{
+			throw new IOException("Could not find template " + name + " besides class " + c);
+		}
+		
+		return getTemplate(url);
 	}
 	
 	public Document getTemplate(URL url)

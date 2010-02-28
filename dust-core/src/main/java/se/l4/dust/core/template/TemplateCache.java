@@ -1,7 +1,9 @@
 package se.l4.dust.core.template;
 
+import java.io.IOException;
 import java.net.URL;
 
+import se.l4.dust.api.annotation.Template;
 import se.l4.dust.dom.Document;
 
 /**
@@ -19,5 +21,7 @@ public interface TemplateCache
 	 * @return
 	 */
 	Document getTemplate(URL url);
+
+	Document getTemplate(Class<?> c, Template annotation) throws IOException;
 
 }

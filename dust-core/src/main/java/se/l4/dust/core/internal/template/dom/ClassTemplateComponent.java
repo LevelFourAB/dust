@@ -1,9 +1,9 @@
 package se.l4.dust.core.internal.template.dom;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.net.URL;
 
 import org.jboss.resteasy.core.MessageBodyParameterInjector;
 import org.jboss.resteasy.core.MethodInjectorImpl;
@@ -14,16 +14,15 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
 
-import com.google.inject.Binding;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-
-import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.annotation.PrepareRender;
 import se.l4.dust.api.annotation.TemplateParam;
 import se.l4.dust.core.template.TemplateCache;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
+
+import com.google.inject.Binding;
+import com.google.inject.Injector;
+import com.google.inject.Key;
 
 
 public class ClassTemplateComponent
@@ -36,7 +35,6 @@ public class ClassTemplateComponent
 	private final ResteasyProviderFactory factory;
 	private final MethodInjectorImpl methodInjector;
 	private final TemplateCache cache;
-	private final URL url;
 	
 	public ClassTemplateComponent(
 			Namespace ns,
@@ -54,13 +52,6 @@ public class ClassTemplateComponent
 		this.injector = injector;
 		
 		this.methodInjector = createInjector();
-		
-		this.url = type.getResource(type.getSimpleName() + ".xml");
-		// TODO: If resource is not found
-		if(url == null)
-		{
-			throw new TemplateException("Could not find template for " + type);
-		}
 	}
 	
 	private MethodInjectorImpl createInjector()
@@ -123,11 +114,18 @@ public class ClassTemplateComponent
 		}
 		else
 		{
-			// Process the template of the component 
-			Document template = cache.getTemplate(url);
-			Element templateRoot = template.getRootElement();
-			
-			emitter.process(root, parent, templateRoot, this, data);
+			try
+			{
+				// Process the template of the component 
+				Document template = cache.getTemplate(type, null);
+				Element templateRoot = template.getRootElement();
+				
+				emitter.process(root, parent, templateRoot, this, data);
+			}
+			catch(IOException e)
+			{
+				throw new JDOMException(e.getMessage(), e);
+			}
 		}
 	}
 	
