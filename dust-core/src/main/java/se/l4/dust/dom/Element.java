@@ -159,6 +159,12 @@ public class Element
 		return super.getAdditionalNamespaces();
 	}
 	
+	@Override
+	public Document getDocument()
+	{
+		return (Document) super.getDocument();
+	}
+	
 	/**
 	 * Create a copy of this element without its content.
 	 * 
