@@ -85,7 +85,10 @@ public class TemplateEmitter
 		}
 		
 		// Set the actual DocType
-		doc.setDocType((DocType) dt.clone());
+		if(dt != null)
+		{
+			doc.setDocType((DocType) dt.clone());
+		}
 		
 		// Apply all filters
 		for(TemplateFilter f : registry.getFilters())
