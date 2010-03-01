@@ -33,6 +33,7 @@ import se.l4.dust.api.annotation.RequestScoped;
 import se.l4.dust.api.annotation.SessionScoped;
 import se.l4.dust.core.internal.NamespaceManagerImpl;
 import se.l4.dust.core.internal.PageProviderManagerImpl;
+import se.l4.dust.core.internal.ServletBinderImpl;
 import se.l4.dust.core.internal.asset.AssetModule;
 import se.l4.dust.core.template.TemplateModule;
 import se.l4.dust.core.template.TemplateWriter;
@@ -54,6 +55,7 @@ public abstract class WebModule
 		// Bind own services
 		bind(PageProviderManager.class).to(PageProviderManagerImpl.class);
 		bind(NamespaceManager.class).to(NamespaceManagerImpl.class);
+		bind(ServletBinder.class).to(ServletBinderImpl.class);
 		
 		// Bind servlet interfaces
 		bindServletInterfaces();
