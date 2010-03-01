@@ -5,16 +5,6 @@ import java.lang.reflect.Field;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jdom.Namespace;
 
-import se.l4.crayon.annotation.Contribution;
-import se.l4.crayon.annotation.Description;
-import se.l4.dust.api.PageManager;
-import se.l4.dust.api.TemplateManager;
-import se.l4.dust.api.annotation.InjectAsset;
-import se.l4.dust.api.asset.Asset;
-import se.l4.dust.api.asset.AssetManager;
-import se.l4.dust.core.asset.AssetProvider;
-
-import com.google.inject.Binder;
 import com.google.inject.MembersInjector;
 import com.google.inject.Provider;
 import com.google.inject.ProvisionException;
@@ -23,14 +13,24 @@ import com.google.inject.matcher.Matchers;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
 
+import se.l4.crayon.CrayonModule;
+import se.l4.crayon.annotation.Contribution;
+import se.l4.dust.api.PageManager;
+import se.l4.dust.api.TemplateManager;
+import se.l4.dust.api.annotation.InjectAsset;
+import se.l4.dust.api.asset.Asset;
+import se.l4.dust.api.asset.AssetManager;
+import se.l4.dust.core.asset.AssetProvider;
+
 public class AssetModule
+	extends CrayonModule
 {
-	@Description(name="asset")
-	public void configure(Binder binder)
+	@Override
+	public void configure()
 	{
-		binder.bind(AssetManager.class).to(AssetManagerImpl.class);
+		bind(AssetManager.class).to(AssetManagerImpl.class);
 		
-		binder.bindListener(Matchers.any(), new TypeListener()
+		bindListener(Matchers.any(), new TypeListener()
 		{
 			public <I> void hear(TypeLiteral<I> typeLiteral, TypeEncounter<I> typeEncounter)
 			{

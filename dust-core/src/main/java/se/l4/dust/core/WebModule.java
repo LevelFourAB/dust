@@ -25,7 +25,6 @@ import com.google.inject.Provider;
 
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
-import se.l4.crayon.annotation.Dependencies;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.PageProviderManager;
 import se.l4.dust.api.WebScopes;
@@ -38,13 +37,15 @@ import se.l4.dust.core.internal.asset.AssetModule;
 import se.l4.dust.core.template.TemplateModule;
 import se.l4.dust.core.template.TemplateWriter;
 
-@Dependencies({ TemplateModule.class, AssetModule.class })
 public abstract class WebModule
 	extends CrayonModule
 {
 	@Override
 	public void configure()
 	{
+		install(new TemplateModule());
+		install(new AssetModule());
+		
 		// Bind scopes
 		bindScope(SessionScoped.class, WebScopes.SESSION);
 		bindScope(RequestScoped.class, WebScopes.REQUEST);

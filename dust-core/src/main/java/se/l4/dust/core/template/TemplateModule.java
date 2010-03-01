@@ -3,8 +3,10 @@ package se.l4.dust.core.template;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
 
+import com.google.inject.Injector;
+
+import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
-import se.l4.crayon.annotation.Description;
 import se.l4.dust.api.DocumentLinker;
 import se.l4.dust.api.TemplateFilter;
 import se.l4.dust.api.TemplateManager;
@@ -22,22 +24,19 @@ import se.l4.dust.core.internal.template.components.RawComponent;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
 
-import com.google.inject.Binder;
-import com.google.inject.Injector;
-
-
 public class TemplateModule
+	extends CrayonModule
 {
 	public static final Namespace COMMON = Namespace.getNamespace("dust:common");
 	
-	@Description
-	public void configure(Binder binder)
+	@Override
+	public void configure()
 	{
-		binder.bind(TemplateManager.class).to(TemplateManagerImpl.class);
+		bind(TemplateManager.class).to(TemplateManagerImpl.class);
 		
-		binder.bind(TemplateCache.class).to(TemplateCacheImpl.class);
+		bind(TemplateCache.class).to(TemplateCacheImpl.class);
 		
-		binder.bind(DocumentLinker.class).to(DocumentLinkerImpl.class);
+		bind(DocumentLinker.class).to(DocumentLinkerImpl.class);
 	}
 	
 	@Contribution
