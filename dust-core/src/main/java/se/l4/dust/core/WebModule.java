@@ -21,9 +21,11 @@ import org.jboss.resteasy.spi.HttpResponse;
 import org.jboss.resteasy.spi.Registry;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
+import com.google.inject.Provider;
+
+import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Dependencies;
-import se.l4.crayon.annotation.Description;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.PageProviderManager;
 import se.l4.dust.api.WebScopes;
@@ -36,26 +38,51 @@ import se.l4.dust.core.internal.asset.AssetModule;
 import se.l4.dust.core.template.TemplateModule;
 import se.l4.dust.core.template.TemplateWriter;
 
-import com.google.inject.Binder;
-import com.google.inject.Provider;
-
 @Dependencies({ TemplateModule.class, AssetModule.class })
-public class WebModule
+public abstract class WebModule
+	extends CrayonModule
 {
-	@Description(name="web")
-	public void configure(Binder binder)
+	@Override
+	public void configure()
 	{
 		// Bind scopes
-		binder.bindScope(SessionScoped.class, WebScopes.SESSION);
-		binder.bindScope(RequestScoped.class, WebScopes.REQUEST);
-		binder.bindScope(ContextScoped.class, WebScopes.CONTEXT);
+		bindScope(SessionScoped.class, WebScopes.SESSION);
+		bindScope(RequestScoped.class, WebScopes.REQUEST);
+		bindScope(ContextScoped.class, WebScopes.CONTEXT);
 		
 		// Bind own services
-		binder.bind(PageProviderManager.class).to(PageProviderManagerImpl.class);
-		binder.bind(NamespaceManager.class).to(NamespaceManagerImpl.class);
+		bind(PageProviderManager.class).to(PageProviderManagerImpl.class);
+		bind(NamespaceManager.class).to(NamespaceManagerImpl.class);
 		
 		// Bind servlet interfaces
-		binder.bind(HttpServletRequest.class).toProvider(
+		bindServletInterfaces();
+		
+		// Bind Resteasy SPI interfaces
+		bindResteasyHttpInterfaces();
+		
+		// Bind other Resteasy interfaces
+		bindResteasy();
+	}
+
+	private void bindResteasy()
+	{
+		// Bind a Resteasy factory
+		ResteasyProviderFactory factory = new ResteasyProviderFactory();
+		bind(ResteasyProviderFactory.class).toInstance(factory);
+		ResteasyProviderFactory.setInstance(factory);
+		
+		// Bind a dispatcher
+		Dispatcher dispatcher = new SynchronousDispatcher(factory);
+		bind(Dispatcher.class).toInstance(dispatcher);
+		
+		// Bind the registry
+		Registry registry = dispatcher.getRegistry();
+		bind(Registry.class).toInstance(registry);
+	}
+
+	private void bindServletInterfaces()
+	{
+		bind(HttpServletRequest.class).toProvider(
 			new Provider<HttpServletRequest>()
 			{
 				public HttpServletRequest get()
@@ -70,7 +97,7 @@ public class WebModule
 				}
 			});
 		
-		binder.bind(HttpServletResponse.class).toProvider(
+		bind(HttpServletResponse.class).toProvider(
 			new Provider<HttpServletResponse>()
 			{
 				public HttpServletResponse get()
@@ -85,7 +112,7 @@ public class WebModule
 				}
 			});
 		
-		binder.bind(HttpSession.class).toProvider(
+		bind(HttpSession.class).toProvider(
 			new Provider<HttpSession>()
 			{
 				public HttpSession get()
@@ -101,7 +128,7 @@ public class WebModule
 				}
 			});
 		
-		binder.bind(ServletContext.class).toProvider(
+		bind(ServletContext.class).toProvider(
 			new Provider<ServletContext>()
 			{
 				public ServletContext get()
@@ -115,9 +142,11 @@ public class WebModule
 					return "ServletContext";
 				}
 			});
-		
-		// Bind Resteasy SPI interfaces
-		binder.bind(HttpRequest.class).toProvider(
+	}
+
+	private void bindResteasyHttpInterfaces()
+	{
+		bind(HttpRequest.class).toProvider(
 			new Provider<HttpRequest>()
 			{
 				public HttpRequest get()
@@ -132,7 +161,7 @@ public class WebModule
 				}
 			});
 		
-		binder.bind(HttpResponse.class).toProvider(
+		bind(HttpResponse.class).toProvider(
 			new Provider<HttpResponse>()
 			{
 				public HttpResponse get()
@@ -146,20 +175,6 @@ public class WebModule
 					return "HttpResponse";
 				}
 			});
-		
-		// Bind a Resteasy factory
-		ResteasyProviderFactory factory = new ResteasyProviderFactory();
-		binder.bind(ResteasyProviderFactory.class).toInstance(factory);
-		ResteasyProviderFactory.setInstance(factory);
-		
-		// Bind a dispatcher
-		Dispatcher dispatcher = new SynchronousDispatcher(factory);
-		binder.bind(Dispatcher.class).toInstance(dispatcher);
-		
-		// Bind the registry
-		Registry registry = dispatcher.getRegistry();
-		binder.bind(Registry.class).toInstance(registry);		
-		
 	}
 	
 	@Contribution(name="jax-rs-providers")

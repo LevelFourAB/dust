@@ -1,14 +1,13 @@
 package se.l4.dust.core;
 
-import se.l4.crayon.annotation.Dependencies;
+import com.google.inject.Binder;
+
 import se.l4.crayon.annotation.Description;
 import se.l4.dust.api.PageManager;
 import se.l4.dust.core.internal.NormalPageManager;
 
-import com.google.inject.Binder;
-
-@Dependencies({ WebModule.class })
 public class NormalWebModule
+	extends WebModule
 {
 	@Description
 	public void describe(Binder binder)
