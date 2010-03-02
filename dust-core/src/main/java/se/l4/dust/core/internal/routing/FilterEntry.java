@@ -85,6 +85,10 @@ public class FilterEntry
 		throws IOException, ServletException
 	{
 		String path = ((HttpServletRequest) request).getPathInfo();
+		if(path == null)
+		{
+			path = ((HttpServletRequest) request).getServletPath();
+		}
 		
 		if(matches(path))
 		{

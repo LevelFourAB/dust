@@ -57,7 +57,8 @@ public class DustFilter
 		FilterChainImpl innerChain = new FilterChainImpl(
 			binder.getFilters(),
 			new ServletChain(
-				binder.getServlets()
+				binder.getServlets(),
+				chain
 			)
 		);
 		
@@ -96,10 +97,13 @@ public class DustFilter
 		
 		provider = (ResteasyProviderFactory) ctx.getAttribute(ResteasyProviderFactory.class.getName());
 		
-		// Register WebServlet last
-		binder
-			.serve("/*")
-			.with(WebServlet.class);
+		if(false == "true".equals(filterConfig.getInitParameter("fallback")))
+		{
+			// Register WebServlet last
+			binder
+				.serve("/*")
+				.with(WebServlet.class);
+		}
 		
 		// Initialize all filters and servlets
 		doInit();
