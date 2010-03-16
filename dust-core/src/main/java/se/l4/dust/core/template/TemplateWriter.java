@@ -16,12 +16,12 @@ import org.jdom.JDOMException;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
+import com.google.inject.Inject;
+
 import se.l4.dust.api.annotation.Template;
 import se.l4.dust.core.internal.template.dom.TemplateEmitter;
 import se.l4.dust.core.internal.template.dom.TemplateOutputter;
 import se.l4.dust.dom.Document;
-
-import com.google.inject.Inject;
 
 /**
  * {@link MessageBodyWriter} that renders the templates.
@@ -69,9 +69,15 @@ public class TemplateWriter
 			}
 		}
 		
-		if(type.isAnnotationPresent(Template.class))
+		while(type != Object.class)
 		{
-			return true;
+			Template t = type.getAnnotation(Template.class);
+			if(t != null)
+			{
+				return true;
+			}
+			
+			type = type.getSuperclass();
 		}
 		
 		return false;

@@ -15,6 +15,12 @@ import org.jdom.input.SAXHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
+
 import se.l4.crayon.Environment;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateManager;
@@ -26,12 +32,6 @@ import se.l4.dust.core.internal.template.dom.TemplateSAXHandler;
 import se.l4.dust.core.template.TemplateCache;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
-
-import com.google.common.base.Function;
-import com.google.common.collect.MapMaker;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
 
 @Singleton
 public class TemplateCacheImpl
@@ -93,10 +93,16 @@ public class TemplateCacheImpl
 			return getTemplate0(c, annotation);
 		}
 		
-		Template t = c.getAnnotation(Template.class);
-		if(t != null)
+		Class<?> current = c;
+		while(current != Object.class)
 		{
-			return getTemplate0(c, t);
+			Template t = current.getAnnotation(Template.class);
+			if(t != null)
+			{
+				return getTemplate0(current, t);
+			}
+			
+			current = current.getSuperclass();
 		}
 		
 		return getTemplate(c, "");
