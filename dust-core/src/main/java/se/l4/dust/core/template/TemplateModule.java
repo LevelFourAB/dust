@@ -14,6 +14,7 @@ import se.l4.dust.core.internal.DocumentLinkerImpl;
 import se.l4.dust.core.internal.TemplateManagerImpl;
 import se.l4.dust.core.internal.template.CyclePropertySource;
 import se.l4.dust.core.internal.template.TemplateCacheImpl;
+import se.l4.dust.core.internal.template.VarPropertySource;
 import se.l4.dust.core.internal.template.components.BodyComponent;
 import se.l4.dust.core.internal.template.components.HolderComponent;
 import se.l4.dust.core.internal.template.components.IfComponent;
@@ -56,6 +57,7 @@ public class TemplateModule
 	public void contributePropertySources(TemplateManager manager)
 	{
 		manager.addPropertySource("cycle", CyclePropertySource.class);
+		manager.addPropertySource("var", VarPropertySource.class);
 	}
 	
 	@Contribution(name="document-linker")
