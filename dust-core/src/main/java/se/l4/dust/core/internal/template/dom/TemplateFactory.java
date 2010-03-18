@@ -1,15 +1,16 @@
 package se.l4.dust.core.internal.template.dom;
 
 import org.jdom.Attribute;
+import org.jdom.Comment;
 import org.jdom.Namespace;
 import org.jdom.Text;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.dom.Element;
 import se.l4.dust.dom.XJDOMFactory;
-
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 @Singleton
 public class TemplateFactory
@@ -105,5 +106,11 @@ public class TemplateFactory
 	public Text text(String text)
 	{
 		return new TemplateText(text);
+	}
+	
+	@Override
+	public Comment comment(String text)
+	{
+		return new TemplateComment(text);
 	}
 }

@@ -8,13 +8,13 @@ import org.jdom.DocType;
 import org.jdom.JDOMException;
 import org.jdom.Text;
 
+import com.google.inject.Inject;
+
 import se.l4.dust.api.TemplateFilter;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
-
-import com.google.inject.Inject;
 
 /**
  * Class that drives the transformation of a template into a rendered document.
@@ -154,6 +154,25 @@ public class TemplateEmitter
 		else if(in instanceof Text)
 		{
 			parent.addContent((Text) in.clone());
+		}
+		else if(in instanceof TemplateComment)
+		{
+			// Special case of comment, handle property expansions
+			TemplateComment tc = (TemplateComment) in;
+			StringBuilder comment = new StringBuilder();
+			for(Content c : tc.getContent())
+			{
+				if(c instanceof PropertyContent)
+				{
+					Object o = ((PropertyContent) c).getValue(data);
+					comment.append(String.valueOf(o));
+				}
+				else
+				{
+					comment.append(((Content) c).getValue());
+				}
+			}
+			parent.addContent(new Comment(comment.toString()));
 		}
 		else if(in instanceof Comment)
 		{
