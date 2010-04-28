@@ -1,5 +1,10 @@
 package se.l4.dust.core.internal;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,12 +18,12 @@ import org.scannotation.WarUrlFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
+
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.PageManager;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Component;
-
-import com.google.inject.Inject;
 
 /**
  * Module that performs a single contribution scanning the classpath for
@@ -59,12 +64,37 @@ public class PageDiscovery
 		
 		db.scanArchives(ClasspathUrlFinder.findClassPaths());
 		db.scanArchives(WarUrlFinder.findWebInfLibClasspaths(ctx));
+		db.scanArchives(findClasspath().toArray(new URL[0]));
 		
 		Map<String, Set<String>> index = db.getAnnotationIndex();
 		int p = handlePages(index);
 		int c = handleComponents(index);
 		
 		logger.info("Found " + p + " pages and " + c + " components");
+	}
+	
+	private List<URL> findClasspath()
+		throws IOException
+	{
+		Enumeration<URL> enumeration = Thread.currentThread()
+			.getContextClassLoader()
+			.getResources("META-INF/MANIFEST.MF");
+		
+		List<URL> urls = new LinkedList<URL>();
+		
+		while(enumeration.hasMoreElements())
+		{
+			URL u = enumeration.nextElement();
+			if(u.getProtocol().equals("jar"))
+			{
+				String url = u.toString();
+				int idx = url.indexOf('!');
+				String newUrl = url.substring(4, idx);
+				urls.add(new URL(newUrl));
+			}
+		}
+		
+		return urls;
 	}
 	
 	/**
