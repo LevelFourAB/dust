@@ -10,10 +10,12 @@ import se.l4.crayon.annotation.Contribution;
 import se.l4.dust.api.DocumentLinker;
 import se.l4.dust.api.TemplateFilter;
 import se.l4.dust.api.TemplateManager;
+import se.l4.dust.api.template.TemplateRenderer;
 import se.l4.dust.core.internal.DocumentLinkerImpl;
 import se.l4.dust.core.internal.TemplateManagerImpl;
 import se.l4.dust.core.internal.template.CyclePropertySource;
 import se.l4.dust.core.internal.template.TemplateCacheImpl;
+import se.l4.dust.core.internal.template.TemplateRendererImpl;
 import se.l4.dust.core.internal.template.VarPropertySource;
 import se.l4.dust.core.internal.template.components.BodyComponent;
 import se.l4.dust.core.internal.template.components.HolderComponent;
@@ -36,6 +38,8 @@ public class TemplateModule
 		bind(TemplateManager.class).to(TemplateManagerImpl.class);
 		
 		bind(TemplateCache.class).to(TemplateCacheImpl.class);
+		
+		bind(TemplateRenderer.class).to(TemplateRendererImpl.class);
 		
 		bind(DocumentLinker.class).to(DocumentLinkerImpl.class);
 	}
