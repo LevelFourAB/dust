@@ -3,7 +3,7 @@ package se.l4.dust.core.internal.template.components;
 import org.jdom.Content;
 import org.jdom.JDOMException;
 
-import se.l4.dust.api.template.TemplateContext;
+import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.core.internal.template.dom.TemplateComponent;
 import se.l4.dust.core.internal.template.dom.TemplateEmitter;
 import se.l4.dust.core.template.TemplateModule;
@@ -20,7 +20,7 @@ public class BodyComponent
 	@Override
 	public void process(
 			TemplateEmitter emitter, 
-			TemplateContext ctx,
+			RenderingContext ctx,
 			Element parent, 
 			Object root,
 			TemplateComponent lastComponent,

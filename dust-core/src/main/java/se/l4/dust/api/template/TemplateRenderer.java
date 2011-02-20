@@ -27,7 +27,7 @@ public interface TemplateRenderer
 	 * @return
 	 * @throws JDOMException 
 	 */
-	Document render(TemplateContext ctx, Document template, Object data)
+	Document render(RenderingContext ctx, Document template, Object data)
 		throws JDOMException;
 	
 	/**
@@ -43,6 +43,6 @@ public interface TemplateRenderer
 	 * @return
 	 * @throws JDOMException 
 	 */
-	Document render(TemplateContext ctx, URL template, Object data)
+	Document render(RenderingContext ctx, URL template, Object data)
 		throws JDOMException;
 }

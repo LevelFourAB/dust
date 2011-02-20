@@ -12,19 +12,19 @@ import org.jdom.Namespace;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.asset.Asset;
-import se.l4.dust.api.template.TemplateContext;
+import se.l4.dust.api.template.RenderingContext;
 
 import com.google.inject.Inject;
 
 /**
- * Implementation of {@link TemplateContext} that resolves assets correctly
+ * Implementation of {@link RenderingContext} that resolves assets correctly
  * for JAX-RS.
  * 
  * @author Andreas Holstenson
  *
  */
 public class DefaultRenderingContext
-	implements TemplateContext
+	implements RenderingContext
 {
 	private final NamespaceManager namespaceManager;
 	private final Map<Object, Object> values;

@@ -8,7 +8,7 @@ import org.mvel2.ParserContext;
 
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.template.PropertyContent;
-import se.l4.dust.api.template.TemplateContext;
+import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.core.template.EscapeHelper;
 
 public class ExpressionNode
@@ -42,7 +42,7 @@ public class ExpressionNode
 	}
 	
 	@Override
-	public Object getValue(TemplateContext ctx, Object root)
+	public Object getValue(RenderingContext ctx, Object root)
 	{
 		try
 		{
@@ -55,7 +55,7 @@ public class ExpressionNode
 	}
 	
 	@Override
-	public void setValue(TemplateContext ctx, Object root, Object value)
+	public void setValue(RenderingContext ctx, Object root, Object value)
 	{
 		try
 		{

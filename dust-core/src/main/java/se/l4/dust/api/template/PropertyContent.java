@@ -18,7 +18,7 @@ public abstract class PropertyContent
 		return null;
 	}
 	
-	public abstract Object getValue(TemplateContext ctx, Object root);
+	public abstract Object getValue(RenderingContext ctx, Object root);
 	
-	public abstract void setValue(TemplateContext ctx, Object root, Object data);
+	public abstract void setValue(RenderingContext ctx, Object root, Object data);
 }

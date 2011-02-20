@@ -11,7 +11,7 @@ import org.jdom.Text;
 import se.l4.dust.api.TemplateFilter;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.template.PropertyContent;
-import se.l4.dust.api.template.TemplateContext;
+import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
 
@@ -33,7 +33,7 @@ public class TemplateEmitter
 		this.registry = registry;
 	}
 	
-	public Document process(Document template, TemplateContext ctx, Object data)
+	public Document process(Document template, RenderingContext ctx, Object data)
 		throws JDOMException
 	{
 		Document doc = new Document();
@@ -101,7 +101,7 @@ public class TemplateEmitter
 	}
 	
 	public void process(
-			TemplateContext ctx,
+			RenderingContext ctx,
 			Object data, 
 			Element parent, 
 			Content in, 

@@ -8,7 +8,7 @@ import org.jdom.Attribute;
 import org.jdom.Content;
 import org.jdom.JDOMException;
 
-import se.l4.dust.api.template.TemplateContext;
+import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.core.internal.template.dom.TemplateAttribute;
 import se.l4.dust.core.internal.template.dom.TemplateComponent;
 import se.l4.dust.core.internal.template.dom.TemplateEmitter;
@@ -26,7 +26,7 @@ public class LinkComponent
 	@Override
 	public void process(
 			TemplateEmitter emitter,
-			TemplateContext ctx,
+			RenderingContext ctx,
 			Element parent, 
 			Object root,
 			TemplateComponent lastComponent, 

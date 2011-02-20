@@ -2,7 +2,7 @@ package se.l4.dust.core.internal.template;
 
 import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.api.template.PropertySource;
-import se.l4.dust.api.template.TemplateContext;
+import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.dom.Element;
 
 import com.google.inject.Singleton;
@@ -33,7 +33,7 @@ public class CyclePropertySource
 		}
 		
 		@Override
-		public Object getValue(TemplateContext ctx, Object root)
+		public Object getValue(RenderingContext ctx, Object root)
 		{
 			Integer count = ctx.getValue(this);
 			if(count == null)
@@ -58,7 +58,7 @@ public class CyclePropertySource
 		}
 		
 		@Override
-		public void setValue(TemplateContext ctx, Object root, Object data)
+		public void setValue(RenderingContext ctx, Object root, Object data)
 		{
 			throw new UnsupportedOperationException("setValue can not be done on cycle bindings");
 		}

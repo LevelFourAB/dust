@@ -16,7 +16,7 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
-import se.l4.dust.api.template.TemplateContext;
+import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.jaxrs.WebModule;
 import se.l4.dust.jaxrs.internal.template.TemplateWriter;
 import se.l4.dust.jaxrs.resteasy.internal.ResteasyConfiguration;
@@ -50,7 +50,7 @@ public class ResteasyModule
 		// Bind SPI interfaces 
 		bind(Configuration.class).to(ResteasyConfiguration.class);
 		bind(Context.class).to(ResteasyContext.class);
-		bind(TemplateContext.class).to(ResteasyRenderingContext.class);
+		bind(RenderingContext.class).to(ResteasyRenderingContext.class);
 	}
 
 	@Contribution(name="jax-rs-providers")

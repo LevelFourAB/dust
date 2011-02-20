@@ -17,7 +17,7 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
 import se.l4.dust.api.annotation.Template;
-import se.l4.dust.api.template.TemplateContext;
+import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateRenderer;
 import se.l4.dust.core.internal.template.dom.TemplateOutputter;
 import se.l4.dust.core.template.TemplateCache;
@@ -40,11 +40,11 @@ public class TemplateWriter
 	private final TemplateCache cache;
 	private final Format htmlFormat;
 	private final Format xmlFormat;
-	private final com.google.inject.Provider<TemplateContext> ctx;
+	private final com.google.inject.Provider<RenderingContext> ctx;
 
 	@Inject
 	public TemplateWriter(TemplateRenderer renderer, TemplateCache cache,
-			com.google.inject.Provider<TemplateContext> ctx)
+			com.google.inject.Provider<RenderingContext> ctx)
 	{
 		this.renderer = renderer;
 		this.cache = cache;

@@ -9,7 +9,7 @@ import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.api.template.PropertySource;
-import se.l4.dust.api.template.TemplateContext;
+import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.core.internal.template.dom.TemplateUtils;
 import se.l4.dust.dom.Element;
 
@@ -78,13 +78,13 @@ public class AssetPropertySource
 		}
 		
 		@Override
-		public Object getValue(TemplateContext ctx, Object root)
+		public Object getValue(RenderingContext ctx, Object root)
 		{
 			return ctx.resolveURI(asset);
 		}
 		
 		@Override
-		public void setValue(TemplateContext ctx, Object root, Object data)
+		public void setValue(RenderingContext ctx, Object root, Object data)
 		{
 		}
 	}

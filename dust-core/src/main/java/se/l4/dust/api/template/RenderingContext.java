@@ -10,7 +10,7 @@ import java.net.URI;
  * @author Andreas Holstenson
  *
  */
-public interface TemplateContext
+public interface RenderingContext
 {
 	/**
 	 * Store a value in the context.

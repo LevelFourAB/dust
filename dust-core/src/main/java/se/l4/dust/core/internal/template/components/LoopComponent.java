@@ -6,7 +6,7 @@ import org.jdom.Content;
 import org.jdom.JDOMException;
 
 import se.l4.dust.api.template.PropertyContent;
-import se.l4.dust.api.template.TemplateContext;
+import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.core.internal.template.dom.ExpressionParser;
 import se.l4.dust.core.internal.template.dom.TemplateComponent;
 import se.l4.dust.core.internal.template.dom.TemplateEmitter;
@@ -43,7 +43,7 @@ public class LoopComponent
 	@Override
 	public void process(
 			TemplateEmitter emitter, 
-			TemplateContext ctx,
+			RenderingContext ctx,
 			Element parent, 
 			Object data,
 			TemplateComponent lastComponent,

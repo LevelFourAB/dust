@@ -2,7 +2,7 @@ package se.l4.dust.core.internal.template;
 
 import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.api.template.PropertySource;
-import se.l4.dust.api.template.TemplateContext;
+import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.core.internal.template.dom.ExpressionNode;
 import se.l4.dust.core.internal.template.dom.ExpressionParser;
 import se.l4.dust.dom.Element;
@@ -60,13 +60,13 @@ public class VarPropertySource
 		}
 		
 		@Override
-		public Object getValue(TemplateContext ctx, Object root)
+		public Object getValue(RenderingContext ctx, Object root)
 		{
 			return ctx.getValue(key);
 		}
 
 		@Override
-		public void setValue(TemplateContext ctx, Object root, Object data)
+		public void setValue(RenderingContext ctx, Object root, Object data)
 		{
 			ctx.putValue(key, data);
 		}
@@ -85,14 +85,14 @@ public class VarPropertySource
 		}
 		
 		@Override
-		public Object getValue(TemplateContext ctx, Object root)
+		public Object getValue(RenderingContext ctx, Object root)
 		{
 			Object value = c1.getValue(ctx, root);
 			return c2.getValue(ctx, value);
 		}
 		
 		@Override
-		public void setValue(TemplateContext ctx, Object root, Object data)
+		public void setValue(RenderingContext ctx, Object root, Object data)
 		{
 			throw new UnsupportedOperationException("setValue can not be done on variables with method calls");
 		}

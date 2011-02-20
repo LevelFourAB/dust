@@ -14,7 +14,7 @@ import org.jdom.Namespace;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.annotation.PrepareRender;
 import se.l4.dust.api.annotation.TemplateParam;
-import se.l4.dust.api.template.TemplateContext;
+import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.core.template.TemplateCache;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
@@ -85,7 +85,7 @@ public class ClassTemplateComponent
 	@Override
 	public void process(
 			TemplateEmitter emitter, 
-			TemplateContext ctx,
+			RenderingContext ctx,
 			Element parent, 
 			Object data,
 			TemplateComponent lastComponent,
@@ -155,7 +155,7 @@ public class ClassTemplateComponent
 			arguments = result;
 		}
 		
-		public Object invoke(TemplateContext ctx, Object root, Object self)
+		public Object invoke(RenderingContext ctx, Object root, Object self)
 		{
 			Object[] data = new Object[arguments.length];
 			for(int i=0, n=arguments.length; i<n; i++)
@@ -213,7 +213,7 @@ public class ClassTemplateComponent
 			return null;
 		}
 		
-		public Object getValue(TemplateContext ctx, Object root)
+		public Object getValue(RenderingContext ctx, Object root)
 		{
 			if(attribute != null)
 			{
