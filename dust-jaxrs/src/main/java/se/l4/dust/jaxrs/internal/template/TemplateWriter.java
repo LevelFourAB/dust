@@ -18,9 +18,9 @@ import org.jdom.output.XMLOutputter;
 
 import se.l4.dust.api.annotation.Template;
 import se.l4.dust.api.template.RenderingContext;
+import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateRenderer;
 import se.l4.dust.core.internal.template.dom.TemplateOutputter;
-import se.l4.dust.core.template.TemplateCache;
 import se.l4.dust.dom.Document;
 
 import com.google.inject.Inject;

@@ -25,11 +25,11 @@ import se.l4.crayon.Environment;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Template;
+import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.core.internal.template.dom.ContentPreload;
 import se.l4.dust.core.internal.template.dom.ExpressionParser;
 import se.l4.dust.core.internal.template.dom.TemplateFactory;
 import se.l4.dust.core.internal.template.dom.TemplateSAXHandler;
-import se.l4.dust.core.template.TemplateCache;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
 

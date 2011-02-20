@@ -5,9 +5,9 @@ import java.net.URL;
 import org.jdom.JDOMException;
 
 import se.l4.dust.api.template.RenderingContext;
+import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateRenderer;
 import se.l4.dust.core.internal.template.dom.TemplateEmitter;
-import se.l4.dust.core.template.TemplateCache;
 import se.l4.dust.dom.Document;
 
 import com.google.inject.Inject;

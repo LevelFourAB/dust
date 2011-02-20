@@ -15,7 +15,7 @@ import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.annotation.PrepareRender;
 import se.l4.dust.api.annotation.TemplateParam;
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.core.template.TemplateCache;
+import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
 

@@ -9,7 +9,6 @@ import org.mvel2.ParserContext;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.core.template.EscapeHelper;
 
 public class ExpressionNode
 	extends PropertyContent

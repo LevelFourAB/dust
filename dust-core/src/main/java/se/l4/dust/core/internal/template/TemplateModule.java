@@ -1,4 +1,4 @@
-package se.l4.dust.core.template;
+package se.l4.dust.core.internal.template;
 
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
@@ -10,13 +10,10 @@ import se.l4.crayon.annotation.Contribution;
 import se.l4.dust.api.DocumentLinker;
 import se.l4.dust.api.TemplateFilter;
 import se.l4.dust.api.TemplateManager;
+import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateRenderer;
 import se.l4.dust.core.internal.DocumentLinkerImpl;
 import se.l4.dust.core.internal.TemplateManagerImpl;
-import se.l4.dust.core.internal.template.CyclePropertySource;
-import se.l4.dust.core.internal.template.TemplateCacheImpl;
-import se.l4.dust.core.internal.template.TemplateRendererImpl;
-import se.l4.dust.core.internal.template.VarPropertySource;
 import se.l4.dust.core.internal.template.components.BodyComponent;
 import se.l4.dust.core.internal.template.components.HolderComponent;
 import se.l4.dust.core.internal.template.components.IfComponent;

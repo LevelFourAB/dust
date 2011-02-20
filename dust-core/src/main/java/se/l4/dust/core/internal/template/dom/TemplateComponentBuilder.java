@@ -3,7 +3,7 @@ package se.l4.dust.core.internal.template.dom;
 import org.jdom.Namespace;
 
 import se.l4.dust.api.TemplateManager;
-import se.l4.dust.core.template.TemplateCache;
+import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.dom.Element;
 
 import com.google.inject.Inject;

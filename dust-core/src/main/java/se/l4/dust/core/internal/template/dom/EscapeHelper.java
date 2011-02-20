@@ -1,4 +1,4 @@
-package se.l4.dust.core.template;
+package se.l4.dust.core.internal.template.dom;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

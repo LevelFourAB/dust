@@ -1,4 +1,4 @@
-package se.l4.dust.core.template;
+package se.l4.dust.api.template;
 
 import java.io.IOException;
 import java.net.URL;
@@ -22,6 +22,15 @@ public interface TemplateCache
 	 */
 	Document getTemplate(URL url);
 
+	/**
+	 * Get a template using the given class and annotation. If no annotation
+	 * is present this will only use the class as a reference.
+	 * 
+	 * @param c
+	 * @param annotation
+	 * @return
+	 * @throws IOException
+	 */
 	Document getTemplate(Class<?> c, Template annotation) throws IOException;
 
 }
