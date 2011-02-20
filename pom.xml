@@ -4,7 +4,7 @@
 
 	<groupId>se.l4.dust</groupId>
 	<artifactId>dust-base</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<version>0.1</version>
 	<packaging>pom</packaging>
 	<name>${pom.artifactId}</name>
 
