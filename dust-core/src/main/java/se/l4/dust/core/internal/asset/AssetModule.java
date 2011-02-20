@@ -2,8 +2,14 @@ package se.l4.dust.core.internal.asset;
 
 import java.lang.reflect.Field;
 
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jdom.Namespace;
+
+import se.l4.crayon.CrayonModule;
+import se.l4.crayon.annotation.Contribution;
+import se.l4.dust.api.TemplateManager;
+import se.l4.dust.api.annotation.InjectAsset;
+import se.l4.dust.api.asset.Asset;
+import se.l4.dust.api.asset.AssetManager;
 
 import com.google.inject.MembersInjector;
 import com.google.inject.Provider;
@@ -12,15 +18,6 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
-
-import se.l4.crayon.CrayonModule;
-import se.l4.crayon.annotation.Contribution;
-import se.l4.dust.api.PageManager;
-import se.l4.dust.api.TemplateManager;
-import se.l4.dust.api.annotation.InjectAsset;
-import se.l4.dust.api.asset.Asset;
-import se.l4.dust.api.asset.AssetManager;
-import se.l4.dust.core.asset.AssetProvider;
 
 public class AssetModule
 	extends CrayonModule
@@ -53,38 +50,24 @@ public class AssetModule
 		});
 	}
 	
-	@Contribution(name="asset-protect")
+	@Contribution(name="internal-asset-protect")
 	public void contributeDefaultProtectedExtensions(AssetManager manager)
 	{
 		manager.addProtectedExtension("xml");
 		manager.addProtectedExtension("class");
 	}
 	
-	@Contribution(name="asset-page")
-	public void contributeAssetPage(PageManager manager)
-	{
-		manager.add(AssetProvider.class);
-	}
-	
-	@Contribution(name="asset-property-source")
+	@Contribution(name="internal-asset-property-source")
 	public void contributeAssetPropertySource(TemplateManager manager)
 	{
 		manager.addPropertySource("asset", AssetPropertySource.class);
 		manager.addPropertySource("a", AssetPropertySource.class);
 	}
 	
-	@Contribution(name="asset-sources")
+	@Contribution(name="internal-asset-sources")
 	public void contributeClasspathSource(AssetManager manager)
 	{
 		manager.addSource(ClasspathAssetSource.class);
-		manager.addSource(ContextAssetSource.class);
-	}
-	
-	@Contribution(name="asset-provider")
-	public void contributeDefaultMessageProviders(ResteasyProviderFactory factory,
-			AssetWriter writer)
-	{
-		factory.addMessageBodyWriter(writer);
 	}
 	
 	private static class AssetInjector<T>

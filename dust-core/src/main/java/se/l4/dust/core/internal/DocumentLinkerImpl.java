@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import se.l4.dust.api.DocumentLinker;
-import se.l4.dust.api.annotation.RequestScoped;
 import se.l4.dust.dom.Element;
 
-@RequestScoped
 public class DocumentLinkerImpl
 	implements DocumentLinker
 {

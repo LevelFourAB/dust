@@ -1,6 +1,5 @@
 package se.l4.dust.core.internal.template.dom;
 
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jdom.Namespace;
 
 import se.l4.dust.api.TemplateManager;
@@ -24,18 +23,15 @@ public class TemplateComponentBuilder
 	private final TemplateManager manager;
 	private final TemplateCache cache;
 	private final Injector injector;
-	private final ResteasyProviderFactory resteasyProviders;
 
 	@Inject
 	public TemplateComponentBuilder(
 			TemplateManager manager,
 			TemplateCache cache,
-			ResteasyProviderFactory resteasyProviders,
 			Injector injector)
 	{
 		this.manager = manager;
 		this.cache = cache;
-		this.resteasyProviders = resteasyProviders;
 		this.injector = injector;
 	}
 	
@@ -49,7 +45,7 @@ public class TemplateComponentBuilder
 		}
 		else
 		{
-			return new ClassTemplateComponent(ns, name, injector, resteasyProviders, cache, (Class) o);
+			return new ClassTemplateComponent(ns, name, injector, cache, (Class) o);
 		}
 	}
 }

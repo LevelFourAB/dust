@@ -3,6 +3,7 @@ package se.l4.dust.core.internal.template.components;
 import org.jdom.Attribute;
 import org.jdom.JDOMException;
 
+import se.l4.dust.api.template.TemplateContext;
 import se.l4.dust.core.internal.template.dom.ExpressionParser;
 import se.l4.dust.core.internal.template.dom.TemplateAttribute;
 import se.l4.dust.core.internal.template.dom.TemplateComponent;
@@ -35,13 +36,14 @@ public class RawComponent
 	@Override
 	public void process(
 			TemplateEmitter emitter, 
+			TemplateContext ctx,
 			Element parent, 
 			Object root,
 			TemplateComponent lastComponent, 
 			Object previousRoot)
 		throws JDOMException
 	{
-		Object v = ((TemplateAttribute) value).getValue(root);
+		Object v = ((TemplateAttribute) value).getValue(ctx, root);
 		
 		Element e = (Element) clone();
 		e.setAttribute("value", v == null ? "" : v.toString());

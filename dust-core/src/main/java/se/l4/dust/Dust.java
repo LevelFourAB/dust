@@ -1,7 +1,5 @@
 package se.l4.dust;
 
-import javax.ws.rs.Produces;
-
 import org.jdom.Namespace;
 
 /**
@@ -14,8 +12,7 @@ import org.jdom.Namespace;
 public class Dust
 {
 	/** 
-	 * Standard content type for HTML pages for use with {@link Produces}.
-	 * Charset encoding will be set to UTF-8. 
+	 * Standard content type for HTML pages, charset encoding is set to UTF-8. 
 	 */
 	public static final String HTML = "text/html; charset=UTF-8";
 	

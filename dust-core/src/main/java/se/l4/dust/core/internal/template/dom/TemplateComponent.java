@@ -9,6 +9,7 @@ import org.jdom.Namespace;
 
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.template.PropertyContent;
+import se.l4.dust.api.template.TemplateContext;
 import se.l4.dust.core.internal.template.components.ParameterComponent;
 import se.l4.dust.dom.Element;
 
@@ -75,6 +76,7 @@ public abstract class TemplateComponent
 
 	public abstract void process(
 			TemplateEmitter emitter, 
+			TemplateContext ctx,
 			Element parent, 
 			Object root,
 			TemplateComponent lastComponent,

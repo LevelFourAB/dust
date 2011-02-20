@@ -11,6 +11,9 @@
 	<modules>
 		<module>dust-core</module>
 		<module>dust-css-sprites</module>
+
+		<module>dust-jaxrs</module>
+		<module>dust-jaxrs-resteasy</module>
 	</modules>
 	
 	<build>

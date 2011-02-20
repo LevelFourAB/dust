@@ -2,20 +2,22 @@ package se.l4.dust.core.internal.asset;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import javax.ws.rs.core.UriBuilder;
-
-import org.apache.commons.codec.binary.Hex;
 import org.jdom.Namespace;
 
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.Resource;
 
+/**
+ * Implementation of {@link Asset}.
+ * 
+ * @author Andreas Holstenson
+ *
+ */
 public class AssetImpl
 	implements Asset
 {
@@ -23,10 +25,11 @@ public class AssetImpl
 	private final String name;
 	private final Resource resource;
 	private final String checksum;
-	private final URI uri;
+	private final boolean protect;
 	
 	public AssetImpl(NamespaceManager manager, boolean protect, Namespace ns, String name, Resource resource)
 	{
+		this.protect = protect;
 		if(manager != null && resource == null)
 		{
 			// Check manager for null assets
@@ -37,36 +40,7 @@ public class AssetImpl
 		this.name = name;
 		this.resource = resource;
 		
-		String checksum = "";
-		URI uri = null;
-		if(ns != null)
-		{
-			Namespace nns = manager.getNamespaceByURI(ns.getURI());
-			if(nns == null)
-			{
-				throw new RuntimeException("Namespace " + ns.getURI() + " is not bound to NamespaceManager");
-			}
-			
-			String prefix = nns.getPrefix();
-			if(protect)
-			{
-				int idx = name.lastIndexOf('.');
-				String extension = name.substring(idx + 1);
-				checksum = getChecksum(resource);
-
-				name = name.substring(0, idx) + "." + checksum + "." + extension; 
-			}
-			
-			String version = manager.getVersion(nns);
-			
-			UriBuilder builder = UriBuilder.fromPath("/asset/{ns}/{version}")
-				.path(name);
-			
-			uri = builder.build(prefix, version);
-		}
-		
-		this.checksum = checksum;
-		this.uri = uri;
+		this.checksum = resource == null ? null : getChecksum(resource);
 	}
 	
 	private String getChecksum(Resource resource)
@@ -74,7 +48,7 @@ public class AssetImpl
 		try
 		{
 			byte[] digest = digest(resource);
-			return new String(Hex.encodeHex(digest));
+			return toHex(digest);
 		}
 		catch(NoSuchAlgorithmException e)
 		{
@@ -87,6 +61,21 @@ public class AssetImpl
 		}
 		
 		throw new RuntimeException("Unable to access resource " + resource);
+	}
+	
+	private static final String HEX = "0123456789abcdef";
+	
+	private static String toHex(byte[] data)
+	{
+		StringBuilder result = new StringBuilder(data.length * 2);
+		for(byte b: data)
+		{
+			result
+				.append(HEX.charAt((b & 0xF0) >> 4))
+				.append(HEX.charAt(b & 0x0F));
+		}
+		
+		return result.toString();
 	}
 	
 	private byte[] digest(Resource resource)
@@ -130,10 +119,9 @@ public class AssetImpl
 	{
 		return resource;
 	}
-
-	@Override
-	public String toString()
+	
+	public boolean isProtected()
 	{
-		return uri.toString();
+		return protect;
 	}
 }

@@ -2,6 +2,12 @@ package se.l4.dust.api.template;
 
 import org.jdom.Content;
 
+/**
+ * Extension to {@link Content} for template rendering.
+ * 
+ * @author Andreas Holstenson
+ *
+ */
 public abstract class PropertyContent
 	extends Content
 {
@@ -12,7 +18,7 @@ public abstract class PropertyContent
 		return null;
 	}
 	
-	public abstract Object getValue(Object root);
+	public abstract Object getValue(TemplateContext ctx, Object root);
 	
-	public abstract void setValue(Object root, Object data);
+	public abstract void setValue(TemplateContext ctx, Object root, Object data);
 }

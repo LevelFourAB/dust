@@ -173,7 +173,6 @@ public class AssetManagerImpl
 			int idx = path.lastIndexOf('.');
 			String extension = idx > 0 ? path.substring(idx+1) : "";
 			boolean protect = isProtectedExtension(extension);
-			
 			Resource resource = locate(path);
 			if(resource != null)
 			{
@@ -209,7 +208,6 @@ public class AssetManagerImpl
 				AssetSource s = source instanceof AssetSource
 					? (AssetSource) source
 					: (AssetSource) injector.getInstance((Class<?>) source);
-				
 				Resource resource = s.locate(namespace, path);
 				if(resource != null)
 				{

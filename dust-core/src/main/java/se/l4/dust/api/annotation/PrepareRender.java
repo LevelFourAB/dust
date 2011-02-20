@@ -7,22 +7,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import se.l4.dust.api.DocumentLinker;
+import se.l4.dust.api.template.TemplateRenderer;
 
 /**
  * Indicate that this method on a component should be run before the component
- * is rendered. The arguments of the method will be injected in a fashion
- * similar to JAX-RS. Parameters annotated with {@link TemplateParam} will
- * receive parameters set in the calling template. Parameters that are not
- * handled by JAX-RS (usually not annotated) will be handled by Guice.
+ * is rendered. The arguments of the method will be injected. To accept 
+ * parameters {@link TemplateParam} should be used. Other arguments will by
+ * default be resolved via Guice. The behavior of this method invocation can
+ * be overridden by the user of {@link TemplateRenderer}.
  * 
  * <p>
  * Examples:
  * 
  * <ul>
- * 	<li>
- * 		<code>@{literal void prepare(@QueryParam("q") String query)}</code><br>
- * 		Will receive the query parameter named {@code q}
- *	</li>
  *	<li>
  *		<code>@{literal void prepare(@TemplateParam("name") String name)}</code><br>
  * 		Will receive the parameter {@code name} as defined by the template

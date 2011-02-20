@@ -7,6 +7,7 @@ import org.jdom.Content;
 import org.jdom.Namespace;
 
 import se.l4.dust.api.template.PropertyContent;
+import se.l4.dust.api.template.TemplateContext;
 import se.l4.dust.dom.Element;
 
 public class TemplateAttribute
@@ -52,14 +53,14 @@ public class TemplateAttribute
 		content = expressionParser.parse(value, (Element) getParent());
 	}
 	
-	public Object getValue(Object root)
+	public Object getValue(TemplateContext ctx, Object root)
 	{
 		if(content.size() == 1)
 		{
 			Content c = content.get(0);
 			if(c instanceof PropertyContent)
 			{
-				return ((PropertyContent) c).getValue(root);
+				return ((PropertyContent) c).getValue(ctx, root);
 			}
 			else
 			{
@@ -73,7 +74,7 @@ public class TemplateAttribute
 			{
 				if(c instanceof PropertyContent)
 				{
-					value.append(((PropertyContent) c).getValue(root));
+					value.append(((PropertyContent) c).getValue(ctx, root));
 				}
 				else
 				{
@@ -85,9 +86,9 @@ public class TemplateAttribute
 		}
 	}
 
-	public String getStringValue(Object root)
+	public String getStringValue(TemplateContext ctx, Object root)
 	{
-		Object o = getValue(root);
+		Object o = getValue(ctx, root);
 		if(o == null)
 		{
 			return "null";

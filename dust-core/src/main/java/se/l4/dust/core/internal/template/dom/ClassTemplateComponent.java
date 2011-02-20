@@ -2,20 +2,19 @@ package se.l4.dust.core.internal.template.dom;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.List;
 
-import org.jboss.resteasy.core.MessageBodyParameterInjector;
-import org.jboss.resteasy.core.MethodInjectorImpl;
-import org.jboss.resteasy.core.ValueInjector;
-import org.jboss.resteasy.spi.HttpRequest;
-import org.jboss.resteasy.spi.HttpResponse;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
 
+import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.annotation.PrepareRender;
 import se.l4.dust.api.annotation.TemplateParam;
+import se.l4.dust.api.template.TemplateContext;
 import se.l4.dust.core.template.TemplateCache;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
@@ -23,45 +22,51 @@ import se.l4.dust.dom.Element;
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 
-
+/**
+ * Component based on a class. 
+ * 
+ * @author Andreas Holstenson
+ *
+ */
 public class ClassTemplateComponent
 	extends TemplateComponent
 {
-	private static final ThreadLocal<Object> DATA = new ThreadLocal<Object>();
-	
 	private final Class<?> type;
 	private final Injector injector;
-	private final ResteasyProviderFactory factory;
-	private final MethodInjectorImpl methodInjector;
 	private final TemplateCache cache;
+	private final MethodInvocation method;
 	
 	public ClassTemplateComponent(
 			Namespace ns,
 			String name,
 			Injector injector, 
-			ResteasyProviderFactory factory,
 			TemplateCache cache,
 			Class<?> type)
 	{
 		super(name, ns);
 		
-		this.factory = factory;
 		this.cache = cache;
 		this.type = type;
 		this.injector = injector;
 		
-		this.methodInjector = createInjector();
+		method = createMethodInvocation(type);
 	}
 	
-	private MethodInjectorImpl createInjector()
+	private MethodInvocation createMethodInvocation(Class<?> type)
 	{
-		for(Method m : type.getMethods())
+		while(type != Object.class && type != null)
 		{
-			if(m.isAnnotationPresent(PrepareRender.class))
+			for(Method m : type.getDeclaredMethods())
 			{
-				return new MethodInjectorExt(type, m, factory);
+				if(m.isAnnotationPresent(PrepareRender.class))
+				{
+					return new MethodInvocation(m);
+				}
 			}
+			
+			type = type.getSuperclass();
 		}
 		
 		return null;
@@ -80,6 +85,7 @@ public class ClassTemplateComponent
 	@Override
 	public void process(
 			TemplateEmitter emitter, 
+			TemplateContext ctx,
 			Element parent, 
 			Object data,
 			TemplateComponent lastComponent,
@@ -88,29 +94,25 @@ public class ClassTemplateComponent
 	{
 		Object o = injector.getInstance(type);
 		
-		HttpRequest request = injector.getInstance(HttpRequest.class);
-		HttpResponse response = injector.getInstance(HttpResponse.class);
-		
 		Object root;
-		if(methodInjector != null)
+		
+		if(method == null)
 		{
-			// Invoke the given component method
-			DATA.set(data);
-			
-			root = methodInjector.invoke(request, response, o);
+			// No processing needed
+			root = o;
+		}
+		else
+		{
+			root = method.invoke(ctx, data, o);
 			if(root == null)
 			{
 				root = o;
 			}
 		}
-		else
-		{
-			root = o;
-		}
 
 		if(root instanceof Element)
 		{
-			emitter.process(root, parent, (Element) root, this, data);
+			emitter.process(ctx, root, parent, (Element) root, this, data);
 		}
 		else
 		{
@@ -120,7 +122,7 @@ public class ClassTemplateComponent
 				Document template = cache.getTemplate(type, null);
 				Element templateRoot = template.getRootElement();
 				
-				emitter.process(root, parent, templateRoot, this, data);
+				emitter.process(ctx, root, parent, templateRoot, this, data);
 				
 				// Set DocType
 				if(parent instanceof FakeElement)
@@ -135,106 +137,117 @@ public class ClassTemplateComponent
 		}
 	}
 	
-	private class MethodInjectorExt
-		extends MethodInjectorImpl
+	private class MethodInvocation
 	{
-		public MethodInjectorExt(Class root, Method method,
-				ResteasyProviderFactory factory)
+		private final Method method;
+		private final Argument[] arguments;
+		
+		public MethodInvocation(Method m)
 		{
-			super(root, method, factory);
+			this.method = m;
 			
-			for(int i=0, n=params.length; i<n; i++)
+			Argument[] result = new Argument[m.getParameterTypes().length];
+			for(int i=0, n=result.length; i<n; i++)
 			{
-				ValueInjector vi = params[i];
-				if(vi instanceof MessageBodyParameterInjector)
+				result[i] = new Argument(m, i);
+			}
+			
+			arguments = result;
+		}
+		
+		public Object invoke(TemplateContext ctx, Object root, Object self)
+		{
+			Object[] data = new Object[arguments.length];
+			for(int i=0, n=arguments.length; i<n; i++)
+			{
+				data[i] = arguments[i].getValue(ctx, root);
+			}
+			
+			try
+			{
+				return method.invoke(self, data);
+			}
+			catch(InvocationTargetException e)
+			{
+				Throwable e2 = e.getCause();
+				if(e2 instanceof RuntimeException)
 				{
-					Type paramType = method.getGenericParameterTypes()[i];
-					boolean found = false;
-					Annotation[] annotations = method.getParameterAnnotations()[i];
-					for(Annotation a : annotations)
+					throw (RuntimeException) e2;
+				}
+				
+				throw new TemplateException("Unable to invoke method " + method 
+					+ "; " + e2.getMessage() + "\nArguments were: " + Arrays.toString(data), e2);
+			}
+			catch(Exception e)
+			{
+				throw new TemplateException("Unable to invoke method " + method 
+					+ "; " + e.getMessage() + "\nArguments were: " + Arrays.toString(data), e);
+			}
+		}
+	}
+	
+	private class Argument
+	{
+		private final Type type;
+		private final Annotation[] annotations;
+		private final String attribute;
+		
+		public Argument(Method m, int index)
+		{
+			annotations = m.getParameterAnnotations()[index];
+			type = m.getGenericParameterTypes()[index];
+			
+			attribute = findAttribute(m, annotations);
+		}
+		
+		private String findAttribute(Method m, Annotation[] annotations)
+		{
+			for(Annotation a : annotations)
+			{
+				if(a instanceof TemplateParam)
+				{
+					return ((TemplateParam) a).value();
+				}
+			}
+			
+			return null;
+		}
+		
+		public Object getValue(TemplateContext ctx, Object root)
+		{
+			if(attribute != null)
+			{
+				TemplateAttribute attr = (TemplateAttribute) getAttribute(attribute);
+				return attr.getValue(ctx, root);
+			}
+			else
+			{
+				TypeLiteral literal = TypeLiteral.get(type);
+				
+				for(Binding b : (List<Binding>) injector.findBindingsByType(literal))
+				{
+					Key key = b.getKey();
+					
+					if(key.getAnnotation() != null)
 					{
-						if(a instanceof TemplateParam)
+						for(Annotation a : annotations)
 						{
-							found = true;
-							params[i] = new TemplateValueInjector(
-								((TemplateParam) a).value()
-							);
-							
-							break;
-						}
-						else
-						{
-							Key k = Key.get(paramType, a);
-							
-							Binding b = injector.getBinding(k);
-							if(b != null)
+							if(key.getAnnotation().equals(a))
 							{
-								found = true;
-								params[i] = new BindingValueInjector(k);
+								return b.getProvider().get();
 							}
-							
-							break;
 						}
 					}
 					
-					if(false == found)
+					if(key.getAnnotation() == null)
 					{
-						Key k = Key.get(paramType);
-						Binding b = injector.getBinding(k);
-						if(b != null)
-						{
-							params[i] = new BindingValueInjector(k);
-						}
+						return b.getProvider().get();
 					}
 				}
+				
+				return null; // XXX: Exception
 			}
 		}
-		
 	}
 	
-	/** Custom injector for template parameters */
-	private class TemplateValueInjector
-		implements ValueInjector
-	{
-		private final String name;
-		
-		public TemplateValueInjector(String name)
-		{
-			this.name = name;
-		}
-		
-		public Object inject()
-		{
-			return null;
-		}
-
-		public Object inject(HttpRequest request, HttpResponse response)
-		{
-			TemplateAttribute a = (TemplateAttribute) getAttribute(name);
-			return a.getValue(DATA.get());
-		}
-	}
-	
-	private class BindingValueInjector
-		implements ValueInjector
-	{
-		
-		private final Key key;
-
-		public BindingValueInjector(Key key)
-		{
-			this.key = key;
-		}
-		
-		public Object inject()
-		{
-			return null;
-		}
-
-		public Object inject(HttpRequest request, HttpResponse response)
-		{
-			return injector.getInstance(key);
-		}
-		
-	}
 }

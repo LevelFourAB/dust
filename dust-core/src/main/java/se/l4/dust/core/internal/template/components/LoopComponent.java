@@ -6,6 +6,7 @@ import org.jdom.Content;
 import org.jdom.JDOMException;
 
 import se.l4.dust.api.template.PropertyContent;
+import se.l4.dust.api.template.TemplateContext;
 import se.l4.dust.core.internal.template.dom.ExpressionParser;
 import se.l4.dust.core.internal.template.dom.TemplateComponent;
 import se.l4.dust.core.internal.template.dom.TemplateEmitter;
@@ -42,23 +43,24 @@ public class LoopComponent
 	@Override
 	public void process(
 			TemplateEmitter emitter, 
+			TemplateContext ctx,
 			Element parent, 
 			Object data,
 			TemplateComponent lastComponent,
 			Object previousRoot)
 		throws JDOMException
 	{
-		Object sourceData = source.getValue(data);
+		Object sourceData = source.getValue(ctx, data);
 		// TODO: Use conversions
 		Collection<Object> items = (Collection) sourceData;
 		
 		for(Object o : items)
 		{
-			value.setValue(data, o);
+			value.setValue(ctx, data, o);
 			
 			for(Content c : getContent())
 			{
-				emitter.process(data, parent, c, this, previousRoot);
+				emitter.process(ctx, data, parent, c, this, previousRoot);
 			}
 		}
 	}

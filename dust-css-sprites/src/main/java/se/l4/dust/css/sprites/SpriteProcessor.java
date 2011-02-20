@@ -13,29 +13,27 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
-
 import org.apache.commons.io.FilenameUtils;
 import org.carrot2.labs.smartsprites.SmartSpritesParameters;
-import org.carrot2.labs.smartsprites.SpriteBuilder;
 import org.carrot2.labs.smartsprites.SmartSpritesParameters.PngDepth;
+import org.carrot2.labs.smartsprites.SpriteBuilder;
 import org.carrot2.labs.smartsprites.message.Message;
+import org.carrot2.labs.smartsprites.message.Message.MessageLevel;
 import org.carrot2.labs.smartsprites.message.MessageLog;
 import org.carrot2.labs.smartsprites.message.MessageSink;
-import org.carrot2.labs.smartsprites.message.Message.MessageLevel;
 import org.carrot2.labs.smartsprites.resource.ResourceHandler;
 import org.jdom.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
-
-import se.l4.dust.api.annotation.ContextScoped;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.asset.MemoryResource;
 import se.l4.dust.api.asset.Resource;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Processor that uses SmartSprites to create automatic sprite images from
@@ -44,20 +42,18 @@ import se.l4.dust.api.asset.Resource;
  * @author Andreas Holstenson
  *
  */
-@ContextScoped
+@Singleton
 public class SpriteProcessor
 	implements AssetProcessor
 {
 	private static final Logger logger = LoggerFactory.getLogger(SpriteProcessor.class);
 	
 	private final AssetManager manager;
-	private final ServletContext ctx;
 
 	@Inject
-	public SpriteProcessor(AssetManager manager, ServletContext ctx)
+	public SpriteProcessor(AssetManager manager)
 	{
 		this.manager = manager;
-		this.ctx = ctx;
 	}
 	
 	public Resource process(Namespace namespace, String path, Resource stream)
@@ -121,7 +117,7 @@ public class SpriteProcessor
 			String key = e.getKey().substring(1);
 			ByteArrayOutputStream out = e.getValue();
 			
-			String mimeType = ctx.getMimeType(key);
+			String mimeType = getMimeType(key);
 			Resource r = new MemoryResource(mimeType, null, out.toByteArray());
 			
 			if(key.equals(path))
@@ -136,6 +132,20 @@ public class SpriteProcessor
 		}
 		
 		return resource;
+	}
+	
+	private String getMimeType(String key)
+	{
+		if(key.endsWith(".css"))
+		{
+			return "text/css";
+		}
+		else if(key.endsWith(".png"))
+		{
+			return "image/png";
+		}
+		
+		return "application/octet-stream";
 	}
 
 	/**

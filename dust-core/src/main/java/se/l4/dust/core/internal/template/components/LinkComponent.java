@@ -4,12 +4,11 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.core.UriBuilder;
-
 import org.jdom.Attribute;
 import org.jdom.Content;
 import org.jdom.JDOMException;
 
+import se.l4.dust.api.template.TemplateContext;
 import se.l4.dust.core.internal.template.dom.TemplateAttribute;
 import se.l4.dust.core.internal.template.dom.TemplateComponent;
 import se.l4.dust.core.internal.template.dom.TemplateEmitter;
@@ -26,7 +25,8 @@ public class LinkComponent
 	
 	@Override
 	public void process(
-			TemplateEmitter emitter, 
+			TemplateEmitter emitter,
+			TemplateContext ctx,
 			Element parent, 
 			Object root,
 			TemplateComponent lastComponent, 
@@ -46,26 +46,26 @@ public class LinkComponent
 				if(a.getName().equals("page"))
 				{
 					// TODO: Conversion
-					uri = (String) ta.getValue(root);
+					uri = (String) ta.getValue(ctx, root);
 				}
 				else
 				{
-					values.put(a.getName(), ta.getValue(root));
+					values.put(a.getName(), ta.getValue(ctx, root));
 				}
 			}
 			else
 			{
-				out.setAttribute(a.getName(), (String) ta.getValue(root)); 
+				out.setAttribute(a.getName(), (String) ta.getValue(ctx, root)); 
 			}
 		}
 		
-		URI href = UriBuilder.fromPath(uri).buildFromMap(values);
+		URI href = ctx.resolveURI(null); // XXX
 		out.setAttribute("href", href.toString());
 		parent.addContent(out);
 		
 		for(Content c : getContent())
 		{
-			emitter.process(root, out, c, lastComponent, previousRoot);
+			emitter.process(ctx, root, out, c, lastComponent, previousRoot);
 		}
 	}
 

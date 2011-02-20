@@ -3,6 +3,7 @@ package se.l4.dust.core.internal.template.components;
 import org.jdom.Content;
 import org.jdom.JDOMException;
 
+import se.l4.dust.api.template.TemplateContext;
 import se.l4.dust.core.internal.template.dom.TemplateComponent;
 import se.l4.dust.core.internal.template.dom.TemplateEmitter;
 import se.l4.dust.core.template.TemplateModule;
@@ -19,6 +20,7 @@ public class HolderComponent
 	@Override
 	public void process(
 			TemplateEmitter emitter, 
+			TemplateContext ctx, 
 			Element parent, 
 			Object root,
 			TemplateComponent lastComponent, 
@@ -27,7 +29,7 @@ public class HolderComponent
 	{
 		for(Content c : getContent())
 		{
-			emitter.process(root, parent, c, lastComponent, previousRoot);
+			emitter.process(ctx, root, parent, c, lastComponent, previousRoot);
 		}
 	}
 }

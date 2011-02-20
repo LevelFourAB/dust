@@ -9,11 +9,18 @@ import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.api.template.PropertySource;
+import se.l4.dust.api.template.TemplateContext;
 import se.l4.dust.core.internal.template.dom.TemplateUtils;
 import se.l4.dust.dom.Element;
 
 import com.google.inject.Inject;
 
+/**
+ * Property source for binding assets for use in templates.
+ * 
+ * @author andreas
+ *
+ */
 public class AssetPropertySource
 	implements PropertySource
 {
@@ -71,16 +78,14 @@ public class AssetPropertySource
 		}
 		
 		@Override
-		public Object getValue(Object root)
+		public Object getValue(TemplateContext ctx, Object root)
 		{
-			return asset;
+			return ctx.resolveURI(asset);
 		}
 		
 		@Override
-		public void setValue(Object root, Object data)
+		public void setValue(TemplateContext ctx, Object root, Object data)
 		{
-			// TODO Auto-generated method stub
-			
 		}
 	}
 }

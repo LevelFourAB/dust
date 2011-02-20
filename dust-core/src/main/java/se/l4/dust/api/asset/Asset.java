@@ -39,4 +39,11 @@ public interface Asset
 	 * @return
 	 */
 	Resource getResource();
+
+	/**
+	 * Get if access to the resource is protected.
+	 * 
+	 * @return
+	 */
+	boolean isProtected();
 }

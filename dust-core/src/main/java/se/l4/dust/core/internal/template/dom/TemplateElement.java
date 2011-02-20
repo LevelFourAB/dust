@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.jdom.Attribute;
 import org.jdom.Namespace;
 
+import se.l4.dust.api.template.TemplateContext;
 import se.l4.dust.dom.Element;
 
 public class TemplateElement
@@ -66,7 +67,7 @@ public class TemplateElement
 		}
 	}
 	
-	public TemplateElement copy(Object root)
+	public TemplateElement copy(TemplateContext ctx, Object root)
 	{
 		TemplateElement copy = new TemplateElement(getName(), getNamespace());
 
@@ -74,7 +75,7 @@ public class TemplateElement
 		{
 			if(a instanceof TemplateAttribute)
 			{
-				String value = ((TemplateAttribute) a).getStringValue(root);
+				String value = ((TemplateAttribute) a).getStringValue(ctx, root);
 				copy.setAttribute(
 					new Attribute(a.getName(), value, a.getAttributeType(), a.getNamespace())
 				);

@@ -1,95 +1,66 @@
 package se.l4.dust.core.internal.template;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import se.l4.dust.api.annotation.RequestScoped;
 import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.api.template.PropertySource;
+import se.l4.dust.api.template.TemplateContext;
 import se.l4.dust.dom.Element;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 @Singleton
 public class CyclePropertySource
 	implements PropertySource
 {
-	private final Provider<CycleCounter> counter;
-
-	@Inject
-	public CyclePropertySource(Provider<CycleCounter> counter)
+	public CyclePropertySource()
 	{
-		this.counter = counter;
 	}
 	
 	public PropertyContent getPropertyContent(String propertyExpression, Element parent)
 	{
-		String[] parts = propertyExpression.split(",");
+		String[] parts = propertyExpression.split("\\s*,\\s*");
 		
-		return new Content(counter, parts);
+		return new Content(parts);
 	}
 
 	public static class Content
 		extends PropertyContent
 	{
-		private final Provider<CycleCounter> counter;
 		private final String[] parts;
 
-		public Content(Provider<CycleCounter> counter, String[] parts)
+		public Content(String[] parts)
 		{
-			this.counter = counter;
 			this.parts = parts;
 		}
 		
 		@Override
-		public Object getValue(Object root)
+		public Object getValue(TemplateContext ctx, Object root)
 		{
-			return counter.get().getValue(this, parts);
-		}
-		
-		@Override
-		public void setValue(Object root, Object data)
-		{
-			throw new UnsupportedOperationException("setValue can not be done on cycle bindings");
-		}
-	}
-	
-	@RequestScoped
-	public static class CycleCounter
-	{
-		private final Map<Object, MutableInt> counts;
-		
-		public CycleCounter()
-		{
-			counts = new HashMap<Object, MutableInt>();
-		}
-		
-		public Object getValue(PropertyContent content, String[] values)
-		{
-			MutableInt count = counts.get(content);
+			Integer count = ctx.getValue(this);
 			if(count == null)
 			{
-				count = new MutableInt();
-				counts.put(content, count);
+				count = 0;
 			}
 			
-			String value = values[count.value];
+			String value = parts[count];
 			
-			count.value++;
-			if(count.value >= values.length)
+			if(count + 1 < parts.length)
 			{
-				count.value = 0;
+				count += 1;
 			}
+			else
+			{
+				count = 0;
+			}
+			
+			ctx.putValue(this, count);
 			
 			return value;
 		}
 		
-		private static class MutableInt
+		@Override
+		public void setValue(TemplateContext ctx, Object root, Object data)
 		{
-			int value;
+			throw new UnsupportedOperationException("setValue can not be done on cycle bindings");
 		}
 	}
-	
 }
