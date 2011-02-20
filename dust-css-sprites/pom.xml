@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>se.l4.dust</groupId>
 		<artifactId>dust-base</artifactId>
-		<version>0.1</version>
+		<version>0.2-SNAPSHOT</version>
 	</parent>
 	
 	<artifactId>dust-css-sprites</artifactId>
