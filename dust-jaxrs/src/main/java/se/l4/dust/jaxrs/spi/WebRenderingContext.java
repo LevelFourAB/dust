@@ -23,14 +23,14 @@ import com.google.inject.Inject;
  * @author Andreas Holstenson
  *
  */
-public class DefaultRenderingContext
+public class WebRenderingContext
 	implements RenderingContext
 {
 	private final NamespaceManager namespaceManager;
 	private final Map<Object, Object> values;
 
 	@Inject
-	public DefaultRenderingContext(NamespaceManager namespaceManager)
+	public WebRenderingContext(NamespaceManager namespaceManager)
 	{
 		this.namespaceManager = namespaceManager;
 		values = new HashMap<Object, Object>();
