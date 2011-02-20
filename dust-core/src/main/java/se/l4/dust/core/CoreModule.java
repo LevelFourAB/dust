@@ -4,12 +4,12 @@ import se.l4.crayon.CrayonModule;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.core.internal.NamespaceManagerImpl;
 import se.l4.dust.core.internal.asset.AssetModule;
-import se.l4.dust.core.template.TemplateModule;
+import se.l4.dust.core.internal.template.TemplateModule;
 
 /**
  * Module containing core functionality.
  * 
- * @authro Andreas Holstenson
+ * @author Andreas Holstenson
  *
  */
 public class CoreModule

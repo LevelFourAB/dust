@@ -1,7 +1,14 @@
 package se.l4.dust.api;
 
+/**
+ * Exception related to components, thrown when components are missing or
+ * misbehaving.
+ * 
+ * @author Andreas Holstenson
+ *
+ */
 public class ComponentException
-	extends RuntimeException
+	extends TemplateException
 {
 
 	public ComponentException()
