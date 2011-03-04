@@ -16,31 +16,37 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+/**
+ * Filter that specifically works with Resteasy. This filter will push the
+ * proper objects onto the Resteasy stack.
+ * 
+ * @author Andreas Holstenson
+ *
+ */
 @Singleton
 public class ResteasyFilter
 	implements Filter
 {
-	private final ResteasyProviderFactory provider;
-
 	@Inject
-	public ResteasyFilter(ResteasyProviderFactory provider)
+	public ResteasyFilter()
 	{
-		this.provider = provider;
 	}
 	
-	public void init(FilterConfig filterConfig) throws ServletException
+	public void init(FilterConfig filterConfig)
+		throws ServletException
 	{
-		// TODO Auto-generated method stub
-		
 	}
 
-	public void doFilter(ServletRequest request, ServletResponse response,
-			FilterChain chain) throws IOException, ServletException
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) 
+		throws IOException, ServletException
 	{
-		provider.pushContext(HttpServletRequest.class, (HttpServletRequest) request);
-		provider.pushContext(HttpServletResponse.class, (HttpServletResponse) response);
+		ResteasyProviderFactory.pushContext(HttpServletRequest.class, (HttpServletRequest) request);
+		ResteasyProviderFactory.pushContext(HttpServletResponse.class, (HttpServletResponse) response);
 		
 		chain.doFilter(request, response);
+		
+		ResteasyProviderFactory.popContextData(HttpServletResponse.class);
+		ResteasyProviderFactory.popContextData(HttpServletRequest.class);
 	}
 
 	public void destroy()

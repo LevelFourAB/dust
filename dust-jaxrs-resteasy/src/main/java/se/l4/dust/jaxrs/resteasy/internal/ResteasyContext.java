@@ -7,11 +7,29 @@ import javax.servlet.http.HttpSession;
 
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import se.l4.dust.jaxrs.spi.Context;
 
+/**
+ * Context for Reaseasy, mostly delegates to {@link ResteasyProviderFactory}.
+ * 
+ * @author Andreas Holstenson
+ *
+ */
+@Singleton
 public class ResteasyContext
 	implements Context
 {
+	private final ResteasyConfiguration configuration;
+
+	@Inject
+	public ResteasyContext(ResteasyConfiguration configuration)
+	{
+		this.configuration = configuration;
+	}
+	
 	public HttpServletRequest getHttpServletRequest()
 	{
 		return ResteasyProviderFactory.getContextData(HttpServletRequest.class);
@@ -30,7 +48,7 @@ public class ResteasyContext
 
 	public ServletContext getServletContext()
 	{
-		return ResteasyProviderFactory.getContextData(ServletContext.class);
+		return configuration.getServletContext();
 	}
 
 }

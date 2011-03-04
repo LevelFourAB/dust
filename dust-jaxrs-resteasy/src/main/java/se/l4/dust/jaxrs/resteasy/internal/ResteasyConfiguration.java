@@ -6,22 +6,31 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 
 import org.jboss.resteasy.core.Dispatcher;
+import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.jboss.resteasy.spi.Registry;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
+
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
 
 import se.l4.dust.jaxrs.PageProvider;
 import se.l4.dust.jaxrs.ServletBinder;
 import se.l4.dust.jaxrs.spi.Configuration;
 
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-
-
+/**
+ * Configuration for Resteasy.
+ * 
+ * @author Andreas Holstenson
+ *
+ */
+@Singleton
 public class ResteasyConfiguration
 	implements Configuration
 {
 	private final Registry registry;
 	private final ResteasyProviderFactory factory;
+	private ServletContext servletContext;
 	
 	@Inject
 	public ResteasyConfiguration(Registry registry,
@@ -53,6 +62,8 @@ public class ResteasyConfiguration
 	
 	public void setupContext(ServletContext ctx, Injector injector)
 	{
+		this.servletContext = ctx;
+		
 		// Setup Resteasy
 		ResteasyProviderFactory factory = injector.getInstance(ResteasyProviderFactory.class);
 		Dispatcher dispatcher = injector.getInstance(Dispatcher.class);
@@ -66,12 +77,17 @@ public class ResteasyConfiguration
 	
 	public Class<? extends HttpServlet> getRootServlet()
 	{
-		return WebServlet.class;
+		return HttpServletDispatcher.class;
 	}
 	
 	public void setupFilter(ServletContext ctx, Injector injector,
 			ServletBinder binder)
 	{
 		binder.filter("/*").with(ResteasyFilter.class);
+	}
+
+	public ServletContext getServletContext()
+	{
+		return servletContext;
 	}
 }
