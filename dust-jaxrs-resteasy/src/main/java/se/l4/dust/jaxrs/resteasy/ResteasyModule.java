@@ -52,7 +52,7 @@ public class ResteasyModule
 		bind(Context.class).to(ResteasyContext.class);
 		bind(RenderingContext.class).to(ResteasyRenderingContext.class);
 	}
-
+	
 	@Contribution(name="jax-rs-providers")
 	public void contributeDefaultMessageProviders(ResteasyProviderFactory factory,
 			ByteArrayProvider p1,

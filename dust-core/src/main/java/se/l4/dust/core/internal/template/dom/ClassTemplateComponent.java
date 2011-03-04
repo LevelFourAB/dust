@@ -194,6 +194,7 @@ public class ClassTemplateComponent
 	
 	private class Argument
 	{
+		private final Method method;
 		private final Type type;
 		private final Annotation[] annotations;
 		private final String attribute;
@@ -201,6 +202,7 @@ public class ClassTemplateComponent
 		
 		public Argument(Method m, int index)
 		{
+			method = m;
 			annotations = m.getParameterAnnotations()[index];
 			type = m.getGenericParameterTypes()[index];
 			typeClass = m.getParameterTypes()[index];
@@ -253,7 +255,7 @@ public class ClassTemplateComponent
 					}
 				}
 				
-				return null; // XXX: Exception
+				return ctx.resolveObject(method, type, annotations, root);
 			}
 		}
 	}

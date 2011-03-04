@@ -1,13 +1,15 @@
 package se.l4.dust.api.template;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import se.l4.dust.api.NamespaceManager;
-
 import com.google.inject.Inject;
+
+import se.l4.dust.api.NamespaceManager;
 
 /**
  * Implementation of {@link RenderingContext} that does not handle any URI
@@ -44,7 +46,8 @@ public class DefaultRenderingContext
 		return null;
 	}
 	
-	public Object resolveObject(Class<?> type, Annotation[] annotations)
+	public Object resolveObject(AccessibleObject parameter, Type type, 
+			Annotation[] annotations, Object instance)
 	{
 		return null;
 	}

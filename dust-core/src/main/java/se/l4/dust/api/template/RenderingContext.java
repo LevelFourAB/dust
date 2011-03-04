@@ -1,6 +1,8 @@
 package se.l4.dust.api.template;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Type;
 import java.net.URI;
 
 /**
@@ -39,9 +41,17 @@ public interface RenderingContext
 	/**
 	 * Resolve an object of the specified type.
 	 * 
+	 * @param parameter
+	 * 		the parameter the object is for (if any)
 	 * @param type
+	 * 		the type of the created object
 	 * @param annotations
+	 * 		annotations placed on the parameter
+	 * @param instance
+	 * 		the instance to create the object for (owner of parameter)
 	 * @return
 	 */
-	Object resolveObject(Class<?> type, Annotation[] annotations);
+	Object resolveObject(AccessibleObject parameter, Type type,
+		Annotation[] annotations, Object instance
+	);
 }

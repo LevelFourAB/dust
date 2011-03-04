@@ -1,6 +1,8 @@
 package se.l4.dust.jaxrs.spi;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,12 +11,12 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.jdom.Namespace;
 
+import com.google.inject.Inject;
+
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.template.RenderingContext;
-
-import com.google.inject.Inject;
 
 /**
  * Implementation of {@link RenderingContext} that resolves assets correctly
@@ -56,7 +58,8 @@ public class WebRenderingContext
 		return null;
 	}
 	
-	public Object resolveObject(Class<?> type, Annotation[] annotations)
+	public Object resolveObject(AccessibleObject parameter, Type type, 
+			Annotation[] annotations, Object instance)
 	{
 		return null;
 	}
