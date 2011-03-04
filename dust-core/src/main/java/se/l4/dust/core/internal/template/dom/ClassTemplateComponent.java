@@ -11,18 +11,19 @@ import java.util.List;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
 
-import se.l4.dust.api.TemplateException;
-import se.l4.dust.api.annotation.PrepareRender;
-import se.l4.dust.api.annotation.TemplateParam;
-import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.api.template.TemplateCache;
-import se.l4.dust.dom.Document;
-import se.l4.dust.dom.Element;
-
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
+
+import se.l4.dust.api.TemplateException;
+import se.l4.dust.api.annotation.PrepareRender;
+import se.l4.dust.api.annotation.TemplateParam;
+import se.l4.dust.api.conversion.TypeConverter;
+import se.l4.dust.api.template.RenderingContext;
+import se.l4.dust.api.template.TemplateCache;
+import se.l4.dust.dom.Document;
+import se.l4.dust.dom.Element;
 
 /**
  * Component based on a class. 
@@ -33,6 +34,7 @@ import com.google.inject.TypeLiteral;
 public class ClassTemplateComponent
 	extends TemplateComponent
 {
+	private final TypeConverter converter;
 	private final Class<?> type;
 	private final Injector injector;
 	private final TemplateCache cache;
@@ -43,9 +45,11 @@ public class ClassTemplateComponent
 			String name,
 			Injector injector, 
 			TemplateCache cache,
+			TypeConverter converter,
 			Class<?> type)
 	{
 		super(name, ns);
+		this.converter = converter;
 		
 		this.cache = cache;
 		this.type = type;
@@ -160,7 +164,9 @@ public class ClassTemplateComponent
 			Object[] data = new Object[arguments.length];
 			for(int i=0, n=arguments.length; i<n; i++)
 			{
-				data[i] = arguments[i].getValue(ctx, root);
+				Object value = arguments[i].getValue(ctx, root);
+				value = converter.convert(value, arguments[i].typeClass);
+				data[i] = value;
 			}
 			
 			try
@@ -191,11 +197,13 @@ public class ClassTemplateComponent
 		private final Type type;
 		private final Annotation[] annotations;
 		private final String attribute;
+		private final Class<?> typeClass;
 		
 		public Argument(Method m, int index)
 		{
 			annotations = m.getParameterAnnotations()[index];
 			type = m.getGenericParameterTypes()[index];
+			typeClass = m.getParameterTypes()[index];
 			
 			attribute = findAttribute(m, annotations);
 		}
