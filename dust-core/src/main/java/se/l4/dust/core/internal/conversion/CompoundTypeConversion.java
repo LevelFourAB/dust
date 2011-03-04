@@ -37,6 +37,16 @@ public class CompoundTypeConversion
 		this.out = out;
 	}
 	
+	public NonGenericConversion<Object, Object> getIn()
+	{
+		return in;
+	}
+	
+	public NonGenericConversion<Object, Object> getOut()
+	{
+		return out;
+	}
+	
 	public Object convert(Object in)
 	{
 		Object firstPass = this.in.convert(in);
@@ -53,4 +63,9 @@ public class CompoundTypeConversion
 		return out.getOutput();
 	}
 
+	@Override
+	public String toString()
+	{
+		return getClass().getSimpleName() + "[" + in + " => " + out + "]";
+	}
 }

@@ -1,12 +1,14 @@
 package se.l4.dust.core.internal.conversion;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -167,7 +169,32 @@ public class DefaultTypeConverter
 		out = (Class) wrap(out);
 		
 		Set<Conversion<I, O>> tested = new HashSet<Conversion<I, O>>();
-		LinkedList<NonGenericConversion<I, O>> queue = new LinkedList<NonGenericConversion<I, O>>();
+		PriorityQueue<NonGenericConversion<I, O>> queue = new PriorityQueue<NonGenericConversion<I, O>>(
+			10,
+			new Comparator<NonGenericConversion<I, O>>()
+			{
+				public int compare(NonGenericConversion<I,O> o1, NonGenericConversion<I,O> o2)
+				{
+					int c1 = count(o1);
+					int c2 = count(o2);
+					
+					return (c1<c2 ? -1 : (c1==c2 ? 0 : 1));
+				}
+				
+				private int count(NonGenericConversion n)
+				{
+					if(n instanceof CompoundTypeConversion)
+					{
+						CompoundTypeConversion tc = (CompoundTypeConversion) n;
+						return count(tc.getIn()) + count(tc.getOut());
+					}
+					else
+					{
+						return 1;
+					}
+				}
+			}
+		);
 		
 		// Add initial conversions that should be checked
 		for(Class<?> c : getInheritance(in))
@@ -180,7 +207,7 @@ public class DefaultTypeConverter
 		
 		while(false == queue.isEmpty())
 		{
-			NonGenericConversion tc = queue.removeFirst();
+			NonGenericConversion tc = queue.poll();
 		
 			// check if this is ok
 			if(out.isAssignableFrom(tc.getOutput()))
