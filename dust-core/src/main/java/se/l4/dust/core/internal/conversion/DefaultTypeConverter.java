@@ -115,7 +115,22 @@ public class DefaultTypeConverter
 	@SuppressWarnings("unchecked")
 	public <T> T convert(Object in, Class<T> output)
 	{
-		Class<?> type = in == null ? void.class : in.getClass();
+		Class<?> type;
+		if(in == null)
+		{
+			if(output.isPrimitive())
+			{
+				type = void.class;
+			}
+			else
+			{
+				return null;
+			}
+		}
+		else
+		{
+			type = in.getClass();
+		}
 		
 		// Check if it is assignable
 		if(output.isAssignableFrom(type))
