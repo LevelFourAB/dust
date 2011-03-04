@@ -5,6 +5,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class ClassTemplateComponent
 	private final Class<?> type;
 	private final Injector injector;
 	private final TemplateCache cache;
-	private final MethodInvocation method;
+	private final MethodInvocation[] methods;
 	
 	public ClassTemplateComponent(
 			Namespace ns,
@@ -55,25 +56,26 @@ public class ClassTemplateComponent
 		this.type = type;
 		this.injector = injector;
 		
-		method = createMethodInvocation(type);
+		methods = createMethodInvocations(type);
 	}
 	
-	private MethodInvocation createMethodInvocation(Class<?> type)
+	private MethodInvocation[] createMethodInvocations(Class<?> type)
 	{
+		List<MethodInvocation> invocations = new ArrayList<MethodInvocation>();
 		while(type != Object.class && type != null)
 		{
 			for(Method m : type.getDeclaredMethods())
 			{
 				if(m.isAnnotationPresent(PrepareRender.class))
 				{
-					return new MethodInvocation(m);
+					invocations.add(new MethodInvocation(m));
 				}
 			}
 			
 			type = type.getSuperclass();
 		}
 		
-		return null;
+		return invocations.toArray(new MethodInvocation[invocations.size()]);
 	}
 	
 	/**
@@ -100,14 +102,35 @@ public class ClassTemplateComponent
 		
 		Object root;
 		
-		if(method == null)
+		if(methods.length == 0)
 		{
 			// No processing needed
 			root = o;
 		}
 		else
 		{
-			root = method.invoke(ctx, data, o);
+			// Find the best method to invoke
+			MethodInvocation bestMethod = null;
+			if(methods.length == 1)
+			{
+				bestMethod = methods[0];
+			}
+			else
+			{
+				int bestScore = 0;
+				for(MethodInvocation i : methods)
+				{
+					int score = i.score();
+					if(score > bestScore)
+					{
+						bestMethod = i;
+						bestScore = score;
+					}
+				}
+			}
+			
+			// Actually invoke the method
+			root = bestMethod.invoke(ctx, data, o);
 			if(root == null)
 			{
 				root = o;
@@ -159,6 +182,25 @@ public class ClassTemplateComponent
 			arguments = result;
 		}
 		
+		/**
+		 * Score the invocation.
+		 * 
+		 * @return
+		 */
+		public int score()
+		{
+			int score = 0;
+			for(Argument arg : arguments)
+			{
+				if(arg.canBeInjected())
+				{
+					score++;
+				}
+			}
+			
+			return score;
+		}
+		
 		public Object invoke(RenderingContext ctx, Object root, Object self)
 		{
 			Object[] data = new Object[arguments.length];
@@ -199,6 +241,7 @@ public class ClassTemplateComponent
 		private final Annotation[] annotations;
 		private final String attribute;
 		private final Class<?> typeClass;
+		private final Binding binding;
 		
 		public Argument(Method m, int index)
 		{
@@ -208,6 +251,35 @@ public class ClassTemplateComponent
 			typeClass = m.getParameterTypes()[index];
 			
 			attribute = findAttribute(m, annotations);
+			binding = findBinding();
+		}
+		
+		private Binding findBinding()
+		{
+			TypeLiteral literal = TypeLiteral.get(type);
+			
+			for(Binding b : (List<Binding>) injector.findBindingsByType(literal))
+			{
+				Key key = b.getKey();
+				
+				if(key.getAnnotation() != null)
+				{
+					for(Annotation a : annotations)
+					{
+						if(key.getAnnotation().equals(a))
+						{
+							return b;
+						}
+					}
+				}
+				
+				if(key.getAnnotation() == null)
+				{
+					return b;
+				}
+			}
+			
+			return null;
 		}
 		
 		private String findAttribute(Method m, Annotation[] annotations)
@@ -223,6 +295,26 @@ public class ClassTemplateComponent
 			return null;
 		}
 		
+		public boolean canBeInjected()
+		{
+			if(binding != null)
+			{
+				// Bindings can always be handled
+				return true;
+			}
+			else if(attribute != null)
+			{
+				// If the attribute exists we can be injected
+				return getAttribute(attribute) != null;
+			}
+			else
+			{
+				// Assume that we can be injected
+				// FIXME: Actually check with the context
+				return true;
+			}
+		}
+		
 		public Object getValue(RenderingContext ctx, Object root)
 		{
 			if(attribute != null)
@@ -230,31 +322,12 @@ public class ClassTemplateComponent
 				TemplateAttribute attr = (TemplateAttribute) getAttribute(attribute);
 				return attr.getValue(ctx, root);
 			}
+			else if(binding != null)
+			{
+				return binding.getProvider().get();
+			}
 			else
 			{
-				TypeLiteral literal = TypeLiteral.get(type);
-				
-				for(Binding b : (List<Binding>) injector.findBindingsByType(literal))
-				{
-					Key key = b.getKey();
-					
-					if(key.getAnnotation() != null)
-					{
-						for(Annotation a : annotations)
-						{
-							if(key.getAnnotation().equals(a))
-							{
-								return b.getProvider().get();
-							}
-						}
-					}
-					
-					if(key.getAnnotation() == null)
-					{
-						return b.getProvider().get();
-					}
-				}
-				
 				return ctx.resolveObject(method, type, annotations, root);
 			}
 		}
