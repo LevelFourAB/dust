@@ -4,8 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import se.l4.dust.api.DocumentLinker;
+import se.l4.dust.api.annotation.TemplateScoped;
 import se.l4.dust.dom.Element;
 
+/**
+ * Implementation of {@link DocumentLinker}.
+ * 
+ * @author Andreas Holstenson
+ *
+ */
+@TemplateScoped
 public class DocumentLinkerImpl
 	implements DocumentLinker
 {

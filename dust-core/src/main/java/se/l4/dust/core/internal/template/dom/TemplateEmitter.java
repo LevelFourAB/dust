@@ -8,14 +8,15 @@ import org.jdom.DocType;
 import org.jdom.JDOMException;
 import org.jdom.Text;
 
+import com.google.inject.Inject;
+
 import se.l4.dust.api.TemplateFilter;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.api.template.RenderingContext;
+import se.l4.dust.core.internal.template.TemplateContext;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
-
-import com.google.inject.Inject;
 
 /**
  * Class that drives the transformation of a template into a rendered document.
@@ -36,6 +37,8 @@ public class TemplateEmitter
 	public Document process(Document template, RenderingContext ctx, Object data)
 		throws JDOMException
 	{
+		TemplateContext.set(ctx);
+		
 		Document doc = new Document();
 		
 		Element tplRoot = template.getRootElement();
@@ -96,6 +99,8 @@ public class TemplateEmitter
 		{
 			f.filter(doc);
 		}
+		
+		TemplateContext.clear();
 		
 		return doc;
 	}
