@@ -11,13 +11,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Function;
 import com.google.common.collect.MapMaker;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
 
 import se.l4.dust.api.conversion.Conversion;
 import se.l4.dust.api.conversion.ConversionException;
@@ -34,16 +29,10 @@ import se.l4.dust.api.conversion.TypeConverter;
 public class DefaultTypeConverter
 	implements TypeConverter
 {
-	private static final Logger logger 
-		= LoggerFactory.getLogger(DefaultTypeConverter.class);
-	
 	private Map<Class<?>, List<Conversion<?, ?>>> conversions;
 	private Map<CacheKey, Conversion<?, ?>> cache;
 	
 	private static Map<Class<?>, Class<?>> primitives;
-	
-	private Injector injector;
-	private boolean loaded;
 	
 	static
 	{
@@ -60,12 +49,6 @@ public class DefaultTypeConverter
 	
 	public DefaultTypeConverter()
 	{
-		this(null);
-	}
-	
-	@Inject
-	public DefaultTypeConverter(Injector injector)
-	{
 		conversions = new MapMaker()
 			.makeComputingMap(new Function<Class<?>, List<Conversion<?, ?>>>()
 			{
@@ -76,8 +59,6 @@ public class DefaultTypeConverter
 			});
 		
 		cache = new ConcurrentHashMap<CacheKey, Conversion<?,?>>();
-		
-		this.injector = injector;
 	}
 	
 	private List<Conversion<?, ?>> getListFor(Class<?> c)
