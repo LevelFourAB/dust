@@ -150,6 +150,17 @@ public class TemplateOutputter
 				
 				return;
 			}
+			else if("pre".equals(element.getName()))
+			{
+				Format previousFormat = currentFormat;
+				currentFormat = preserveFormat;
+				
+				super.printElement(out, element, level, namespaces);
+				
+				currentFormat = previousFormat;
+				
+				return;
+			}
 			
 			if(currentFormat.getExpandEmptyElements())
 			{
