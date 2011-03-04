@@ -9,11 +9,13 @@ import se.l4.dust.core.internal.conversion.standard.BooleanLongConversion;
 import se.l4.dust.core.internal.conversion.standard.BooleanStringConversion;
 import se.l4.dust.core.internal.conversion.standard.ByteLongConversion;
 import se.l4.dust.core.internal.conversion.standard.DoubleFloatConversion;
+import se.l4.dust.core.internal.conversion.standard.DoubleLongConversion;
 import se.l4.dust.core.internal.conversion.standard.DoubleStringConversion;
 import se.l4.dust.core.internal.conversion.standard.FloatDoubleConversion;
 import se.l4.dust.core.internal.conversion.standard.IntegerLongConversion;
 import se.l4.dust.core.internal.conversion.standard.LongBooleanConversion;
 import se.l4.dust.core.internal.conversion.standard.LongByteConversion;
+import se.l4.dust.core.internal.conversion.standard.LongDoubleConversion;
 import se.l4.dust.core.internal.conversion.standard.LongIntegerConversion;
 import se.l4.dust.core.internal.conversion.standard.LongShortConversion;
 import se.l4.dust.core.internal.conversion.standard.LongStringConversion;
@@ -73,6 +75,9 @@ public class ConversionModule
 		
 		converter.add(new BooleanLongConversion());
 		converter.add(new LongBooleanConversion());
+		
+		converter.add(new DoubleLongConversion());
+		converter.add(new LongDoubleConversion());
 		
 		converter.add(new BooleanStringConversion());
 		converter.add(new StringBooleanConversion());
