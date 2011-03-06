@@ -23,8 +23,11 @@ import com.google.inject.Singleton;
 
 import se.l4.crayon.Environment;
 import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Template;
+import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.UrlResource;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.core.internal.template.dom.ContentPreload;
 import se.l4.dust.core.internal.template.dom.ExpressionParser;
@@ -211,7 +214,7 @@ public class TemplateCacheImpl
 	private class ProductionCache
 		implements InnerCache
 	{
-		private final ConcurrentMap<URL, Document> templates;
+		protected final ConcurrentMap<URL, Document> templates;
 		
 		public ProductionCache()
 		{
@@ -232,11 +235,43 @@ public class TemplateCacheImpl
 	}
 	
 	private class DevelopmentCache
-		implements InnerCache
+		extends ProductionCache
 	{
+		@Override
 		public Document getTemplate(URL url)
 		{
-			return loadTemplate(url);
+			Document template = super.getTemplate(url);
+			Resource resource = (Resource) template.getProperty("RESOURCE");
+			if(resource == null)
+			{
+				resource = getResource(url);
+				template.setProperty("RESOURCE", resource);
+			}
+			else
+			{
+				Resource newResource = getResource(url);
+				if(resource.getLastModified() < newResource.getLastModified())
+				{
+					// Modified, reload the template
+					template = loadTemplate(url);
+					templates.put(url, template);
+					template.setProperty("RESOURCE", newResource);
+				}
+			}
+			
+			return template;
+		}
+		
+		private Resource getResource(URL url)
+		{
+			try
+			{
+				return new UrlResource(url);
+			}
+			catch(IOException e)
+			{
+				throw new TemplateException("Could not create reference to resource");
+			}
 		}
 	}
 }
