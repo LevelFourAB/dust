@@ -3,8 +3,8 @@ package se.l4.dust.core.internal.template;
 import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.api.template.PropertySource;
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.core.internal.template.dom.ExpressionNode;
-import se.l4.dust.core.internal.template.dom.ExpressionParser;
+import se.l4.dust.core.internal.template.expression.ExpressionNode;
+import se.l4.dust.core.internal.template.expression.ExpressionParser;
 import se.l4.dust.dom.Element;
 
 import com.google.inject.Inject;

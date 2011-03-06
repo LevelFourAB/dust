@@ -30,9 +30,9 @@ import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.UrlResource;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.core.internal.template.dom.ContentPreload;
-import se.l4.dust.core.internal.template.dom.ExpressionParser;
 import se.l4.dust.core.internal.template.dom.TemplateFactory;
 import se.l4.dust.core.internal.template.dom.TemplateSAXHandler;
+import se.l4.dust.core.internal.template.expression.ExpressionParser;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
 

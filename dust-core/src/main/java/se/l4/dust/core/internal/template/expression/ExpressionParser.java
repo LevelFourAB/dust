@@ -1,4 +1,4 @@
-package se.l4.dust.core.internal.template.dom;
+package se.l4.dust.core.internal.template.expression;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +12,7 @@ import com.google.inject.Singleton;
 import se.l4.crayon.Environment;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.template.PropertySource;
+import se.l4.dust.core.internal.template.dom.TemplateUtils;
 import se.l4.dust.dom.Element;
 
 @Singleton

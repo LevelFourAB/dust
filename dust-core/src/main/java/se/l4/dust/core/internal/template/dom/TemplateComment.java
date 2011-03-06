@@ -6,6 +6,7 @@ import org.jdom.Comment;
 import org.jdom.Content;
 import org.jdom.JDOMException;
 
+import se.l4.dust.core.internal.template.expression.ExpressionParser;
 import se.l4.dust.dom.Element;
 
 public class TemplateComment

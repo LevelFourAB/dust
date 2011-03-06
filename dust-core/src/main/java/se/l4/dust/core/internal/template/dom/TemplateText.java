@@ -6,6 +6,7 @@ import org.jdom.Content;
 import org.jdom.JDOMException;
 import org.jdom.Text;
 
+import se.l4.dust.core.internal.template.expression.ExpressionParser;
 import se.l4.dust.dom.Element;
 
 /**

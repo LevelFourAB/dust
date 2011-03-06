@@ -5,10 +5,10 @@ import org.jdom.JDOMException;
 
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.core.internal.template.TemplateModule;
-import se.l4.dust.core.internal.template.dom.ExpressionParser;
 import se.l4.dust.core.internal.template.dom.TemplateAttribute;
 import se.l4.dust.core.internal.template.dom.TemplateComponent;
 import se.l4.dust.core.internal.template.dom.TemplateEmitter;
+import se.l4.dust.core.internal.template.expression.ExpressionParser;
 import se.l4.dust.dom.Element;
 
 public class RawComponent

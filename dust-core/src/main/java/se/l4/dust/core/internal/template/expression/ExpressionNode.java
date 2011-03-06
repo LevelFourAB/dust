@@ -1,4 +1,4 @@
-package se.l4.dust.core.internal.template.dom;
+package se.l4.dust.core.internal.template.expression;
 
 import java.io.Serializable;
 

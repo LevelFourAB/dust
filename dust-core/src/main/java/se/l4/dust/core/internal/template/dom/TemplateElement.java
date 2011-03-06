@@ -6,6 +6,7 @@ import org.jdom.Attribute;
 import org.jdom.Namespace;
 
 import se.l4.dust.api.template.RenderingContext;
+import se.l4.dust.core.internal.template.expression.ExpressionParser;
 import se.l4.dust.dom.Element;
 
 public class TemplateElement
