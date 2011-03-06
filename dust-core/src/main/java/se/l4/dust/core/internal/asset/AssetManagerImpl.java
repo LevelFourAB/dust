@@ -16,7 +16,7 @@ import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.asset.AssetSource;
-import se.l4.dust.api.asset.Resource;
+import se.l4.dust.api.resource.Resource;
 
 import com.google.common.base.Function;
 import com.google.common.collect.MapMaker;

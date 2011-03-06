@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import org.jdom.Namespace;
 
+import se.l4.dust.api.resource.Resource;
+
 /**
  * Source of assets, used to support pluggable asset implementations.
  * 

@@ -10,8 +10,8 @@ import com.google.inject.Singleton;
 
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.AssetSource;
-import se.l4.dust.api.asset.Resource;
-import se.l4.dust.api.asset.UrlResource;
+import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.UrlResource;
 
 /**
  * Asset source that resolves from the classpath via the use of 

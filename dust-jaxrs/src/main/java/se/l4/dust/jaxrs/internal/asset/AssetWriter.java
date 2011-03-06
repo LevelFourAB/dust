@@ -16,7 +16,7 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
 import se.l4.dust.api.asset.Asset;
-import se.l4.dust.api.asset.Resource;
+import se.l4.dust.api.resource.Resource;
 
 @Provider
 @Produces("*/*")

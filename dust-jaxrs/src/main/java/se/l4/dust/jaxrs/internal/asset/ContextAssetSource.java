@@ -14,8 +14,8 @@ import se.l4.dust.Dust;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.asset.AssetSource;
-import se.l4.dust.api.asset.Resource;
-import se.l4.dust.api.asset.UrlResource;
+import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.UrlResource;
 import se.l4.dust.jaxrs.annotation.ContextScoped;
 
 @ContextScoped

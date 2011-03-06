@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import org.jdom.Namespace;
 
+import se.l4.dust.api.resource.Resource;
+
 /**
  * Processor of an asset, used to modify the asset data in runtime before
  * returning it to the client.

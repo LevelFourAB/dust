@@ -3,6 +3,7 @@ package se.l4.dust.api.asset;
 import org.jdom.Namespace;
 
 import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.resource.Resource;
 
 /**
  * Asset management, helps with locating and registering assets. Assets are

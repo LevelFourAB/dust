@@ -10,7 +10,7 @@ import org.jdom.Namespace;
 
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
-import se.l4.dust.api.asset.Resource;
+import se.l4.dust.api.resource.Resource;
 
 /**
  * Implementation of {@link Asset}.

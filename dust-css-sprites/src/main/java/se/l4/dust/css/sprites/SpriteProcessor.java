@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.asset.AssetProcessor;
-import se.l4.dust.api.asset.MemoryResource;
-import se.l4.dust.api.asset.Resource;
+import se.l4.dust.api.resource.MemoryResource;
+import se.l4.dust.api.resource.Resource;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

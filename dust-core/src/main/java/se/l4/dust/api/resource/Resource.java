@@ -1,4 +1,4 @@
-package se.l4.dust.api.asset;
+package se.l4.dust.api.resource;
 
 import java.io.IOException;
 import java.io.InputStream;
