@@ -30,6 +30,6 @@ public interface AssetProcessor
 	 * @throws IOException
 	 * 		if unable to process the stream
 	 */
-	Resource process(Namespace namespace, String path, Resource in)
+	Resource process(Namespace namespace, String path, Resource in, Object... arguments)
 		throws IOException;
 }

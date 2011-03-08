@@ -108,9 +108,37 @@ public interface AssetManager
 	 * should be processed by the given classes before being used.
 	 * 
 	 * <p>
+	 * Examples:
+	 * <pre>
+	 * // To process all CSS files in the given namespace
+	 * processAssets(ns, ".*\\.css", CssProcessor.class);
+	 * 
+	 * // To process a specific file
+	 * processAssets(ns, "logo.png", ImageScaler.class);
+	 * </pre>
+	 * 
+	 * <p>
 	 * Processing is only done once for every asset.
 	 *  
 	 * @param processor
 	 */
 	void processAssets(Namespace namespace, String filter, Class<? extends AssetProcessor>... processor);
+	
+	/**
+	 * Define that assets in the given namespace matching the regular expression
+	 * should be processed by the given classes before being used.
+	 * 
+	 * <p>
+	 * Examples:
+	 * <pre>
+	 * // Pass two arguments to the processor
+	 * processAssets(ns, "logo.png", ImageScaler.class, 100, 200);
+	 * </pre>
+	 * 
+	 * <p>
+	 * Processing is only done once for every asset.
+	 *  
+	 * @param processor
+	 */
+	void processAssets(Namespace namespace, String filter, Class<? extends AssetProcessor> processor, Object... arguments);
 }

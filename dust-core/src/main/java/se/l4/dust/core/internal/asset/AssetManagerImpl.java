@@ -1,8 +1,11 @@
 package se.l4.dust.core.internal.asset;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -10,20 +13,21 @@ import java.util.regex.Pattern;
 
 import org.jdom.Namespace;
 
-import se.l4.crayon.Environment;
-import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.asset.Asset;
-import se.l4.dust.api.asset.AssetManager;
-import se.l4.dust.api.asset.AssetProcessor;
-import se.l4.dust.api.asset.AssetSource;
-import se.l4.dust.api.resource.Resource;
-
 import com.google.common.base.Function;
 import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.internal.ComputationException;
+
+import se.l4.crayon.Environment;
+import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.asset.Asset;
+import se.l4.dust.api.asset.AssetManager;
+import se.l4.dust.api.asset.AssetProcessor;
+import se.l4.dust.api.asset.AssetSource;
+import se.l4.dust.api.resource.NamedResource;
+import se.l4.dust.api.resource.Resource;
 
 @Singleton
 public class AssetManagerImpl
@@ -36,6 +40,7 @@ public class AssetManagerImpl
 	private final List<Object> sources;
 	private final Set<String> protectedExtensions;
 	private final Injector injector;
+	private final Map<String, AssetProcessor> extensionProcessors;
 	
 	@Inject
 	public AssetManagerImpl(NamespaceManager manager, Injector injector,
@@ -44,6 +49,7 @@ public class AssetManagerImpl
 		this.manager = manager;
 		this.injector = injector;
 		sources = new CopyOnWriteArrayList<Object>();
+		extensionProcessors = new ConcurrentHashMap<String, AssetProcessor>();
 		
 		Function<Namespace, AssetNamespace> f;
 		if(env == Environment.DEVELOPMENT)
@@ -119,6 +125,14 @@ public class AssetManagerImpl
 		ans.addProcessors(filter, processors);
 	}
 	
+	public void processAssets(Namespace namespace, String filter,
+			Class<? extends AssetProcessor> processor, 
+			Object... arguments)
+	{
+		AssetNamespace ans = cache.get(namespace);
+		ans.addProcessor(filter, processor, arguments);
+	}
+	
 	/**
 	 * Default encapsulation of a namespace associated with assets. This class
 	 * handles retrieval and creation of assets.
@@ -142,7 +156,12 @@ public class AssetManagerImpl
 		
 		public void addProcessors(String filter, Class<? extends AssetProcessor>... classes)
 		{
-			processors.add(new ProcessorDef(filter, classes));
+			processors.add(new ProcessorDef(filter, classes, new Object[0]));
+		}
+		
+		public void addProcessor(String filter, Class<? extends AssetProcessor> processor, Object[] arguments)
+		{
+			processors.add(new ProcessorDef(filter, new Class[] { processor }, arguments));
 		}
 		
 		public Asset get(String path)
@@ -178,23 +197,74 @@ public class AssetManagerImpl
 			{
 				boolean processed = false;
 				Resource current = resource;
+				NamedResource lastNamed = null;
 				
-				// Check if we have any filters that need to be applied
-				for(ProcessorDef def : processors)
+				Set<ProcessorDef> applied = new HashSet<ProcessorDef>();
+				
+				/*
+				 * Check if we have any filters that need to be applied.
+				 * 
+				 * Filters are applied in order and if a filter opts to rename
+				 * a resource all filters but the ones already applied must
+				 * be tested again.
+				 */
+				_outer:
+				while(true)
 				{
-					if(def.matches(path))
+					for(ProcessorDef def : processors)
 					{
-						if(false == processed)
-						{
-							processed = true;
-						}
+						if(applied.contains(def)) continue;
 						
-						current = def.filter(namespace, path, current); 
+						if(def.matches(path))
+						{
+							if(false == processed)
+							{
+								processed = true;
+							}
+							
+							current = def.filter(namespace, path, current);
+							applied.add(def);
+							
+							if(current instanceof NamedResource)
+							{
+								// Rename the resource
+								lastNamed = (NamedResource) current;
+								
+								// Reapply filters in order
+								continue _outer;
+							}
+						}
+					}
+					
+					break;
+				}
+				
+				
+				if(lastNamed != null)
+				{
+					// The resource has been renamed
+					int index = path.lastIndexOf('/');
+					if(index == -1)
+					{
+						path = lastNamed.getName();
+					}
+					else
+					{
+						path = path.substring(0, index + 1) + lastNamed.getName(); 
 					}
 				}
 				
+				// Create the actual asset (to make sure the new path is applied)
+				AssetImpl asset = new AssetImpl(manager, protect, namespace, path, current);
+				
+				if(lastNamed != null)
+				{
+					// If renamed, also apply it to its new path
+					set(path, asset);
+				}
+				
 				// Return the asset
-				return new AssetImpl(manager, protect, namespace, path, current);
+				return asset;
 			}
 			
 			return null;
@@ -273,11 +343,13 @@ public class AssetManagerImpl
 	 */
 	private class ProcessorDef
 	{
-		private Class<? extends AssetProcessor>[] classes;
-		private Pattern filter;
+		private final Pattern filter;
+		private final Class<? extends AssetProcessor>[] classes;
+		private final Object[] arguments;
 		
-		public ProcessorDef(String filter, Class<? extends AssetProcessor>[] classes)
+		public ProcessorDef(String filter, Class<? extends AssetProcessor>[] classes, Object[] arguments)
 		{
+			this.arguments = arguments;
 			this.filter = Pattern.compile(filter);
 			this.classes = classes;
 		}
@@ -294,7 +366,7 @@ public class AssetManagerImpl
 			{
 				AssetProcessor instance = injector.getInstance(type);
 				
-				Resource out = instance.process(ns, path, in);
+				Resource out = instance.process(ns, path, in, arguments);
 				
 				in = out;
 			}

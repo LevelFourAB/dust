@@ -26,14 +26,14 @@ import org.jdom.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.resource.MemoryResource;
 import se.l4.dust.api.resource.Resource;
-
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * Processor that uses SmartSprites to create automatic sprite images from
@@ -56,7 +56,10 @@ public class SpriteProcessor
 		this.manager = manager;
 	}
 	
-	public Resource process(Namespace namespace, String path, Resource stream)
+	public Resource process(Namespace namespace, 
+			String path, 
+			Resource stream, 
+			Object... arguments)
 		throws IOException
 	{
 		logger.info("Processing sprites in file " + path + " found in " + namespace.getURI());
