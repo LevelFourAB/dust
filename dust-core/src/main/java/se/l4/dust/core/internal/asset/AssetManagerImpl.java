@@ -14,11 +14,11 @@ import java.util.regex.Pattern;
 import org.jdom.Namespace;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ComputationException;
 import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-import com.google.inject.internal.ComputationException;
 
 import se.l4.crayon.Environment;
 import se.l4.dust.api.NamespaceManager;
