@@ -1,6 +1,7 @@
 package se.l4.dust.core.internal.asset;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.asset.AssetSource;
+import se.l4.dust.api.resource.MergedResource;
 import se.l4.dust.api.resource.NamedResource;
 import se.l4.dust.api.resource.Resource;
 
@@ -133,6 +135,71 @@ public class AssetManagerImpl
 		ans.addProcessor(filter, processor, arguments);
 	}
 	
+	public AssetBuilder addAsset(Namespace namespace, String pathToFile)
+	{
+		AssetNamespace parent = cache.get(namespace);
+		return new AssetBuilderImpl(parent, namespace, pathToFile);
+	}
+	
+	/**
+	 * Builder implementation for defining combined assets.
+	 * 
+	 * @author Andreas Holstenson
+	 *
+	 */
+	private class AssetBuilderImpl
+		implements AssetBuilder
+	{
+		private final AssetNamespace parent;
+		
+		private final Namespace namespace;
+		private final String pathToFile;
+		
+		private final List<Asset> assets;
+		private final List<ProcessorDef> processors;
+
+		public AssetBuilderImpl(AssetNamespace parent, Namespace namespace, String pathToFile)
+		{
+			this.parent = parent;
+			this.namespace = namespace;
+			this.pathToFile = pathToFile;
+			
+			assets = new ArrayList<Asset>();
+			processors = new ArrayList<ProcessorDef>();
+		}
+
+		public AssetBuilder add(String pathToFile)
+		{
+			return add(namespace, pathToFile);
+		}
+
+		public AssetBuilder add(Namespace ns, String pathToFile)
+		{
+			Asset asset = locate(ns, pathToFile);
+			if(asset == null)
+			{
+				throw new IllegalArgumentException("No asset named " + pathToFile + " found in " + ns);
+			}
+			
+			assets.add(asset);
+			
+			return this;
+		}
+
+		public AssetBuilder process(Class<? extends AssetProcessor> processor, Object... args)
+		{
+			processors.add(new ProcessorDef(Pattern.quote(pathToFile), new Class[] { processor }, args));
+			
+			return this;
+		}
+
+		public void create()
+		{
+			parent.defineResource(pathToFile, assets, processors);
+		}
+		
+	}
+	
 	/**
 	 * Default encapsulation of a namespace associated with assets. This class
 	 * handles retrieval and creation of assets.
@@ -143,7 +210,9 @@ public class AssetManagerImpl
 	private class AssetNamespace
 	{
 		private final ConcurrentMap<String, Asset> cache;
-		private final List<ProcessorDef> processors;
+		protected final List<ProcessorDef> processors;
+		protected final ConcurrentMap<String, Resource> definedResources;
+		
 		protected final Namespace namespace;
 		
 		public AssetNamespace(Namespace namespace)
@@ -152,8 +221,29 @@ public class AssetManagerImpl
 			
 			cache = new MapMaker().makeComputingMap(new AssetLocator(this));
 			processors = new CopyOnWriteArrayList<ProcessorDef>();
+			definedResources = new ConcurrentHashMap<String, Resource>();
 		}
 		
+		/**
+		 * Define a new resource for this namespace.
+		 * 
+		 * @param pathToFile
+		 * @param assets
+		 * @param processors
+		 */
+		public void defineResource(String pathToFile, List<Asset> assets, List<ProcessorDef> processors)
+		{
+			this.processors.addAll(processors);
+				
+			Resource[] resources = new Resource[assets.size()];
+			for(int i=0, n=assets.size(); i<n; i++)
+			{
+				resources[i] = assets.get(i).getResource();
+			}
+			
+			definedResources.put(pathToFile, new MergedResource(resources));
+		}
+
 		public void addProcessors(String filter, Class<? extends AssetProcessor>... classes)
 		{
 			processors.add(new ProcessorDef(filter, classes, new Object[0]));
@@ -189,90 +279,104 @@ public class AssetManagerImpl
 		public Asset createAsset(String path)
 			throws IOException
 		{
-			int idx = path.lastIndexOf('.');
-			String extension = idx > 0 ? path.substring(idx+1) : "";
-			boolean protect = isProtectedExtension(extension);
 			Resource resource = locate(path);
 			if(resource != null)
 			{
-				boolean processed = false;
-				Resource current = resource;
-				NamedResource lastNamed = null;
-				
-				Set<ProcessorDef> applied = new HashSet<ProcessorDef>();
-				
-				/*
-				 * Check if we have any filters that need to be applied.
-				 * 
-				 * Filters are applied in order and if a filter opts to rename
-				 * a resource all filters but the ones already applied must
-				 * be tested again.
-				 */
-				_outer:
-				while(true)
-				{
-					for(ProcessorDef def : processors)
-					{
-						if(applied.contains(def)) continue;
-						
-						if(def.matches(path))
-						{
-							if(false == processed)
-							{
-								processed = true;
-							}
-							
-							current = def.filter(namespace, path, current);
-							applied.add(def);
-							
-							if(current instanceof NamedResource)
-							{
-								// Rename the resource
-								lastNamed = (NamedResource) current;
-								
-								// Reapply filters in order
-								continue _outer;
-							}
-						}
-					}
-					
-					break;
-				}
-				
-				
-				if(lastNamed != null)
-				{
-					// The resource has been renamed
-					int index = path.lastIndexOf('/');
-					if(index == -1)
-					{
-						path = lastNamed.getName();
-					}
-					else
-					{
-						path = path.substring(0, index + 1) + lastNamed.getName(); 
-					}
-				}
-				
-				// Create the actual asset (to make sure the new path is applied)
-				AssetImpl asset = new AssetImpl(manager, protect, namespace, path, current);
-				
-				if(lastNamed != null)
-				{
-					// If renamed, also apply it to its new path
-					set(path, asset);
-				}
-				
-				// Return the asset
-				return asset;
+				return createAsset(path, resource);
 			}
 			
 			return null;
 		}
 		
+		public Asset createAsset(String path, Resource resource)
+			throws IOException
+		{
+			int idx = path.lastIndexOf('.');
+			String extension = idx > 0 ? path.substring(idx+1) : "";
+			boolean protect = isProtectedExtension(extension);
+			
+			boolean processed = false;
+			Resource current = resource;
+			NamedResource lastNamed = null;
+			
+			Set<ProcessorDef> applied = new HashSet<ProcessorDef>();
+			
+			/*
+			 * Check if we have any filters that need to be applied.
+			 * 
+			 * Filters are applied in order and if a filter opts to rename
+			 * a resource all filters but the ones already applied must
+			 * be tested again.
+			 */
+			_outer:
+			while(true)
+			{
+				for(ProcessorDef def : processors)
+				{
+					if(applied.contains(def)) continue;
+					
+					if(def.matches(path))
+					{
+						if(false == processed)
+						{
+							processed = true;
+						}
+						
+						current = def.filter(namespace, path, current);
+						applied.add(def);
+						
+						if(current instanceof NamedResource)
+						{
+							// Rename the resource
+							lastNamed = (NamedResource) current;
+							
+							// Reapply filters in order
+							continue _outer;
+						}
+					}
+				}
+				
+				break;
+			}
+			
+			
+			if(lastNamed != null)
+			{
+				// The resource has been renamed
+				int index = path.lastIndexOf('/');
+				if(index == -1)
+				{
+					path = lastNamed.getName();
+				}
+				else
+				{
+					path = path.substring(0, index + 1) + lastNamed.getName(); 
+				}
+			}
+			
+			// Create the actual asset (to make sure the new path is applied)
+			AssetImpl asset = new AssetImpl(manager, protect, namespace, path, current);
+			
+			if(lastNamed != null)
+			{
+				// If renamed, also apply it to its new path
+				set(path, asset);
+			}
+			
+			// Return the asset
+			return asset;
+		}
+		
 		public Resource locate(String path)
 			throws IOException
 		{
+			// Check if the resource has been defined
+			if(definedResources.containsKey(path))
+			{
+				return definedResources.get(path);
+			}
+			
+			// Check with all asset sources
 			for(Object source : sources)
 			{
 				AssetSource s = source instanceof AssetSource
@@ -302,6 +406,24 @@ public class AssetManagerImpl
 		public DevAssetNamespace(Namespace namespace)
 		{
 			super(namespace);
+		}
+		
+		/**
+		 * Define a new resource for this namespace.
+		 * 
+		 * @param pathToFile
+		 * @param assets
+		 * @param processors
+		 */
+		@Override
+		public void defineResource(String pathToFile, List<Asset> assets, List<ProcessorDef> processors)
+		{
+			this.processors.addAll(processors);
+			
+			definedResources.put(pathToFile, new MergedAssetResource(
+				AssetManagerImpl.this, 
+				assets.toArray(new Asset[assets.size()]))
+			);
 		}
 		
 		@Override

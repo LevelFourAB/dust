@@ -9,6 +9,8 @@ import javax.servlet.ServletContext;
 import org.jdom.Namespace;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
 import se.l4.dust.Dust;
 import se.l4.dust.api.NamespaceManager;
@@ -16,18 +18,23 @@ import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.asset.AssetSource;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.UrlResource;
-import se.l4.dust.jaxrs.annotation.ContextScoped;
 
-@ContextScoped
+/**
+ * Asset source that works on the {@link ServletContext}.
+ * 
+ * @author andreas
+ *
+ */
+@Singleton
 public class ContextAssetSource
 	implements AssetSource
 {
-	private final ServletContext ctx;
+	private final Provider<ServletContext> ctx;
 
 	private final NamespaceManager namespaces;
 
 	@Inject
-	public ContextAssetSource(ServletContext ctx, NamespaceManager namespaces)
+	public ContextAssetSource(Provider<ServletContext> ctx, NamespaceManager namespaces)
 	{
 		this.ctx = ctx;
 		this.namespaces = namespaces;
@@ -45,7 +52,7 @@ public class ContextAssetSource
 			
 			try
 			{
-				URL url = ctx.getResource("/" + pathToFile);
+				URL url = ctx.get().getResource("/" + pathToFile);
 				
 				return url == null ? null : new UrlResource(url) ;
 			}

@@ -48,6 +48,48 @@ import se.l4.dust.api.resource.Resource;
 public interface AssetManager
 {
 	/**
+	 * Builder for merged assets.
+	 * 
+	 * @author Andreas Holstenson
+	 *
+	 */
+	interface AssetBuilder
+	{
+		/**
+		 * Add the specified asset to this builder, assuming the same
+		 * namespace as the built asset. See {@link #add(Namespace, String)}
+		 * for details.
+		 * 
+		 * @param ns
+		 * @param pathToFile
+		 * @return
+		 */
+		AssetBuilder add(String pathToFile);
+		
+		/**
+		 * Add the specified asset to this builder. Each asset added will be
+		 * treated as a regular asset and transformed before it is combined
+		 * into a new asset.
+		 * 
+		 * @param ns
+		 * @param pathToFile
+		 * @return
+		 */
+		AssetBuilder add(Namespace ns, String pathToFile);
+		
+		/**
+		 * Indicate that the built asset should be processed.
+		 * 
+		 * @return
+		 */
+		AssetBuilder process(Class<? extends AssetProcessor> processor, Object... args);
+		
+		/**
+		 * Create the asset.
+		 */
+		void create();
+	}
+	/**
 	 * Attempt to locate the given asset by traversing all of the registered
 	 * sources and returning the first match.
 	 *  
@@ -141,4 +183,16 @@ public interface AssetManager
 	 * @param processor
 	 */
 	void processAssets(Namespace namespace, String filter, Class<? extends AssetProcessor> processor, Object... arguments);
+	
+	/**
+	 * Start building a custom combined asset. Combined assets are special in
+	 * that they combine several files into a single one. This can be used
+	 * to combined CSS or JavaScript files at runtime to reduce the number
+	 * of HTTP-requests required.
+	 * 
+	 * @param namespace
+	 * @param pathToFile
+	 * @return
+	 */
+	AssetBuilder addAsset(Namespace namespace, String pathToFile);
 }
