@@ -6,6 +6,7 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 
 import org.jboss.resteasy.core.Dispatcher;
+import org.jboss.resteasy.plugins.server.servlet.FilterDispatcher;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.jboss.resteasy.spi.Registry;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
@@ -84,6 +85,8 @@ public class ResteasyConfiguration
 			ServletBinder binder)
 	{
 		binder.filter("/*").with(ResteasyFilter.class);
+		
+		binder.filter("/*").with(FilterDispatcher.class);
 	}
 
 	public ServletContext getServletContext()

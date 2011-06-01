@@ -1,14 +1,13 @@
 package se.l4.dust.jaxrs.spi;
 
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServlet;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 
+import com.google.inject.Injector;
+
 import se.l4.dust.jaxrs.PageProvider;
 import se.l4.dust.jaxrs.ServletBinder;
-
-import com.google.inject.Injector;
 
 /**
  * Configuration abstraction for different JAX-RS implementations.
@@ -18,17 +17,49 @@ import com.google.inject.Injector;
  */
 public interface Configuration
 {
+	/**
+	 * Add a {@link MessageBodyWriter} to the current JAX-RS configuration.
+	 * 
+	 * @param writer
+	 */
 	void addMessageBodyWriter(MessageBodyWriter<?> writer);
 	
+	/**
+	 * Add a {@link MessageBodyReader} to the current JAX-RS configuration.
+	 * 
+	 * @param writer
+	 */
 	void addMessageBodyReader(MessageBodyReader<?> reader);
 	
+	/**
+	 * Add a page to to the configuration.
+	 * 
+	 * @param factory
+	 */
 	void addPage(PageProvider factory);
 	
+	/**
+	 * Remove a page from the configuration.
+	 * 
+	 * @param factory
+	 */
 	void removePage(PageProvider factory);
 	
+	/**
+	 * Setup the servlet context.
+	 * 
+	 * @param ctx
+	 * @param injector
+	 */
 	void setupContext(ServletContext ctx, Injector injector);
 	
-	Class<? extends HttpServlet> getRootServlet();
-
+	/**
+	 * Perform setup and bind any servlets and filters required for normal
+	 * operation.
+	 * 
+	 * @param ctx
+	 * @param injector
+	 * @param binder
+	 */
 	void setupFilter(ServletContext ctx, Injector injector, ServletBinder binder);
 }

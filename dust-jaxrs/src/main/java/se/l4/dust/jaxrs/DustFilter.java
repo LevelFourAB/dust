@@ -12,6 +12,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import com.google.inject.Injector;
+
 import se.l4.dust.jaxrs.internal.ServletBinderImpl;
 import se.l4.dust.jaxrs.internal.routing.FilterChainImpl;
 import se.l4.dust.jaxrs.internal.routing.FilterEntry;
@@ -19,8 +21,6 @@ import se.l4.dust.jaxrs.internal.routing.ServletChain;
 import se.l4.dust.jaxrs.internal.routing.ServletEntry;
 import se.l4.dust.jaxrs.spi.Configuration;
 import se.l4.dust.jaxrs.spi.Context;
-
-import com.google.inject.Injector;
 
 /**
  * Filter that performs serving via the registered filters and servlets in
@@ -94,14 +94,6 @@ public class DustFilter
 		
 		Configuration config = injector.getInstance(Configuration.class);
 		config.setupFilter(ctx, injector, binder);
-		
-		if(false == "true".equals(filterConfig.getInitParameter("fallback")))
-		{
-			// Register WebServlet last
-			binder
-				.serve("/*")
-				.with(config.getRootServlet());
-		}
 		
 		// Initialize all filters and servlets
 		doInit();
