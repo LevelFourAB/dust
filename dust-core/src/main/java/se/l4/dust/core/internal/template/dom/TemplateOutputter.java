@@ -142,6 +142,10 @@ public class TemplateOutputter
 					{
 						printComment(out, (Comment) c);
 					}
+					else if(c instanceof Element)
+					{
+						printElement(out, (Element) c, level, namespaces);
+					}
 				}
 				
 				out.write("</script>");
