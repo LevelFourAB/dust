@@ -10,12 +10,14 @@
 
 	<modules>
 		<module>dust-core</module>
-		<module>dust-css-sprites</module>
 
 		<module>dust-jaxrs</module>
 		<module>dust-jaxrs-resteasy</module>
 
 		<module>dust-js-env</module>
+
+		<module>dust-css-sprites</module>
+		<module>dust-css-less</module>
 	</modules>
 	
 	<build>
