@@ -491,6 +491,10 @@ public class AssetManagerImpl
 				{
 					// Recreation needed so we replace the old asset
 					asset = ns.createAsset(orignalPath, resource);
+					if(asset instanceof DevAsset)
+					{
+						asset = ((DevAsset) asset).asset;
+					}
 				}
 			}
 			catch(IOException e)
