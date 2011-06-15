@@ -121,10 +121,10 @@ public class AssetManagerImpl
 		ans.set(path, resource);
 	}
 	
-	public void processAssets(Namespace namespace, String filter, Class<? extends AssetProcessor>... processors)
+	public void processAssets(Namespace namespace, String filter, Class<? extends AssetProcessor> processor)
 	{
 		AssetNamespace ans = cache.get(namespace);
-		ans.addProcessors(filter, processors);
+		ans.addProcessors(filter, processor);
 	}
 	
 	public void processAssets(Namespace namespace, String filter,
@@ -339,23 +339,15 @@ public class AssetManagerImpl
 				break;
 			}
 			
-			
+			String originalPath = path;
 			if(lastNamed != null)
 			{
 				// The resource has been renamed
-				int index = path.lastIndexOf('/');
-				if(index == -1)
-				{
-					path = lastNamed.getName();
-				}
-				else
-				{
-					path = path.substring(0, index + 1) + lastNamed.getName(); 
-				}
+				path = lastNamed.getName();
 			}
 			
 			// Create the actual asset (to make sure the new path is applied)
-			AssetImpl asset = new AssetImpl(manager, protect, namespace, path, current);
+			Asset asset = createAsset(protect, path, current, resource, originalPath);
 			
 			if(lastNamed != null)
 			{
@@ -367,6 +359,15 @@ public class AssetManagerImpl
 			return asset;
 		}
 		
+		protected Asset createAsset(boolean protect,
+				String path, 
+				Resource resource, 
+				Resource original,
+				String originalPath)
+		{
+			return new AssetImpl(manager, protect, namespace, path, resource);
+		}
+
 		public Resource locate(String path)
 			throws IOException
 		{
@@ -427,33 +428,82 @@ public class AssetManagerImpl
 		}
 		
 		@Override
-		public Asset get(String path)
+		protected Asset createAsset(
+				boolean protect,
+				String path,
+				Resource resource, 
+				final Resource original,
+				String originalPath)
 		{
-			Asset asset = super.get(path);
-			if(asset == null)
+			final Asset asset = super.createAsset(protect, path, resource, original, originalPath);
+			if(original == resource)
 			{
-				return null;
+				return asset;
 			}
 			
-			// We check the last modified times and recreate the asset if necessary
-			Resource resource = asset.getResource();
-			long lastModified = resource.getLastModified();
-			
+			return new DevAsset(this, asset, originalPath);
+		}
+	}
+	
+	/**
+	 * Implementation of asset that takes care of data reloading when
+	 * needed.
+	 * 
+	 * @author Andreas Holstenson
+	 *
+	 */
+	private static class DevAsset
+		implements Asset
+	{
+		private final DevAssetNamespace ns;
+		
+		private final String orignalPath;
+		private Asset asset;
+
+		public DevAsset(DevAssetNamespace ns, Asset asset, String orignalPath)
+		{
+			this.ns = ns;
+			this.asset = asset;
+			this.orignalPath = orignalPath;
+		}
+		
+		public String getChecksum()
+		{
+			return asset.getChecksum();
+		}
+		
+		public String getName()
+		{
+			return asset.getName();
+		}
+		
+		public Namespace getNamespace()
+		{
+			return asset.getNamespace();
+		}
+		
+		public Resource getResource()
+		{
 			try
 			{
-				Resource original = locate(path);
-				if(original != null && original.getLastModified() > lastModified)
+				Resource resource = ns.locate(orignalPath);
+				if(resource.getLastModified() > asset.getResource().getLastModified())
 				{
-					asset = createAsset(path);
-					set(path, asset);
+					// Recreation needed so we replace the old asset
+					asset = ns.createAsset(asset.getName(), resource);
 				}
 			}
 			catch(IOException e)
 			{
-				throw new ComputationException(e);
+				throw new RuntimeException("Unable to recreate the asset; " + e.getMessage(), e);
 			}
 			
-			return asset;
+			return asset.getResource();
+		}
+		
+		public boolean isProtected()
+		{
+			return asset.isProtected();
 		}
 	}
 	

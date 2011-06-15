@@ -164,7 +164,7 @@ public interface AssetManager
 	 *  
 	 * @param processor
 	 */
-	void processAssets(Namespace namespace, String filter, Class<? extends AssetProcessor>... processor);
+	void processAssets(Namespace namespace, String filter, Class<? extends AssetProcessor> processor);
 	
 	/**
 	 * Define that assets in the given namespace matching the regular expression
