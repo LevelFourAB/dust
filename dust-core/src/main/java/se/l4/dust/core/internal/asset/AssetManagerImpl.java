@@ -490,7 +490,7 @@ public class AssetManagerImpl
 				if(resource.getLastModified() > asset.getResource().getLastModified())
 				{
 					// Recreation needed so we replace the old asset
-					asset = ns.createAsset(asset.getName(), resource);
+					asset = ns.createAsset(orignalPath, resource);
 				}
 			}
 			catch(IOException e)
