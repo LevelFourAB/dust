@@ -7,6 +7,9 @@ import java.io.InputStream;
 import org.jdom.Namespace;
 import org.mozilla.javascript.JavaScriptException;
 
+import com.google.inject.Inject;
+
+import se.l4.crayon.Environment;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.resource.MemoryResource;
 import se.l4.dust.api.resource.NamedResource;
@@ -23,11 +26,40 @@ import se.l4.dust.js.env.JavascriptEnvironment;
 public class UglifyProcessor
 	implements AssetProcessor
 {
+	private final Environment env;
+
+	@Inject
+	public UglifyProcessor(Environment env)
+	{
+		this.env = env;
+	}
 
 	public Resource process(Namespace namespace, String path, Resource in,
 			Object... arguments)
 		throws IOException
 	{
+		Environment minimum = Environment.PRODUCTION;
+		if(arguments.length > 0)
+		{
+			if(arguments[0] instanceof Environment)
+			{
+				minimum = (Environment) arguments[0];
+			}
+			else
+			{
+				throw new RuntimeException("Passed unknown argument to UglifyProcessor");
+			}
+		}
+		
+		if(minimum == Environment.PRODUCTION && minimum != env)
+		{
+			/*
+			 * Do nothing if we should only run in production, but we are in
+			 * development. 
+			 */
+			return in;
+		}
+		
 		InputStream stream = in.openStream();
 		ByteArrayOutputStream out = new ByteArrayOutputStream(in.getContentLength());
 		try
