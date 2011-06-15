@@ -56,9 +56,7 @@ public class MergedAssetResource
 		long last = 0;
 		for(Asset asset : assets)
 		{
-			asset = manager.locate(asset.getNamespace(), asset.getName());
-			
-			last = Math.max(asset.getResource().getContentLength(), last);
+			last = Math.max(asset.getResource().getLastModified(), last);
 		}
 		
 		return last;
