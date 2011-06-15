@@ -89,12 +89,14 @@ public class LessProcessor
 		}
 		else if(ScriptableObject.hasProperty(value, "type"))
 		{
-			name = (String) ScriptableObject.getProperty(value, "type");
+			Object o = ScriptableObject.getProperty(value, "type");
+			name = o instanceof String ? (String) o : "Error";
 		}
 		else
 		{
 			return new IOException(e.getMessage());
 		}
+		
 		
 		int line = ScriptableObject.hasProperty(value, "line")
 			? ((Double) ScriptableObject.getProperty(value, "line")).intValue()
@@ -104,6 +106,10 @@ public class LessProcessor
 			? ((Double) ScriptableObject.getProperty(value, "column")).intValue()
 			: -1;
 			
-		return new IOException("Error during LESS procesing: " + name + " on line " + line + ", column " + column);
+		String message = ScriptableObject.hasProperty(value, "message")
+			? (String) ScriptableObject.getProperty(value, "message")
+			: "Error during LESS processing";
+			
+		return new IOException(name + ":" + message + " on line " + line + ", column " + column);
 	}
 }
