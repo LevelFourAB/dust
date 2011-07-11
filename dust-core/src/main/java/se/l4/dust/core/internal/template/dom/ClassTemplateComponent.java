@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jdom.JDOMException;
-import org.jdom.Namespace;
-
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -19,12 +16,16 @@ import com.google.inject.TypeLiteral;
 
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.annotation.PrepareRender;
+import se.l4.dust.api.annotation.Template;
 import se.l4.dust.api.annotation.TemplateParam;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateCache;
-import se.l4.dust.dom.Document;
-import se.l4.dust.dom.Element;
+import se.l4.dust.api.template.dom.DocType;
+import se.l4.dust.api.template.dom.Element;
+import se.l4.dust.api.template.dom.ParsedTemplate;
+import se.l4.dust.api.template.spi.TemplateOutputStream;
+import se.l4.dust.core.internal.template.components.EmittableComponent;
 
 /**
  * Component based on a class. 
@@ -33,7 +34,7 @@ import se.l4.dust.dom.Element;
  *
  */
 public class ClassTemplateComponent
-	extends TemplateComponent
+	extends EmittableComponent
 {
 	private final TypeConverter converter;
 	private final Class<?> type;
@@ -42,14 +43,14 @@ public class ClassTemplateComponent
 	private final MethodInvocation[] methods;
 	
 	public ClassTemplateComponent(
-			Namespace ns,
 			String name,
 			Injector injector, 
 			TemplateCache cache,
 			TypeConverter converter,
 			Class<?> type)
 	{
-		super(name, ns);
+		super(name, type);
+		
 		this.converter = converter;
 		
 		this.cache = cache;
@@ -78,25 +79,14 @@ public class ClassTemplateComponent
 		return invocations.toArray(new MethodInvocation[invocations.size()]);
 	}
 	
-	/**
-	 * Process this component and append the result to the given parent
-	 * element.
-	 * 
-	 * @param parent
-	 * 		target parent of the component
-	 * @param data
-	 * 		data root, for e.g. expressions
-	 * @throws JDOMException 
-	 */
 	@Override
-	public void process(
-			TemplateEmitter emitter, 
+	public void emit(Emitter emitter, 
 			RenderingContext ctx,
-			Element parent, 
+			TemplateOutputStream out,
 			Object data,
-			TemplateComponent lastComponent,
-			Object previousRoot)
-		throws JDOMException
+			EmittableComponent lastComponent,
+			Object lastData)
+		throws IOException
 	{
 		Object o = injector.getInstance(type);
 		
@@ -139,28 +129,21 @@ public class ClassTemplateComponent
 
 		if(root instanceof Element)
 		{
-			emitter.process(ctx, root, parent, (Element) root, this, data);
+			emitter.emit(ctx, out, o, this, data, (Element) root);
 		}
 		else
 		{
-			try
+			// Process the template of the component 
+			ParsedTemplate template = cache.getTemplate(type, (Template) null);
+			DocType docType = template.getDocType();
+			if(docType != null)
 			{
-				// Process the template of the component 
-				Document template = cache.getTemplate(type, null);
-				Element templateRoot = template.getRootElement();
-				
-				emitter.process(ctx, root, parent, templateRoot, this, data);
-				
-				// Set DocType
-				if(parent instanceof FakeElement)
-				{
-					((FakeElement) parent).setDocType(template.getDocType());
-				}
+				out.docType(docType.getName(), docType.getPublicId(), docType.getSystemId());
 			}
-			catch(IOException e)
-			{
-				throw new JDOMException(e.getMessage(), e);
-			}
+			
+			Element templateRoot = template.getRoot();
+			
+			emitter.emit(ctx, out, o, this, data, templateRoot);
 		}
 	}
 	
@@ -305,7 +288,7 @@ public class ClassTemplateComponent
 			else if(attribute != null)
 			{
 				// If the attribute exists we can be injected
-				return getAttribute(attribute) != null;
+				return getAttributeValue(attribute) != null;
 			}
 			else
 			{
@@ -319,7 +302,7 @@ public class ClassTemplateComponent
 		{
 			if(attribute != null)
 			{
-				TemplateAttribute attr = (TemplateAttribute) getAttribute(attribute);
+				Attribute attr = getAttribute(attribute);
 				return attr.getValue(ctx, root);
 			}
 			else if(binding != null)

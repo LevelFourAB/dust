@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.jdom.Namespace;
 import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -26,7 +25,7 @@ public class LessProcessor
 	implements AssetProcessor
 {
 
-	public Resource process(Namespace namespace, String path, Resource in, Object... arguments)
+	public Resource process(String namespace, String path, Resource in, Object... arguments)
 		throws IOException
 	{
 		

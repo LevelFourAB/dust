@@ -7,9 +7,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdom.Namespace;
 
-import se.l4.dust.api.NamespaceManager;
-
 import com.google.inject.Singleton;
+
+import se.l4.dust.api.NamespaceManager;
 
 @Singleton
 public class NamespaceManagerImpl
@@ -31,6 +31,8 @@ public class NamespaceManagerImpl
 		versions = new ConcurrentHashMap<String, String>();
 		
 		random = new SecureRandom();
+		
+		bindSimple(Namespace.getNamespace("dust:common"));
 	}
 
 	private void prefix(Namespace ns)
@@ -107,6 +109,11 @@ public class NamespaceManagerImpl
 		return urls.containsKey(ns.getURI());
 	}
 	
+	public boolean isBound(String ns)
+	{
+		return urls.containsKey(ns);
+	}
+	
 	public Namespace getBinding(String pkg)
 	{
 		return packages.get(pkg);
@@ -129,7 +136,6 @@ public class NamespaceManagerImpl
 		{
 			return null;
 		}
-		
 		return locator.locateResource(resource);
 	}
 	
@@ -155,6 +161,7 @@ public class NamespaceManagerImpl
 			this.base = base.replace('.', '/') + "/";
 		
 		}
+		
 		public URL locateResource(String path)
 		{
 			return loader.getResource(base + path);

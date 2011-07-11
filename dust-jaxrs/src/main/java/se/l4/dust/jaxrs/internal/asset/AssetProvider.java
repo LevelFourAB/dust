@@ -55,7 +55,7 @@ public class AssetProvider
 			}
 		}
 		
-		Asset a = manager.locate(ns, path);
+		Asset a = manager.locate(ns.getURI(), path);
 		if(a == null)
 		{
 			return Response.status(404).build();

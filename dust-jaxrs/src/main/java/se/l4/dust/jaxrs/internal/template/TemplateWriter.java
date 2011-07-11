@@ -12,18 +12,17 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
-import org.jdom.JDOMException;
 import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
+
+import com.google.inject.Inject;
 
 import se.l4.dust.api.annotation.Template;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateRenderer;
-import se.l4.dust.core.internal.template.dom.TemplateOutputter;
-import se.l4.dust.dom.Document;
-
-import com.google.inject.Inject;
+import se.l4.dust.api.template.dom.ParsedTemplate;
+import se.l4.dust.api.template.spi.TemplateOutputStream;
+import se.l4.dust.core.template.html.HtmlTemplateOutput;
 
 /**
  * {@link MessageBodyWriter} that renders the templates.
@@ -98,30 +97,12 @@ public class TemplateWriter
 			OutputStream entityStream) 
 		throws IOException, WebApplicationException
 	{
-		try
-		{
-			Template tpl = findAnnotation(annotations);
+		Template tpl = findAnnotation(annotations);
 			
-			Document template = cache.getTemplate(type, tpl);
-			Document doc = renderer.render(ctx.get(), template, t);
-			
-			Format format;
-			if("html".equals(mediaType.getSubtype()))
-			{
-				format = htmlFormat;
-			}
-			else
-			{
-				format = xmlFormat;
-			}
-			
-			XMLOutputter out = new TemplateOutputter(format);
-			out.output(doc, entityStream);
-		}
-		catch(JDOMException e)
-		{
-			throw new WebApplicationException(e, 500);
-		}
+		TemplateOutputStream out = new HtmlTemplateOutput(entityStream);
+		ParsedTemplate template = cache.getTemplate(type, tpl);
+		renderer.render(ctx.get(), template, t, out);
+		out.close();
 	}
 
 	private Template findAnnotation(Annotation[] annotations)

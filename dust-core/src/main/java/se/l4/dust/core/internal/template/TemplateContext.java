@@ -1,10 +1,10 @@
 package se.l4.dust.core.internal.template;
 
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.core.internal.template.dom.TemplateEmitter;
+import se.l4.dust.core.internal.template.dom.Emitter;
 
 /**
- * Context helper for templates, used by {@link TemplateEmitter}.
+ * Context helper for templates, used by {@link Emitter}.
  * 
  * @author Andreas Holstenson
  *

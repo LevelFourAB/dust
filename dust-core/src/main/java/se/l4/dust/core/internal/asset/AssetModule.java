@@ -2,15 +2,6 @@ package se.l4.dust.core.internal.asset;
 
 import java.lang.reflect.Field;
 
-import org.jdom.Namespace;
-
-import se.l4.crayon.CrayonModule;
-import se.l4.crayon.annotation.Contribution;
-import se.l4.dust.api.TemplateManager;
-import se.l4.dust.api.annotation.InjectAsset;
-import se.l4.dust.api.asset.Asset;
-import se.l4.dust.api.asset.AssetManager;
-
 import com.google.inject.MembersInjector;
 import com.google.inject.Provider;
 import com.google.inject.ProvisionException;
@@ -18,6 +9,13 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
+
+import se.l4.crayon.CrayonModule;
+import se.l4.crayon.annotation.Contribution;
+import se.l4.dust.api.TemplateManager;
+import se.l4.dust.api.annotation.InjectAsset;
+import se.l4.dust.api.asset.Asset;
+import se.l4.dust.api.asset.AssetManager;
 
 public class AssetModule
 	extends CrayonModule
@@ -92,7 +90,7 @@ public class AssetModule
 			
 			AssetManager manager = assets.get();
 
-			Asset asset = manager.locate(Namespace.getNamespace(ns), path);
+			Asset asset = manager.locate(ns, path);
 			if(asset == null)
 			{
 				throw new ProvisionException("Unable to locate asset named " + path + " in namespace " + ns);

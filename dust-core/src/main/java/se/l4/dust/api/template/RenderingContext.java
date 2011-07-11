@@ -5,6 +5,8 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Type;
 import java.net.URI;
 
+import se.l4.dust.api.template.dom.DynamicContent;
+
 /**
  * Context of a template rendering. The context is used to resolve links,
  * assets and to store temporary variables.
@@ -29,6 +31,23 @@ public interface RenderingContext
 	 * @return
 	 */
 	<T> T getValue(Object key);
+	
+	/**
+	 * Get the value of the given dynamic content.
+	 * 
+	 * @param content
+	 * @param root
+	 * @return
+	 */
+	Object getDynamicValue(DynamicContent content, Object root);
+	
+	/**
+	 * Get the string value of the given input.
+	 * 
+	 * @param input
+	 * @return
+	 */
+	String getStringValue(Object input);
 	
 	/**
 	 * Resolve a URI for the given object.

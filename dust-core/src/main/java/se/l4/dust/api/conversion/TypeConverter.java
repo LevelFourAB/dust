@@ -42,4 +42,13 @@ public interface TypeConverter
 	 * @return
 	 */
 	boolean canConvertBetween(Class<?> in, Class<?> out);
+
+	/**
+	 * Check if a conversion is supported.
+	 * 
+	 * @param in
+	 * @param out
+	 * @return
+	 */
+	boolean canConvertBetween(Object in, Class<?> out);
 }

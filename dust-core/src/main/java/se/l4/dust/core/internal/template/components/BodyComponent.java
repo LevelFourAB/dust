@@ -1,37 +1,39 @@
 package se.l4.dust.core.internal.template.components;
 
-import org.jdom.Content;
-import org.jdom.JDOMException;
+import java.io.IOException;
 
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.core.internal.template.TemplateModule;
-import se.l4.dust.core.internal.template.dom.TemplateComponent;
-import se.l4.dust.core.internal.template.dom.TemplateEmitter;
-import se.l4.dust.dom.Element;
+import se.l4.dust.api.template.dom.Content;
+import se.l4.dust.api.template.spi.TemplateOutputStream;
+import se.l4.dust.core.internal.template.dom.Emitter;
 
 public class BodyComponent
-	extends TemplateComponent
+	extends EmittableComponent
 {
 	public BodyComponent()
 	{
-		super("body", TemplateModule.COMMON);
+		super("body", BodyComponent.class);
 	}
 	
 	@Override
-	public void process(
-			TemplateEmitter emitter, 
-			RenderingContext ctx,
-			Element parent, 
-			Object root,
-			TemplateComponent lastComponent,
-			Object previousRoot)
-		throws JDOMException
+	public void emit(
+			Emitter emitter,
+			RenderingContext ctx, 
+			TemplateOutputStream out,
+			Object data,
+			EmittableComponent lastComponent,
+			Object lastData)
+		throws IOException
 	{
 		if(lastComponent != null)
 		{
-			for(Content c : lastComponent.getContent())
+			for(Content c : lastComponent.getRawContents())
 			{
-				emitter.process(ctx, previousRoot, parent, c, this, previousRoot);
+				/*
+				 * lastData and data are swapped so that expressions run
+				 * on the correct object.
+				 */
+				emitter.emit(ctx, out, lastData, this, data, c);
 			}
 		}
 	}

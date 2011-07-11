@@ -1,11 +1,11 @@
 package se.l4.dust.core.internal.template;
 
-import se.l4.dust.api.template.PropertyContent;
+import com.google.inject.Singleton;
+
 import se.l4.dust.api.template.PropertySource;
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.dom.Element;
-
-import com.google.inject.Singleton;
+import se.l4.dust.api.template.dom.DynamicContent;
+import se.l4.dust.api.template.dom.Element;
 
 @Singleton
 public class CyclePropertySource
@@ -15,7 +15,7 @@ public class CyclePropertySource
 	{
 	}
 	
-	public PropertyContent getPropertyContent(String propertyExpression, Element parent)
+	public DynamicContent getPropertyContent(Class<?> context, String propertyExpression, Element parent)
 	{
 		String[] parts = propertyExpression.split("\\s*,\\s*");
 		
@@ -23,7 +23,7 @@ public class CyclePropertySource
 	}
 
 	public static class Content
-		extends PropertyContent
+		extends DynamicContent
 	{
 		private final String[] parts;
 

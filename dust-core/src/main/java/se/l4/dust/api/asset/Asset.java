@@ -1,7 +1,5 @@
 package se.l4.dust.api.asset;
 
-import org.jdom.Namespace;
-
 import se.l4.dust.api.resource.Resource;
 
 /**
@@ -19,7 +17,7 @@ public interface Asset
 	 * 
 	 * @return
 	 */
-	Namespace getNamespace();
+	String getNamespace();
 	
 	/**
 	 * Get the name of the asset, should be unique within the namespace.

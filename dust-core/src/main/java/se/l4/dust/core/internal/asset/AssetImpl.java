@@ -6,8 +6,6 @@ import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.jdom.Namespace;
-
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.resource.Resource;
@@ -21,13 +19,13 @@ import se.l4.dust.api.resource.Resource;
 public class AssetImpl
 	implements Asset
 {
-	private final Namespace ns;
+	private final String ns;
 	private final String name;
 	private final Resource resource;
 	private final String checksum;
 	private final boolean protect;
 	
-	public AssetImpl(NamespaceManager manager, boolean protect, Namespace ns, String name, Resource resource)
+	public AssetImpl(NamespaceManager manager, boolean protect, String ns, String name, Resource resource)
 	{
 		this.protect = protect;
 		if(manager != null && resource == null)
@@ -110,7 +108,7 @@ public class AssetImpl
 		return name;
 	}
 
-	public Namespace getNamespace()
+	public String getNamespace()
 	{
 		return ns;
 	}

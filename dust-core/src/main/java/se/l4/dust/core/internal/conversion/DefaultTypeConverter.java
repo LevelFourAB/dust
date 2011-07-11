@@ -147,6 +147,11 @@ public class DefaultTypeConverter
 	{
 		return findConversion(in, out) != null;
 	}
+	
+	public boolean canConvertBetween(Object in, Class<?> out)
+	{
+		return findConversion(in == null ? void.class : in.getClass(), out) != null;
+	}
 
 	/**
 	 * Find the conversion to use for converting {@code in} to {@code out}.

@@ -1,17 +1,14 @@
 package se.l4.dust.core.internal.template.components;
 
+import java.io.IOException;
 import java.util.Collection;
 
-import org.jdom.Content;
-import org.jdom.JDOMException;
-
+import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.core.internal.template.TemplateModule;
-import se.l4.dust.core.internal.template.dom.TemplateComponent;
-import se.l4.dust.core.internal.template.dom.TemplateEmitter;
-import se.l4.dust.core.internal.template.expression.ExpressionParser;
-import se.l4.dust.dom.Element;
+import se.l4.dust.api.template.dom.Content;
+import se.l4.dust.api.template.spi.TemplateOutputStream;
+import se.l4.dust.core.internal.template.dom.Emitter;
 
 
 /**
@@ -21,35 +18,32 @@ import se.l4.dust.dom.Element;
  *
  */
 public class LoopComponent
-	extends TemplateComponent
+	extends EmittableComponent
 {
 	private PropertyContent source;
 	private PropertyContent value;
 
 	public LoopComponent()
 	{
-		super("loop", TemplateModule.COMMON);
+		super("loop", LoopComponent.class);
 	}
 	
 	@Override
-	public void preload(ExpressionParser expressionParser)
-	{
-		super.preload(expressionParser);
-		
-		source = getExpressionNode("source", true);
-		value = getExpressionNode("value", true);
-	}
-	
-	@Override
-	public void process(
-			TemplateEmitter emitter, 
-			RenderingContext ctx,
-			Element parent, 
+	public void emit(
+			Emitter emitter,
+			RenderingContext ctx, 
+			TemplateOutputStream out,
 			Object data,
-			TemplateComponent lastComponent,
-			Object previousRoot)
-		throws JDOMException
+			EmittableComponent lastComponent,
+			Object lastData)
+		throws IOException
 	{
+		Attribute source = getAttribute("source");
+		if(source == null) throw new TemplateException("Attribute source is required");
+		
+		Attribute value = getAttribute("value");
+		if(value == null) throw new TemplateException("Attribute value is required");
+		
 		Object sourceData = source.getValue(ctx, data);
 		// TODO: Use conversions
 		Collection<Object> items = (Collection) sourceData;
@@ -58,9 +52,9 @@ public class LoopComponent
 		{
 			value.setValue(ctx, data, o);
 			
-			for(Content c : getContent())
+			for(Content c : getRawContents())
 			{
-				emitter.process(ctx, data, parent, c, this, previousRoot);
+				emitter.emit(ctx, out, data, this, lastData, c);
 			}
 		}
 	}

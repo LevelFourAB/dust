@@ -1,63 +1,49 @@
 package se.l4.dust.core.internal.template.components;
 
-import org.jdom.Content;
-import org.jdom.JDOMException;
+import java.io.IOException;
 
-import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.core.internal.template.TemplateModule;
-import se.l4.dust.core.internal.template.dom.ContentPreload;
-import se.l4.dust.core.internal.template.dom.TemplateComponent;
-import se.l4.dust.core.internal.template.dom.TemplateEmitter;
-import se.l4.dust.core.internal.template.expression.ExpressionParser;
-import se.l4.dust.dom.Element;
+import se.l4.dust.api.template.dom.Content;
+import se.l4.dust.api.template.spi.TemplateOutputStream;
+import se.l4.dust.core.internal.template.dom.Emitter;
 
 public class IfComponent
-	extends TemplateComponent
-	implements ContentPreload
+	extends EmittableComponent
 {
-	private PropertyContent test;
-	private ParameterComponent elseElement;
-	
 	public IfComponent()
 	{
-		super("if", TemplateModule.COMMON);
+		super("if", IfComponent.class);
 	}
 
 	@Override
-	public void preload(ExpressionParser expressionParser)
+	public void emit(
+			Emitter emitter,
+			RenderingContext ctx, 
+			TemplateOutputStream out,
+			Object data,
+			EmittableComponent lastComponent,
+			Object lastData)
+		throws IOException
 	{
-		super.preload(expressionParser);
+		Attribute test = getAttribute("test");
+		Object value = test == null ? true : test.getValue(ctx, data);
+		ParameterComponent elseElement = getParameter("else", false);
 		
-		test = getExpressionNode("test", true);
-		
-		elseElement = getParameter("else", false);
-	}
-	
-	@Override
-	public void process(
-			TemplateEmitter emitter, 
-			RenderingContext ctx,
-			Element parent, 
-			Object data, 
-			TemplateComponent lastComponent,
-			Object previousRoot)
-		throws JDOMException
-	{
-		Object value = test.getValue(ctx, data);
 		if(Boolean.TRUE.equals(value))
 		{
-			for(Content c : getContent())
+			for(Content c : getRawContents())
 			{
-				emitter.process(ctx, data, parent, c, this, previousRoot);
+				if(c == elseElement) continue;
+			
+				emitter.emit(ctx, out, data, this, lastData, c);
 			}
 		}
 		else if(elseElement != null)
 		{
 			// Render the else
-			for(Content c : elseElement.getContent())
+			for(Content c : elseElement.getRawContents())
 			{
-				emitter.process(ctx, data, parent, c, this, previousRoot);
+				emitter.emit(ctx, out, data, this, lastData, c);
 			}
 		}
 	}

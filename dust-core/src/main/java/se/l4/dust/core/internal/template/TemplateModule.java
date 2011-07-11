@@ -19,10 +19,10 @@ import se.l4.dust.core.internal.TemplateManagerImpl;
 import se.l4.dust.core.internal.template.components.BodyComponent;
 import se.l4.dust.core.internal.template.components.HolderComponent;
 import se.l4.dust.core.internal.template.components.IfComponent;
-import se.l4.dust.core.internal.template.components.LinkComponent;
 import se.l4.dust.core.internal.template.components.LoopComponent;
 import se.l4.dust.core.internal.template.components.ParameterComponent;
 import se.l4.dust.core.internal.template.components.RawComponent;
+import se.l4.dust.core.internal.template.expression.MvelPropertySource;
 import se.l4.dust.dom.Document;
 import se.l4.dust.dom.Element;
 
@@ -48,21 +48,24 @@ public class TemplateModule
 	@Contribution
 	public void contributeCommonComponents(TemplateManagerImpl manager)
 	{
-		manager.addComponent(ParameterComponent.class);
-		manager.addComponent(BodyComponent.class);
+		manager.addComponent(COMMON, ParameterComponent.class, "parameter");
+		manager.addComponent(COMMON, BodyComponent.class, "body");
 		
-		manager.addComponent(IfComponent.class);
-		manager.addComponent(LoopComponent.class);
-		manager.addComponent(LinkComponent.class);
-		manager.addComponent(HolderComponent.class);
-		manager.addComponent(RawComponent.class);
+		manager.addComponent(COMMON, IfComponent.class, "if");
+		manager.addComponent(COMMON, LoopComponent.class, "loop");
+		manager.addComponent(COMMON, HolderComponent.class, "holder");
+		manager.addComponent(COMMON, RawComponent.class, "raw");
 	}
 	
 	@Contribution
-	public void contributePropertySources(TemplateManager manager)
+	public void contributePropertySources(TemplateManager manager,
+			CyclePropertySource s1,
+			VarPropertySource s2,
+			MvelPropertySource s3)
 	{
-		manager.addPropertySource("cycle", CyclePropertySource.class);
-		manager.addPropertySource("var", VarPropertySource.class);
+		manager.addPropertySource("cycle", s1);
+		manager.addPropertySource("var", s2);
+		manager.addPropertySource("mvel", s3);
 	}
 	
 	@Contribution(name="document-linker")

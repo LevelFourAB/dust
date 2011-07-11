@@ -75,7 +75,7 @@ public interface AssetManager
 		 * @param pathToFile
 		 * @return
 		 */
-		AssetBuilder add(Namespace ns, String pathToFile);
+		AssetBuilder add(String ns, String pathToFile);
 		
 		/**
 		 * Indicate that the built asset should be processed.
@@ -93,11 +93,11 @@ public interface AssetManager
 	 * Attempt to locate the given asset by traversing all of the registered
 	 * sources and returning the first match.
 	 *  
-	 * @param ns
+	 * @param uri
 	 * @param file
 	 * @return
 	 */
-	Asset locate(Namespace ns, String file);
+	Asset locate(String namespace, String file);
 	
 	/**
 	 * Add a source of assets to the manager.
@@ -143,7 +143,7 @@ public interface AssetManager
 	 * @param path
 	 * @param resource
 	 */
-	void addTemporaryAsset(Namespace ns, String path, Resource resource);
+	void addTemporaryAsset(String ns, String path, Resource resource);
 	
 	/**
 	 * Define that assets in the given namespace matching the regular expression
@@ -164,7 +164,7 @@ public interface AssetManager
 	 *  
 	 * @param processor
 	 */
-	void processAssets(Namespace namespace, String filter, Class<? extends AssetProcessor> processor);
+	void processAssets(String namespace, String filter, Class<? extends AssetProcessor> processor);
 	
 	/**
 	 * Define that assets in the given namespace matching the regular expression
@@ -182,7 +182,7 @@ public interface AssetManager
 	 *  
 	 * @param processor
 	 */
-	void processAssets(Namespace namespace, String filter, Class<? extends AssetProcessor> processor, Object... arguments);
+	void processAssets(String namespace, String filter, Class<? extends AssetProcessor> processor, Object... arguments);
 	
 	/**
 	 * Start building a custom combined asset. Combined assets are special in
@@ -194,5 +194,5 @@ public interface AssetManager
 	 * @param pathToFile
 	 * @return
 	 */
-	AssetBuilder addAsset(Namespace namespace, String pathToFile);
+	AssetBuilder addAsset(String namespace, String pathToFile);
 }

@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.jdom.Namespace;
 import org.mozilla.javascript.JavaScriptException;
 
 import com.google.inject.Inject;
@@ -34,7 +33,7 @@ public class UglifyProcessor
 		this.env = env;
 	}
 
-	public Resource process(Namespace namespace, String path, Resource in,
+	public Resource process(String namespace, String path, Resource in,
 			Object... arguments)
 		throws IOException
 	{

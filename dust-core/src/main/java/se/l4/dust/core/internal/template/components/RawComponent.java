@@ -1,53 +1,32 @@
 package se.l4.dust.core.internal.template.components;
 
-import org.jdom.Attribute;
-import org.jdom.JDOMException;
+import java.io.IOException;
 
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.core.internal.template.TemplateModule;
-import se.l4.dust.core.internal.template.dom.TemplateAttribute;
-import se.l4.dust.core.internal.template.dom.TemplateComponent;
-import se.l4.dust.core.internal.template.dom.TemplateEmitter;
-import se.l4.dust.core.internal.template.expression.ExpressionParser;
-import se.l4.dust.dom.Element;
+import se.l4.dust.api.template.spi.TemplateOutputStream;
+import se.l4.dust.core.internal.template.dom.Emitter;
 
 public class RawComponent
-	extends TemplateComponent
+	extends EmittableComponent
 {
-	private Attribute value;
-
 	public RawComponent()
 	{
-		super("raw", TemplateModule.COMMON);
+		super("raw", RawComponent.class);
 	}
 	
 	@Override
-	public void preload(ExpressionParser expressionParser)
+	public void emit(
+			Emitter emitter,
+			RenderingContext ctx, 
+			TemplateOutputStream out,
+			Object data,
+			EmittableComponent lastComponent,
+			Object lastData)
+		throws IOException
 	{
-		super.preload(expressionParser);
-		
-		value = getAttribute("value");
-		if(value == null)
-		{
-			throwException("Raw component requires value-attribute");
-		}
-	}
-	
-	@Override
-	public void process(
-			TemplateEmitter emitter, 
-			RenderingContext ctx,
-			Element parent, 
-			Object root,
-			TemplateComponent lastComponent, 
-			Object previousRoot)
-		throws JDOMException
-	{
-		Object v = ((TemplateAttribute) value).getValue(ctx, root);
-		
-		Element e = (Element) clone();
-		e.setAttribute("value", v == null ? "" : v.toString());
-		parent.addContent(e);
-	}
+		Attribute attribute = getAttribute("value");
+		String output = attribute.getStringValue(ctx, data);
 
+		out.text(output);
+	}
 }

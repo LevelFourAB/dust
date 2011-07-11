@@ -1,11 +1,6 @@
 package se.l4.dust.jaxrs.spi;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Type;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.ws.rs.core.UriBuilder;
 
@@ -16,6 +11,8 @@ import com.google.inject.Inject;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.asset.Asset;
+import se.l4.dust.api.conversion.TypeConverter;
+import se.l4.dust.api.template.DefaultRenderingContext;
 import se.l4.dust.api.template.RenderingContext;
 
 /**
@@ -26,28 +23,15 @@ import se.l4.dust.api.template.RenderingContext;
  *
  */
 public class WebRenderingContext
-	implements RenderingContext
+	extends DefaultRenderingContext
 {
-	private final NamespaceManager namespaceManager;
-	private final Map<Object, Object> values;
-
 	@Inject
-	public WebRenderingContext(NamespaceManager namespaceManager)
+	public WebRenderingContext(NamespaceManager namespaceManager, TypeConverter converter)
 	{
-		this.namespaceManager = namespaceManager;
-		values = new HashMap<Object, Object>();
+		super(namespaceManager, converter);
 	}
 	
-	public Object getValue(Object key)
-	{
-		return values.get(key);
-	}
-	
-	public void putValue(Object key, Object value)
-	{
-		values.put(key, value);
-	}
-	
+	@Override
 	public URI resolveURI(Object object)
 	{
 		if(object instanceof Asset)
@@ -58,22 +42,16 @@ public class WebRenderingContext
 		return null;
 	}
 	
-	public Object resolveObject(AccessibleObject parameter, Type type, 
-			Annotation[] annotations, Object instance)
-	{
-		return null;
-	}
-	
 	private URI resolveAsset(Asset asset)
 	{
 		URI uri = null;
-		Namespace ns = asset.getNamespace();
+		String ns = asset.getNamespace();
 		if(ns != null)
 		{
-			Namespace nns = namespaceManager.getNamespaceByURI(ns.getURI());
+			Namespace nns = namespaceManager.getNamespaceByURI(ns);
 			if(nns == null)
 			{
-				throw new RuntimeException("Namespace " + ns.getURI() + " is not bound to NamespaceManager");
+				throw new RuntimeException("Namespace " + ns + " is not bound to NamespaceManager");
 			}
 			
 			String prefix = nns.getPrefix();

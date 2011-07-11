@@ -121,6 +121,16 @@ public interface NamespaceManager
 	boolean isBound(Namespace ns);
 	
 	/**
+	 * Check if the namespace has been bound.
+	 * 
+	 * @param ns
+	 * 		namespace to check
+	 * @return
+	 * 		{@code true} if bound, otherwise {@code false}
+	 */
+	boolean isBound(String ns);
+	
+	/**
 	 * Get the namespace of a package if any exists.
 	 * 
 	 * @param pkg

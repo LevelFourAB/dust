@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 
 import se.l4.dust.api.annotation.Template;
-import se.l4.dust.dom.Document;
+import se.l4.dust.api.template.dom.ParsedTemplate;
 
 /**
  * Cache for templates in the system.
@@ -20,7 +20,7 @@ public interface TemplateCache
 	 * @param url
 	 * @return
 	 */
-	Document getTemplate(URL url);
+	ParsedTemplate getTemplate(Class<?> context, URL url);
 
 	/**
 	 * Get a template using the given class and annotation. If no annotation
@@ -31,6 +31,6 @@ public interface TemplateCache
 	 * @return
 	 * @throws IOException
 	 */
-	Document getTemplate(Class<?> c, Template annotation) throws IOException;
+	ParsedTemplate getTemplate(Class<?> context, Template annotation) throws IOException;
 
 }

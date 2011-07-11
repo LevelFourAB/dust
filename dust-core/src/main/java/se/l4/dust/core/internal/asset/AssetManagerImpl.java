@@ -12,8 +12,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Pattern;
 
-import org.jdom.Namespace;
-
 import com.google.common.base.Function;
 import com.google.common.collect.ComputationException;
 import com.google.common.collect.MapMaker;
@@ -37,7 +35,7 @@ public class AssetManagerImpl
 {
 	private static final Asset NULL_ASSET = new AssetImpl(null, false, null, null, null);
 	
-	private final ConcurrentMap<Namespace, AssetNamespace> cache;
+	private final ConcurrentMap<String, AssetNamespace> cache;
 	private final NamespaceManager manager;
 	private final List<Object> sources;
 	private final Set<String> protectedExtensions;
@@ -53,12 +51,12 @@ public class AssetManagerImpl
 		sources = new CopyOnWriteArrayList<Object>();
 		extensionProcessors = new ConcurrentHashMap<String, AssetProcessor>();
 		
-		Function<Namespace, AssetNamespace> f;
+		Function<String, AssetNamespace> f;
 		if(env == Environment.DEVELOPMENT)
 		{
-			f = new Function<Namespace, AssetNamespace>()
+			f = new Function<String, AssetNamespace>()
 				{
-					public AssetNamespace apply(Namespace from)
+					public AssetNamespace apply(String from)
 					{
 						return new DevAssetNamespace(from);
 					}
@@ -66,9 +64,9 @@ public class AssetManagerImpl
 		}
 		else
 		{
-			f = new Function<Namespace, AssetNamespace>()
+			f = new Function<String, AssetNamespace>()
 				{
-					public AssetNamespace apply(Namespace from)
+					public AssetNamespace apply(String from)
 					{
 						return new AssetNamespace(from);
 					}
@@ -90,7 +88,7 @@ public class AssetManagerImpl
 		sources.add(source);
 	}
 	
-	public Asset locate(Namespace ns, String file)
+	public Asset locate(String ns, String file)
 	{
 		AssetNamespace ans = cache.get(ns);
 		Asset a = ans.get(file);
@@ -108,7 +106,7 @@ public class AssetManagerImpl
 		return protectedExtensions.contains(extension);
 	}
 	
-	public void addTemporaryAsset(Namespace ns, String path, Resource resource)
+	public void addTemporaryAsset(String ns, String path, Resource resource)
 	{
 //		Asset asset = locate(ns, path);
 //		if(asset != null)
@@ -121,13 +119,13 @@ public class AssetManagerImpl
 		ans.set(path, resource);
 	}
 	
-	public void processAssets(Namespace namespace, String filter, Class<? extends AssetProcessor> processor)
+	public void processAssets(String namespace, String filter, Class<? extends AssetProcessor> processor)
 	{
 		AssetNamespace ans = cache.get(namespace);
 		ans.addProcessors(filter, processor);
 	}
 	
-	public void processAssets(Namespace namespace, String filter,
+	public void processAssets(String namespace, String filter,
 			Class<? extends AssetProcessor> processor, 
 			Object... arguments)
 	{
@@ -135,7 +133,7 @@ public class AssetManagerImpl
 		ans.addProcessor(filter, processor, arguments);
 	}
 	
-	public AssetBuilder addAsset(Namespace namespace, String pathToFile)
+	public AssetBuilder addAsset(String namespace, String pathToFile)
 	{
 		AssetNamespace parent = cache.get(namespace);
 		return new AssetBuilderImpl(parent, namespace, pathToFile);
@@ -152,13 +150,13 @@ public class AssetManagerImpl
 	{
 		private final AssetNamespace parent;
 		
-		private final Namespace namespace;
+		private final String namespace;
 		private final String pathToFile;
 		
 		private final List<Asset> assets;
 		private final List<ProcessorDef> processors;
 
-		public AssetBuilderImpl(AssetNamespace parent, Namespace namespace, String pathToFile)
+		public AssetBuilderImpl(AssetNamespace parent, String namespace, String pathToFile)
 		{
 			this.parent = parent;
 			this.namespace = namespace;
@@ -173,7 +171,7 @@ public class AssetManagerImpl
 			return add(namespace, pathToFile);
 		}
 
-		public AssetBuilder add(Namespace ns, String pathToFile)
+		public AssetBuilder add(String ns, String pathToFile)
 		{
 			Asset asset = locate(ns, pathToFile);
 			if(asset == null)
@@ -213,9 +211,9 @@ public class AssetManagerImpl
 		protected final List<ProcessorDef> processors;
 		protected final ConcurrentMap<String, Resource> definedResources;
 		
-		protected final Namespace namespace;
+		protected final String namespace;
 		
-		public AssetNamespace(Namespace namespace)
+		public AssetNamespace(String namespace)
 		{
 			this.namespace = namespace;
 			
@@ -404,7 +402,7 @@ public class AssetManagerImpl
 	private class DevAssetNamespace
 		extends AssetNamespace
 	{
-		public DevAssetNamespace(Namespace namespace)
+		public DevAssetNamespace(String namespace)
 		{
 			super(namespace);
 		}
@@ -477,7 +475,7 @@ public class AssetManagerImpl
 			return asset.getName();
 		}
 		
-		public Namespace getNamespace()
+		public String getNamespace()
 		{
 			return asset.getNamespace();
 		}
@@ -535,7 +533,7 @@ public class AssetManagerImpl
 			return filter.matcher(path).matches();
 		}
 		
-		public Resource filter(Namespace ns, String path, Resource in)
+		public Resource filter(String ns, String path, Resource in)
 			throws IOException
 		{
 			for(Class<? extends AssetProcessor> type : classes)

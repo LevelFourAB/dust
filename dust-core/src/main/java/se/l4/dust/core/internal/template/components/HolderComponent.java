@@ -1,35 +1,34 @@
 package se.l4.dust.core.internal.template.components;
 
-import org.jdom.Content;
-import org.jdom.JDOMException;
+import java.io.IOException;
 
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.core.internal.template.TemplateModule;
-import se.l4.dust.core.internal.template.dom.TemplateComponent;
-import se.l4.dust.core.internal.template.dom.TemplateEmitter;
-import se.l4.dust.dom.Element;
+import se.l4.dust.api.template.dom.Content;
+import se.l4.dust.api.template.spi.TemplateOutputStream;
+import se.l4.dust.core.internal.template.dom.Emitter;
 
 public class HolderComponent
-	extends TemplateComponent
+	extends EmittableComponent
 {
 	public HolderComponent()
 	{
-		super("holder", TemplateModule.COMMON);
+		super("holder", HolderComponent.class);
 	}
 	
 	@Override
-	public void process(
-			TemplateEmitter emitter, 
+	public void emit(
+			Emitter emitter,
 			RenderingContext ctx, 
-			Element parent, 
-			Object root,
-			TemplateComponent lastComponent, 
-			Object previousRoot)
-		throws JDOMException
+			TemplateOutputStream out,
+			Object data,
+			EmittableComponent lastComponent,
+			Object lastData)
+		throws IOException
 	{
-		for(Content c : getContent())
+		for(Content c : getRawContents())
 		{
-			emitter.process(ctx, root, parent, c, lastComponent, previousRoot);
+			emitter.emit(ctx, out, data, this, lastData, c);
 		}
 	}
+
 }

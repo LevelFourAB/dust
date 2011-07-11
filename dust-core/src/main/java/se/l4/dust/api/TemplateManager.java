@@ -75,6 +75,29 @@ public interface TemplateManager
 	Class<?> getComponent(Namespace ns, String name);
 	
 	/**
+	 * Retrieve a component in the given namespace with the specified name.
+	 * If the component is not found this will throw {@link ComponentException}.
+	 * 
+	 * @param ns
+	 * 		namespace of component
+	 * @param name
+	 * 		name of component
+	 * @return
+	 */
+	Class<?> getComponent(String ns, String name);
+	
+	/**
+	 * Check if a certain component exists.
+	 * 
+	 * @param ns
+	 * 		namespace of component
+	 * @param name
+	 * 		name of component
+	 * @return
+	 */
+	boolean hasComponent(String ns, String name);
+	
+	/**
 	 * Add a property source that can be used within {@literal ${}} expansions
 	 * in templates.
 	 * 

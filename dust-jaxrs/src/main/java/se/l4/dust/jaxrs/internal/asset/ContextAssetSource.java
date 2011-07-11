@@ -6,8 +6,6 @@ import java.net.URL;
 
 import javax.servlet.ServletContext;
 
-import org.jdom.Namespace;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
@@ -40,10 +38,10 @@ public class ContextAssetSource
 		this.namespaces = namespaces;
 	}
 	
-	public Resource locate(Namespace ns, String pathToFile)
+	public Resource locate(String ns, String pathToFile)
 		throws IOException
 	{
-		if(Dust.CONTEXT_NAMESPACE.equals(ns))
+		if(Dust.CONTEXT_NAMESPACE.getURI().equals(ns))
 		{
 			if(false == namespaces.isBound(ns))
 			{

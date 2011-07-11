@@ -9,16 +9,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.jdom.Namespace;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
+
 import se.l4.dust.api.ComponentException;
 import se.l4.dust.api.TemplateFilter;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Component;
 import se.l4.dust.api.template.PropertySource;
-import se.l4.dust.core.internal.template.dom.TemplateComponent;
-
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Singleton;
 
 /**
  * Implementation of {@link TemplateManager}. The implementation keeps track
@@ -50,20 +49,6 @@ public class TemplateManagerImpl
 		propertySources = new ConcurrentHashMap<String, Object>();
 	}
 
-	/**
-	 * Register an internal template component.
-	 * 
-	 * @param type
-	 */
-	public void addComponent(Class<? extends TemplateComponent> type)
-	{
-		// Instances of TemplateComponent need special handling to get their name
-		TemplateComponent c = (TemplateComponent) injector.getInstance(type);
-		Key k = new Key(c.getNamespace(), c.getName());
-		components.put(k, type);
-		namespaces.add(c.getNamespace());
-	}
-	
 	public void addComponent(Namespace ns, Class<?> component)
 	{
 		String[] names = null;
@@ -89,13 +74,24 @@ public class TemplateManagerImpl
 	{
 		for(String name : names)
 		{
-			Key k = new Key(ns, name);
+			Key k = new Key(ns.getURI(), name);
 			components.put(k, component);
 		}
 		namespaces.add(ns);
 	}
 
 	public Class<?> getComponent(Namespace ns, String name)
+	{
+		Class<?> o = components.get(new Key(ns.getURI(), name));
+		if(o == null)
+		{
+			throw new ComponentException("Unknown component " + name + " in " + ns);
+		}
+		
+		return o;
+	}
+	
+	public Class<?> getComponent(String ns, String name)
 	{
 		Class<?> o = components.get(new Key(ns, name));
 		if(o == null)
@@ -104,6 +100,11 @@ public class TemplateManagerImpl
 		}
 		
 		return o;
+	}
+	
+	public boolean hasComponent(String ns, String name)
+	{
+		return components.containsKey(new Key(ns, name));
 	}
 
 	public void addFilter(TemplateFilter filter)
@@ -148,10 +149,10 @@ public class TemplateManagerImpl
 	
 	private static class Key
 	{
-		private final Namespace ns;
+		private final String ns;
 		private final String name;
 		
-		public Key(Namespace ns, String name)
+		public Key(String ns, String name)
 		{
 			this.ns = ns;
 			this.name = name;

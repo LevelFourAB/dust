@@ -1,21 +1,15 @@
 package se.l4.dust.core.internal.template;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
-import org.jdom.Content;
-import org.jdom.JDOMException;
-import org.jdom.Namespace;
-import org.jdom.Parent;
-import org.jdom.input.SAXBuilder;
-import org.jdom.input.SAXHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ComputationException;
 import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -29,12 +23,9 @@ import se.l4.dust.api.annotation.Template;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.UrlResource;
 import se.l4.dust.api.template.TemplateCache;
-import se.l4.dust.core.internal.template.dom.ContentPreload;
-import se.l4.dust.core.internal.template.dom.TemplateFactory;
-import se.l4.dust.core.internal.template.dom.TemplateSAXHandler;
-import se.l4.dust.core.internal.template.expression.ExpressionParser;
-import se.l4.dust.dom.Document;
-import se.l4.dust.dom.Element;
+import se.l4.dust.api.template.dom.ParsedTemplate;
+import se.l4.dust.api.template.spi.internal.XmlTemplateParser;
+import se.l4.dust.core.internal.template.dom.TemplateBuilderImpl;
 
 @Singleton
 public class TemplateCacheImpl
@@ -42,35 +33,22 @@ public class TemplateCacheImpl
 {
 	private static final Logger logger = LoggerFactory.getLogger(TemplateCacheImpl.class);
 	
-	private final SAXBuilder builder;
 	private final TemplateManager manager;
-	private final ExpressionParser expressionParser;
 	private final InnerCache inner;
 	
 	private final NamespaceManager namespaces;
+	private final Provider<TemplateBuilderImpl> templateBuilders;
 	
 	@Inject
 	public TemplateCacheImpl(
-			final Provider<TemplateFactory> factory, 
 			TemplateManager manager,
 			NamespaceManager namespaces,
-			ExpressionParser expressionPareser,
+			Provider<TemplateBuilderImpl> templateBuilders,
 			Environment env)
 	{
 		this.manager = manager;
 		this.namespaces = namespaces;
-		this.expressionParser = expressionPareser;
-		
-		builder = new SAXBuilder()
-		{
-			@Override
-			protected SAXHandler createContentHandler()
-			{
-				return new TemplateSAXHandler(factory.get());
-			}
-		};
-		builder.setReuseParser(false);
-//		builder.setFactory(factory);
+		this.templateBuilders = templateBuilders;
 		
 		inner = env == Environment.DEVELOPMENT 
 			? new DevelopmentCache()
@@ -88,7 +66,7 @@ public class TemplateCacheImpl
 	 * @return
 	 * @throws IOException
 	 */
-	public Document getTemplate(Class<?> c, Template annotation)
+	public ParsedTemplate getTemplate(Class<?> c, Template annotation)
 		throws IOException
 	{
 		if(annotation != null)
@@ -111,7 +89,7 @@ public class TemplateCacheImpl
 		return getTemplate(c, "");
 	}
 
-	private Document getTemplate0(Class<?> c, Template annotation)
+	private ParsedTemplate getTemplate0(Class<?> c, Template annotation)
 		throws IOException
 	{
 		if(annotation.value() == Object.class)
@@ -124,7 +102,7 @@ public class TemplateCacheImpl
 		}
 	}
 	
-	private Document getTemplate(Class<?> c, String name)
+	private ParsedTemplate getTemplate(Class<?> c, String name)
 		throws IOException
 	{
 		if(name.equals(""))
@@ -138,26 +116,49 @@ public class TemplateCacheImpl
 			throw new IOException("Could not find template " + name + " besides class " + c);
 		}
 		
-		return getTemplate(url);
+		return getTemplate(c, url);
 	}
 	
-	public Document getTemplate(URL url)
-	{
-		return inner.getTemplate(url);
-	}
-	
-	private Document loadTemplate(URL url)
+	public ParsedTemplate getTemplate(Class<?> context, URL url)
 	{
 		try
 		{
-			Document template = (Document) builder.build(url);
-			preload(template);
-			
-			return template;
+			return inner.getTemplate(context, url);
 		}
-		catch(JDOMException e)
+		catch(ComputationException e)
 		{
-			throw new RuntimeException(e.getMessage(), e);
+			if(e.getCause() instanceof RuntimeException)
+			{
+				throw (RuntimeException) e.getCause();
+			}
+			else
+			{
+				throw e;
+			}
+		}
+	}
+	
+	private ParsedTemplate loadTemplate(Class<?> context, URL url)
+	{
+		try
+		{
+			TemplateBuilderImpl builder = templateBuilders.get();
+			builder.setContext(context);
+			
+			// TODO: Selection of suitable parser
+			XmlTemplateParser parser = new XmlTemplateParser(namespaces, manager);
+			
+			InputStream in = url.openStream();
+			try
+			{
+				parser.parse(in, url.getPath(), builder);
+				
+				return builder.getTemplate(); 
+			}
+			finally
+			{
+				in.close();
+			}
 		}
 		catch(IOException e)
 		{
@@ -165,98 +166,61 @@ public class TemplateCacheImpl
 		}
 	}
 	
-	private void preload(Parent p)
-		throws JDOMException
-	{
-		for(Content c : (List<Content>) p.getContent())
-		{
-			if(c instanceof ContentPreload)
-			{
-				((ContentPreload) c).preload(expressionParser);
-			}
-			
-			if(c instanceof Parent)
-			{
-				preload((Parent) c);
-			}
-			
-			if(c instanceof Element)
-			{
-				/*
-				 * Remove component namespaces after the element has been
-				 * preloaded, otherwise searching upwards for expressions
-				 * is impossible
-				 */
-				Element e = (Element) c;
-				
-				List<Namespace> removable = new ArrayList<Namespace>(10);
-				for(Namespace ns : e.getAdditionalNamespaces())
-				{
-					if(namespaces.isBound(ns) || manager.isComponentNamespace(ns))
-					{
-						removable.add(ns);
-					}
-				}
-				
-				for(Namespace ns : removable)
-				{
-					e.removeNamespaceDeclaration(ns);
-				}
-			}
-		}
-	}
-	
 	private interface InnerCache
 	{
-		Document getTemplate(URL url);
+		ParsedTemplate getTemplate(Class<?> ctx, URL url);
 	}
 	
 	private class ProductionCache
 		implements InnerCache
 	{
-		protected final ConcurrentMap<URL, Document> templates;
+		protected final ConcurrentMap<Key, ParsedTemplate> templates;
 		
 		public ProductionCache()
 		{
 			templates = new MapMaker()
-			.makeComputingMap(new Function<URL, Document>()
-			{
-				public Document apply(URL url)
+				.makeComputingMap(new Function<Key, ParsedTemplate>()
 				{
-					return loadTemplate(url);
-				}
-			});
+					public ParsedTemplate apply(Key key)
+					{
+						return loadTemplate(key.context, key.url);
+					}
+				});
 		}
 		
-		public Document getTemplate(URL url)
+		public ParsedTemplate getTemplate(Class<?> ctx, URL url)
 		{
-			return templates.get(url);
+			return templates.get(new Key(ctx, url));
 		}
 	}
 	
 	private class DevelopmentCache
-		extends ProductionCache
+		implements InnerCache
 	{
-		@Override
-		public Document getTemplate(URL url)
+		protected final ConcurrentMap<Key, DevParsedTemplate> templates;
+		
+		public DevelopmentCache()
 		{
-			Document template = super.getTemplate(url);
-			Resource resource = (Resource) template.getProperty("RESOURCE");
-			if(resource == null)
-			{
-				resource = getResource(url);
-				template.setProperty("RESOURCE", resource);
-			}
-			else
-			{
-				Resource newResource = getResource(url);
-				if(resource.getLastModified() < newResource.getLastModified())
+			templates = new MapMaker()
+				.makeComputingMap(new Function<Key, DevParsedTemplate>()
 				{
-					// Modified, reload the template
-					template = loadTemplate(url);
-					templates.put(url, template);
-					template.setProperty("RESOURCE", newResource);
-				}
+					public DevParsedTemplate apply(Key key)
+					{
+						return new DevParsedTemplate(loadTemplate(key.context, key.url), getResource(key.url));
+					}
+				});
+		}
+		
+		public ParsedTemplate getTemplate(Class<?> ctx, URL url)
+		{
+			DevParsedTemplate template = templates.get(new Key(ctx, url));
+			Resource resource = template.resource;
+			Resource newResource = getResource(url);
+			if(resource.getLastModified() < newResource.getLastModified())
+			{
+				// Modified, reload the template
+				template = new DevParsedTemplate(loadTemplate(ctx, url), newResource);
+				templates.put(new Key(ctx, url), template);
 			}
 			
 			return template;
@@ -272,6 +236,80 @@ public class TemplateCacheImpl
 			{
 				throw new TemplateException("Could not create reference to resource");
 			}
+		}
+	}
+	
+	private static class DevParsedTemplate
+		extends ParsedTemplate
+	{
+		private final Resource resource;
+
+		public DevParsedTemplate(ParsedTemplate tpl, Resource resource)
+		{
+			super(tpl.getDocType(), tpl.getRoot());
+			
+			this.resource = resource;
+		}
+	}
+	
+	private class Key
+	{
+		private final Class<?> context;
+		private final URL url;
+
+		public Key(Class<?> context, URL url)
+		{
+			this.context = context;
+			this.url = url;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result + ((context == null)
+				? 0
+				: context.hashCode());
+			result = prime * result + ((url == null)
+				? 0
+				: url.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if(this == obj)
+				return true;
+			if(obj == null)
+				return false;
+			if(getClass() != obj.getClass())
+				return false;
+			Key other = (Key) obj;
+			if(!getOuterType().equals(other.getOuterType()))
+				return false;
+			if(context == null)
+			{
+				if(other.context != null)
+					return false;
+			}
+			else if(!context.equals(other.context))
+				return false;
+			if(url == null)
+			{
+				if(other.url != null)
+					return false;
+			}
+			else if(!url.equals(other.url))
+				return false;
+			return true;
+		}
+
+		private TemplateCacheImpl getOuterType()
+		{
+			return TemplateCacheImpl.this;
 		}
 	}
 }

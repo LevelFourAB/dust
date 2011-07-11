@@ -22,7 +22,6 @@ import org.carrot2.labs.smartsprites.message.Message.MessageLevel;
 import org.carrot2.labs.smartsprites.message.MessageLog;
 import org.carrot2.labs.smartsprites.message.MessageSink;
 import org.carrot2.labs.smartsprites.resource.ResourceHandler;
-import org.jdom.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,13 +55,13 @@ public class SpriteProcessor
 		this.manager = manager;
 	}
 	
-	public Resource process(Namespace namespace, 
+	public Resource process(String namespace, 
 			String path, 
 			Resource stream, 
 			Object... arguments)
 		throws IOException
 	{
-		logger.info("Processing sprites in file " + path + " found in " + namespace.getURI());
+		logger.info("Processing sprites in file " + path + " found in " + namespace);
 		
 		List<String> cssFiles = new LinkedList<String>();
 		cssFiles.add("/" + path);
@@ -164,11 +163,11 @@ public class SpriteProcessor
 		private final AssetManager manager;
 		private final Resource cssResource;
 		private final String cssPath;
-		private final Namespace ns;
+		private final String ns;
 
 		private final Map<String, ByteArrayOutputStream> output;
 		
-		public CustomResourceHandler(AssetManager manager, Namespace ns, String cssPath, Resource cssResource)
+		public CustomResourceHandler(AssetManager manager, String ns, String cssPath, Resource cssResource)
 		{
 			this.manager = manager;
 			this.ns = ns;

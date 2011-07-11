@@ -2,8 +2,6 @@ package se.l4.dust.api.asset;
 
 import java.io.IOException;
 
-import org.jdom.Namespace;
-
 import se.l4.dust.api.resource.Resource;
 
 /**
@@ -30,6 +28,6 @@ public interface AssetProcessor
 	 * @throws IOException
 	 * 		if unable to process the stream
 	 */
-	Resource process(Namespace namespace, String path, Resource in, Object... arguments)
+	Resource process(String namespace, String path, Resource in, Object... arguments)
 		throws IOException;
 }

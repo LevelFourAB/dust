@@ -32,10 +32,10 @@ public class ClasspathAssetSource
 		this.manager = manager;
 	}
 
-	public Resource locate(Namespace ns, String path)
+	public Resource locate(String ns, String path)
 		throws IOException
 	{
-		URL url = manager.getResource(ns, path);
+		URL url = manager.getResource(Namespace.getNamespace(ns), path);
 		return url == null? null : new UrlResource(url);
 	}
 
