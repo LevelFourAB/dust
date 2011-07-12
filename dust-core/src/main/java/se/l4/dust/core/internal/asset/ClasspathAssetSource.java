@@ -3,8 +3,6 @@ package se.l4.dust.core.internal.asset;
 import java.io.IOException;
 import java.net.URL;
 
-import org.jdom.Namespace;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -35,7 +33,8 @@ public class ClasspathAssetSource
 	public Resource locate(String ns, String path)
 		throws IOException
 	{
-		URL url = manager.getResource(Namespace.getNamespace(ns), path);
+		NamespaceManager.Namespace namespace = manager.getNamespaceByURI(ns);
+		URL url = namespace.getResource(path);
 		return url == null? null : new UrlResource(url);
 	}
 

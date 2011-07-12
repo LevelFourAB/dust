@@ -3,8 +3,6 @@ package se.l4.dust.core.internal.template.dom;
 import java.util.Collections;
 import java.util.List;
 
-import org.jdom.Namespace;
-
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
@@ -12,7 +10,6 @@ import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.conversion.TypeConverter;
-import se.l4.dust.api.template.PropertySource;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.dom.Comment;
 import se.l4.dust.api.template.dom.Component;
@@ -21,6 +18,7 @@ import se.l4.dust.api.template.dom.DocType;
 import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.dom.Text;
+import se.l4.dust.api.template.spi.PropertySource;
 import se.l4.dust.api.template.spi.TemplateBuilder;
 import se.l4.dust.core.internal.template.components.EmittableComponent;
 
@@ -134,13 +132,14 @@ public class TemplateBuilderImpl
 		{
 			String prefix = name.substring(0, idx);
 			name = name.substring(idx+1);
-			Namespace ns = namespaces.getNamespaceByPrefix(prefix);
+			NamespaceManager.Namespace ns = namespaces.getNamespaceByPrefix(prefix);
 			if(ns == null)
 			{
 				throw new IllegalArgumentException("No namespace bound to " + prefix);
 			}
 			
-			Class<?> component = templates.getComponent(ns, name);
+			TemplateManager.NamespacedTemplate tpl = templates.getNamespace(ns.getUri());
+			Class<?> component = tpl.getComponent(name);
 			if(component == null)
 			{
 				throw new IllegalArgumentException("The component " + name + " could not be found in namespace " + prefix);
@@ -156,7 +155,8 @@ public class TemplateBuilderImpl
 	
 	public TemplateBuilder startComponent(String name, String namespace)
 	{
-		Class<?> component = templates.getComponent(Namespace.getNamespace(namespace), name);
+		TemplateManager.NamespacedTemplate tpl = templates.getNamespace(namespace);
+		Class<?> component = tpl.getComponent(name);
 		if(component == null)
 		{
 			throw new IllegalArgumentException("The component " + name + " could not be found in namespace " + namespace);

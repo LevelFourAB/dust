@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import se.l4.dust.api.DocumentLinker;
+import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.template.TemplateRenderer;
 
 /**
@@ -26,8 +26,8 @@ import se.l4.dust.api.template.TemplateRenderer;
  * 		calling the component
  *	</li>
  *	<li>
- *		<code>@{literal void prepare(DocumentLinker linker)}</code><br>
- *		Will receive an instance of {@link DocumentLinker}.
+ *		<code>@{literal void prepare(TemplateManager linker)}</code><br>
+ *		Will receive an instance of {@link TemplateManager}.
  *	</li>
  * </ul>
  * 

@@ -4,8 +4,6 @@ import java.net.URI;
 
 import javax.ws.rs.core.UriBuilder;
 
-import org.jdom.Namespace;
-
 import com.google.inject.Inject;
 
 import se.l4.dust.api.NamespaceManager;
@@ -48,7 +46,7 @@ public class WebRenderingContext
 		String ns = asset.getNamespace();
 		if(ns != null)
 		{
-			Namespace nns = namespaceManager.getNamespaceByURI(ns);
+			NamespaceManager.Namespace nns = namespaceManager.getNamespaceByURI(ns);
 			if(nns == null)
 			{
 				throw new RuntimeException("Namespace " + ns + " is not bound to NamespaceManager");
@@ -65,7 +63,7 @@ public class WebRenderingContext
 				name = name.substring(0, idx) + "." + checksum + "." + extension; 
 			}
 			
-			String version = namespaceManager.getVersion(nns);
+			String version = nns.getVersion();
 			
 			UriBuilder builder = UriBuilder.fromPath("/asset/{ns}/{version}")
 				.path(name);

@@ -1,23 +1,19 @@
 package se.l4.dust.core.internal;
 
-import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.jdom.Namespace;
-
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
 import se.l4.dust.api.ComponentException;
-import se.l4.dust.api.TemplateFilter;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Component;
-import se.l4.dust.api.template.PropertySource;
+import se.l4.dust.api.template.spi.PropertySource;
 
 /**
  * Implementation of {@link TemplateManager}. The implementation keeps track
@@ -31,96 +27,31 @@ import se.l4.dust.api.template.PropertySource;
 public class TemplateManagerImpl
 	implements TemplateManager
 {
-	private final ConcurrentMap<Key, Class<?>> components;
-	private final Set<Namespace> namespaces;
 	private final Injector injector;
-	private final List<TemplateFilter> filters;
 	private final ConcurrentMap<String, Object> propertySources;
+	private final ConcurrentMap<String, NamespacedTemplateImpl> namespaces;
 	
 	@Inject
 	public TemplateManagerImpl(Injector injector)
 	{
 		this.injector = injector;
 		
-		components = new ConcurrentHashMap<Key,  Class<?>>();
-		namespaces = new CopyOnWriteArraySet<Namespace>();
-		
-		filters = new CopyOnWriteArrayList<TemplateFilter>();
 		propertySources = new ConcurrentHashMap<String, Object>();
-	}
-
-	public void addComponent(Namespace ns, Class<?> component)
-	{
-		String[] names = null;
-		
-		Component annotation = component.getAnnotation(Component.class);
-		if(annotation != null)
-		{
-			names = annotation.value();
-		}
-		
-		if(names != null && names.length > 0)
-		{
-			addComponent(ns, component, names);
-		}
-		else
-		{
-			String name = component.getSimpleName().toLowerCase();
-			addComponent(ns, component, name);
-		}
-	}
-
-	public void addComponent(Namespace ns, Class<?> component, String... names)
-	{
-		for(String name : names)
-		{
-			Key k = new Key(ns.getURI(), name);
-			components.put(k, component);
-		}
-		namespaces.add(ns);
-	}
-
-	public Class<?> getComponent(Namespace ns, String name)
-	{
-		Class<?> o = components.get(new Key(ns.getURI(), name));
-		if(o == null)
-		{
-			throw new ComponentException("Unknown component " + name + " in " + ns);
-		}
-		
-		return o;
+		namespaces = new MapMaker()
+			.makeComputingMap(new Function<String, NamespacedTemplateImpl>()
+			{
+				public NamespacedTemplateImpl apply(String in)
+				{
+					return new NamespacedTemplateImpl(in);
+				}
+			});
 	}
 	
-	public Class<?> getComponent(String ns, String name)
+	public NamespacedTemplate getNamespace(String nsUri)
 	{
-		Class<?> o = components.get(new Key(ns, name));
-		if(o == null)
-		{
-			throw new ComponentException("Unknown component " + name + " in " + ns);
-		}
-		
-		return o;
-	}
-	
-	public boolean hasComponent(String ns, String name)
-	{
-		return components.containsKey(new Key(ns, name));
+		return namespaces.get(nsUri);
 	}
 
-	public void addFilter(TemplateFilter filter)
-	{
-		filters.add(filter);
-	}
-	
-	public List<TemplateFilter> getFilters()
-	{
-		return filters;
-	}
-
-	public boolean isComponentNamespace(Namespace ns)
-	{
-		return namespaces.contains(ns);
-	}
 	
 	public void addPropertySource(String prefix, PropertySource source)
 	{
@@ -147,53 +78,64 @@ public class TemplateManagerImpl
 		return null;
 	}
 	
-	private static class Key
+	private static class NamespacedTemplateImpl
+		implements NamespacedTemplate
 	{
-		private final String ns;
-		private final String name;
+		private final String namespace;
+		private final Map<String, Class<?>> components;
 		
-		public Key(String ns, String name)
+		public NamespacedTemplateImpl(String namespace)
 		{
-			this.ns = ns;
-			this.name = name;
-		}
-
-		@Override
-		public int hashCode()
-		{
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((name == null) ? 0 : name.hashCode());
-			result = prime * result + ((ns == null) ? 0 : ns.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj)
-		{
-			if(this == obj)
-				return true;
-			if(obj == null)
-				return false;
-			if(getClass() != obj.getClass())
-				return false;
-			Key other = (Key) obj;
-			if(name == null)
-			{
-				if(other.name != null)
-					return false;
-			}
-			else if(!name.equals(other.name))
-				return false;
-			if(ns == null)
-			{
-				if(other.ns != null)
-					return false;
-			}
-			else if(!ns.equals(other.ns))
-				return false;
-			return true;
+			this.namespace = namespace;
+			components = new ConcurrentHashMap<String, Class<?>>();
 		}
 		
+		public NamespacedTemplate addComponent(Class<?> component)
+		{
+			String[] names = null;
+			
+			Component annotation = component.getAnnotation(Component.class);
+			if(annotation != null)
+			{
+				names = annotation.value();
+			}
+			
+			if(names != null && names.length > 0)
+			{
+				addComponent(component, names);
+			}
+			else
+			{
+				String name = component.getSimpleName().toLowerCase();
+				addComponent(component, name);
+			}
+			
+			return this;
+		}
+
+		public NamespacedTemplate addComponent(Class<?> component, String... names)
+		{
+			for(String name : names)
+			{
+				components.put(name, component);
+			}
+			
+			return this;
+		}
+
+		public Class<?> getComponent(String name)
+		{
+			Class<?> o = components.get(name);
+			if(o == null)
+			{
+				throw new ComponentException("Unknown component " + name + " in " + namespace);
+			}
+			return o;
+		}
+
+		public boolean hasComponent(String name)
+		{
+			return components.containsKey(name);
+		}
 	}
 }

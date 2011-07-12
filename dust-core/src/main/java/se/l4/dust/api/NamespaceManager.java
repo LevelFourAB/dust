@@ -2,19 +2,9 @@ package se.l4.dust.api;
 
 import java.net.URL;
 
-import org.jdom.Namespace;
-
-import se.l4.dust.api.asset.AssetManager;
-
 /**
  * The namespace manager is used to bind namespaces to packages to enable
  * automatic page and component discovery.
- * 
- * <p>
- * Namespaces can have prefixes (see {@link Namespace#getPrefix()}) which are
- * used in certain places. Namespaces can also have versions specified when
- * bound, if no version is specified one will be auto-generated. Both prefixes
- * and versions are used when serving assets, see {@link AssetManager}).
  * 
  * @author Andreas Holstenson
  *
@@ -22,73 +12,97 @@ import se.l4.dust.api.asset.AssetManager;
 public interface NamespaceManager
 {
 	/**
-	 * Bind the given namespace to a package name generating a version for it. 
-	 * This allows for automatic page and component discovery.
+	 * Binder for namespaces.
 	 * 
-	 * @param ns
-	 * 		namespace to bind
-	 * @param pkg
-	 * 		full package name
+	 * @author Andreas Holstenson
+	 *
 	 */
-	void bind(Namespace ns, String pkg);
+	interface NamespaceBinder
+	{
+		/**
+		 * Set the package of the bound namespace.
+		 * 
+		 * @param pkg
+		 * @return
+		 */
+		NamespaceBinder setPackage(String pkg);
+		
+		/**
+		 * Set the package of the bound namespace.
+		 * 
+		 * @param pkg
+		 * @return
+		 */
+		NamespaceBinder setPackage(Package pkg);
+		
+		/**
+		 * Set the package of the namespace via the name of a class.
+		 * 
+		 * @param pkg
+		 * @return
+		 */
+		NamespaceBinder setPackageFromClass(Class<?> type);
+		
+		/**
+		 * Set the version of the namespace.
+		 * 
+		 * @param version
+		 * @return
+		 */
+		NamespaceBinder setVersion(String version);
+		
+		/**
+		 * Set the short prefix of the namespace. Prefixes are required for
+		 * certain operations, such as serving assets.
+		 * 
+		 * @param prefix
+		 * @return
+		 */
+		NamespaceBinder setPrefix(String prefix);
+		
+		/**
+		 * Bind the given namespace.
+		 */
+		void add();
+	}
 	
 	/**
-	 * Bind the given namespace to a package name. This allows for automatic
-	 * page and component discovery.
+	 * Information about a namespace.
 	 * 
-	 * @param ns
-	 * 		namespace to bind
-	 * @param pkg
-	 * 		full package name
-	 * @param version
-	 * 		version of package
+	 * @author Andreas Holstenson
+	 *
 	 */
-	void bind(Namespace ns, String pkg, String version);
-	
-	/**
-	 * Bind the given namespace to a package name.
-	 * 
-	 * @param ns
-	 * 		namespace to bind
-	 * @param pkg
-	 * 		package instance
-	 */
-	void bind(Namespace ns, Package pkg);
-	
-	/**
-	 * Bind the given namespace to a package including a version of the
-	 * namespace.
-	 * 
-	 * @param ns
-	 * 		namespace to bind
-	 * @param pkg
-	 * 		package instance
-	 * @param version
-	 * 		version of package
-	 */
-	void bind(Namespace ns, Package pkg, String version);
-	
-	/**
-	 * Bind the given namespace to a package name.
-	 * 
-	 * @param ns
-	 * 		namespace to bind
-	 * @param pkgBase
-	 * 		class from which the package name will be extracted 
-	 */
-	void bind(Namespace ns, Class<?> pkgBase);
-	
-	/**
-	 * Bind the given namespace to a package name with a specific version.
-	 * 
-	 * @param ns
-	 * 		namespace to bind
-	 * @param pkgBase
-	 * 		class from which the package name will be extracted
-	 * @param version
-	 * 		version of package
-	 */
-	void bind(Namespace ns, Class<?> pkgBase, String version);
+	interface Namespace
+	{
+		/**
+		 * Get the prefix of the namespace.
+		 * 
+		 * @return
+		 */
+		String getPrefix();
+		
+		/**
+		 * Get the URI of the namespace.
+		 * 
+		 * @return
+		 */
+		String getUri();
+		
+		/**
+		 * Get the version of the namespace.
+		 * 
+		 * @return
+		 */
+		String getVersion();
+		
+		/**
+		 * Attempt to locate a resource within the given namespace.
+		 * 
+		 * @param resource
+		 * @return
+		 */
+		URL getResource(String resource);
+	}
 	
 	/**
 	 * Bind the given namespace without tying it to a package. This allows
@@ -96,29 +110,9 @@ public interface NamespaceManager
 	 * page and component detection for the namespace.
 	 * 
 	 * @param ns
-	 * 		namespace to bind
+	 * 		URI of namespace to bind
 	 */
-	void bindSimple(Namespace ns);
-	
-	/**
-	 * Bind the given namespace without tying it to a package. This allows
-	 * it to be accessed via other method in the class but will not enable
-	 * page and component detection for the namespace.
-	 * 
-	 * @param ns
-	 * 		namespace to bind
-	 */
-	void bindSimple(Namespace ns, String version);
-	
-	/**
-	 * Check if the namespace has been bound.
-	 * 
-	 * @param ns
-	 * 		namespace to check
-	 * @return
-	 * 		{@code true} if bound, otherwise {@code false}
-	 */
-	boolean isBound(Namespace ns);
+	NamespaceBinder bind(String nsUri);
 	
 	/**
 	 * Check if the namespace has been bound.
@@ -141,7 +135,7 @@ public interface NamespaceManager
 	Namespace getBinding(String pkg);
 	
 	/**
-	 * Locate a namespace based on it's registered prefix.
+	 * Locate a namespace based on its registered prefix.
 	 * 
 	 * @param prefix
 	 * 		prefix to locate
@@ -149,9 +143,11 @@ public interface NamespaceManager
 	 */
 	Namespace getNamespaceByPrefix(String prefix);
 
+	/**
+	 * Locate a namespace based on its registered URI.
+	 * 
+	 * @param uri
+	 * @return
+	 */
 	Namespace getNamespaceByURI(String uri);
-	
-	URL getResource(Namespace ns, String resource);
-
-	String getVersion(Namespace ns);
 }

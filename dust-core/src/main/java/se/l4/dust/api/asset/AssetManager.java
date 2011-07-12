@@ -1,6 +1,6 @@
 package se.l4.dust.api.asset;
 
-import org.jdom.Namespace;
+import javax.xml.stream.events.Namespace;
 
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.resource.Resource;
@@ -36,11 +36,11 @@ import se.l4.dust.api.resource.Resource;
  * </pre>
  * 
  * <h2>Namespace prefixes and URLs</h2>
- * Usually one should bind namespaces containing a prefix (see 
- * {@link Namespace#getPrefix()}) as it will be used when serving an asset
- * over HTTP. The URL will normally be {@code /asset/prefix/path/to/file} where
- * prefix was defined when binding in {@link NamespaceManager}. If no prefix
- * has been set for namespace no assets from that namespace can be served.
+ * Usually one should bind namespaces containing a prefix as it will be used 
+ * when serving an asset over HTTP. The URL will normally be 
+ * {@code /asset/prefix/path/to/file} where prefix was defined when binding 
+ * in {@link NamespaceManager}. If no prefix has been set for namespace no 
+ * assets from that namespace can be served.
  * 
  * @author Andreas Holstenson
  *

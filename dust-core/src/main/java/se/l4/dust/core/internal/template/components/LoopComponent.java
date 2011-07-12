@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Collection;
 
 import se.l4.dust.api.TemplateException;
-import se.l4.dust.api.template.PropertyContent;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
@@ -20,9 +19,6 @@ import se.l4.dust.core.internal.template.dom.Emitter;
 public class LoopComponent
 	extends EmittableComponent
 {
-	private PropertyContent source;
-	private PropertyContent value;
-
 	public LoopComponent()
 	{
 		super("loop", LoopComponent.class);

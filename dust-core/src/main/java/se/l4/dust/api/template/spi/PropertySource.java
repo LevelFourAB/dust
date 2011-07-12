@@ -1,4 +1,4 @@
-package se.l4.dust.api.template;
+package se.l4.dust.api.template.spi;
 
 import se.l4.dust.api.template.dom.DynamicContent;
 import se.l4.dust.api.template.dom.Element;

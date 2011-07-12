@@ -5,8 +5,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
-import org.jdom.Namespace;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -35,7 +33,7 @@ public class AssetProvider
 			@PathParam("version") String version, 
 			@PathParam("path") String path)
 	{
-		Namespace ns = namespaces.getNamespaceByPrefix(prefix);
+		NamespaceManager.Namespace ns = namespaces.getNamespaceByPrefix(prefix);
 		if(ns == null)
 		{
 			return Response.status(404).build();
@@ -55,7 +53,7 @@ public class AssetProvider
 			}
 		}
 		
-		Asset a = manager.locate(ns.getURI(), path);
+		Asset a = manager.locate(ns.getUri(), path);
 		if(a == null)
 		{
 			return Response.status(404).build();

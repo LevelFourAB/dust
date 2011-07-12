@@ -2,10 +2,10 @@ package se.l4.dust.core.internal.template;
 
 import com.google.inject.Singleton;
 
-import se.l4.dust.api.template.PropertySource;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.DynamicContent;
 import se.l4.dust.api.template.dom.Element;
+import se.l4.dust.api.template.spi.PropertySource;
 
 @Singleton
 public class CyclePropertySource

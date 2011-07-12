@@ -11,7 +11,6 @@ import java.util.Set;
 import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
 
-import org.jdom.Namespace;
 import org.scannotation.AnnotationDB;
 import org.scannotation.ClasspathUrlFinder;
 import org.scannotation.WarUrlFinder;
@@ -115,7 +114,7 @@ public class PageDiscovery
 		{
 			for(String className : classes)
 			{
-				Namespace ns = findNamespace(className);
+				NamespaceManager.Namespace ns = findNamespace(className);
 				if(ns != null)
 				{
 					// This class is handled so we register it
@@ -147,11 +146,12 @@ public class PageDiscovery
 		{
 			for(String className : classes)
 			{
-				Namespace ns = findNamespace(className);
+				NamespaceManager.Namespace ns = findNamespace(className);
 				if(ns != null)
 				{
 					// This class is handled so we register it
-					components.addComponent(ns, Class.forName(className));
+					components.getNamespace(ns.getUri())
+						.addComponent(Class.forName(className));
 					count++;
 				}
 			}
@@ -175,14 +175,14 @@ public class PageDiscovery
 	 * @param className
 	 * @return
 	 */
-	private Namespace findNamespace(String className)
+	private NamespaceManager.Namespace findNamespace(String className)
 	{
 		int idx = className.lastIndexOf('.');
 		while(idx > 0)
 		{
 			className = className.substring(0, idx);
 			
-			Namespace ns = manager.getBinding(className);
+			NamespaceManager.Namespace ns = manager.getBinding(className);
 			if(ns != null)
 			{
 				return ns;

@@ -148,10 +148,10 @@ public class XmlTemplateParser
 			if(namespaces.isBound(uri))
 			{
 				// This namespace is managed by us, treat as component
-				
-				if(templates.hasComponent(uri, localName))
+				TemplateManager.NamespacedTemplate tpl = templates.getNamespace(uri);
+				if(tpl.hasComponent(localName))
 				{
-					Class<?> component = templates.getComponent(uri, localName);
+					Class<?> component = tpl.getComponent(localName);
 					
 					builder.startComponent(component);
 				}

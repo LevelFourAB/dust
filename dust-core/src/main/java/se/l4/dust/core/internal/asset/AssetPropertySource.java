@@ -3,18 +3,16 @@ package se.l4.dust.core.internal.asset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jdom.Namespace;
-
 import com.google.inject.Inject;
 
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
-import se.l4.dust.api.template.PropertySource;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.DynamicContent;
 import se.l4.dust.api.template.dom.Element;
+import se.l4.dust.api.template.spi.PropertySource;
 
 /**
  * Property source for binding assets for use in templates.
@@ -53,10 +51,10 @@ public class AssetPropertySource
 		
 		if(uri == null)
 		{
-			Namespace ns = namespaces.getNamespaceByPrefix(prefix);
+			NamespaceManager.Namespace ns = namespaces.getNamespaceByPrefix(prefix);
 			if(ns != null)
 			{
-				uri = ns.getURI();
+				uri = ns.getUri();
 			}
 		}
 		

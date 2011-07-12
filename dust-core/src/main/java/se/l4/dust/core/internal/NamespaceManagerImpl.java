@@ -5,8 +5,6 @@ import java.security.SecureRandom;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.jdom.Namespace;
-
 import com.google.inject.Singleton;
 
 import se.l4.dust.api.NamespaceManager;
@@ -15,103 +13,50 @@ import se.l4.dust.api.NamespaceManager;
 public class NamespaceManagerImpl
 	implements NamespaceManager
 {
+	private final static SecureRandom random = new SecureRandom();
+	
 	private final Map<String, Namespace> packages;
-	private final Map<Namespace, Locator> locators;
 	private final Map<String, Namespace> prefixes;
-	private final Map<String, Namespace> urls;
-	private final Map<String, String> versions;
-	private final SecureRandom random;
+	private final Map<String, Namespace> uris;
 	
 	public NamespaceManagerImpl()
 	{
 		packages = new ConcurrentHashMap<String, Namespace>();
-		locators = new ConcurrentHashMap<Namespace, Locator>();
 		prefixes = new ConcurrentHashMap<String, Namespace>();
-		urls = new ConcurrentHashMap<String, Namespace>();
-		versions = new ConcurrentHashMap<String, String>();
+		uris = new ConcurrentHashMap<String, Namespace>();
 		
-		random = new SecureRandom();
-		
-		bindSimple(Namespace.getNamespace("dust:common"));
-	}
-
-	private void prefix(Namespace ns)
-	{
-		prefixes.put(ns.getPrefix(), ns);
-		urls.put(ns.getURI(), ns);
+		bind("dust:common").add();
 	}
 	
-	private String generateVersion(Namespace ns)
+	public NamespaceBinder bind(String nsUri)
+	{
+		return new NamespaceBinderImpl(nsUri);
+	}
+	
+	protected static final String generateVersion(String ns)
 	{
 		return Long.toHexString(random.nextLong());
 	}
 	
-	public void bind(Namespace ns, Class<?> pkgBase)
+	private void addNamespace(String uri, String prefix, String pkg, String version, ClassLoader loader)
 	{
-		bind(ns, pkgBase, generateVersion(ns));
-	}
-	
-	public void bind(Namespace ns, Class<?> pkgBase, String version)
-	{
-		String pkg = pkgBase.getPackage().getName();
-		packages.put(pkg, ns);
-		locators.put(ns, 
-			new ClassLoaderLocator(pkgBase.getClassLoader(), pkg)
-		);
-		versions.put(ns.getURI(), version);
-		prefix(ns);
-	}
-	
-	public void bind(Namespace ns, Package pkg)
-	{
-		bind(ns, pkg, generateVersion(ns));
-	}
-	
-	public void bind(Namespace ns, Package pkg, String version)
-	{
-		packages.put(pkg.getName(), ns);
-		locators.put(ns, 
-			new ClassLoaderLocator(getClass().getClassLoader(), pkg.getName())
-		);
-		versions.put(ns.getURI(), version);
-		prefix(ns);
-	}
-	
-	public void bind(Namespace ns, String pkg)
-	{
-		bind(ns, pkg, generateVersion(ns));
-	}
-	
-	public void bind(Namespace ns, String pkg, String version)
-	{
-		packages.put(pkg, ns);
-		locators.put(ns, 
-			new ClassLoaderLocator(getClass().getClassLoader(), pkg)
-		);
-		versions.put(ns.getURI(), version);
-		prefix(ns);
-	}
-	
-	public void bindSimple(Namespace ns)
-	{
-		bindSimple(ns, generateVersion(ns));
-	}
-	
-	public void bindSimple(Namespace ns, String version)
-	{
-		urls.put(ns.getURI(), ns);
-		versions.put(ns.getURI(), version);
-		prefix(ns);
-	}
-	
-	public boolean isBound(Namespace ns)
-	{
-		return urls.containsKey(ns.getURI());
+		Namespace ns = new NamespaceImpl(uri, prefix, pkg, version, loader);
+		uris.put(uri, ns);
+		
+		if(pkg != null)
+		{
+			packages.put(pkg, ns);
+		}
+		
+		if(prefix != null)
+		{
+			prefixes.put(prefix, ns);
+		}
 	}
 	
 	public boolean isBound(String ns)
 	{
-		return urls.containsKey(ns);
+		return uris.containsKey(ns);
 	}
 	
 	public Namespace getBinding(String pkg)
@@ -126,22 +71,107 @@ public class NamespaceManagerImpl
 	
 	public Namespace getNamespaceByURI(String uri)
 	{
-		return urls.get(uri);
+		return uris.get(uri);
 	}
 	
-	public URL getResource(Namespace ns, String resource)
+	private class NamespaceBinderImpl
+		implements NamespaceBinder
 	{
-		Locator locator = locators.get(ns);
-		if(locator == null)
+		private final String uri;
+		private String pkg;
+		private String version;
+		private String prefix;
+		private ClassLoader loader;
+		
+		public NamespaceBinderImpl(String uri)
 		{
-			return null;
+			this.uri = uri;
 		}
-		return locator.locateResource(resource);
+
+		public NamespaceBinder setPackage(String pkg)
+		{
+			this.pkg = pkg;
+			return this;
+		}
+
+		public NamespaceBinder setPackage(Package pkg)
+		{
+			return setPackage(pkg.getName());
+		}
+
+		public NamespaceBinder setPackageFromClass(Class<?> type)
+		{
+			loader = type.getClassLoader();
+			return setPackage(type.getPackage());
+		}
+
+		public NamespaceBinder setVersion(String version)
+		{
+			this.version = version;
+			
+			return this;
+		}
+
+		public NamespaceBinder setPrefix(String prefix)
+		{
+			this.prefix = prefix;
+			
+			return this;
+		}
+
+		public void add()
+		{
+			if(version == null)
+			{
+				version = generateVersion(uri);
+			}
+			
+			addNamespace(uri, prefix, pkg, version, loader);
+		}
+		
 	}
 	
-	public String getVersion(Namespace ns)
+	private static class NamespaceImpl
+		implements Namespace
 	{
-		return versions.get(ns.getURI());
+		private final String uri;
+		private final String prefix;
+		private final String pkg;
+		private final String version;
+		private final Locator locator;
+
+		public NamespaceImpl(String uri, String prefix, String pkg, String version, ClassLoader loader)
+		{
+			this.uri = uri;
+			this.prefix = prefix;
+			this.pkg = pkg;
+			this.version = version;
+			
+			locator = prefix != null && loader != null 
+				? new ClassLoaderLocator(loader, pkg)
+				: null;
+		}
+
+		public String getPrefix()
+		{
+			return prefix;
+		}
+
+		public String getUri()
+		{
+			return uri;
+		}
+
+		public String getVersion()
+		{
+			return version;
+		}
+
+		public URL getResource(String resource)
+		{
+			return locator.locateResource(resource);
+		}
+		
 	}
 	
 	private static interface Locator

@@ -12,8 +12,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
-import org.jdom.output.Format;
-
 import com.google.inject.Inject;
 
 import se.l4.dust.api.annotation.Template;
@@ -37,8 +35,6 @@ public class TemplateWriter
 {
 	private final TemplateRenderer renderer;
 	private final TemplateCache cache;
-	private final Format htmlFormat;
-	private final Format xmlFormat;
 	private final com.google.inject.Provider<RenderingContext> ctx;
 
 	@Inject
@@ -48,12 +44,6 @@ public class TemplateWriter
 		this.renderer = renderer;
 		this.cache = cache;
 		this.ctx = ctx;
-		
-		htmlFormat = Format.getCompactFormat();
-		htmlFormat.setOmitDeclaration(true);
-		htmlFormat.setExpandEmptyElements(true);
-		
-		xmlFormat = Format.getCompactFormat();
 	}
 	
 	public long getSize(Object t, Class<?> type, Type genericType,

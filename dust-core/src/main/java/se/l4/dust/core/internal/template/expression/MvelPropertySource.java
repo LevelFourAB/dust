@@ -19,10 +19,10 @@ import org.mvel2.MVEL;
 import org.mvel2.ParserContext;
 
 import se.l4.dust.api.TemplateException;
-import se.l4.dust.api.template.PropertySource;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.DynamicContent;
 import se.l4.dust.api.template.dom.Element;
+import se.l4.dust.api.template.spi.PropertySource;
 
 /**
  * Property source for MVEL expressions.

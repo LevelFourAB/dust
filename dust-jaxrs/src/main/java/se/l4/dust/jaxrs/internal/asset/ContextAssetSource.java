@@ -41,7 +41,7 @@ public class ContextAssetSource
 	public Resource locate(String ns, String pathToFile)
 		throws IOException
 	{
-		if(Dust.CONTEXT_NAMESPACE.getURI().equals(ns))
+		if(Dust.CONTEXT_NAMESPACE_URI.equals(ns))
 		{
 			if(false == namespaces.isBound(ns))
 			{
