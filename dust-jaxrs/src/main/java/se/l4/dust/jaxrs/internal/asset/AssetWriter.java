@@ -15,6 +15,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import com.google.inject.Inject;
+
+import se.l4.crayon.Environment;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.resource.Resource;
 
@@ -24,9 +27,13 @@ public class AssetWriter
 	implements MessageBodyWriter<Asset>
 {
 	private final String date;
+	private final boolean development;
 	
-	public AssetWriter()
+	@Inject
+	public AssetWriter(Environment env)
 	{
+		development = env == Environment.DEVELOPMENT;
+		
 		Calendar c = Calendar.getInstance();
 		c.set(Calendar.YEAR, c.get(Calendar.YEAR) + 10);
 		
@@ -54,8 +61,11 @@ public class AssetWriter
 	{
 		Resource resource = t.getResource();
 		
-		httpHeaders.putSingle("Expires", date);
-		httpHeaders.putSingle("Cache-Control", "public");
+		if(false == development)
+		{
+			httpHeaders.putSingle("Expires", date);
+			httpHeaders.putSingle("Cache-Control", "public");
+		}
 		
 		String contentType = resource.getContentType();
 		if(contentType != null && false == "".equals(contentType))

@@ -8,6 +8,7 @@ import javax.ws.rs.core.Response;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import se.l4.crayon.Environment;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
@@ -20,7 +21,8 @@ public class AssetProvider
 	private final NamespaceManager namespaces;
 	
 	@Inject
-	public AssetProvider(NamespaceManager namespaces, AssetManager manager)
+	public AssetProvider(NamespaceManager namespaces, AssetManager manager,
+			Environment environment)
 	{
 		this.namespaces = namespaces;
 		this.manager = manager;
