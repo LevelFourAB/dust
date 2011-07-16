@@ -15,11 +15,11 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
-import com.google.inject.Inject;
-
 import se.l4.crayon.Environment;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.resource.Resource;
+
+import com.google.inject.Inject;
 
 @Provider
 @Produces("*/*")
@@ -68,7 +68,12 @@ public class AssetWriter
 		}
 		
 		String contentType = resource.getContentType();
-		if(contentType != null && false == "".equals(contentType))
+		if(contentType == null || "".equals(contentType) || "content/unknown".equals(contentType))
+		{
+			contentType = getLazyMimeType(t);
+		}
+		
+		if(contentType != null)
 		{
 			httpHeaders.putSingle("Content-Type", contentType);
 		}
@@ -94,4 +99,20 @@ public class AssetWriter
 		}
 	}
 
+	private String getLazyMimeType(Asset asset)
+	{
+		String name = asset.getName();
+		if(name.endsWith(".css"))
+		{
+			return "text/css";
+		}
+		else if(name.endsWith(".js"))
+		{
+			return "text/javascript";
+		}
+		else
+		{
+			return null;
+		}
+	}
 }
