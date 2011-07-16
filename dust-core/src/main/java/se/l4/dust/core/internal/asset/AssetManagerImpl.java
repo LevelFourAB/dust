@@ -12,13 +12,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Pattern;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ComputationException;
-import com.google.common.collect.MapMaker;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Singleton;
-
 import se.l4.crayon.Environment;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
@@ -28,6 +21,13 @@ import se.l4.dust.api.asset.AssetSource;
 import se.l4.dust.api.resource.MergedResource;
 import se.l4.dust.api.resource.NamedResource;
 import se.l4.dust.api.resource.Resource;
+
+import com.google.common.base.Function;
+import com.google.common.collect.ComputationException;
+import com.google.common.collect.MapMaker;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
 
 @Singleton
 public class AssetManagerImpl
@@ -434,11 +434,6 @@ public class AssetManagerImpl
 				String originalPath)
 		{
 			final Asset asset = super.createAsset(protect, path, resource, original, originalPath);
-			if(original == resource)
-			{
-				return asset;
-			}
-			
 			return new DevAsset(this, asset, originalPath);
 		}
 	}
