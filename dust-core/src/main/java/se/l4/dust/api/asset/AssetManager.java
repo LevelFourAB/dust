@@ -195,4 +195,12 @@ public interface AssetManager
 	 * @return
 	 */
 	AssetBuilder addAsset(String namespace, String pathToFile);
+	
+	/**
+	 * Add a new default processor for a certain file extension.
+	 * 
+	 * @param extension
+	 * @param processor
+	 */
+	void addExtensionProcessor(String extension, AssetProcessor processor);
 }

@@ -139,6 +139,11 @@ public class AssetManagerImpl
 		return new AssetBuilderImpl(parent, namespace, pathToFile);
 	}
 	
+	public void addExtensionProcessor(String extension, AssetProcessor processor)
+	{
+		extensionProcessors.put(extension, processor);
+	}
+	
 	/**
 	 * Builder implementation for defining combined assets.
 	 * 
@@ -296,6 +301,21 @@ public class AssetManagerImpl
 			boolean processed = false;
 			Resource current = resource;
 			NamedResource lastNamed = null;
+			
+			if(! extensionProcessors.isEmpty())
+			{
+				AssetProcessor ext = extensionProcessors.get(extension);
+				if(ext != null)
+				{
+					current = ext.process(namespace, path, current);
+					
+					if(current instanceof NamedResource)
+					{
+						// Rename the resource
+						lastNamed = (NamedResource) current;
+					}
+				}
+			}
 			
 			Set<ProcessorDef> applied = new HashSet<ProcessorDef>();
 			
