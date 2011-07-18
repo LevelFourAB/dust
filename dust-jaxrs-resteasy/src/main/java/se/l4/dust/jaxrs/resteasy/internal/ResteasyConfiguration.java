@@ -2,6 +2,7 @@ package se.l4.dust.jaxrs.resteasy.internal;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
+import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 
@@ -11,13 +12,13 @@ import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.jboss.resteasy.spi.Registry;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Singleton;
-
 import se.l4.dust.jaxrs.PageProvider;
 import se.l4.dust.jaxrs.ServletBinder;
 import se.l4.dust.jaxrs.spi.Configuration;
+
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
 
 /**
  * Configuration for Resteasy.
@@ -59,6 +60,11 @@ public class ResteasyConfiguration
 	public void addMessageBodyWriter(MessageBodyWriter<?> writer)
 	{
 		factory.addMessageBodyWriter(writer);
+	}
+	
+	public void addExceptionMapper(ExceptionMapper<?> mapper)
+	{
+		factory.addExceptionMapper(mapper);
 	}
 	
 	public void setupContext(ServletContext ctx, Injector injector)

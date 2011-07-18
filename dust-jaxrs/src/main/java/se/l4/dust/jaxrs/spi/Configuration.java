@@ -1,13 +1,14 @@
 package se.l4.dust.jaxrs.spi;
 
 import javax.servlet.ServletContext;
+import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 
-import com.google.inject.Injector;
-
 import se.l4.dust.jaxrs.PageProvider;
 import se.l4.dust.jaxrs.ServletBinder;
+
+import com.google.inject.Injector;
 
 /**
  * Configuration abstraction for different JAX-RS implementations.
@@ -30,6 +31,13 @@ public interface Configuration
 	 * @param writer
 	 */
 	void addMessageBodyReader(MessageBodyReader<?> reader);
+	
+	/**
+	 * Add a {@link ExceptionMapper} to the current JAX-RS configuration.
+	 * 
+	 * @param mapper
+	 */
+	void addExceptionMapper(ExceptionMapper<?> mapper);
 	
 	/**
 	 * Add a page to to the configuration.
