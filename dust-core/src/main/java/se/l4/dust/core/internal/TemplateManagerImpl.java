@@ -47,7 +47,7 @@ public class TemplateManagerImpl
 			});
 	}
 	
-	public NamespacedTemplate getNamespace(String nsUri)
+	public TemplateNamespace getNamespace(String nsUri)
 	{
 		return namespaces.get(nsUri);
 	}
@@ -79,7 +79,7 @@ public class TemplateManagerImpl
 	}
 	
 	private static class NamespacedTemplateImpl
-		implements NamespacedTemplate
+		implements TemplateNamespace
 	{
 		private final String namespace;
 		private final Map<String, Class<?>> components;
@@ -90,7 +90,7 @@ public class TemplateManagerImpl
 			components = new ConcurrentHashMap<String, Class<?>>();
 		}
 		
-		public NamespacedTemplate addComponent(Class<?> component)
+		public TemplateNamespace addComponent(Class<?> component)
 		{
 			String[] names = null;
 			
@@ -113,7 +113,7 @@ public class TemplateManagerImpl
 			return this;
 		}
 
-		public NamespacedTemplate addComponent(Class<?> component, String... names)
+		public TemplateNamespace addComponent(Class<?> component, String... names)
 		{
 			for(String name : names)
 			{

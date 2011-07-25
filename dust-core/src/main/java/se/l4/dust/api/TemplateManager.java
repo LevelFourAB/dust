@@ -18,7 +18,7 @@ public interface TemplateManager
 	 * @author Andreas Holstenson
 	 *
 	 */
-	interface NamespacedTemplate
+	interface TemplateNamespace
 	{
 		/**
 		 * Add a component to the manager, the component will be made available
@@ -28,7 +28,7 @@ public interface TemplateManager
 		 * @param component
 		 * 		the class of the component
 		 */
-		NamespacedTemplate addComponent(Class<?> component);
+		TemplateNamespace addComponent(Class<?> component);
 		
 		/**
 		 * Add a component to the manager using one or more custom names.
@@ -38,7 +38,7 @@ public interface TemplateManager
 		 * @param names
 		 * 		names of the component
 		 */
-		NamespacedTemplate addComponent(Class<?> component, String... names);
+		TemplateNamespace addComponent(Class<?> component, String... names);
 		
 		/**
 		 * Retrieve a component in the given namespace with the specified name.
@@ -71,7 +71,7 @@ public interface TemplateManager
 	 * @param nsUri
 	 * @return
 	 */
-	NamespacedTemplate getNamespace(String nsUri);
+	TemplateNamespace getNamespace(String nsUri);
 	
 	/**
 	 * Add a property source that can be used within {@literal ${}} expansions

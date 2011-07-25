@@ -138,7 +138,7 @@ public class TemplateBuilderImpl
 				throw new IllegalArgumentException("No namespace bound to " + prefix);
 			}
 			
-			TemplateManager.NamespacedTemplate tpl = templates.getNamespace(ns.getUri());
+			TemplateManager.TemplateNamespace tpl = templates.getNamespace(ns.getUri());
 			Class<?> component = tpl.getComponent(name);
 			if(component == null)
 			{
@@ -155,7 +155,7 @@ public class TemplateBuilderImpl
 	
 	public TemplateBuilder startComponent(String name, String namespace)
 	{
-		TemplateManager.NamespacedTemplate tpl = templates.getNamespace(namespace);
+		TemplateManager.TemplateNamespace tpl = templates.getNamespace(namespace);
 		Class<?> component = tpl.getComponent(name);
 		if(component == null)
 		{
