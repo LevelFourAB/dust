@@ -16,6 +16,6 @@ public interface PageManager
 	 * 
 	 * @param page
 	 */
-	void add(Class<?> page);
+	PageManager add(Class<?> page);
 	
 }

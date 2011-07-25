@@ -1,12 +1,18 @@
 package se.l4.dust.jaxrs.internal;
 
-import se.l4.dust.jaxrs.PageManager;
-import se.l4.dust.jaxrs.PageProvider;
-import se.l4.dust.jaxrs.spi.Configuration;
+import java.io.IOException;
+import java.lang.reflect.Method;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import com.google.inject.Stage;
+
+import se.l4.dust.api.annotation.Template;
+import se.l4.dust.api.template.TemplateCache;
+import se.l4.dust.jaxrs.PageManager;
+import se.l4.dust.jaxrs.PageProvider;
+import se.l4.dust.jaxrs.spi.Configuration;
 
 
 @Singleton
@@ -14,16 +20,23 @@ public class NormalPageManager
 	implements PageManager
 {
 	private final Configuration config;
+	private final TemplateCache templates;
 	private final Injector injector;
+	private final Stage stage;
 	
 	@Inject
-	public NormalPageManager(Configuration config, Injector injector)
+	public NormalPageManager(Configuration config,
+			TemplateCache templates,
+			Injector injector,
+			Stage stage)
 	{
 		this.config = config;
+		this.templates = templates;
 		this.injector = injector;
+		this.stage = stage;
 	}
 	
-	public void add(final Class<?> page)
+	public PageManager add(final Class<?> page)
 	{
 		config.addPage(new PageProvider()
 		{
@@ -41,7 +54,39 @@ public class NormalPageManager
 			{
 			}
 		});
+		
+		if(stage == Stage.PRODUCTION) 
+		{
+			try
+			{
+				cache(page);
+			}
+			catch(IOException e)
+			{
+				throw new Error("Unable to cache template for " + page, e);
+			}
+		}
+		
+		return this;
+	}
+
+	private void cache(Class<?> page)
+		throws IOException
+	{
+		cacheTemplate(page);
+		
+		for(Method method : page.getMethods())
+		{
+			cacheTemplate(method.getReturnType());
+		}
 	}
 	
-	
+	private void cacheTemplate(Class<?> tpl)
+		throws IOException
+	{
+		if(tpl.isAnnotationPresent(Template.class))
+		{
+			templates.getTemplate(tpl, tpl.getAnnotation(Template.class));
+		}
+	}
 }

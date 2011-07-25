@@ -18,10 +18,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.google.inject.Stage;
 
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Component;
+import se.l4.dust.api.annotation.Template;
+import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.jaxrs.PageManager;
 
 /**
@@ -38,16 +41,22 @@ public class PageDiscovery
 	private final NamespaceManager manager;
 	private final PageManager pages;
 	private final TemplateManager components;
+	private final TemplateCache templateCache;
+	private final Stage stage;
 	
 	@Inject
 	public PageDiscovery(
 			NamespaceManager manager,
 			PageManager pages,
-			TemplateManager components)
+			TemplateManager components,
+			TemplateCache templateCache,
+			Stage stage)
 	{
 		this.manager = manager;
 		this.pages = pages;
 		this.components = components;
+		this.templateCache = templateCache;
+		this.stage = stage;
 	}
 
 	public void discover(ServletContext ctx)
@@ -70,6 +79,12 @@ public class PageDiscovery
 		int c = handleComponents(index);
 		
 		logger.info("Found " + p + " pages and " + c + " components");
+		
+		if(stage == Stage.PRODUCTION)
+		{
+			int t = handleTemplate(index);
+			logger.info("Loaded " + t + " templates");
+		}
 	}
 	
 	private List<URL> findClasspath()
@@ -157,6 +172,28 @@ public class PageDiscovery
 			}
 		}
 		
+		return count;
+	}
+	
+	private int handleTemplate(Map<String, Set<String>> index)
+		throws Exception
+	{
+		int count = 0;
+		Set<String> classes = index.get(Template.class.getName());
+		if(classes != null)
+		{
+			for(String className : classes)
+			{
+				NamespaceManager.Namespace ns = findNamespace(className);
+				if(ns != null)
+				{
+					Class<?> c = Class.forName(className);
+					
+					templateCache.getTemplate(c, c.getAnnotation(Template.class));
+					count++;
+				}
+			}
+		}
 		return count;
 	}
 	
