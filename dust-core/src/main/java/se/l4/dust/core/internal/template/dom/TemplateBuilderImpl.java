@@ -1,7 +1,9 @@
 package se.l4.dust.core.internal.template.dom;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -18,6 +20,7 @@ import se.l4.dust.api.template.dom.DocType;
 import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.dom.Text;
+import se.l4.dust.api.template.spi.Namespaces;
 import se.l4.dust.api.template.spi.PropertySource;
 import se.l4.dust.api.template.spi.TemplateBuilder;
 import se.l4.dust.core.internal.template.components.EmittableComponent;
@@ -33,10 +36,13 @@ public class TemplateBuilderImpl
 {
 	private final Injector injector;
 	private final TemplateManager templates;
-	private final NamespaceManager namespaces;
+	private final NamespaceManager namespaceManager;
 	
 	private final TemplateCache templateCache;
 	private final TypeConverter converter;
+	
+	private final Map<String, String> boundNamespaces;
+	private final Namespaces namespaces;
 	
 	private Class<?> context;
 	
@@ -46,21 +52,51 @@ public class TemplateBuilderImpl
 
 	@Inject
 	public TemplateBuilderImpl(Injector injector, 
-			NamespaceManager namespaces, 
+			NamespaceManager namespaceManager, 
 			TemplateManager templates,
 			TemplateCache templateCache,
 			TypeConverter converter)
 	{
 		this.injector = injector;
-		this.namespaces = namespaces;
+		this.namespaceManager = namespaceManager;
 		this.templates = templates;
 		this.templateCache = templateCache;
 		this.converter = converter;
+		
+		boundNamespaces = new HashMap<String, String>();
+		namespaces = createNamespaces();
 	}
 	
+	private Namespaces createNamespaces()
+	{
+		return new Namespaces()
+		{
+			public NamespaceManager.Namespace getNamespaceByPrefix(String prefix)
+			{
+				String uri = boundNamespaces.get(prefix);
+				return uri == null ? null
+					: namespaceManager.getNamespaceByURI(uri);
+			}
+		};
+	}
+
 	public void setContext(Class<?> context)
 	{
 		this.context = context;
+	}
+	
+	public TemplateBuilder bindNamespace(String prefix, String uri)
+	{
+		boundNamespaces.put(prefix, uri);
+		
+		return this;
+	}
+	
+	public TemplateBuilder unbindNamespace(String prefix)
+	{
+		boundNamespaces.remove(prefix);
+		
+		return this;
 	}
 	
 	public TemplateBuilder setDoctype(String name, String publicId,
@@ -132,7 +168,7 @@ public class TemplateBuilderImpl
 		{
 			String prefix = name.substring(0, idx);
 			name = name.substring(idx+1);
-			NamespaceManager.Namespace ns = namespaces.getNamespaceByPrefix(prefix);
+			NamespaceManager.Namespace ns = namespaceManager.getNamespaceByPrefix(prefix);
 			if(ns == null)
 			{
 				throw new IllegalArgumentException("No namespace bound to " + prefix);
@@ -275,7 +311,7 @@ public class TemplateBuilderImpl
 		}
 		
 		// TODO: Find the property parent
-		return source.getPropertyContent(context, expression, current);
+		return source.getPropertyContent(namespaces, context, expression);
 	}
 	
 	public TemplateBuilder comment(List<Content> content)

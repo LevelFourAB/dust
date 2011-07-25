@@ -1,7 +1,6 @@
 package se.l4.dust.api.template.spi;
 
 import se.l4.dust.api.template.dom.DynamicContent;
-import se.l4.dust.api.template.dom.Element;
 
 /**
  * Source of properties, translates expressions into {@link PropertyContent}
@@ -23,5 +22,5 @@ public interface PropertySource
 	 * 		the parent element in the template
 	 * @return
 	 */
-	DynamicContent getPropertyContent(Class<?> context, String propertyExpression, Element parent);
+	DynamicContent getPropertyContent(Namespaces namespaces, Class<?> context, String propertyExpression);
 }

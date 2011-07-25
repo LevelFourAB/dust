@@ -11,7 +11,7 @@ import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.DynamicContent;
-import se.l4.dust.api.template.dom.Element;
+import se.l4.dust.api.template.spi.Namespaces;
 import se.l4.dust.api.template.spi.PropertySource;
 
 /**
@@ -34,7 +34,7 @@ public class AssetPropertySource
 		this.namespaces = namespaces;
 	}
 	
-	public DynamicContent getPropertyContent(Class<?> context, String propertyExpression, Element parent)
+	public DynamicContent getPropertyContent(Namespaces namespaces, Class<?> context, String propertyExpression)
 	{
 		Matcher matcher = pattern.matcher(propertyExpression);
 		if(false == matcher.matches())
@@ -47,15 +47,12 @@ public class AssetPropertySource
 		String prefix = matcher.group(1);
 		String path = matcher.group(2);
 		
-		String uri = parent.findNamespace(prefix);
+		NamespaceManager.Namespace ns = namespaces.getNamespaceByPrefix(prefix);
 		
-		if(uri == null)
+		String uri = null;
+		if(ns != null)
 		{
-			NamespaceManager.Namespace ns = namespaces.getNamespaceByPrefix(prefix);
-			if(ns != null)
-			{
-				uri = ns.getUri();
-			}
+			uri = ns.getUri();
 		}
 		
 		if(uri == null)

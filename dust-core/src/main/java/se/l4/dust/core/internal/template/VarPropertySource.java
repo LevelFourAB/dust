@@ -4,7 +4,7 @@ import com.google.inject.Singleton;
 
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.DynamicContent;
-import se.l4.dust.api.template.dom.Element;
+import se.l4.dust.api.template.spi.Namespaces;
 import se.l4.dust.api.template.spi.PropertySource;
 
 /**
@@ -23,7 +23,7 @@ public class VarPropertySource
 	{
 	}
 	
-	public DynamicContent getPropertyContent(Class<?> context, String propertyExpression, Element parent)
+	public DynamicContent getPropertyContent(Namespaces namespaces, Class<?> context, String propertyExpression)
 	{
 		return new Content(propertyExpression);
 	}

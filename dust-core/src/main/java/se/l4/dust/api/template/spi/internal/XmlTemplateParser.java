@@ -26,6 +26,12 @@ import se.l4.dust.api.template.spi.ExpressionExtractor;
 import se.l4.dust.api.template.spi.TemplateBuilder;
 import se.l4.dust.api.template.spi.TemplateParser;
 
+/**
+ * Parser for XML based templates.
+ * 
+ * @author andreas
+ *
+ */
 public class XmlTemplateParser
 	implements TemplateParser
 {
@@ -127,6 +133,15 @@ public class XmlTemplateParser
 			throws SAXException
 		{
 			declaredNamespaces.add(new NsDeclaration(prefix, uri));
+			
+			builder.bindNamespace(prefix, uri);
+		}
+		
+		@Override
+		public void endPrefixMapping(String prefix)
+			throws SAXException
+		{
+			builder.unbindNamespace(prefix);
 		}
 		
 		private void newError(String error, Object... params)

@@ -147,6 +147,23 @@ public interface TemplateBuilder
 	TemplateBuilder addContent(List<Content> content);
 	
 	/**
+	 * Bind a namespace to a specific prefix.
+	 * 
+	 * @param prefix
+	 * @param uri
+	 * @return
+	 */
+	TemplateBuilder bindNamespace(String prefix, String uri);
+	
+	/**
+	 * Unbind a specific namespace prefix.
+	 * 
+	 * @param prefix
+	 * @return
+	 */
+	TemplateBuilder unbindNamespace(String prefix);
+	
+	/**
 	 * Create a piece of dynamic content based on the prefix and given 
 	 * expression.
 	 * 
