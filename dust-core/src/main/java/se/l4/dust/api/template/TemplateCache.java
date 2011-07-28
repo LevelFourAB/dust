@@ -3,6 +3,7 @@ package se.l4.dust.api.template;
 import java.io.IOException;
 import java.net.URL;
 
+import se.l4.dust.api.Context;
 import se.l4.dust.api.annotation.Template;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 
@@ -20,7 +21,7 @@ public interface TemplateCache
 	 * @param url
 	 * @return
 	 */
-	ParsedTemplate getTemplate(Class<?> context, URL url);
+	ParsedTemplate getTemplate(Context context, Class<?> dataContext, URL url);
 
 	/**
 	 * Get a template using the given class and annotation. If no annotation
@@ -31,6 +32,6 @@ public interface TemplateCache
 	 * @return
 	 * @throws IOException
 	 */
-	ParsedTemplate getTemplate(Class<?> context, Template annotation) throws IOException;
+	ParsedTemplate getTemplate(Context context, Class<?> dataContext, Template annotation) throws IOException;
 
 }

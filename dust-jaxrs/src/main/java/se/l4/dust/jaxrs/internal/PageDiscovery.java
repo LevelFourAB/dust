@@ -20,10 +20,12 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 import com.google.inject.Stage;
 
+import se.l4.dust.api.Context;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Component;
 import se.l4.dust.api.annotation.Template;
+import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.jaxrs.PageManager;
 
@@ -42,6 +44,7 @@ public class PageDiscovery
 	private final PageManager pages;
 	private final TemplateManager components;
 	private final TemplateCache templateCache;
+	private final ResourceVariantManager variants;
 	private final Stage stage;
 	
 	@Inject
@@ -50,12 +53,14 @@ public class PageDiscovery
 			PageManager pages,
 			TemplateManager components,
 			TemplateCache templateCache,
+			ResourceVariantManager variants,
 			Stage stage)
 	{
 		this.manager = manager;
 		this.pages = pages;
 		this.components = components;
 		this.templateCache = templateCache;
+		this.variants = variants;
 		this.stage = stage;
 	}
 
@@ -189,7 +194,10 @@ public class PageDiscovery
 				{
 					Class<?> c = Class.forName(className);
 					
-					templateCache.getTemplate(c, c.getAnnotation(Template.class));
+					for(Context ctx : variants.getInitialContexts())
+					{
+						templateCache.getTemplate(ctx, c, c.getAnnotation(Template.class));
+					}
 					count++;
 				}
 			}

@@ -134,7 +134,7 @@ public class ClassTemplateComponent
 		else
 		{
 			// Process the template of the component 
-			ParsedTemplate template = cache.getTemplate(type, (Template) null);
+			ParsedTemplate template = cache.getTemplate(ctx, type, (Template) null);
 			DocType docType = template.getDocType();
 			if(docType != null)
 			{

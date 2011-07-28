@@ -41,7 +41,7 @@ public class TemplateRendererImpl
 			throw new IllegalArgumentException("Object of type " + c + " does not have a @" + Template.class.getSimpleName() + " annotation");
 		}
 		
-		ParsedTemplate tpl = cache.getTemplate(c, c.getAnnotation(Template.class));
+		ParsedTemplate tpl = cache.getTemplate(ctx, c, c.getAnnotation(Template.class));
 		render(ctx, tpl, data, out);
 	}
 	
@@ -51,7 +51,7 @@ public class TemplateRendererImpl
 	{
 		Class<?> c = data.getClass();
 		
-		ParsedTemplate tpl = cache.getTemplate(c, template);
+		ParsedTemplate tpl = cache.getTemplate(ctx, c, template);
 		render(ctx, tpl, data, out);
 	}
 }

@@ -35,11 +35,11 @@ public interface ResourceVariantManager
 	List<ResourceVariant> getVariants(Context context);
 	
 	/**
-	 * Get the initial variants to use for caching.
+	 * Get the initial contexts to use for caching.
 	 * 
 	 * @return
 	 */
-	List<ResourceVariant> getInitialVariants();
+	List<Context> getInitialContexts();
 
 	/**
 	 * Try creating a more specific URL based on the variants active in the

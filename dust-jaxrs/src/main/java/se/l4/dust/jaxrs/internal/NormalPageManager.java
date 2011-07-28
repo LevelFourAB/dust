@@ -8,7 +8,9 @@ import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
 
+import se.l4.dust.api.Context;
 import se.l4.dust.api.annotation.Template;
+import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.jaxrs.PageManager;
 import se.l4.dust.jaxrs.PageProvider;
@@ -21,17 +23,20 @@ public class NormalPageManager
 {
 	private final Configuration config;
 	private final TemplateCache templates;
+	private final ResourceVariantManager variants;
 	private final Injector injector;
 	private final Stage stage;
 	
 	@Inject
 	public NormalPageManager(Configuration config,
 			TemplateCache templates,
+			ResourceVariantManager variants,
 			Injector injector,
 			Stage stage)
 	{
 		this.config = config;
 		this.templates = templates;
+		this.variants = variants;
 		this.injector = injector;
 		this.stage = stage;
 	}
@@ -86,7 +91,10 @@ public class NormalPageManager
 	{
 		if(tpl.isAnnotationPresent(Template.class))
 		{
-			templates.getTemplate(tpl, tpl.getAnnotation(Template.class));
+			for(Context ctx : variants.getInitialContexts())
+			{
+				templates.getTemplate(ctx, tpl, tpl.getAnnotation(Template.class));
+			}
 		}
 	}
 }

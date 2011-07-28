@@ -16,12 +16,16 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
 
+import se.l4.dust.api.Context;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Template;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.UrlResource;
+import se.l4.dust.api.resource.variant.ResourceVariant;
+import se.l4.dust.api.resource.variant.ResourceVariantManager;
+import se.l4.dust.api.resource.variant.ResourceVariantManager.ResourceCallback;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.spi.internal.XmlTemplateParser;
@@ -37,23 +41,46 @@ public class TemplateCacheImpl
 	private final InnerCache inner;
 	
 	private final NamespaceManager namespaces;
+	private final ResourceVariantManager variants;
 	private final Provider<TemplateBuilderImpl> templateBuilders;
+
+	private final ResourceCallback resourceCallback;
 	
 	@Inject
 	public TemplateCacheImpl(
 			TemplateManager manager,
 			NamespaceManager namespaces,
+			ResourceVariantManager variants,
 			Provider<TemplateBuilderImpl> templateBuilders,
 			Stage stage)
 	{
 		this.manager = manager;
 		this.namespaces = namespaces;
+		this.variants = variants;
 		this.templateBuilders = templateBuilders;
 		
 		inner = stage == Stage.DEVELOPMENT 
 			? new DevelopmentCache()
 			: new ProductionCache();
-			
+		
+		resourceCallback = new ResourceVariantManager.ResourceCallback()
+		{
+			public boolean exists(ResourceVariant variant, String url)
+				throws IOException
+			{
+				try
+				{
+					InputStream stream = new URL(url).openStream();
+					stream.close();
+					return true;
+				}
+				catch(IOException e)
+				{
+					return false;
+				}
+			}
+		};
+		
 		logger.info("Template cache is in " + stage + " mode");
 	}
 	
@@ -66,12 +93,12 @@ public class TemplateCacheImpl
 	 * @return
 	 * @throws IOException
 	 */
-	public ParsedTemplate getTemplate(Class<?> c, Template annotation)
+	public ParsedTemplate getTemplate(Context context, Class<?> c, Template annotation)
 		throws IOException
 	{
 		if(annotation != null)
 		{
-			return getTemplate0(c, annotation);
+			return getTemplate0(context, c, annotation);
 		}
 		
 		Class<?> current = c;
@@ -80,29 +107,29 @@ public class TemplateCacheImpl
 			Template t = current.getAnnotation(Template.class);
 			if(t != null)
 			{
-				return getTemplate0(current, t);
+				return getTemplate0(context, current, t);
 			}
 			
 			current = current.getSuperclass();
 		}
 		
-		return getTemplate(c, "");
+		return getTemplate(context, c, "");
 	}
 
-	private ParsedTemplate getTemplate0(Class<?> c, Template annotation)
+	private ParsedTemplate getTemplate0(Context context, Class<?> c, Template annotation)
 		throws IOException
 	{
 		if(annotation.value() == Object.class)
 		{
-			return getTemplate(c, annotation.name());
+			return getTemplate(context, c, annotation.name());
 		}
 		else
 		{
-			return getTemplate(annotation.value(), annotation.name());
+			return getTemplate(context, annotation.value(), annotation.name());
 		}
 	}
 	
-	private ParsedTemplate getTemplate(Class<?> c, String name)
+	private ParsedTemplate getTemplate(Context context, Class<?> c, String name)
 		throws IOException
 	{
 		if(name.equals(""))
@@ -116,14 +143,14 @@ public class TemplateCacheImpl
 			throw new IOException("Could not find template " + name + " besides class " + c);
 		}
 		
-		return getTemplate(c, url);
+		return getTemplate(context, c, url);
 	}
 	
-	public ParsedTemplate getTemplate(Class<?> context, URL url)
+	public ParsedTemplate getTemplate(Context context, Class<?> dataContext, URL url)
 	{
 		try
 		{
-			return inner.getTemplate(context, url);
+			return inner.getTemplate(context, dataContext, url);
 		}
 		catch(ComputationException e)
 		{
@@ -138,12 +165,12 @@ public class TemplateCacheImpl
 		}
 	}
 	
-	private ParsedTemplate loadTemplate(Class<?> context, URL url)
+	private ParsedTemplate loadTemplate(Class<?> dataContext, URL url)
 	{
 		try
 		{
 			TemplateBuilderImpl builder = templateBuilders.get();
-			builder.setContext(context);
+			builder.setContext(dataContext);
 			
 			// TODO: Selection of suitable parser
 			XmlTemplateParser parser = new XmlTemplateParser(namespaces, manager);
@@ -168,7 +195,7 @@ public class TemplateCacheImpl
 	
 	private interface InnerCache
 	{
-		ParsedTemplate getTemplate(Class<?> ctx, URL url);
+		ParsedTemplate getTemplate(Context context, Class<?> ctx, URL url);
 	}
 	
 	private class ProductionCache
@@ -188,9 +215,22 @@ public class TemplateCacheImpl
 				});
 		}
 		
-		public ParsedTemplate getTemplate(Class<?> ctx, URL url)
+		public ParsedTemplate getTemplate(Context context, Class<?> ctx, URL url)
 		{
-			return templates.get(new Key(ctx, url));
+			String raw = url.toExternalForm();
+			try
+			{
+				raw = variants.resolve(context, resourceCallback, raw);
+				return templates.get(new Key(ctx, new URL(raw)));
+			}
+			catch(IOException e)
+			{
+				throw new TemplateException("Unable to load " + raw + "; " + e.getMessage(), e);
+			}
+			catch(ComputationException e)
+			{
+				throw new TemplateException("Unable to load " + raw + "; " + e.getCause().getMessage(), e.getCause());
+			}
 		}
 	}
 	
@@ -211,19 +251,34 @@ public class TemplateCacheImpl
 				});
 		}
 		
-		public ParsedTemplate getTemplate(Class<?> ctx, URL url)
+		public ParsedTemplate getTemplate(Context context, Class<?> ctx, URL url)
 		{
-			DevParsedTemplate template = templates.get(new Key(ctx, url));
-			Resource resource = template.resource;
-			Resource newResource = getResource(url);
-			if(resource.getLastModified() < newResource.getLastModified())
+			String raw = url.toExternalForm();
+			try
 			{
-				// Modified, reload the template
-				template = new DevParsedTemplate(loadTemplate(ctx, url), newResource);
-				templates.put(new Key(ctx, url), template);
-			}
+				raw = variants.resolve(context, resourceCallback, raw);
+				url = new URL(raw);
 			
-			return template;
+				DevParsedTemplate template = templates.get(new Key(ctx, url));
+				Resource resource = template.resource;
+				Resource newResource = getResource(url);
+				if(resource.getLastModified() < newResource.getLastModified())
+				{
+					// Modified, reload the template
+					template = new DevParsedTemplate(loadTemplate(ctx, url), newResource);
+					templates.put(new Key(ctx, url), template);
+				}
+				
+				return template;
+			}
+			catch(IOException e)
+			{
+				throw new TemplateException("Unable to load " + raw + "; " + e.getMessage(), e);
+			}
+			catch(ComputationException e)
+			{
+				throw new TemplateException("Unable to load " + raw + "; " + e.getCause().getMessage(), e.getCause());
+			}
 		}
 		
 		private Resource getResource(URL url)

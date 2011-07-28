@@ -3,8 +3,9 @@ package se.l4.dust.core.internal.resource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
@@ -99,9 +100,13 @@ public class ResourceVariantManagerImpl
 		}
 	}
 
-	public List<ResourceVariant> getInitialVariants()
+	public List<Context> getInitialContexts()
 	{
-		return Collections.emptyList();
+		List<Context> result = new ArrayList<Context>();
+		result.add(new CacheContext());
+		result.add(new CacheContext().withValue(ResourceVariant.LOCALE, Locale.getDefault()));
+		
+		return result;
 	}
 
 	public String resolve(Context context, ResourceCallback callback, String original)
@@ -256,6 +261,34 @@ public class ResourceVariantManagerImpl
 			if(!Arrays.equals(values, other.values))
 				return false;
 			return true;
+		}
+	}
+	
+	private static class CacheContext
+		implements Context
+	{
+		private HashMap<Object, Object> values;
+
+		public CacheContext()
+		{
+			values = new HashMap<Object, Object>();
+		}
+		
+		public <T> T getValue(Object key)
+		{
+			return (T) values.get(key);
+		}
+		
+		public void putValue(Object key, Object value)
+		{
+			values.put(key, value);
+		}
+		
+		public CacheContext withValue(Object key, Object value)
+		{
+			values.put(key, value);
+			
+			return this;
 		}
 	}
 }

@@ -19,11 +19,9 @@ import se.l4.dust.api.resource.variant.ResourceVariantSource;
 public class LocaleVariantSource
 	implements ResourceVariantSource
 {
-	public static final String LOCALE = "locale";
-	
 	public List<ResourceVariant> getVariants(Context ctx)
 	{
-		Object value = ctx.getValue(LOCALE);
+		Object value = ctx.getValue(ResourceVariant.LOCALE);
 		if(value instanceof Locale)
 		{
 			Locale locale = (Locale) value;
@@ -60,7 +58,7 @@ public class LocaleVariantSource
 	
 	public Object getCacheValue(Context ctx)
 	{
-		return ctx.getValue(LOCALE);
+		return ctx.getValue(ResourceVariant.LOCALE);
 	}
 	
 	private static class LocaleVariant

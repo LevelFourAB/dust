@@ -8,6 +8,8 @@ package se.l4.dust.api.resource.variant;
  */
 public interface ResourceVariant
 {
+	static final String LOCALE = "locale";
+	
 	/**
 	 * Get the cache value.
 	 * 

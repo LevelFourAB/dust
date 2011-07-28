@@ -2,6 +2,7 @@ package se.l4.dust.jaxrs.spi;
 
 import java.net.URI;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.UriBuilder;
 
 import com.google.inject.Inject;
@@ -10,6 +11,7 @@ import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.conversion.TypeConverter;
+import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.template.DefaultRenderingContext;
 import se.l4.dust.api.template.RenderingContext;
 
@@ -27,6 +29,16 @@ public class WebRenderingContext
 	public WebRenderingContext(NamespaceManager namespaceManager, TypeConverter converter)
 	{
 		super(namespaceManager, converter);
+	}
+	
+	/**
+	 * Setup this rendering request for the given servlet request.
+	 * 
+	 * @param request
+	 */
+	public void setup(HttpServletRequest request)
+	{
+		putValue(ResourceVariant.LOCALE, request.getLocale());
 	}
 	
 	@Override

@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -21,6 +22,7 @@ import se.l4.dust.api.template.TemplateRenderer;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
 import se.l4.dust.core.template.html.HtmlTemplateOutput;
+import se.l4.dust.jaxrs.spi.WebRenderingContext;
 
 /**
  * {@link MessageBodyWriter} that renders the templates.
@@ -36,14 +38,17 @@ public class TemplateWriter
 	private final TemplateRenderer renderer;
 	private final TemplateCache cache;
 	private final com.google.inject.Provider<RenderingContext> ctx;
+	private final com.google.inject.Provider<HttpServletRequest> requests;
 
 	@Inject
 	public TemplateWriter(TemplateRenderer renderer, TemplateCache cache,
-			com.google.inject.Provider<RenderingContext> ctx)
+			com.google.inject.Provider<RenderingContext> ctx,
+			com.google.inject.Provider<HttpServletRequest> requests)
 	{
 		this.renderer = renderer;
 		this.cache = cache;
 		this.ctx = ctx;
+		this.requests = requests;
 	}
 	
 	public long getSize(Object t, Class<?> type, Type genericType,
@@ -88,10 +93,17 @@ public class TemplateWriter
 		throws IOException, WebApplicationException
 	{
 		Template tpl = findAnnotation(annotations);
-			
+		
+		RenderingContext context = ctx.get();
+		if(context instanceof WebRenderingContext)
+		{
+			((WebRenderingContext) context).setup(requests.get());
+		}
+		
+		ParsedTemplate template = cache.getTemplate(context, type, tpl);
+		
 		TemplateOutputStream out = new HtmlTemplateOutput(entityStream);
-		ParsedTemplate template = cache.getTemplate(type, tpl);
-		renderer.render(ctx.get(), template, t, out);
+		renderer.render(context, template, t, out);
 		out.close();
 	}
 
