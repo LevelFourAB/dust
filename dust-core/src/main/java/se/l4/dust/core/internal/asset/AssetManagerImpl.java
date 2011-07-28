@@ -12,22 +12,28 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Pattern;
 
-import se.l4.crayon.Environment;
-import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.asset.Asset;
-import se.l4.dust.api.asset.AssetManager;
-import se.l4.dust.api.asset.AssetProcessor;
-import se.l4.dust.api.asset.AssetSource;
-import se.l4.dust.api.resource.MergedResource;
-import se.l4.dust.api.resource.NamedResource;
-import se.l4.dust.api.resource.Resource;
-
 import com.google.common.base.Function;
 import com.google.common.collect.ComputationException;
 import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import com.google.inject.Stage;
+
+import se.l4.dust.api.Context;
+import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.asset.Asset;
+import se.l4.dust.api.asset.AssetException;
+import se.l4.dust.api.asset.AssetManager;
+import se.l4.dust.api.asset.AssetProcessor;
+import se.l4.dust.api.asset.AssetSource;
+import se.l4.dust.api.resource.MergedResource;
+import se.l4.dust.api.resource.NamedResource;
+import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.variant.ResourceVariant;
+import se.l4.dust.api.resource.variant.ResourceVariantManager;
+import se.l4.dust.api.resource.variant.ResourceVariantManager.ResourceCallback;
+import se.l4.dust.core.internal.resource.MergedResourceVariant;
 
 @Singleton
 public class AssetManagerImpl
@@ -37,22 +43,28 @@ public class AssetManagerImpl
 	
 	private final ConcurrentMap<String, AssetNamespace> cache;
 	private final NamespaceManager manager;
+	private final ResourceVariantManager variants;
+	
 	private final List<Object> sources;
 	private final Set<String> protectedExtensions;
-	private final Injector injector;
 	private final Map<String, AssetProcessor> extensionProcessors;
 	
+	private final Injector injector;
+	
 	@Inject
-	public AssetManagerImpl(NamespaceManager manager, Injector injector,
-			Environment env)
+	public AssetManagerImpl(NamespaceManager manager,
+			ResourceVariantManager variants,
+			Injector injector,
+			Stage stage)
 	{
 		this.manager = manager;
+		this.variants = variants;
 		this.injector = injector;
 		sources = new CopyOnWriteArrayList<Object>();
 		extensionProcessors = new ConcurrentHashMap<String, AssetProcessor>();
 		
 		Function<String, AssetNamespace> f;
-		if(env == Environment.DEVELOPMENT)
+		if(stage == Stage.DEVELOPMENT)
 		{
 			f = new Function<String, AssetNamespace>()
 				{
@@ -88,10 +100,10 @@ public class AssetManagerImpl
 		sources.add(source);
 	}
 	
-	public Asset locate(String ns, String file)
+	public Asset locate(Context context, String ns, String file)
 	{
 		AssetNamespace ans = cache.get(ns);
-		Asset a = ans.get(file);
+		Asset a = ans.get(context, file);
 		
 		return a == NULL_ASSET ? null: a;
 	}
@@ -158,7 +170,7 @@ public class AssetManagerImpl
 		private final String namespace;
 		private final String pathToFile;
 		
-		private final List<Asset> assets;
+		private final List<AssetDef> assets;
 		private final List<ProcessorDef> processors;
 
 		public AssetBuilderImpl(AssetNamespace parent, String namespace, String pathToFile)
@@ -167,7 +179,7 @@ public class AssetManagerImpl
 			this.namespace = namespace;
 			this.pathToFile = pathToFile;
 			
-			assets = new ArrayList<Asset>();
+			assets = new ArrayList<AssetDef>();
 			processors = new ArrayList<ProcessorDef>();
 		}
 
@@ -178,13 +190,8 @@ public class AssetManagerImpl
 
 		public AssetBuilder add(String ns, String pathToFile)
 		{
-			Asset asset = locate(ns, pathToFile);
-			if(asset == null)
-			{
-				throw new IllegalArgumentException("No asset named " + pathToFile + " found in " + ns);
-			}
-			
-			assets.add(asset);
+			AssetNamespace assetNs = cache.get(ns);
+			assets.add(new AssetDef(assetNs, pathToFile));
 			
 			return this;
 		}
@@ -204,6 +211,29 @@ public class AssetManagerImpl
 	}
 	
 	/**
+	 * Definition of an asset in a specific namespace.
+	 * 
+	 * @author Andreas Holstenson
+	 *
+	 */
+	private static class AssetDef
+	{
+		private final AssetNamespace ns;
+		private final String path;
+
+		public AssetDef(AssetNamespace ns, String path)
+		{
+			this.ns = ns;
+			this.path = path;
+		}
+		
+		public Asset get(Context context)
+		{
+			return ns.get(context, path);
+		}
+	}
+	
+	/**
 	 * Default encapsulation of a namespace associated with assets. This class
 	 * handles retrieval and creation of assets.
 	 * 
@@ -214,9 +244,12 @@ public class AssetManagerImpl
 	{
 		private final ConcurrentMap<String, Asset> cache;
 		protected final List<ProcessorDef> processors;
+		protected final ConcurrentMap<String, List<AssetDef>> builtAssets;
 		protected final ConcurrentMap<String, Resource> definedResources;
 		
 		protected final String namespace;
+		
+		private final ResourceCallback resourceCallback;
 		
 		public AssetNamespace(String namespace)
 		{
@@ -224,7 +257,17 @@ public class AssetManagerImpl
 			
 			cache = new MapMaker().makeComputingMap(new AssetLocator(this));
 			processors = new CopyOnWriteArrayList<ProcessorDef>();
+			builtAssets = new ConcurrentHashMap<String, List<AssetDef>>();
 			definedResources = new ConcurrentHashMap<String, Resource>();
+			
+			resourceCallback = new ResourceVariantManager.ResourceCallback()
+			{
+				public boolean exists(ResourceVariant variant, String url)
+					throws IOException
+				{
+					return locate(url) != null;
+				}
+			};
 		}
 		
 		/**
@@ -234,17 +277,20 @@ public class AssetManagerImpl
 		 * @param assets
 		 * @param processors
 		 */
-		public void defineResource(String pathToFile, List<Asset> assets, List<ProcessorDef> processors)
+		public void defineResource(String pathToFile, List<AssetDef> assets, List<ProcessorDef> processors)
 		{
 			this.processors.addAll(processors);
-				
+			builtAssets.put(pathToFile, assets);
+		}
+		
+		public Resource getResource(Context context, List<Asset> assets)
+		{
 			Resource[] resources = new Resource[assets.size()];
 			for(int i=0, n=assets.size(); i<n; i++)
 			{
 				resources[i] = assets.get(i).getResource();
 			}
-			
-			definedResources.put(pathToFile, new MergedResource(resources));
+			return new MergedResource(resources);
 		}
 
 		public void addProcessors(String filter, Class<? extends AssetProcessor>... classes)
@@ -257,15 +303,78 @@ public class AssetManagerImpl
 			processors.add(new ProcessorDef(filter, new Class[] { processor }, arguments));
 		}
 		
-		public Asset get(String path)
+		public Asset get(Context context, String path)
 		{
 			if(path == null)
 			{
 				throw new IllegalArgumentException("Path can not be null");
 			}
 			
-			Asset asset = cache.get(path);
-			return asset == NULL_ASSET ? null : asset;
+			try
+			{
+				// Check if the resource has been defined
+				if(builtAssets.containsKey(path))
+				{
+					return handleBuiltAsset(context, path);
+				}
+
+				// Attempt to resolve the correct variant of the asset
+				path = variants.resolve(context, resourceCallback, path);
+				
+				Asset asset = cache.get(path);
+				return asset == NULL_ASSET ? null : asset;
+			}
+			catch(IOException e)
+			{
+				throw new AssetException("Unable to locate suitable variant of " + path + " in " + namespace);
+			}
+			catch(ComputationException e)
+			{
+				throw new AssetException("Unable to load " + path + " in " + namespace + "; " + e.getCause().getMessage(), e.getCause());
+			}
+		}
+
+		private Asset handleBuiltAsset(Context context, String path)
+			throws IOException
+		{
+			/*
+			 * Built assets need special treatment. First try to resolve
+			 * a new name for the merged asset.
+			 */
+			final List<AssetDef> defs = builtAssets.get(path);
+			String name = variants.resolve(context, new ResourceCallback()
+			{
+				public boolean exists(ResourceVariant variant, String url)
+					throws IOException
+				{
+					for(AssetDef d : defs)
+					{
+						ResourceVariant v = variants.resolveRealVariant(variant, resourceCallback, d.path);
+						if(v != null && ((MergedResourceVariant) variant).hasSpecific(v))
+						{
+							return true;
+						}
+					}
+					
+					return false;
+				}
+			}, path);
+			
+			if(false == cache.containsKey(name))
+			{
+				// If it has not been cached create a suitable resource for it
+				List<Asset> assets = new ArrayList<Asset>();
+				for(AssetDef d : defs)
+				{
+					Asset asset = d.get(context);
+					assets.add(asset);
+				}
+				
+				Resource r = getResource(context, assets);
+				definedResources.put(name, r);
+			}
+			
+			return cache.get(name);
 		}
 		
 		public void set(String path, Resource resource)
@@ -394,7 +503,7 @@ public class AssetManagerImpl
 			{
 				return definedResources.get(path);
 			}
-			
+
 			// Check with all asset sources
 			for(Object source : sources)
 			{
@@ -427,22 +536,10 @@ public class AssetManagerImpl
 			super(namespace);
 		}
 		
-		/**
-		 * Define a new resource for this namespace.
-		 * 
-		 * @param pathToFile
-		 * @param assets
-		 * @param processors
-		 */
 		@Override
-		public void defineResource(String pathToFile, List<Asset> assets, List<ProcessorDef> processors)
+		public Resource getResource(Context context, List<Asset> assets)
 		{
-			this.processors.addAll(processors);
-			
-			definedResources.put(pathToFile, new MergedAssetResource(
-				AssetManagerImpl.this, 
-				assets.toArray(new Asset[assets.size()]))
-			);
+			return new MergedAssetResource(AssetManagerImpl.this, context, assets.toArray(new Asset[assets.size()]));
 		}
 		
 		@Override

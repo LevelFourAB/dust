@@ -32,7 +32,7 @@ public class UrlResource
 			conn.connect();
 			
 			contentLength = conn.getContentLength();
-			contentType = conn.getContentType();
+			contentType = findContentType(conn.getContentType(), url);
 			contentEncoding = conn.getContentEncoding();
 			lastModified = conn.getLastModified();
 		}
@@ -42,6 +42,25 @@ public class UrlResource
 		}
 	}
 	
+	private String findContentType(String contentType, URL url)
+	{
+//		if(contentType == null || contentType.equals("content/unknown"))
+//		{
+//			String textual = url.toExternalForm();
+//			int lastDot = textual.lastIndexOf('.');
+//			if(lastDot > 0)
+//			{
+//				String ext = textual.substring(lastDot+1);
+//				if("js".equals(ext))
+//				{
+//					return "text/javascript";
+//				}
+//				else if("css".equals("ext"))
+//			}
+//		}
+		return contentType;
+	}
+
 	public String getContentType()
 	{
 		return contentType;

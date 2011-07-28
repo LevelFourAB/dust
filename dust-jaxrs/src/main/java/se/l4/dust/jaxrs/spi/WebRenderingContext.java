@@ -42,7 +42,6 @@ public class WebRenderingContext
 	
 	private URI resolveAsset(Asset asset)
 	{
-		URI uri = null;
 		String ns = asset.getNamespace();
 		if(ns != null)
 		{

@@ -63,28 +63,32 @@ public class AssetPropertySource
 			);
 		}
 		
-		Asset asset = manager.locate(uri, path);
-		if(asset == null)
-		{
-			throw new TemplateException("No asset named " + path + " in " + uri);
-		}
-		
-		return new Content(asset);
+		return new Content(manager, uri, path);
 	}
 
 	private static class Content
 		extends DynamicContent
 	{
-		private final Asset asset;
-		
-		public Content(Asset asset)
+		private final AssetManager manager;
+		private final String namespace;
+		private final String path;
+
+		public Content(AssetManager manager, String namespace, String path)
 		{
-			this.asset = asset;
+			this.manager = manager;
+			this.namespace = namespace;
+			this.path = path;
 		}
 		
 		@Override
 		public Object getValue(RenderingContext ctx, Object root)
 		{
+			Asset asset = manager.locate(ctx, namespace, path);
+			if(asset == null)
+			{
+				throw new TemplateException("No asset named " + path + " in " + namespace);
+			}
+			
 			return ctx.resolveURI(asset);
 		}
 		

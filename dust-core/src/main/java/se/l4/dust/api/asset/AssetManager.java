@@ -2,6 +2,7 @@ package se.l4.dust.api.asset;
 
 import javax.xml.stream.events.Namespace;
 
+import se.l4.dust.api.Context;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.resource.Resource;
 
@@ -97,7 +98,7 @@ public interface AssetManager
 	 * @param file
 	 * @return
 	 */
-	Asset locate(String namespace, String file);
+	Asset locate(Context context, String namespace, String file);
 	
 	/**
 	 * Add a source of assets to the manager.

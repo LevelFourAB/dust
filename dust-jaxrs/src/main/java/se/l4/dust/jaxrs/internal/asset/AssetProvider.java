@@ -9,6 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import se.l4.crayon.Environment;
+import se.l4.dust.api.Context;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
@@ -19,6 +20,7 @@ public class AssetProvider
 {
 	private final AssetManager manager;
 	private final NamespaceManager namespaces;
+	private final Context context;
 	
 	@Inject
 	public AssetProvider(NamespaceManager namespaces, AssetManager manager,
@@ -26,6 +28,18 @@ public class AssetProvider
 	{
 		this.namespaces = namespaces;
 		this.manager = manager;
+		
+		context = new Context()
+		{
+			public void putValue(Object key, Object value)
+			{
+			}
+			
+			public <T> T getValue(Object key)
+			{
+				return null;
+			}
+		};
 	}
 	
 	@GET
@@ -55,7 +69,7 @@ public class AssetProvider
 			}
 		}
 		
-		Asset a = manager.locate(ns.getUri(), path);
+		Asset a = manager.locate(context, ns.getUri(), path);
 		if(a == null)
 		{
 			return Response.status(404).build();

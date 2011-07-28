@@ -22,7 +22,7 @@ public class MergedResource
 	
 	public String getContentType()
 	{
-		return "unknown";
+		return resources[0].getContentType();
 	}
 
 	public int getContentLength()

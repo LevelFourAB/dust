@@ -14,8 +14,8 @@ import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import com.google.inject.Stage;
 
-import se.l4.crayon.Environment;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.TemplateManager;
@@ -44,17 +44,17 @@ public class TemplateCacheImpl
 			TemplateManager manager,
 			NamespaceManager namespaces,
 			Provider<TemplateBuilderImpl> templateBuilders,
-			Environment env)
+			Stage stage)
 	{
 		this.manager = manager;
 		this.namespaces = namespaces;
 		this.templateBuilders = templateBuilders;
 		
-		inner = env == Environment.DEVELOPMENT 
+		inner = stage == Stage.DEVELOPMENT 
 			? new DevelopmentCache()
 			: new ProductionCache();
 			
-		logger.info("Template cache is in " + env + " mode");
+		logger.info("Template cache is in " + stage + " mode");
 	}
 	
 	/**

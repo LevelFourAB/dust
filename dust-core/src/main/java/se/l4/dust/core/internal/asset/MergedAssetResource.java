@@ -3,6 +3,7 @@ package se.l4.dust.core.internal.asset;
 import java.io.IOException;
 import java.io.InputStream;
 
+import se.l4.dust.api.Context;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.resource.MergedResource;
@@ -21,10 +22,12 @@ public class MergedAssetResource
 {
 	private final AssetManager manager;
 	private final Asset[] assets;
+	private final Context context;
 
-	public MergedAssetResource(AssetManager manager, Asset... assets)
+	public MergedAssetResource(AssetManager manager, Context context, Asset... assets)
 	{
 		this.manager = manager;
+		this.context = context;
 		this.assets = assets;
 	}
 	
@@ -38,7 +41,7 @@ public class MergedAssetResource
 		int length = 0;
 		for(Asset asset : assets)
 		{
-			asset = manager.locate(asset.getNamespace(), asset.getName());
+			asset = manager.locate(context, asset.getNamespace(), asset.getName());
 			
 			length += asset.getResource().getContentLength();
 		}

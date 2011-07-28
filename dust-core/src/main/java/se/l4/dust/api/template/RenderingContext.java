@@ -5,6 +5,7 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Type;
 import java.net.URI;
 
+import se.l4.dust.api.Context;
 import se.l4.dust.api.template.dom.DynamicContent;
 
 /**
@@ -15,23 +16,8 @@ import se.l4.dust.api.template.dom.DynamicContent;
  *
  */
 public interface RenderingContext
+	extends Context
 {
-	/**
-	 * Store a value in the context.
-	 * 
-	 * @param key
-	 * @param value
-	 */
-	void putValue(Object key, Object value);
-	
-	/**
-	 * Get a value from the context.
-	 * 
-	 * @param key
-	 * @return
-	 */
-	<T> T getValue(Object key);
-	
 	/**
 	 * Get the value of the given dynamic content.
 	 * 
