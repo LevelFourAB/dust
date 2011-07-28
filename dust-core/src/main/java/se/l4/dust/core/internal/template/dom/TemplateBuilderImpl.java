@@ -1,5 +1,6 @@
 package se.l4.dust.core.internal.template.dom;
 
+import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -20,9 +21,9 @@ import se.l4.dust.api.template.dom.DocType;
 import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.dom.Text;
-import se.l4.dust.api.template.spi.Namespaces;
 import se.l4.dust.api.template.spi.PropertySource;
 import se.l4.dust.api.template.spi.TemplateBuilder;
+import se.l4.dust.api.template.spi.TemplateInfo;
 import se.l4.dust.core.internal.template.components.EmittableComponent;
 
 /**
@@ -42,13 +43,14 @@ public class TemplateBuilderImpl
 	private final TypeConverter converter;
 	
 	private final Map<String, String> boundNamespaces;
-	private final Namespaces namespaces;
+	private final TemplateInfo namespaces;
 	
 	private Class<?> context;
 	
 	private DocType docType;
 	private Element current;
 	private Element root;
+	private URL url;
 
 	@Inject
 	public TemplateBuilderImpl(Injector injector, 
@@ -67,10 +69,15 @@ public class TemplateBuilderImpl
 		namespaces = createNamespaces();
 	}
 	
-	private Namespaces createNamespaces()
+	private TemplateInfo createNamespaces()
 	{
-		return new Namespaces()
+		return new TemplateInfo()
 		{
+			public String getURL()
+			{
+				return url.toExternalForm();
+			}
+			
 			public NamespaceManager.Namespace getNamespaceByPrefix(String prefix)
 			{
 				String uri = boundNamespaces.get(prefix);
@@ -80,8 +87,9 @@ public class TemplateBuilderImpl
 		};
 	}
 
-	public void setContext(Class<?> context)
+	public void setContext(URL url, Class<?> context)
 	{
+		this.url = url;
 		this.context = context;
 	}
 	

@@ -21,8 +21,8 @@ import org.mvel2.ParserContext;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.DynamicContent;
-import se.l4.dust.api.template.spi.Namespaces;
 import se.l4.dust.api.template.spi.PropertySource;
+import se.l4.dust.api.template.spi.TemplateInfo;
 
 /**
  * Property source for MVEL expressions.
@@ -40,7 +40,7 @@ public class MvelPropertySource
 		cache = new ConcurrentHashMap<String, Expressions>();
 	}
 	
-	public DynamicContent getPropertyContent(Namespaces namespaces, Class<?> context, String propertyExpression)
+	public DynamicContent getPropertyContent(TemplateInfo namespaces, Class<?> context, String propertyExpression)
 	{
 		String key = context.getName() + ":" + propertyExpression;
 		Expressions expressions = cache.get(key);
@@ -87,6 +87,11 @@ public class MvelPropertySource
 			{
 				throw new TemplateException("Unable to execute expression ${" + expressions.rawExpression + "}: " + e.getMessage(), e);
 			}
+		}
+		
+		public se.l4.dust.api.template.dom.Content copy()
+		{
+			return new Content(expressions);
 		}
 	}
 

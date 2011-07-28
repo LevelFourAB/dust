@@ -13,4 +13,11 @@ public interface Content
 	 * @param element
 	 */
 	void setParent(Element element);
+	
+	/**
+	 * Create a copy of this content.
+	 * 
+	 * @return
+	 */
+	Content copy();
 }

@@ -4,8 +4,8 @@ import com.google.inject.Singleton;
 
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.DynamicContent;
-import se.l4.dust.api.template.spi.Namespaces;
 import se.l4.dust.api.template.spi.PropertySource;
+import se.l4.dust.api.template.spi.TemplateInfo;
 
 @Singleton
 public class CyclePropertySource
@@ -15,7 +15,7 @@ public class CyclePropertySource
 	{
 	}
 	
-	public DynamicContent getPropertyContent(Namespaces namespaces, Class<?> context, String propertyExpression)
+	public DynamicContent getPropertyContent(TemplateInfo namespaces, Class<?> context, String propertyExpression)
 	{
 		String[] parts = propertyExpression.split("\\s*,\\s*");
 		
@@ -61,6 +61,11 @@ public class CyclePropertySource
 		public void setValue(RenderingContext ctx, Object root, Object data)
 		{
 			throw new UnsupportedOperationException("setValue can not be done on cycle bindings");
+		}
+		
+		public se.l4.dust.api.template.dom.Content copy()
+		{
+			return new Content(parts);
 		}
 	}
 }

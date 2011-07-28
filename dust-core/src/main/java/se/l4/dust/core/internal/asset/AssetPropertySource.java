@@ -11,8 +11,8 @@ import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.DynamicContent;
-import se.l4.dust.api.template.spi.Namespaces;
 import se.l4.dust.api.template.spi.PropertySource;
+import se.l4.dust.api.template.spi.TemplateInfo;
 
 /**
  * Property source for binding assets for use in templates.
@@ -34,7 +34,7 @@ public class AssetPropertySource
 		this.namespaces = namespaces;
 	}
 	
-	public DynamicContent getPropertyContent(Namespaces namespaces, Class<?> context, String propertyExpression)
+	public DynamicContent getPropertyContent(TemplateInfo namespaces, Class<?> context, String propertyExpression)
 	{
 		Matcher matcher = pattern.matcher(propertyExpression);
 		if(false == matcher.matches())
@@ -95,6 +95,11 @@ public class AssetPropertySource
 		@Override
 		public void setValue(RenderingContext ctx, Object root, Object data)
 		{
+		}
+		
+		public se.l4.dust.api.template.dom.Content copy()
+		{
+			return new Content(manager, namespace, path);
 		}
 	}
 }

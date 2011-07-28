@@ -22,5 +22,5 @@ public interface PropertySource
 	 * 		the parent element in the template
 	 * @return
 	 */
-	DynamicContent getPropertyContent(Namespaces namespaces, Class<?> context, String propertyExpression);
+	DynamicContent getPropertyContent(TemplateInfo namespaces, Class<?> context, String propertyExpression);
 }

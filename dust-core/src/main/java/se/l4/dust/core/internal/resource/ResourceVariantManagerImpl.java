@@ -108,6 +108,41 @@ public class ResourceVariantManagerImpl
 		
 		return result;
 	}
+	
+	public Object[] getCacheObject(Context context)
+	{
+		ResourceVariantSource[] sources = this.sources;
+		Object[] values = new Object[sources.length];
+		for(int i=0, n=sources.length; i<n; i++)
+		{
+			values[i] = sources[i].getCacheValue(context);
+		}
+		
+		return values;
+	}
+	
+	public String resolveNoCache(Context context, ResourceCallback callback,
+			String original)
+		throws IOException
+	{
+		// Try different variants for the URL
+		int idx = original.lastIndexOf('.');
+		String extension = idx > 0 ? original.substring(idx) : "";
+		String firstPart = idx > 0 ? original.substring(0, idx) : original;
+		
+		for(ResourceVariant v : getVariants(context))
+		{
+			String variant = firstPart + "." + v.getIdentifier() + extension;
+			
+			if(callback.exists(v, variant))
+			{
+				// This URL exists, use it
+				return variant;
+			}
+		}
+		
+		return original;
+	}
 
 	public String resolve(Context context, ResourceCallback callback, String original)
 		throws IOException

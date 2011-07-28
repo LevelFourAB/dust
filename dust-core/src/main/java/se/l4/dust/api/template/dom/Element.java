@@ -42,6 +42,19 @@ public class Element
 		}
 	}
 	
+	private Element(String name, Attribute[] attributes)
+	{
+		this.name = name;
+		this.attributes = attributes;
+		
+		contents = EMPTY_OBJECTS;
+	}
+	
+	public Content copy()
+	{
+		return new Element(name, attributes);
+	}
+	
 	/**
 	 * Add content to this element, content may be anything that implements
 	 * {@link Content}.

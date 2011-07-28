@@ -32,4 +32,15 @@ public class Text
 	{
 		return text;
 	}
+	
+	public Content copy()
+	{
+		return new Text(text);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "Text[" + text + "]";
+	}
 }

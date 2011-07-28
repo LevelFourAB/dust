@@ -3,6 +3,7 @@ package se.l4.dust.core.internal.template;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
@@ -170,7 +171,7 @@ public class TemplateCacheImpl
 		try
 		{
 			TemplateBuilderImpl builder = templateBuilders.get();
-			builder.setContext(dataContext);
+			builder.setContext(url, dataContext);
 			
 			// TODO: Selection of suitable parser
 			XmlTemplateParser parser = new XmlTemplateParser(namespaces, manager);
@@ -215,13 +216,52 @@ public class TemplateCacheImpl
 				});
 		}
 		
+		private ParsedTemplate toContextSpecific(Context context, Class<?> ctx, URL url, ParsedTemplate template)
+			throws IOException
+		{
+			Object[] cache = variants.getCacheObject(context);
+			Key key = new Key(ctx, url, cache);
+			if(templates.containsKey(key))
+			{
+				return templates.get(key);
+			}
+			
+			// Transform the template
+			TemplateVariantImpl impl = new TemplateVariantImpl(variants, context, template, url.toExternalForm());
+			impl.transform();
+			
+			// Check if this transformation has already been cached
+			URL transformedUrl = new URL(impl.getTransformedUrl());
+			Key secondKey = new Key(ctx, transformedUrl, new Object[0]);
+			
+			ParsedTemplate cacheTemplate;
+			if(! templates.containsKey(secondKey))
+			{
+				cacheTemplate = url.equals(transformedUrl)
+					? template
+					: impl.getTransformedTemplate();
+				
+				templates.put(secondKey, cacheTemplate);
+			}
+			else
+			{
+				cacheTemplate = templates.get(secondKey);
+			}
+			
+			templates.put(key, cacheTemplate);
+			
+			return cacheTemplate;
+		}
+		
 		public ParsedTemplate getTemplate(Context context, Class<?> ctx, URL url)
 		{
 			String raw = url.toExternalForm();
 			try
 			{
 				raw = variants.resolve(context, resourceCallback, raw);
-				return templates.get(new Key(ctx, new URL(raw)));
+				ParsedTemplate template = templates.get(new Key(ctx, new URL(raw)));
+				
+				return toContextSpecific(context, ctx, url, template);
 			}
 			catch(IOException e)
 			{
@@ -307,15 +347,22 @@ public class TemplateCacheImpl
 		}
 	}
 	
-	private class Key
+	private static class Key
 	{
 		private final Class<?> context;
 		private final URL url;
+		private final Object[] extra;
 
 		public Key(Class<?> context, URL url)
 		{
+			this(context, url, null);
+		}
+		
+		public Key(Class<?> context, URL url, Object[] extra)
+		{
 			this.context = context;
 			this.url = url;
+			this.extra = extra;
 		}
 
 		@Override
@@ -323,10 +370,10 @@ public class TemplateCacheImpl
 		{
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + getOuterType().hashCode();
 			result = prime * result + ((context == null)
 				? 0
 				: context.hashCode());
+			result = prime * result + Arrays.hashCode(extra);
 			result = prime * result + ((url == null)
 				? 0
 				: url.hashCode());
@@ -343,14 +390,14 @@ public class TemplateCacheImpl
 			if(getClass() != obj.getClass())
 				return false;
 			Key other = (Key) obj;
-			if(!getOuterType().equals(other.getOuterType()))
-				return false;
 			if(context == null)
 			{
 				if(other.context != null)
 					return false;
 			}
 			else if(!context.equals(other.context))
+				return false;
+			if(!Arrays.equals(extra, other.extra))
 				return false;
 			if(url == null)
 			{
@@ -360,11 +407,6 @@ public class TemplateCacheImpl
 			else if(!url.equals(other.url))
 				return false;
 			return true;
-		}
-
-		private TemplateCacheImpl getOuterType()
-		{
-			return TemplateCacheImpl.this;
 		}
 	}
 }

@@ -4,8 +4,8 @@ import com.google.inject.Singleton;
 
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.DynamicContent;
-import se.l4.dust.api.template.spi.Namespaces;
 import se.l4.dust.api.template.spi.PropertySource;
+import se.l4.dust.api.template.spi.TemplateInfo;
 
 /**
  * Property source for dynamic variables within a template. These are 
@@ -23,7 +23,7 @@ public class VarPropertySource
 	{
 	}
 	
-	public DynamicContent getPropertyContent(Namespaces namespaces, Class<?> context, String propertyExpression)
+	public DynamicContent getPropertyContent(TemplateInfo namespaces, Class<?> context, String propertyExpression)
 	{
 		return new Content(propertyExpression);
 	}
@@ -48,6 +48,11 @@ public class VarPropertySource
 		public void setValue(RenderingContext ctx, Object root, Object data)
 		{
 			ctx.putValue(key, data);
+		}
+		
+		public se.l4.dust.api.template.dom.Content copy()
+		{
+			return new Content(key);
 		}
 	}
 }

@@ -56,10 +56,13 @@ public class TemplateModule
 	public void contributePropertySources(TemplateManager manager,
 			CyclePropertySource s1,
 			VarPropertySource s2,
-			MvelPropertySource s3)
+			MvelPropertySource s3,
+			MessagePropertySource s4)
 	{
 		manager.addPropertySource("cycle", s1);
 		manager.addPropertySource("var", s2);
 		manager.addPropertySource("mvel", s3);
+		manager.addPropertySource("message", s4);
+		manager.addPropertySource("m", s4);
 	}
 }

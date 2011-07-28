@@ -1,5 +1,7 @@
 package se.l4.dust.core.internal.resource;
 
+import java.util.Arrays;
+
 import se.l4.dust.api.resource.variant.ResourceVariant;
 
 /**
@@ -46,6 +48,30 @@ public class MergedResourceVariant
 		return id;
 	}
 	
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(variants);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(this == obj)
+			return true;
+		if(obj == null)
+			return false;
+		if(getClass() != obj.getClass())
+			return false;
+		MergedResourceVariant other = (MergedResourceVariant) obj;
+		if(!Arrays.equals(variants, other.variants))
+			return false;
+		return true;
+	}
+
 	public boolean hasSpecific(ResourceVariant other)
 	{
 		if(other instanceof MergedResourceVariant)

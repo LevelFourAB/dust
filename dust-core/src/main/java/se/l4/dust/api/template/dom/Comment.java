@@ -20,6 +20,11 @@ public class Comment
 	{
 		contents = EMTPY_CONTENT;
 	}
+	
+	public Content copy()
+	{
+		return new Comment();
+	}
 
 	public Element getParent()
 	{

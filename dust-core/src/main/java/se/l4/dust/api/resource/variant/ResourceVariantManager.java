@@ -42,6 +42,15 @@ public interface ResourceVariantManager
 	List<Context> getInitialContexts();
 
 	/**
+	 * Get a cache object suitable for storing data related to the specified
+	 * context.
+	 * 
+	 * @param context
+	 * @return
+	 */
+	Object[] getCacheObject(Context context);
+	
+	/**
 	 * Try creating a more specific URL based on the variants active in the
 	 * given context.
 	 * 
@@ -52,6 +61,19 @@ public interface ResourceVariantManager
 	 * @throws IOException 
 	 */
 	String resolve(Context context, ResourceCallback callback, String original)
+		throws IOException;
+	
+	/**
+	 * Try creating a more specific URL based on the variants active in the
+	 * given context.
+	 * 
+	 * @param context
+	 * @param callback
+	 * @param original
+	 * @return
+	 * @throws IOException 
+	 */
+	String resolveNoCache(Context context, ResourceCallback callback, String original)
 		throws IOException;
 	
 	/**
