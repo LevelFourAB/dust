@@ -62,6 +62,14 @@ public interface TemplateManager
 		 * @return
 		 */
 		boolean hasComponent(String name);
+		
+		/**
+		 * Get the primary name of the given component.
+		 * 
+		 * @param component
+		 * @return
+		 */
+		String getComponentName(Class<?> component);
 	}
 	
 	/**

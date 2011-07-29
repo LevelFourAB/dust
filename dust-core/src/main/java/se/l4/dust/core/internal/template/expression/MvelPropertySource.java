@@ -53,7 +53,7 @@ public class MvelPropertySource
 		return new Content(expressions);
 	}
 	
-	private static class Content
+	public static class Content
 		extends DynamicContent
 	{
 		private final Expressions expressions;
@@ -93,13 +93,18 @@ public class MvelPropertySource
 		{
 			return new Content(expressions);
 		}
+		
+		public String getExpression()
+		{
+			return expressions.rawExpression;
+		}
 	}
 
 	private static class Expressions
 	{
 		private final Serializable expression;
 		private final Serializable setter;
-		private final Object rawExpression;
+		private final String rawExpression;
 
 		public Expressions(Class<?> context, String expression)
 		{

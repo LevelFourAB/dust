@@ -16,6 +16,7 @@
 
 		<module>dust-js-env</module>
 		<module>dust-js-uglify</module>
+		<module>dust-js-templates</module>
 
 		<module>dust-css-sprites</module>
 		<module>dust-css-less</module>

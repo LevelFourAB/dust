@@ -4,16 +4,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import se.l4.dust.api.ComponentException;
+import se.l4.dust.api.TemplateManager;
+import se.l4.dust.api.annotation.Component;
+import se.l4.dust.api.template.spi.PropertySource;
+
 import com.google.common.base.Function;
 import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-
-import se.l4.dust.api.ComponentException;
-import se.l4.dust.api.TemplateManager;
-import se.l4.dust.api.annotation.Component;
-import se.l4.dust.api.template.spi.PropertySource;
 
 /**
  * Implementation of {@link TemplateManager}. The implementation keeps track
@@ -136,6 +136,21 @@ public class TemplateManagerImpl
 		public boolean hasComponent(String name)
 		{
 			return components.containsKey(name);
+		}
+		
+		public String getComponentName(Class<?> component)
+		{
+			Component annotation = component.getAnnotation(Component.class);
+			if(annotation != null)
+			{
+				String[] names = annotation.value();
+				if(names.length > 0)
+				{
+					return names[0];
+				}
+			}
+			
+			return component.getSimpleName().toLowerCase();
 		}
 	}
 }

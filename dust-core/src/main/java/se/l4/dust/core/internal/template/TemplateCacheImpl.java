@@ -32,6 +32,12 @@ import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.spi.internal.XmlTemplateParser;
 import se.l4.dust.core.internal.template.dom.TemplateBuilderImpl;
 
+/**
+ * Implementation of {@link TemplateCache}.
+ * 
+ * @author Andreas Holstenson
+ *
+ */
 @Singleton
 public class TemplateCacheImpl
 	implements TemplateCache
