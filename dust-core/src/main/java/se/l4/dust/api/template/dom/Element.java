@@ -55,6 +55,12 @@ public class Element
 		return new Element(name, attributes);
 	}
 	
+	public Element copyAttributes(Element other)
+	{
+		this.attributes = other.attributes;
+		return this;
+	}
+	
 	/**
 	 * Add content to this element, content may be anything that implements
 	 * {@link Content}.

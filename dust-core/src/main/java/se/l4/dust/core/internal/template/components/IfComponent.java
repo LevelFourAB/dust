@@ -14,6 +14,12 @@ public class IfComponent
 	{
 		super("if", IfComponent.class);
 	}
+	
+	@Override
+	public Content copy()
+	{
+		return new IfComponent().copyAttributes(this);
+	}
 
 	@Override
 	public void emit(

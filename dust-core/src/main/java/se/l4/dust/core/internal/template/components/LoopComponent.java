@@ -25,6 +25,26 @@ public class LoopComponent
 	}
 	
 	@Override
+	public Content copy()
+	{
+		return new LoopComponent().copyAttributes(this);
+	}
+	
+	public Attribute getSource()
+	{
+		Attribute source = getAttribute("source");
+		if(source == null) throw new TemplateException("Attribute source is required");
+		return source;
+	}
+	
+	public Attribute getValue()
+	{
+		Attribute value = getAttribute("value");
+		if(value == null) throw new TemplateException("Attribute value is required");
+		return value;
+	}
+	
+	@Override
 	public void emit(
 			Emitter emitter,
 			RenderingContext ctx, 

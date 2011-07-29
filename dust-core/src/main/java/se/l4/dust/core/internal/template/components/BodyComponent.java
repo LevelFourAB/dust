@@ -16,6 +16,12 @@ public class BodyComponent
 	}
 	
 	@Override
+	public Content copy()
+	{
+		return new BodyComponent().copyAttributes(this);
+	}
+	
+	@Override
 	public void emit(
 			Emitter emitter,
 			RenderingContext ctx, 

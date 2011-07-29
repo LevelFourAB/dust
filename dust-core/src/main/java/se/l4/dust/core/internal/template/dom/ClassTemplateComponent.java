@@ -9,11 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.inject.Binding;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
-
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.annotation.PrepareRender;
 import se.l4.dust.api.annotation.Template;
@@ -21,11 +16,17 @@ import se.l4.dust.api.annotation.TemplateParam;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateCache;
+import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.DocType;
 import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
 import se.l4.dust.core.internal.template.components.EmittableComponent;
+
+import com.google.inject.Binding;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 
 /**
  * Component based on a class. 
@@ -49,6 +50,17 @@ public class ClassTemplateComponent
 			TypeConverter converter,
 			Class<?> type)
 	{
+		this(name, injector, cache, converter, type, null);
+	}
+	
+	public ClassTemplateComponent(
+			String name,
+			Injector injector, 
+			TemplateCache cache,
+			TypeConverter converter,
+			Class<?> type,
+			MethodInvocation[] methods)
+	{
 		super(name, type);
 		
 		this.converter = converter;
@@ -57,7 +69,16 @@ public class ClassTemplateComponent
 		this.type = type;
 		this.injector = injector;
 		
-		methods = createMethodInvocations(type);
+		this.methods = methods == null 
+			? createMethodInvocations(type) 
+			: methods;
+	}
+	
+	@Override
+	public Content copy()
+	{
+		return new ClassTemplateComponent(getName(), injector, cache, converter, type, methods)
+			.copyAttributes(this);
 	}
 	
 	private MethodInvocation[] createMethodInvocations(Class<?> type)

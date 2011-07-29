@@ -30,7 +30,7 @@ public abstract class EmittableComponent
 			Object lastData)
 		throws IOException;
 	
-	protected ParameterComponent getParameter(String name, boolean required)
+	public ParameterComponent getParameter(String name, boolean required)
 	{
 		for(Content c : getRawContents())
 		{

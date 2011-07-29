@@ -16,6 +16,12 @@ public class HolderComponent
 	}
 	
 	@Override
+	public Content copy()
+	{
+		return new HolderComponent().copyAttributes(this);
+	}
+	
+	@Override
 	public void emit(
 			Emitter emitter,
 			RenderingContext ctx, 

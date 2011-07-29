@@ -3,6 +3,7 @@ package se.l4.dust.core.internal.template.components;
 import java.io.IOException;
 
 import se.l4.dust.api.template.RenderingContext;
+import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
 import se.l4.dust.core.internal.template.dom.Emitter;
 
@@ -12,6 +13,12 @@ public class RawComponent
 	public RawComponent()
 	{
 		super("raw", RawComponent.class);
+	}
+	
+	@Override
+	public Content copy()
+	{
+		return new RawComponent().copyAttributes(this);
 	}
 	
 	@Override
