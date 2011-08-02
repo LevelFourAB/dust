@@ -33,13 +33,25 @@ public class BodyComponent
 	{
 		if(lastComponent != null)
 		{
-			for(Content c : lastComponent.getRawContents())
+			Attribute attr = getAttribute("parameter");
+			if(attr != null)
 			{
-				/*
-				 * lastData and data are swapped so that expressions run
-				 * on the correct object.
-				 */
-				emitter.emit(ctx, out, lastData, this, data, c);
+				ParameterComponent param = lastComponent.getParameter(attr.getStringValue(ctx, data), false);
+				for(Content c : param.getRawContents())
+				{
+					emitter.emit(ctx, out, lastData, this, data, c);
+				}
+			}
+			else
+			{
+				for(Content c : lastComponent.getRawContents())
+				{
+					/*
+					 * lastData and data are swapped so that expressions run
+					 * on the correct object.
+					 */
+					emitter.emit(ctx, out, lastData, this, data, c);
+				}
 			}
 		}
 	}
