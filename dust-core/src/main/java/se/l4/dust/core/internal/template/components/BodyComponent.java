@@ -37,9 +37,12 @@ public class BodyComponent
 			if(attr != null)
 			{
 				ParameterComponent param = lastComponent.getParameter(attr.getStringValue(ctx, data), false);
-				for(Content c : param.getRawContents())
+				if(param != null)
 				{
-					emitter.emit(ctx, out, lastData, this, data, c);
+					for(Content c : param.getRawContents())
+					{
+						emitter.emit(ctx, out, lastData, this, data, c);
+					}
 				}
 			}
 			else
