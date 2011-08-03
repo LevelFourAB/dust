@@ -1,7 +1,6 @@
 package se.l4.dust.core.internal.template.components;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.template.RenderingContext;
@@ -62,7 +61,7 @@ public class LoopComponent
 		
 		Object sourceData = source.getValue(ctx, data);
 		// TODO: Use conversions
-		Collection<Object> items = (Collection) sourceData;
+		Iterable<Object> items = (Iterable) sourceData;
 		
 		for(Object o : items)
 		{
