@@ -15,8 +15,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.google.inject.Inject;
-
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.TemplateManager;
@@ -25,6 +23,8 @@ import se.l4.dust.api.template.spi.ErrorCollector;
 import se.l4.dust.api.template.spi.ExpressionExtractor;
 import se.l4.dust.api.template.spi.TemplateBuilder;
 import se.l4.dust.api.template.spi.TemplateParser;
+
+import com.google.inject.Inject;
 
 /**
  * Parser for XML based templates.
@@ -172,6 +172,7 @@ public class XmlTemplateParser
 				}
 				else
 				{
+					builder.startElement(qName);
 					newError("The component %s does not exist in the namespace %s", localName, uri);
 					return;
 				}
