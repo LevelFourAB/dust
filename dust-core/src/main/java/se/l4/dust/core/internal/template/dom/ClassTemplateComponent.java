@@ -155,7 +155,7 @@ public class ClassTemplateComponent
 		else
 		{
 			// Process the template of the component 
-			ParsedTemplate template = cache.getTemplate(ctx, type, (Template) null);
+			ParsedTemplate template = cache.getTemplate(ctx, root.getClass(), (Template) null);
 			DocType docType = template.getDocType();
 			if(docType != null)
 			{
@@ -164,7 +164,7 @@ public class ClassTemplateComponent
 			
 			Element templateRoot = template.getRoot();
 			
-			emitter.emit(ctx, out, o, this, data, templateRoot);
+			emitter.emit(ctx, out, root, this, data, templateRoot);
 		}
 	}
 	
