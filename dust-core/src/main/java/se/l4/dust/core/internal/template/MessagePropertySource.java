@@ -7,8 +7,6 @@ import java.nio.charset.Charset;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.google.inject.Inject;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.resource.variant.ResourceVariant;
@@ -20,6 +18,8 @@ import se.l4.dust.api.template.dom.VariantContent;
 import se.l4.dust.api.template.spi.PropertySource;
 import se.l4.dust.api.template.spi.TemplateInfo;
 import se.l4.dust.api.template.spi.TemplateVariant;
+
+import com.google.inject.Inject;
 
 public class MessagePropertySource
 	implements PropertySource
@@ -102,6 +102,11 @@ public class MessagePropertySource
 		private String getValue(Properties props)
 		{
 			String value = props.getProperty(property);
+			if(value == null)
+			{
+				throw new TemplateException("The property " + property + " does not exist in the file " + url);
+			}
+			
 			return new String(value.getBytes(ISO88591), UTF8);
 		}
 		
