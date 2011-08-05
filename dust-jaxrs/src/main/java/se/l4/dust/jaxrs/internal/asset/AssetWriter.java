@@ -67,11 +67,7 @@ public class AssetWriter
 			httpHeaders.putSingle("Cache-Control", "public");
 		}
 		
-		String contentType = resource.getContentType();
-		if(contentType == null || "".equals(contentType) || "content/unknown".equals(contentType))
-		{
-			contentType = getLazyMimeType(t);
-		}
+		String contentType = getMimeType(t);
 		
 		if(contentType != null)
 		{
@@ -99,7 +95,18 @@ public class AssetWriter
 		}
 	}
 
-	private String getLazyMimeType(Asset asset)
+	public static String getMimeType(Asset asset)
+	{
+		String contentType = asset.getResource().getContentType();
+		if(contentType == null || "".equals(contentType) || "content/unknown".equals(contentType) || "unknown".equals(contentType))
+		{
+			contentType = getLazyMimeType(asset);
+		}
+		
+		return contentType;
+	}
+	
+	private static String getLazyMimeType(Asset asset)
 	{
 		String name = asset.getName();
 		if(name.endsWith(".css"))

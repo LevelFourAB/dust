@@ -1,18 +1,22 @@
 package se.l4.dust.jaxrs.internal.asset;
 
+import java.util.Date;
+
 import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
-
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 import se.l4.crayon.Environment;
 import se.l4.dust.api.Context;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
+import se.l4.dust.api.resource.Resource;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 @Singleton
 @Path("asset")
@@ -40,6 +44,28 @@ public class AssetProvider
 				return null;
 			}
 		};
+	}
+	
+	@HEAD
+	@Path("{ns}/{version}/{path:.+}")
+	public Object head(
+			@PathParam("ns") String prefix, 
+			@PathParam("version") String version, 
+			@PathParam("path") String path)
+	{
+		Object result = serve(prefix, version, path);
+		if(result instanceof Asset)
+		{
+			Asset asset = (Asset) result;
+			Resource resource = asset.getResource();
+			
+			return Response.ok()
+				.lastModified(new Date(resource.getLastModified()))
+				.type(AssetWriter.getMimeType(asset))
+				.build();
+		}
+		
+		return result;
 	}
 	
 	@GET
