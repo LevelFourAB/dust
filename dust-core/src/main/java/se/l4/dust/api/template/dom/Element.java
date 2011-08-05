@@ -189,6 +189,9 @@ public class Element
 	
 	public static class Attribute
 	{
+		public static final String ATTR_EMIT = "##emit";
+		public static final String ATTR_SKIP = "##skip";
+		
 		private final String name;
 		private final Content[] value;
 

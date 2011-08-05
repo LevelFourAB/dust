@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
+import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
 
 /**
@@ -79,14 +80,23 @@ public class HtmlTemplateOutput
 		{
 			for(int i=0, n=attributes.length; i<n; i+=2)
 			{
-				writer.write(' ');
-				writer.write(attributes[i]);
 				String v = attributes[i+1];
-				if(v != null)
+				if(v == Attribute.ATTR_EMIT)
 				{
-					writer.write("=\"");
-					escape(attributes[i+1]);
-					writer.write("\"");
+					writer.write(' ');
+					writer.write(attributes[i]);
+				}
+				else if(v != Attribute.ATTR_SKIP)
+				{
+					writer.write(' ');
+					writer.write(attributes[i]);
+					
+					if(v != null)
+					{
+						writer.write("=\"");
+						escape(attributes[i+1]);
+						writer.write("\"");
+					}
 				}
 			}
 		}
