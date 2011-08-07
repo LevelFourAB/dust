@@ -105,7 +105,7 @@ public class JavaScriptTemplatesImpl
 			return result.toString();
 		}
 		
-		private String getName(Class<?> component)
+		public String getName(Class<?> component)
 		{
 			Component annotation = component.getAnnotation(Component.class);
 			if(annotation != null)

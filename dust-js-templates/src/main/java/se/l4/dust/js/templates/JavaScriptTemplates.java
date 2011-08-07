@@ -26,6 +26,14 @@ public interface JavaScriptTemplates
 		 * @return
 		 */
 		Builder addComponent(String name, Class<?> component);
+
+		/**
+		 * Get the default name of an exposed component.
+		 * 
+		 * @param component
+		 * @return
+		 */
+		String getName(Class<?> component);
 	}
 	
 	Builder addAsset(String namespace, String pathToFile);

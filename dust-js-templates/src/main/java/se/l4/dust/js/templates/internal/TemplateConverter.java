@@ -11,6 +11,7 @@ import se.l4.dust.api.template.dom.Text;
 import se.l4.dust.core.internal.template.components.IfComponent;
 import se.l4.dust.core.internal.template.components.LoopComponent;
 import se.l4.dust.core.internal.template.components.ParameterComponent;
+import se.l4.dust.core.internal.template.components.RawComponent;
 import se.l4.dust.core.internal.template.expression.MvelPropertySource;
 
 /**
@@ -66,6 +67,18 @@ public class TemplateConverter
 		encode(value, builder);
 	}
 	
+	private void pushRaw(String value)
+	{
+		if(state == State.EXPRESSION)
+		{
+			builder.append("p.push('");
+		}
+		
+		state = State.STRING;
+		builder.append(value);
+		encode(value, builder);
+	}
+	
 	private void pushExpression(String expression)
 	{
 		if(state == State.STRING)
@@ -90,6 +103,37 @@ public class TemplateConverter
 		if(content instanceof IfComponent)
 		{
 			transformIfComponent(content);
+		}
+		else if(content instanceof RawComponent)
+		{
+			Attribute attr = ((RawComponent) content).getAttribute("value");
+			Content[] value = attr.getValue();
+			if(value != null && value.length > 0)
+			{
+				for(Content c : value)
+				{
+					if(c instanceof MvelPropertySource.Content)
+					{
+						// MVEL Expression, try to handle as JavaScript
+						String expression = ((MvelPropertySource.Content) c).getExpression();
+						pushExpression("p.push(");
+						pushExpression(expression);
+						pushExpression(");");
+					}
+					else if(c instanceof DynamicContent)
+					{
+						DynamicContent dc = (DynamicContent) c;
+						Object v = dc.getValue(context, null);
+						String string = context.getStringValue(v);
+						pushRaw(string);
+					}
+					else
+					{
+						String text = ((Text) c).getText();
+						pushRaw(text);
+					}
+				}
+			}
 		}
 		else if(content instanceof LoopComponent)
 		{
