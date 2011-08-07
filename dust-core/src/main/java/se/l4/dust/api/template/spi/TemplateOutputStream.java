@@ -71,5 +71,12 @@ public interface TemplateOutputStream
 	void text(String text)
 		throws IOException;
 
-	
+	/**
+	 * Output raw contents that should not be encoded.
+	 * 
+	 * @param text
+	 * @throws IOException
+	 */
+	void raw(String text)
+		throws IOException;
 }

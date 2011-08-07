@@ -165,6 +165,12 @@ public class HtmlTemplateOutput
 		}
 	}
 	
+	public void raw(String text)
+		throws IOException
+	{
+		writer.write(text);
+	}
+	
 	public void docType(String name, String publicId, String systemId)
 		throws IOException
 	{

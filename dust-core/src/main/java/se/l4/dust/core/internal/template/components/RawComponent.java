@@ -34,6 +34,6 @@ public class RawComponent
 		Attribute attribute = getAttribute("value");
 		String output = attribute.getStringValue(ctx, data);
 
-		out.text(output);
+		out.raw(output);
 	}
 }
