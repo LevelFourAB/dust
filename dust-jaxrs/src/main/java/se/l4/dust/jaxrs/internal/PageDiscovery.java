@@ -17,17 +17,18 @@ import org.scannotation.WarUrlFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
-import com.google.inject.Stage;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Component;
 import se.l4.dust.api.annotation.Template;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.jaxrs.PageManager;
+
+import com.google.inject.Inject;
+import com.google.inject.Stage;
 
 /**
  * Module that performs a single contribution scanning the classpath for
@@ -80,8 +81,8 @@ public class PageDiscovery
 		db.scanArchives(findClasspath().toArray(new URL[0]));
 		
 		Map<String, Set<String>> index = db.getAnnotationIndex();
-		int p = handlePages(index);
 		int c = handleComponents(index);
+		int p = handlePages(index);
 		
 		logger.info("Found " + p + " pages and " + c + " components");
 		
@@ -169,10 +170,26 @@ public class PageDiscovery
 				NamespaceManager.Namespace ns = findNamespace(className);
 				if(ns != null)
 				{
+					Class<?> component = Class.forName(className);
+					
 					// This class is handled so we register it
 					components.getNamespace(ns.getUri())
-						.addComponent(Class.forName(className));
+						.addComponent(component);
 					count++;
+
+					if(stage == Stage.PRODUCTION)
+					{
+						try
+						{
+							for(Context ctx : variants.getInitialContexts())
+							{
+								templateCache.getTemplate(ctx, component, (Template) null);
+							}
+						}
+						catch(TemplateException e)
+						{
+						}
+					}
 				}
 			}
 		}
