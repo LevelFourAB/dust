@@ -13,8 +13,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
-import com.google.inject.Inject;
-
 import se.l4.dust.api.annotation.Template;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateCache;
@@ -24,6 +22,8 @@ import se.l4.dust.api.template.spi.TemplateOutputStream;
 import se.l4.dust.core.template.html.HtmlTemplateOutput;
 import se.l4.dust.jaxrs.spi.WebRenderingContext;
 
+import com.google.inject.Inject;
+
 /**
  * {@link MessageBodyWriter} that renders the templates.
  * 
@@ -31,7 +31,7 @@ import se.l4.dust.jaxrs.spi.WebRenderingContext;
  *
  */
 @Provider
-@Produces({ MediaType.TEXT_HTML, MediaType.TEXT_XML })
+@Produces({ "text/html; charset=utf-8", MediaType.TEXT_XML })
 public class TemplateWriter
 	implements MessageBodyWriter<Object>
 {
@@ -101,6 +101,9 @@ public class TemplateWriter
 		}
 		
 		ParsedTemplate template = cache.getTemplate(context, type, tpl);
+
+		// FIXME: Should we really do this?
+		httpHeaders.putSingle("Content-Type", "text/html; charset=utf-8");
 		
 		TemplateOutputStream out = new HtmlTemplateOutput(entityStream);
 		renderer.render(context, template, t, out);
