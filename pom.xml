@@ -20,6 +20,8 @@
 
 		<module>dust-css-sprites</module>
 		<module>dust-css-less</module>
+
+		<module>dust-yui</module>
 	</modules>
 	
 	<build>
