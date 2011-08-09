@@ -7,6 +7,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -28,16 +29,20 @@ public class AssetWriter
 {
 	private final String date;
 	private final boolean development;
+	private final long maxAge;
 	
 	@Inject
 	public AssetWriter(Environment env)
 	{
 		development = env == Environment.DEVELOPMENT;
 		
+		long time = System.currentTimeMillis();
 		Calendar c = Calendar.getInstance();
-		c.set(Calendar.YEAR, c.get(Calendar.YEAR) + 10);
+		c.add(Calendar.YEAR, 1);
+		c.add(Calendar.DAY_OF_MONTH, -1);
 		
 		date = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").format(c.getTime());
+		maxAge = c.getTimeInMillis() - time;
 	}
 	
 	public long getSize(Asset t, Class<?> type, Type genericType,
@@ -63,15 +68,21 @@ public class AssetWriter
 		
 		if(false == development)
 		{
+			httpHeaders.putSingle("Cache-Control", "public, max-age=" + maxAge);
 			httpHeaders.putSingle("Expires", date);
-			httpHeaders.putSingle("Cache-Control", "public");
 		}
 		
 		String contentType = getMimeType(t);
+		httpHeaders.putSingle("Last-Modified", new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").format(new Date(resource.getLastModified())));
 		
 		if(contentType != null)
 		{
 			httpHeaders.putSingle("Content-Type", contentType);
+			
+			if(contentType.startsWith("text/"))
+			{
+				httpHeaders.putSingle("Vary", "Accept-Encoding");
+			}
 		}
 		
 		InputStream stream = null;
