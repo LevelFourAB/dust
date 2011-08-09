@@ -7,6 +7,8 @@ import java.io.OutputStreamWriter;
 import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
 
+import com.google.common.base.Charsets;
+
 /**
  * Template output that will output its contents as HTML.
  * 
@@ -22,7 +24,7 @@ public class HtmlTemplateOutput
 
 	public HtmlTemplateOutput(OutputStream stream)
 	{
-		writer = new OutputStreamWriter(stream);
+		writer = new OutputStreamWriter(stream, Charsets.UTF_8);
 	}
 	
 	private void escape(String in)
