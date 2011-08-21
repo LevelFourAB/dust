@@ -146,6 +146,7 @@ public class JavascriptEnvironment
 		
 		Context cx = Context.enter();
 		cx.setOptimizationLevel(-1);
+		cx.setLanguageVersion(Context.VERSION_1_8);
 		try
 		{
 			Scriptable scope = cx.initStandardObjects();
