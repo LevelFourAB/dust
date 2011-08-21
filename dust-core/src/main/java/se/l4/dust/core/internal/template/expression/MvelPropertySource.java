@@ -9,7 +9,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +22,7 @@ import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.DynamicContent;
 import se.l4.dust.api.template.spi.PropertySource;
 import se.l4.dust.api.template.spi.TemplateInfo;
+import se.l4.dust.core.internal.Generics;
 
 /**
  * Property source for MVEL expressions.
@@ -122,20 +122,27 @@ public class MvelPropertySource
 		    {
 		    	String name = d.getName();
 		    	Class<?> type = d.getPropertyType();
-		    	TypeVariable<?>[] params = type.getTypeParameters();
 		    	
-//				Type propertyType = d.getReadMethod() == null
-//					? d.getWriteMethod().getGenericParameterTypes()[0]
-//					: d.getReadMethod().getGenericReturnType();
-//					
-//		    	if(params.length == 0)
+		    	Type genericType  = d.getReadMethod() == null
+		    		? d.getWriteMethod().getGenericParameterTypes()[0]
+		    		: d.getReadMethod().getGenericReturnType();
+		    		
+		    	Type[] typeParams = Generics.findParameterTypes(genericType);
+		    	
+		    	if(typeParams.length == 0)
 		    	{
 		    		ctx.addInput(name, type);
 		    	}
-//		    	else
-//		    	{
-//		    		ctx.addInput(name, type, params);
-//		    	}
+		    	else
+		    	{
+			    	Class<?>[] params = new Class<?>[typeParams.length];
+			    	for(int i=0, n=typeParams.length; i<n; i++)
+			    	{
+			    		params[i] = Generics.findClass(type, typeParams[i]);
+			    	}
+
+		    		ctx.addInput(name, type, params);
+		    	}
 		    }
 		    
 			this.rawExpression = expression; 
