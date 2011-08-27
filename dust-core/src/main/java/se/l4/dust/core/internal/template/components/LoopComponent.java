@@ -1,6 +1,7 @@
 package se.l4.dust.core.internal.template.components;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.Iterator;
 
 import se.l4.dust.api.TemplateException;
@@ -69,7 +70,13 @@ public class LoopComponent
 		if(value == null) throw new TemplateException("Attribute value is required");
 		
 		Object sourceData = source.getValue(ctx, data);
-		if(! (sourceData instanceof Iterable || sourceData instanceof Iterator))
+		if(sourceData == null)
+		{
+			// TODO: Proper way to handle null?
+			throw new TemplateException("Can not iterate over nothing (source is null)");
+		}
+		
+		if(! (sourceData instanceof Iterable || sourceData instanceof Iterator || sourceData.getClass().isArray()))
 		{
 			// Try to convert to either Iterable or Iterator
 			if(converter.canConvertBetween(sourceData, Iterable.class))
@@ -103,6 +110,15 @@ public class LoopComponent
 			{
 				Object o = it.next();
 				
+				emitLoopContents(emitter, ctx, out, data, lastData, value, o);
+			}
+		}
+		else
+		{
+			// Array
+			for(int i=0, n=Array.getLength(sourceData); i<n; i++)
+			{
+				Object o = Array.get(sourceData, i);
 				emitLoopContents(emitter, ctx, out, data, lastData, value, o);
 			}
 		}
