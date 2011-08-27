@@ -1,5 +1,6 @@
 package se.l4.dust.core.internal;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -63,7 +64,8 @@ public class Generics
 		}
 		else if(type instanceof GenericArrayType)
 		{
-			return findClass(root, ((GenericArrayType) type).getGenericComponentType());
+			Class c = findClass(root, ((GenericArrayType) type).getGenericComponentType());
+			return Array.newInstance(c, 0).getClass();
 		}
 		
 		return Object.class;
