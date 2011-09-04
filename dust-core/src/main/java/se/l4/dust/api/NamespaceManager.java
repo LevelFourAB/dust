@@ -102,6 +102,13 @@ public interface NamespaceManager
 		 * @return
 		 */
 		URL getResource(String resource);
+
+		/**
+		 * Get the Java package of this namespace.
+		 * 
+		 * @return
+		 */
+		String getPackage();
 	}
 	
 	/**

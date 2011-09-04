@@ -1,8 +1,11 @@
 package se.l4.dust.jaxrs.internal;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +26,8 @@ import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Component;
 import se.l4.dust.api.annotation.Template;
+import se.l4.dust.api.discovery.ClassDiscovery;
+import se.l4.dust.api.discovery.DiscoveryFactory;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.jaxrs.PageManager;
@@ -47,6 +52,7 @@ public class PageDiscovery
 	private final TemplateCache templateCache;
 	private final ResourceVariantManager variants;
 	private final Stage stage;
+	private final DiscoveryFactory discovery;
 	
 	@Inject
 	public PageDiscovery(
@@ -55,7 +61,8 @@ public class PageDiscovery
 			TemplateManager components,
 			TemplateCache templateCache,
 			ResourceVariantManager variants,
-			Stage stage)
+			Stage stage,
+			DiscoveryFactory discovery)
 	{
 		this.manager = manager;
 		this.pages = pages;
@@ -63,24 +70,19 @@ public class PageDiscovery
 		this.templateCache = templateCache;
 		this.variants = variants;
 		this.stage = stage;
+		this.discovery = discovery;
 	}
 
-	public void discover(ServletContext ctx)
+	public void discover(final ServletContext ctx)
 		throws Exception
 	{
 		logger.info("Attempting to discover classes within registered namespaces");
 		
-		AnnotationDB db = new AnnotationDB();
-		db.setScanClassAnnotations(true);
-		db.setScanFieldAnnotations(false);
-		db.setScanMethodAnnotations(false);
-		db.setScanParameterAnnotations(false);
+		ClassDiscoveryImpl cd = new ClassDiscoveryImpl(ctx);
+		cd.index();
+		discovery.addTopLevel(cd);
 		
-		db.scanArchives(ClasspathUrlFinder.findClassPaths());
-		db.scanArchives(WarUrlFinder.findWebInfLibClasspaths(ctx));
-		db.scanArchives(findClasspath().toArray(new URL[0]));
-		
-		Map<String, Set<String>> index = db.getAnnotationIndex();
+		Map<String, Set<String>> index = cd.index;
 		int c = handleComponents(index);
 		int p = handlePages(index);
 		
@@ -93,7 +95,7 @@ public class PageDiscovery
 		}
 	}
 	
-	private List<URL> findClasspath()
+	private static List<URL> findClasspath()
 		throws IOException
 	{
 		Enumeration<URL> enumeration = Thread.currentThread()
@@ -255,4 +257,58 @@ public class PageDiscovery
 		
 		return null;
 	}
+	
+	private static class ClassDiscoveryImpl
+		implements ClassDiscovery
+	{
+		private final ServletContext ctx;
+		
+		private AnnotationDB db;
+
+		private Map<String, Set<String>> index;
+		
+		public ClassDiscoveryImpl(ServletContext ctx)
+		{
+			this.ctx = ctx;
+		}
+		
+		public synchronized void index()
+		{
+			AnnotationDB db = new AnnotationDB();
+			db.setScanClassAnnotations(true);
+			db.setScanFieldAnnotations(false);
+			db.setScanMethodAnnotations(false);
+			db.setScanParameterAnnotations(false);
+			
+			try
+			{
+				Set<URL> urls = new HashSet<URL>();
+				for(URL url : ClasspathUrlFinder.findClassPaths())
+				{
+					urls.add(url);
+				}
+				
+				for(URL url : WarUrlFinder.findWebInfLibClasspaths(ctx))
+				{
+					urls.add(url);
+				}
+				
+				urls.addAll(findClasspath());
+				
+				db.scanArchives(urls.toArray(new URL[urls.size()]));
+				
+				index = db.getAnnotationIndex();
+			}
+			catch(IOException e)
+			{
+				
+			}
+		}
+		
+		public Set<String> getAnnotatedWith(Class<? extends Annotation> annotation)
+		{
+			Set<String> result = index.get(annotation.getName());
+			return result == null ? Collections.<String>emptySet() : result;
+		}
+	};
 }

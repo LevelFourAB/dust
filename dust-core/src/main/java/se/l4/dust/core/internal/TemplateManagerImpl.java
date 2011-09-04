@@ -4,9 +4,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import se.l4.dust.api.ComponentException;
+import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Component;
+import se.l4.dust.api.discovery.ClassDiscovery;
+import se.l4.dust.api.discovery.DiscoveryFactory;
 import se.l4.dust.api.template.spi.PropertySource;
 
 import com.google.common.base.Function;
@@ -14,6 +20,7 @@ import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import com.google.inject.Stage;
 
 /**
  * Implementation of {@link TemplateManager}. The implementation keeps track
@@ -32,7 +39,7 @@ public class TemplateManagerImpl
 	private final ConcurrentMap<String, NamespacedTemplateImpl> namespaces;
 	
 	@Inject
-	public TemplateManagerImpl(Injector injector)
+	public TemplateManagerImpl(Injector injector, final Stage stage, final DiscoveryFactory discovery, final NamespaceManager nsManager)
 	{
 		this.injector = injector;
 		
@@ -42,7 +49,10 @@ public class TemplateManagerImpl
 			{
 				public NamespacedTemplateImpl apply(String in)
 				{
-					return new NamespacedTemplateImpl(in);
+					NamespaceManager.Namespace ns = nsManager.getNamespaceByURI(in);
+					ClassDiscovery cd = ns == null ? discovery.emtpy() : discovery.get(ns.getPackage());
+					
+					return new NamespacedTemplateImpl(in, cd, stage == Stage.DEVELOPMENT);
 				}
 			});
 	}
@@ -81,13 +91,34 @@ public class TemplateManagerImpl
 	private static class NamespacedTemplateImpl
 		implements TemplateNamespace
 	{
+		private final Logger logger;
+		
 		private final String namespace;
 		private final Map<String, Class<?>> components;
 		
-		public NamespacedTemplateImpl(String namespace)
+		private final ClassDiscovery discovery;
+		private final boolean dev;
+		
+		public NamespacedTemplateImpl(String namespace, ClassDiscovery discovery, boolean dev)
 		{
+			this.dev = dev;
+			logger = LoggerFactory.getLogger(TemplateNamespace.class.getName() + " [" + namespace + "]");
+			
 			this.namespace = namespace;
+			this.discovery = discovery;
+			
 			components = new ConcurrentHashMap<String, Class<?>>();
+			
+			for(String c : discovery.getAnnotatedWith(Component.class))
+			{
+				try
+				{
+					addComponent(Class.forName(c));
+				}
+				catch(ClassNotFoundException e)
+				{
+				}
+			}
 		}
 		
 		public TemplateNamespace addComponent(Class<?> component)
@@ -106,7 +137,7 @@ public class TemplateManagerImpl
 			}
 			else
 			{
-				String name = component.getSimpleName().toLowerCase();
+				String name = component.getSimpleName();
 				addComponent(component, name);
 			}
 			
@@ -117,7 +148,7 @@ public class TemplateManagerImpl
 		{
 			for(String name : names)
 			{
-				components.put(name, component);
+				components.put(name.toLowerCase(), component);
 			}
 			
 			return this;
@@ -125,17 +156,49 @@ public class TemplateManagerImpl
 
 		public Class<?> getComponent(String name)
 		{
+			name = name.toLowerCase();
 			Class<?> o = components.get(name);
 			if(o == null)
 			{
 				throw new ComponentException("Unknown component " + name + " in " + namespace);
 			}
+			
 			return o;
 		}
 
 		public boolean hasComponent(String name)
 		{
-			return components.containsKey(name);
+			boolean found = components.containsKey(name);
+			if(found)
+			{
+				return true;
+			}
+			
+			if(dev && discovery != null)
+			{
+				logger.info("Attempting to discover new component named " + name);
+				
+				/*
+				 * Reindex if we have discovery functions, we might find
+				 * the class this time.
+				 */
+				discovery.index();
+				
+				for(String c : discovery.getAnnotatedWith(Component.class))
+				{
+					try
+					{
+						addComponent(Class.forName(c));
+					}
+					catch(ClassNotFoundException e)
+					{
+					}
+					
+					return components.containsKey(name);
+				}
+			}
+			
+			return false;
 		}
 		
 		public String getComponentName(Class<?> component)

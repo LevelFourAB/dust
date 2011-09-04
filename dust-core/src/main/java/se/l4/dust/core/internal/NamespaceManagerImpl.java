@@ -5,9 +5,9 @@ import java.security.SecureRandom;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.inject.Singleton;
-
 import se.l4.dust.api.NamespaceManager;
+
+import com.google.inject.Singleton;
 
 @Singleton
 public class NamespaceManagerImpl
@@ -172,6 +172,10 @@ public class NamespaceManagerImpl
 			return locator.locateResource(resource);
 		}
 		
+		public String getPackage()
+		{
+			return pkg;
+		}
 	}
 	
 	private static interface Locator
