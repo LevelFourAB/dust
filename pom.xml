@@ -66,7 +66,7 @@
 
 	<properties>
 		<resteasy-version>2.1.0.GA</resteasy-version>
-		<crayon-version>0.3</crayon-version>
+		<crayon-version>0.5</crayon-version>
 	</properties>
 
 	<scm>

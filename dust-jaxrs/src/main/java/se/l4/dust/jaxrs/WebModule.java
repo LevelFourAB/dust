@@ -7,6 +7,7 @@ import javax.servlet.http.HttpSession;
 
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
+import se.l4.crayon.annotation.Order;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.core.CoreModule;
 import se.l4.dust.jaxrs.annotation.ContextScoped;
@@ -47,19 +48,20 @@ public class WebModule
 		bind(ServletBinder.class).to(ServletBinderImpl.class);
 	}
 	
-	@Contribution(name="asset-page")
+	@Contribution(name="dust-asset-page")
 	public void contributeAssetPage(PageManager manager)
 	{
 		manager.add(AssetProvider.class);
 	}
 	
-	@Contribution(name="asset-sources")
-	public void contributeClasspathSource(AssetManager manager)
+	@Contribution(name="dust-context-asset-source")
+	@Order("before:dust-assets")
+	public void contributeContextSource(AssetManager manager)
 	{
 		manager.addSource(ContextAssetSource.class);
 	}
 	
-	@Contribution(name="message-provider")
+	@Contribution(name="dust-default-message-providers")
 	public void contributeDefaultMessageProviders(Configuration config,
 			AssetWriter w1,
 			TemplateWriter w2)

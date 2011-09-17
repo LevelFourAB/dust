@@ -1,8 +1,11 @@
 package se.l4.dust.core.internal.asset;
 
+import se.l4.crayon.Contributions;
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
+import se.l4.crayon.annotation.Order;
 import se.l4.dust.api.TemplateManager;
+import se.l4.dust.api.annotation.Assets;
 import se.l4.dust.api.asset.AssetManager;
 
 public class AssetModule
@@ -12,28 +15,7 @@ public class AssetModule
 	public void configure()
 	{
 		bind(AssetManager.class).to(AssetManagerImpl.class);
-		
-//		bindListener(Matchers.any(), new TypeListener()
-//		{
-//			public <I> void hear(TypeLiteral<I> typeLiteral, TypeEncounter<I> typeEncounter)
-//			{
-//				Provider<AssetManager> assets = typeEncounter.getProvider(AssetManager.class);
-//				for(Field field : typeLiteral.getRawType().getDeclaredFields())
-//				{
-//					if(field.isAnnotationPresent(InjectAsset.class))
-//					{
-//						if(field.getType().isAssignableFrom(Asset.class))
-//						{
-//							typeEncounter.register(new AssetInjector<I>(assets, field));
-//						}
-//						else
-//						{
-//							typeEncounter.addError("Type of field %s is not compatible with Asset", field);
-//						}
-//					}
-//				}
-//			}
-//		});
+		bindContributions(Assets.class);
 	}
 	
 	@Contribution(name="internal-asset-protect")
@@ -56,41 +38,10 @@ public class AssetModule
 		manager.addSource(ClasspathAssetSource.class);
 	}
 	
-//	private static class AssetInjector<T>
-//		implements MembersInjector<T>
-//	{
-//		private final Provider<AssetManager> assets;
-//		private final Field field;
-//
-//		public AssetInjector(Provider<AssetManager> assets, Field field)
-//		{
-//			this.assets = assets;
-//			this.field = field;
-//			
-//			field.setAccessible(true);
-//		}
-//		
-//		public void injectMembers(T instance)
-//		{
-//			InjectAsset annotation = field.getAnnotation(InjectAsset.class);
-//			String ns = annotation.namespace();
-//			String path = annotation.path();
-//			
-//			AssetManager manager = assets.get();
-//
-//			Asset asset = manager.locate(ns, path);
-//			if(asset == null)
-//			{
-//				throw new ProvisionException("Unable to locate asset named " + path + " in namespace " + ns);
-//			}
-//			
-//			try
-//			{
-//				field.set(instance, asset);
-//			}
-//			catch(Exception e)
-//			{
-//			}
-//		}
-//	}
+	@Contribution(name="dust-assets")
+	@Order({ "after:dust-namespaces", "after:internal-asset-sources" })
+	public void contributeAssets(@Assets Contributions contributions)
+	{
+		contributions.run();
+	}
 }
