@@ -1,11 +1,8 @@
 package se.l4.dust.jaxrs.internal;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.net.URL;
-import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -14,9 +11,6 @@ import java.util.Set;
 import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
 
-import org.scannotation.AnnotationDB;
-import org.scannotation.ClasspathUrlFinder;
-import org.scannotation.WarUrlFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,21 +71,19 @@ public class PageDiscovery
 		throws Exception
 	{
 		logger.info("Attempting to discover classes within registered namespaces");
+
+		int pages = 0;
+		for(NamespaceManager.Namespace ns : manager)
+		{
+			pages += handlePages(ns);
+		}
 		
-		ClassDiscoveryImpl cd = new ClassDiscoveryImpl(ctx);
-		cd.index();
-		discovery.addTopLevel(cd);
-		
-		Map<String, Set<String>> index = cd.index;
-		int c = handleComponents(index);
-		int p = handlePages(index);
-		
-		logger.info("Found " + p + " pages and " + c + " components");
+		logger.info("Found " + pages + " pages");
 		
 		if(stage == Stage.PRODUCTION)
 		{
-			int t = handleTemplate(index);
-			logger.info("Loaded " + t + " templates");
+//			int t = handleTemplate(index);
+//			logger.info("Loaded " + t + " templates");
 		}
 	}
 	
@@ -128,23 +120,16 @@ public class PageDiscovery
 	 * @return
 	 * @throws Exception
 	 */
-	private int handlePages(Map<String, Set<String>> s)
+	private int handlePages(NamespaceManager.Namespace ns)
 		throws Exception
 	{
+		ClassDiscovery cd = discovery.get(ns.getPackage());
+		
 		int count = 0;
-		Set<String> classes = s.get(Path.class.getName());
-		if(classes != null)
+		for(Class<?> type : cd.getAnnotatedWith(Path.class))
 		{
-			for(String className : classes)
-			{
-				NamespaceManager.Namespace ns = findNamespace(className);
-				if(ns != null)
-				{
-					// This class is handled so we register it
-					pages.add(Class.forName(className));
-					count++;
-				}
-			}
+			pages.add(type);
+			count++;
 		}
 		
 		return count;
@@ -257,58 +242,4 @@ public class PageDiscovery
 		
 		return null;
 	}
-	
-	private static class ClassDiscoveryImpl
-		implements ClassDiscovery
-	{
-		private final ServletContext ctx;
-		
-		private AnnotationDB db;
-
-		private Map<String, Set<String>> index;
-		
-		public ClassDiscoveryImpl(ServletContext ctx)
-		{
-			this.ctx = ctx;
-		}
-		
-		public synchronized void index()
-		{
-			AnnotationDB db = new AnnotationDB();
-			db.setScanClassAnnotations(true);
-			db.setScanFieldAnnotations(false);
-			db.setScanMethodAnnotations(false);
-			db.setScanParameterAnnotations(false);
-			
-			try
-			{
-				Set<URL> urls = new HashSet<URL>();
-				for(URL url : ClasspathUrlFinder.findClassPaths())
-				{
-					urls.add(url);
-				}
-				
-				for(URL url : WarUrlFinder.findWebInfLibClasspaths(ctx))
-				{
-					urls.add(url);
-				}
-				
-				urls.addAll(findClasspath());
-				
-				db.scanArchives(urls.toArray(new URL[urls.size()]));
-				
-				index = db.getAnnotationIndex();
-			}
-			catch(IOException e)
-			{
-				
-			}
-		}
-		
-		public Set<String> getAnnotatedWith(Class<? extends Annotation> annotation)
-		{
-			Set<String> result = index.get(annotation.getName());
-			return result == null ? Collections.<String>emptySet() : result;
-		}
-	};
 }

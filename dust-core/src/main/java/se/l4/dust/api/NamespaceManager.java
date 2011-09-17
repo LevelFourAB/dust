@@ -10,6 +10,7 @@ import java.net.URL;
  *
  */
 public interface NamespaceManager
+	extends Iterable<NamespaceManager.Namespace>
 {
 	/**
 	 * Binder for namespaces.

@@ -22,12 +22,5 @@ public interface DiscoveryFactory
 	 * 
 	 * @return
 	 */
-	ClassDiscovery emtpy();
-	
-	/**
-	 * Add a top level class discovery to this factory.
-	 * 
-	 * @param cd
-	 */
-	void addTopLevel(ClassDiscovery cd);
+	ClassDiscovery empty();
 }

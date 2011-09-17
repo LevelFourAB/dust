@@ -15,12 +15,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>javassist</groupId>
-			<artifactId>javassist</artifactId>
-			<version>3.8.0.GA</version>
-		</dependency>
-		
-		<dependency>
  			<groupId>se.l4.crayon</groupId>
  			<artifactId>crayon-core</artifactId>
  			<version>${crayon-version}</version>
@@ -43,6 +37,12 @@
 			<artifactId>slf4j-api</artifactId>
 			<version>1.6.1</version>
 		</dependency>
+		
+		 <dependency>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+			<version>0.9.5</version>
+        </dependency>
 	</dependencies>
 </project>
 

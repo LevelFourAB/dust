@@ -2,6 +2,7 @@ package se.l4.dust.core.internal;
 
 import java.net.URL;
 import java.security.SecureRandom;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -72,6 +73,11 @@ public class NamespaceManagerImpl
 	public Namespace getNamespaceByURI(String uri)
 	{
 		return uris.get(uri);
+	}
+	
+	public Iterator<Namespace> iterator()
+	{
+		return uris.values().iterator();
 	}
 	
 	private class NamespaceBinderImpl

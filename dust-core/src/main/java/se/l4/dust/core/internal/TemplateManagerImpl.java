@@ -50,7 +50,7 @@ public class TemplateManagerImpl
 				public NamespacedTemplateImpl apply(String in)
 				{
 					NamespaceManager.Namespace ns = nsManager.getNamespaceByURI(in);
-					ClassDiscovery cd = ns == null ? discovery.emtpy() : discovery.get(ns.getPackage());
+					ClassDiscovery cd = ns == null ? discovery.empty() : discovery.get(ns.getPackage());
 					
 					return new NamespacedTemplateImpl(in, cd, stage == Stage.DEVELOPMENT);
 				}
@@ -109,15 +109,9 @@ public class TemplateManagerImpl
 			
 			components = new ConcurrentHashMap<String, Class<?>>();
 			
-			for(String c : discovery.getAnnotatedWith(Component.class))
+			for(Class<?> c : discovery.getAnnotatedWith(Component.class))
 			{
-				try
-				{
-					addComponent(Class.forName(c));
-				}
-				catch(ClassNotFoundException e)
-				{
-				}
+				addComponent(c);
 			}
 		}
 		
@@ -184,15 +178,9 @@ public class TemplateManagerImpl
 				 */
 				discovery.index();
 				
-				for(String c : discovery.getAnnotatedWith(Component.class))
+				for(Class<?> c : discovery.getAnnotatedWith(Component.class))
 				{
-					try
-					{
-						addComponent(Class.forName(c));
-					}
-					catch(ClassNotFoundException e)
-					{
-					}
+					addComponent(c);
 					
 					return components.containsKey(name);
 				}

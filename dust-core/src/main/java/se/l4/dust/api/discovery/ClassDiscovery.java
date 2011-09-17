@@ -22,5 +22,5 @@ public interface ClassDiscovery
 	 * @param annotation
 	 * @return
 	 */
-	Set<String> getAnnotatedWith(Class<? extends Annotation> annotation);
+	Set<Class<?>> getAnnotatedWith(Class<? extends Annotation> annotation);
 }
