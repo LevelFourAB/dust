@@ -17,7 +17,7 @@ public class JsTemplateModule
 	}
 	
 	@Contribution
-	@Order("before:internal-asset-sources")
+	@Order("before:dust-assets")
 	public void contributeAssetSource(AssetManager manager, JavaScriptTemplatesImpl js)
 	{
 		manager.addSource(js);
