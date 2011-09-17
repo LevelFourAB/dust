@@ -150,8 +150,7 @@ public class TemplateManagerImpl
 
 		public Class<?> getComponent(String name)
 		{
-			name = name.toLowerCase();
-			Class<?> o = components.get(name);
+			Class<?> o = components.get(name.toLowerCase());
 			if(o == null)
 			{
 				throw new ComponentException("Unknown component " + name + " in " + namespace);
@@ -162,7 +161,7 @@ public class TemplateManagerImpl
 
 		public boolean hasComponent(String name)
 		{
-			boolean found = components.containsKey(name);
+			boolean found = components.containsKey(name.toLowerCase());
 			if(found)
 			{
 				return true;
