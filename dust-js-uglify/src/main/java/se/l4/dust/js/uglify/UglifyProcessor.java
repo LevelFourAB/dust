@@ -6,14 +6,14 @@ import java.io.InputStream;
 
 import org.mozilla.javascript.JavaScriptException;
 
-import com.google.inject.Inject;
-
-import se.l4.crayon.Environment;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.resource.MemoryResource;
 import se.l4.dust.api.resource.NamedResource;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.js.env.JavascriptEnvironment;
+
+import com.google.inject.Inject;
+import com.google.inject.Stage;
 
 /**
  * Processor that runs UglifyJS on JavaScript files and compresses them. This
@@ -25,24 +25,24 @@ import se.l4.dust.js.env.JavascriptEnvironment;
 public class UglifyProcessor
 	implements AssetProcessor
 {
-	private final Environment env;
+	private final Stage stage;
 
 	@Inject
-	public UglifyProcessor(Environment env)
+	public UglifyProcessor(Stage stage)
 	{
-		this.env = env;
+		this.stage = stage;
 	}
 
 	public Resource process(String namespace, String path, Resource in,
 			Object... arguments)
 		throws IOException
 	{
-		Environment minimum = Environment.PRODUCTION;
+		Stage minimum = Stage.PRODUCTION;
 		if(arguments.length > 0)
 		{
-			if(arguments[0] instanceof Environment)
+			if(arguments[0] instanceof Stage)
 			{
-				minimum = (Environment) arguments[0];
+				minimum = (Stage) arguments[0];
 			}
 			else
 			{
@@ -50,7 +50,7 @@ public class UglifyProcessor
 			}
 		}
 		
-		if(minimum == Environment.PRODUCTION && minimum != env)
+		if(minimum == Stage.PRODUCTION && minimum != stage)
 		{
 			/*
 			 * Do nothing if we should only run in production, but we are in
