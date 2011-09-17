@@ -2,6 +2,7 @@ package se.l4.dust.js.coffeescript;
 
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
+import se.l4.crayon.annotation.Order;
 import se.l4.dust.api.asset.AssetManager;
 
 /**
@@ -21,7 +22,8 @@ public class CoffeeScriptModule
 		
 	}
 
-	@Contribution
+	@Contribution(name="dust-js-coffeescript")
+	@Order("before:dust-assets")
 	public void contributeProcessor(AssetManager assets, CoffeeScriptProcessor processor)
 	{
 		assets.addExtensionProcessor("coffee", processor);

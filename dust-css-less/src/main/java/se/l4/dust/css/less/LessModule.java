@@ -2,6 +2,7 @@ package se.l4.dust.css.less;
 
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
+import se.l4.crayon.annotation.Order;
 import se.l4.dust.api.asset.AssetManager;
 
 /**
@@ -20,7 +21,8 @@ public class LessModule
 		
 	}
 
-	@Contribution
+	@Contribution(name="dust-css-less")
+	@Order("before:dust-assets")
 	public void contributeLess(AssetManager assets, LessProcessor processor)
 	{
 		assets.addExtensionProcessor("less", processor);
