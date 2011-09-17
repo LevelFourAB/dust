@@ -69,5 +69,10 @@
 		<crayon-version>0.3</crayon-version>
 	</properties>
 
+	<scm>
+		<connection>scm:git:git@github.com:aholstenson/dust.git</connection>
+		<url>scm:git:git@github.com:aholstenson/dust.git</url>
+		<developerConnection>scm:git:git@github.com:aholstenson/dust.git</developerConnection>
+	</scm>
 </project>
 
