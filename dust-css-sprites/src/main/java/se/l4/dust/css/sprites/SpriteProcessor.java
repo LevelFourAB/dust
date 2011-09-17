@@ -25,14 +25,16 @@ import org.carrot2.labs.smartsprites.resource.ResourceHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.resource.MemoryResource;
 import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.template.DefaultRenderingContext;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
 /**
  * Processor that uses SmartSprites to create automatic sprite images from
@@ -48,11 +50,13 @@ public class SpriteProcessor
 	private static final Logger logger = LoggerFactory.getLogger(SpriteProcessor.class);
 	
 	private final AssetManager manager;
+	private final Provider<DefaultRenderingContext> contexts;
 
 	@Inject
-	public SpriteProcessor(AssetManager manager)
+	public SpriteProcessor(AssetManager manager, Provider<DefaultRenderingContext> contexts)
 	{
 		this.manager = manager;
+		this.contexts = contexts;
 	}
 	
 	public Resource process(String namespace, 
@@ -108,7 +112,13 @@ public class SpriteProcessor
 			}
 		);
 		
-		CustomResourceHandler handler = new CustomResourceHandler(manager, namespace, path, stream);
+		CustomResourceHandler handler = new CustomResourceHandler(
+			manager, 
+			contexts.get(), 
+			namespace, 
+			path, 
+			stream
+		);
 		SpriteBuilder builder = new SpriteBuilder(params, log, handler);
 		builder.buildSprites();
 		
@@ -161,15 +171,21 @@ public class SpriteProcessor
 		implements ResourceHandler
 	{
 		private final AssetManager manager;
+		private final DefaultRenderingContext context;
 		private final Resource cssResource;
 		private final String cssPath;
 		private final String ns;
 
 		private final Map<String, ByteArrayOutputStream> output;
 		
-		public CustomResourceHandler(AssetManager manager, String ns, String cssPath, Resource cssResource)
+		public CustomResourceHandler(AssetManager manager, 
+				DefaultRenderingContext context, 
+				String ns, 
+				String cssPath, 
+				Resource cssResource)
 		{
 			this.manager = manager;
+			this.context = context;
 			this.ns = ns;
 			this.cssPath = "/" + cssPath;
 			this.cssResource = cssResource;
@@ -180,7 +196,7 @@ public class SpriteProcessor
 		public InputStream getResourceAsInputStream(String path)
 				throws IOException
 		{
-			Asset asset = manager.locate(ns, path);
+			Asset asset = manager.locate(context, ns, path);
 			if(asset == null)
 			{
 				return null;
