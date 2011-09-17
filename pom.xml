@@ -6,7 +6,7 @@
 	<artifactId>dust-base</artifactId>
 	<version>0.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>${pom.artifactId}</name>
+	<name>${project.artifactId}</name>
 
 	<modules>
 		<module>dust-core</module>
@@ -32,8 +32,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				
 				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
+					<source>1.6</source>
+					<target>1.6</target>
 				</configuration>
 			</plugin>
 

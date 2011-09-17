@@ -10,13 +10,13 @@
 	
 	<artifactId>dust-js-uglify</artifactId>
 	<packaging>jar</packaging>
-	<name>${pom.artifactId}</name>
+	<name>${project.artifactId}</name>
 	
 	<dependencies>
 		<dependency>
-			<groupId>${pom.groupId}</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>dust-js-env</artifactId>
-			<version>${pom.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 </project>

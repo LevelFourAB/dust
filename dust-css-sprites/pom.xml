@@ -10,7 +10,7 @@
 	
 	<artifactId>dust-css-sprites</artifactId>
 	<packaging>jar</packaging>
-	<name>${pom.artifactId}</name>
+	<name>${project.artifactId}</name>
 	
 	<repositories>
 		<repository>
@@ -22,9 +22,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>${pom.groupId}</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>dust-core</artifactId>
-			<version>${pom.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		
 		<dependency>
