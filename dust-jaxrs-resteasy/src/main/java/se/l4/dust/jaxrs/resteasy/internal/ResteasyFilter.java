@@ -10,10 +10,20 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.HttpHeaders;
 
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
+import org.jboss.resteasy.core.SynchronousDispatcher;
+import org.jboss.resteasy.plugins.server.servlet.FilterBootstrap;
+import org.jboss.resteasy.plugins.server.servlet.HttpRequestFactory;
+import org.jboss.resteasy.plugins.server.servlet.HttpResponseFactory;
+import org.jboss.resteasy.plugins.server.servlet.HttpServletInputMessage;
+import org.jboss.resteasy.plugins.server.servlet.HttpServletResponseWrapper;
+import org.jboss.resteasy.plugins.server.servlet.ServletContainerDispatcher;
+import org.jboss.resteasy.specimpl.UriInfoImpl;
+import org.jboss.resteasy.spi.HttpRequest;
+import org.jboss.resteasy.spi.HttpResponse;
+import org.jboss.resteasy.spi.NotFoundException;
 
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 /**
@@ -25,9 +35,10 @@ import com.google.inject.Singleton;
  */
 @Singleton
 public class ResteasyFilter
-	implements Filter
+	implements Filter, HttpRequestFactory, HttpResponseFactory
 {
-	@Inject
+	private ServletContainerDispatcher servletContainerDispatcher;
+	
 	public ResteasyFilter()
 	{
 	}
@@ -35,22 +46,55 @@ public class ResteasyFilter
 	public void init(FilterConfig filterConfig)
 		throws ServletException
 	{
+		servletContainerDispatcher = new ServletContainerDispatcher();
+		FilterBootstrap bootstrap = new FilterBootstrap(filterConfig);
+		servletContainerDispatcher.init(filterConfig.getServletContext(), bootstrap, this, this);
+		servletContainerDispatcher.getDispatcher().getDefaultContextObjects().put(FilterConfig.class, filterConfig);
 	}
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) 
 		throws IOException, ServletException
 	{
-		ResteasyProviderFactory.pushContext(HttpServletRequest.class, (HttpServletRequest) request);
-		ResteasyProviderFactory.pushContext(HttpServletResponse.class, (HttpServletResponse) response);
-		
-		chain.doFilter(request, response);
-		
-		ResteasyProviderFactory.popContextData(HttpServletResponse.class);
-		ResteasyProviderFactory.popContextData(HttpServletRequest.class);
+		try
+		{
+			servletContainerDispatcher.service(
+				((HttpServletRequest) request).getMethod(),
+				(HttpServletRequest) request,
+				(HttpServletResponse) response, 
+				false
+			);
+		}
+		catch(NotFoundException e)
+		{
+			chain.doFilter(request, response);
+		}
 	}
 
 	public void destroy()
 	{
+		servletContainerDispatcher.destroy();
 	}
 
+	@Override
+	public HttpRequest createResteasyHttpRequest(String httpMethod,
+			HttpServletRequest request, HttpHeaders headers,
+			UriInfoImpl uriInfo, HttpResponse theResponse,
+			HttpServletResponse response)
+	{
+		return new HttpServletInputMessage(request, theResponse, headers,
+			uriInfo, httpMethod.toUpperCase(),
+			dispatcher()
+		);
+	}
+
+	private SynchronousDispatcher dispatcher()
+	{
+		return (SynchronousDispatcher) servletContainerDispatcher.getDispatcher();
+	}
+
+	@Override
+	public HttpResponse createResteasyHttpResponse(HttpServletResponse response)
+	{
+		return new HttpServletResponseWrapper(response, dispatcher().getProviderFactory());
+	}
 }

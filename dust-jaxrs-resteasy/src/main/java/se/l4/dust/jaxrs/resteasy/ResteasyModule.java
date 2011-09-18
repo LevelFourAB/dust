@@ -1,7 +1,6 @@
 package se.l4.dust.jaxrs.resteasy;
 
 import org.jboss.resteasy.core.Dispatcher;
-import org.jboss.resteasy.core.SynchronousDispatcher;
 import org.jboss.resteasy.plugins.providers.ByteArrayProvider;
 import org.jboss.resteasy.plugins.providers.DataSourceProvider;
 import org.jboss.resteasy.plugins.providers.DefaultTextPlain;
@@ -19,12 +18,22 @@ import se.l4.crayon.annotation.Contribution;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.jaxrs.WebModule;
 import se.l4.dust.jaxrs.internal.template.TemplateWriter;
+import se.l4.dust.jaxrs.resteasy.internal.ReloadingDispatcher;
 import se.l4.dust.jaxrs.resteasy.internal.ResteasyConfiguration;
 import se.l4.dust.jaxrs.resteasy.internal.ResteasyContext;
 import se.l4.dust.jaxrs.resteasy.internal.ResteasyRenderingContext;
 import se.l4.dust.jaxrs.spi.Configuration;
 import se.l4.dust.jaxrs.spi.Context;
 
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+
+/**
+ * Module for that activates Resteasy.
+ * 
+ * @author Andreas Holstenson
+ *
+ */
 public class ResteasyModule
 	extends CrayonModule
 {
@@ -40,17 +49,19 @@ public class ResteasyModule
 		ResteasyProviderFactory.setInstance(factory);
 		
 		// Bind a dispatcher
-		Dispatcher dispatcher = new SynchronousDispatcher(factory);
-		bind(Dispatcher.class).toInstance(dispatcher);
-		
-		// Bind the registry
-		Registry registry = dispatcher.getRegistry();
-		bind(Registry.class).toInstance(registry);
+		bind(Dispatcher.class).to(ReloadingDispatcher.class);
 		
 		// Bind SPI interfaces 
 		bind(Configuration.class).to(ResteasyConfiguration.class);
 		bind(Context.class).to(ResteasyContext.class);
 		bind(RenderingContext.class).to(ResteasyRenderingContext.class);
+	}
+	
+	@Provides
+	@Singleton
+	public Registry provideRegistry(Dispatcher dispatcher)
+	{
+		return dispatcher.getRegistry();
 	}
 	
 	@Contribution(name="jax-rs-providers")

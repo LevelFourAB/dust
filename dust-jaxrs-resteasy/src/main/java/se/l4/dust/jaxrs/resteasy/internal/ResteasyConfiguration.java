@@ -90,9 +90,6 @@ public class ResteasyConfiguration
 			ServletBinder binder)
 	{
 		binder.filter("/*").with(ResteasyFilter.class);
-		
-		binder.serve("/*").with(HttpServletDispatcher.class);
-//		binder.filter("/*").with(FilterDispatcher.class);
 	}
 
 	public ServletContext getServletContext()

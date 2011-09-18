@@ -2,11 +2,8 @@ package se.l4.dust.jaxrs.internal;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Singleton;
-import com.google.inject.Stage;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import se.l4.dust.api.Context;
 import se.l4.dust.api.annotation.Template;
@@ -15,6 +12,11 @@ import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.jaxrs.PageManager;
 import se.l4.dust.jaxrs.PageProvider;
 import se.l4.dust.jaxrs.spi.Configuration;
+
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
+import com.google.inject.Stage;
 
 
 @Singleton
@@ -26,6 +28,7 @@ public class NormalPageManager
 	private final ResourceVariantManager variants;
 	private final Injector injector;
 	private final Stage stage;
+	private final Set<Class<?>> pages;
 	
 	@Inject
 	public NormalPageManager(Configuration config,
@@ -39,36 +42,47 @@ public class NormalPageManager
 		this.variants = variants;
 		this.injector = injector;
 		this.stage = stage;
+		
+		pages = new CopyOnWriteArraySet<Class<?>>();
+	}
+	
+	@Override
+	public int getPageCount()
+	{
+		return pages.size();
 	}
 	
 	public PageManager add(final Class<?> page)
 	{
-		config.addPage(new PageProvider()
+		if(pages.add(page))
 		{
-			public Object get()
+			config.addPage(new PageProvider()
 			{
-				return injector.getInstance(page);
-			}
+				public Object get()
+				{
+					return injector.getInstance(page);
+				}
+				
+				public Class<?> getType()
+				{
+					return page;
+				}
+				
+				public void release(Object o)
+				{
+				}
+			});
 			
-			public Class<?> getType()
+			if(stage == Stage.PRODUCTION) 
 			{
-				return page;
-			}
-			
-			public void release(Object o)
-			{
-			}
-		});
-		
-		if(stage == Stage.PRODUCTION) 
-		{
-			try
-			{
-				cache(page);
-			}
-			catch(IOException e)
-			{
-				throw new Error("Unable to cache template for " + page, e);
+				try
+				{
+					cache(page);
+				}
+				catch(IOException e)
+				{
+					throw new Error("Unable to cache template for " + page, e);
+				}
 			}
 		}
 		

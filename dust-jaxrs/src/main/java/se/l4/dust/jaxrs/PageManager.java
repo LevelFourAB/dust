@@ -18,4 +18,10 @@ public interface PageManager
 	 */
 	PageManager add(Class<?> page);
 	
+	/**
+	 * Get the total number of pages registered.
+	 * 
+	 * @return
+	 */
+	int getPageCount();
 }

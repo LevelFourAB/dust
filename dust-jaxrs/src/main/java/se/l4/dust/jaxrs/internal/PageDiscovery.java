@@ -2,7 +2,6 @@ package se.l4.dust.jaxrs.internal;
 
 import java.io.IOException;
 
-import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.MessageBodyReader;
@@ -69,18 +68,33 @@ public class PageDiscovery
 		this.discovery = discovery;
 	}
 
-	public void discover(final ServletContext ctx)
+	public void discover()
 		throws Exception
 	{
-		logger.info("Attempting to discover classes within registered namespaces");
+		discover(false, false);
+	}
+	
+	public void reindexAndDiscover()
+		throws Exception
+	{
+		discover(true, true);
+	}
+	
+	private void discover(boolean silent, boolean index)
+		throws Exception
+	{
+		if(! silent)
+		{
+			logger.info("Attempting to discover classes within registered namespaces");
+		}
 
 		for(NamespaceManager.Namespace ns : manager)
 		{
-			handleNamespace(ns);
+			handleNamespace(ns, silent, index);
 		}
 	}
 	
-	private void handleNamespace(NamespaceManager.Namespace ns)
+	private void handleNamespace(NamespaceManager.Namespace ns, boolean silent, boolean index)
 		throws IOException
 	{
 		String pkg = ns.getPackage();
@@ -88,21 +102,31 @@ public class PageDiscovery
 		if(pkg == null) return;
 		
 		ClassDiscovery cd = discovery.get(ns.getPackage());
+		if(index)
+		{
+			cd.index();
+		}
 		
 		int pages = handlePages(cd);
 		int providers = handleProviders(cd);
 		
-		String message = ns.getUri() + ": Found "
-			+ pages + " pages and " 
-			+ providers + " providers";
-		
-		logger.info(message);
+		if(! silent)
+		{
+			String message = ns.getUri() + ": Found "
+				+ pages + " pages and " 
+				+ providers + " providers";
+			
+			logger.info(message);
+		}
 		
 		if(stage == Stage.PRODUCTION)
 		{
 			int templates = handleTemplates(cd);
-			
-			logger.info(ns.getUri() + ": Loaded " + templates + " templates");
+
+			if(! silent)
+			{
+				logger.info(ns.getUri() + ": Loaded " + templates + " templates");
+			}
 		}
 	}
 	

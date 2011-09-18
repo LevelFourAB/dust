@@ -35,7 +35,7 @@ public abstract class AbstractBootstrap
 		
 		try
 		{
-			i.getInstance(PageDiscovery.class).discover(ctx);
+			i.getInstance(PageDiscovery.class).discover();
 		}
 		catch(Exception e)
 		{
