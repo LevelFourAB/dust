@@ -3,16 +3,19 @@ package se.l4.dust.core.internal.asset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.inject.Inject;
-
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.DynamicContent;
+import se.l4.dust.api.template.dom.VariantContent;
 import se.l4.dust.api.template.spi.PropertySource;
 import se.l4.dust.api.template.spi.TemplateInfo;
+import se.l4.dust.api.template.spi.TemplateVariant;
+
+import com.google.inject.Inject;
+import com.google.inject.Stage;
 
 /**
  * Property source for binding assets for use in templates.
@@ -23,15 +26,18 @@ import se.l4.dust.api.template.spi.TemplateInfo;
 public class AssetPropertySource
 	implements PropertySource
 {
-	private Pattern pattern = Pattern.compile("([a-zA-Z0-9]+):(.+)");
+	private static final Pattern pattern = Pattern.compile("([a-zA-Z0-9]+):(.+)");
+	
 	private final AssetManager manager;
-	private final NamespaceManager namespaces;
+	private final Stage stage;
 	
 	@Inject
-	public AssetPropertySource(AssetManager manager, NamespaceManager namespaces)
+	public AssetPropertySource(
+			Stage stage,
+			AssetManager manager)
 	{
+		this.stage = stage;
 		this.manager = manager;
-		this.namespaces = namespaces;
 	}
 	
 	public DynamicContent getPropertyContent(TemplateInfo namespaces, Class<?> context, String propertyExpression)
@@ -63,19 +69,22 @@ public class AssetPropertySource
 			);
 		}
 		
-		return new Content(manager, uri, path);
+		return new Content(manager, stage == Stage.PRODUCTION, uri, path);
 	}
 
 	private static class Content
 		extends DynamicContent
+		implements VariantContent
 	{
 		private final AssetManager manager;
+		private final boolean production;
 		private final String namespace;
 		private final String path;
 
-		public Content(AssetManager manager, String namespace, String path)
+		public Content(AssetManager manager, boolean production, String namespace, String path)
 		{
 			this.manager = manager;
+			this.production = production;
 			this.namespace = namespace;
 			this.path = path;
 		}
@@ -95,11 +104,58 @@ public class AssetPropertySource
 		@Override
 		public void setValue(RenderingContext ctx, Object root, Object data)
 		{
+			throw new UnsupportedOperationException();
 		}
 		
 		public se.l4.dust.api.template.dom.Content copy()
 		{
-			return new Content(manager, namespace, path);
+			return new Content(manager, production, namespace, path);
+		}
+
+		@Override
+		public void transform(TemplateVariant variant)
+		{
+			if(production)
+			{
+				Asset asset = manager.locate(variant.getContext(), namespace, path);
+				variant.replaceWith(new FixedContent(asset), null);
+			}
+		}
+	}
+	
+	/**
+	 * Content implementation that will not resolve assets with the
+	 * {@link AssetManager} on each call.
+	 * 
+	 * @author Andreas Holstenson
+	 *
+	 */
+	private static class FixedContent
+		extends DynamicContent
+	{
+		private final Asset asset;
+
+		public FixedContent(Asset asset)
+		{
+			this.asset = asset;
+		}
+
+		@Override
+		public se.l4.dust.api.template.dom.Content copy()
+		{
+			return new FixedContent(asset);
+		}
+
+		@Override
+		public Object getValue(RenderingContext ctx, Object root)
+		{
+			return ctx.resolveURI(asset);
+		}
+
+		@Override
+		public void setValue(RenderingContext ctx, Object root, Object data)
+		{
+			throw new UnsupportedOperationException();
 		}
 	}
 }

@@ -16,12 +16,17 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
-import se.l4.crayon.Environment;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.resource.Resource;
 
 import com.google.inject.Inject;
+import com.google.inject.Stage;
 
+/**
+ * {@link MessageBodyWriter} for {@link Asset}.
+ * 
+ * @author Andreas Holstenson
+ */
 @Provider
 @Produces("*/*")
 public class AssetWriter
@@ -32,9 +37,9 @@ public class AssetWriter
 	private final long maxAge;
 	
 	@Inject
-	public AssetWriter(Environment env)
+	public AssetWriter(Stage stage)
 	{
-		development = env == Environment.DEVELOPMENT;
+		development = stage == Stage.DEVELOPMENT;
 		
 		long time = System.currentTimeMillis();
 		Calendar c = Calendar.getInstance();

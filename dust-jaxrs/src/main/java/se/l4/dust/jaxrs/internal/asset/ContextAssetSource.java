@@ -6,16 +6,16 @@ import java.net.URL;
 
 import javax.servlet.ServletContext;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
-
 import se.l4.dust.Dust;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.asset.AssetSource;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.UrlResource;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
 /**
  * Asset source that works on the {@link ServletContext}.
@@ -45,7 +45,7 @@ public class ContextAssetSource
 		{
 			if(false == namespaces.isBound(ns))
 			{
-				throw new TemplateException("Trying to use assets from the webapp context, but the namespace dust:context has not been bound");
+				throw new TemplateException("Trying to use assets from the webapp context, but the namespace " + Dust.CONTEXT_NAMESPACE_URI + " has not been bound");
 			}
 			
 			try

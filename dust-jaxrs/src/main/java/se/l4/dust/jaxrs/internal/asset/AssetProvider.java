@@ -8,7 +8,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
-import se.l4.crayon.Environment;
 import se.l4.dust.api.Context;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
@@ -18,6 +17,13 @@ import se.l4.dust.api.resource.Resource;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+/**
+ * Provider that servers asset files via a special URL beginning with 
+ * {@code /asset}.
+ * 
+ * @author Andreas Holstenson
+ *
+ */
 @Singleton
 @Path("asset")
 public class AssetProvider
@@ -27,8 +33,9 @@ public class AssetProvider
 	private final Context context;
 	
 	@Inject
-	public AssetProvider(NamespaceManager namespaces, AssetManager manager,
-			Environment environment)
+	public AssetProvider(
+			NamespaceManager namespaces, 
+			AssetManager manager)
 	{
 		this.namespaces = namespaces;
 		this.manager = manager;
