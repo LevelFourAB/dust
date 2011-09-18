@@ -7,6 +7,7 @@ import se.l4.crayon.annotation.Order;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Assets;
 import se.l4.dust.api.asset.AssetManager;
+import se.l4.dust.core.internal.InternalContributions;
 
 public class AssetModule
 	extends CrayonModule
@@ -42,6 +43,8 @@ public class AssetModule
 	@Order({ "after:dust-namespaces", "after:internal-asset-sources" })
 	public void contributeAssets(@Assets Contributions contributions)
 	{
+		InternalContributions.add(contributions);
+		
 		contributions.run();
 	}
 }

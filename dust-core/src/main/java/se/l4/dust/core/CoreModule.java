@@ -5,6 +5,7 @@ import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.annotation.NamespaceBinding;
+import se.l4.dust.core.internal.InternalContributions;
 import se.l4.dust.core.internal.NamespaceManagerImpl;
 import se.l4.dust.core.internal.asset.AssetModule;
 import se.l4.dust.core.internal.conversion.ConversionModule;
@@ -38,6 +39,8 @@ public class CoreModule
 	@Contribution(name="dust-namespaces")
 	public void bindNamespaces(@NamespaceBinding Contributions contributions)
 	{
+		InternalContributions.add(contributions);
+		
 		contributions.run();
 	}
 }
