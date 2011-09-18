@@ -1,15 +1,13 @@
 package se.l4.dust.jaxrs.internal;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.Enumeration;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.Provider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import se.l4.dust.api.Context;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateException;
-import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Component;
 import se.l4.dust.api.annotation.Template;
 import se.l4.dust.api.discovery.ClassDiscovery;
@@ -25,8 +22,10 @@ import se.l4.dust.api.discovery.DiscoveryFactory;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.jaxrs.PageManager;
+import se.l4.dust.jaxrs.spi.Configuration;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.Stage;
 
 /**
@@ -42,25 +41,28 @@ public class PageDiscovery
 	private static final Logger logger = LoggerFactory.getLogger(PageDiscovery.class);
 	private final NamespaceManager manager;
 	private final PageManager pages;
-	private final TemplateManager components;
 	private final TemplateCache templateCache;
 	private final ResourceVariantManager variants;
 	private final Stage stage;
 	private final DiscoveryFactory discovery;
+	private final Configuration configuration;
+	private final Injector injector;
 	
 	@Inject
 	public PageDiscovery(
+			Stage stage,
+			Injector injector,
 			NamespaceManager manager,
 			PageManager pages,
-			TemplateManager components,
+			Configuration configuration,
 			TemplateCache templateCache,
 			ResourceVariantManager variants,
-			Stage stage,
 			DiscoveryFactory discovery)
 	{
+		this.injector = injector;
 		this.manager = manager;
 		this.pages = pages;
-		this.components = components;
+		this.configuration = configuration;
 		this.templateCache = templateCache;
 		this.variants = variants;
 		this.stage = stage;
@@ -72,43 +74,36 @@ public class PageDiscovery
 	{
 		logger.info("Attempting to discover classes within registered namespaces");
 
-		int pages = 0;
 		for(NamespaceManager.Namespace ns : manager)
 		{
-			pages += handlePages(ns);
-		}
-		
-		logger.info("Found " + pages + " pages");
-		
-		if(stage == Stage.PRODUCTION)
-		{
-//			int t = handleTemplate(index);
-//			logger.info("Loaded " + t + " templates");
+			handleNamespace(ns);
 		}
 	}
 	
-	private static List<URL> findClasspath()
+	private void handleNamespace(NamespaceManager.Namespace ns)
 		throws IOException
 	{
-		Enumeration<URL> enumeration = Thread.currentThread()
-			.getContextClassLoader()
-			.getResources("META-INF/MANIFEST.MF");
+		String pkg = ns.getPackage();
+		// Skip namespaces without packages
+		if(pkg == null) return;
 		
-		List<URL> urls = new LinkedList<URL>();
+		ClassDiscovery cd = discovery.get(ns.getPackage());
 		
-		while(enumeration.hasMoreElements())
+		int pages = handlePages(cd);
+		int providers = handleProviders(cd);
+		
+		String message = ns.getUri() + ": Found "
+			+ pages + " pages and " 
+			+ providers + " providers";
+		
+		logger.info(message);
+		
+		if(stage == Stage.PRODUCTION)
 		{
-			URL u = enumeration.nextElement();
-			if(u.getProtocol().equals("jar"))
-			{
-				String url = u.toString();
-				int idx = url.indexOf('!');
-				String newUrl = url.substring(4, idx);
-				urls.add(new URL(newUrl));
-			}
+			int templates = handleTemplates(cd);
+			
+			logger.info(ns.getUri() + ": Loaded " + templates + " templates");
 		}
-		
-		return urls;
 	}
 	
 	/**
@@ -120,11 +115,8 @@ public class PageDiscovery
 	 * @return
 	 * @throws Exception
 	 */
-	private int handlePages(NamespaceManager.Namespace ns)
-		throws Exception
+	private int handlePages(ClassDiscovery cd)
 	{
-		ClassDiscovery cd = discovery.get(ns.getPackage());
-		
 		int count = 0;
 		for(Class<?> type : cd.getAnnotatedWith(Path.class))
 		{
@@ -136,110 +128,93 @@ public class PageDiscovery
 	}
 	
 	/**
-	 * Handle all components (annotated with {@link Component}).
+	 * Handle all pages found (everything annotated with {@link Path}).
 	 * 
 	 * @param manager
 	 * @param pages
-	 * @param components
 	 * @param s
 	 * @return
 	 * @throws Exception
 	 */
-	private int handleComponents(Map<String, Set<String>> s)
-		throws Exception
+	private int handleProviders(ClassDiscovery cd)
 	{
 		int count = 0;
-		Set<String> classes = s.get(Component.class.getName());
-		if(classes != null)
+		for(Class<?> type : cd.getAnnotatedWith(Provider.class))
 		{
-			for(String className : classes)
+			Object instance = null;
+			if(MessageBodyReader.class.isAssignableFrom(type))
 			{
-				NamespaceManager.Namespace ns = findNamespace(className);
-				if(ns != null)
-				{
-					Class<?> component = Class.forName(className);
-					
-					// This class is handled so we register it
-					components.getNamespace(ns.getUri())
-						.addComponent(component);
-					count++;
-
-					if(stage == Stage.PRODUCTION)
-					{
-						try
-						{
-							for(Context ctx : variants.getInitialContexts())
-							{
-								templateCache.getTemplate(ctx, component, (Template) null);
-							}
-						}
-						catch(TemplateException e)
-						{
-						}
-					}
-				}
+				if(instance == null) instance = injector.getInstance(type);
+				configuration.addMessageBodyReader((MessageBodyReader<?>) instance);
+				count++;
+			}
+			
+			if(MessageBodyWriter.class.isAssignableFrom(type))
+			{
+				if(instance == null) instance = injector.getInstance(type);
+				configuration.addMessageBodyWriter((MessageBodyWriter<?>) instance);
+				count++;
+			}
+			
+			if(ExceptionMapper.class.isAssignableFrom(type))
+			{
+				if(instance == null) instance = injector.getInstance(type);
+				configuration.addExceptionMapper((ExceptionMapper<?>) instance);
+				count++;
 			}
 		}
 		
-		return count;
-	}
-	
-	private int handleTemplate(Map<String, Set<String>> index)
-		throws Exception
-	{
-		int count = 0;
-		Set<String> classes = index.get(Template.class.getName());
-		if(classes != null)
-		{
-			for(String className : classes)
-			{
-				NamespaceManager.Namespace ns = findNamespace(className);
-				if(ns != null)
-				{
-					Class<?> c = Class.forName(className);
-					
-					for(Context ctx : variants.getInitialContexts())
-					{
-						templateCache.getTemplate(ctx, c, c.getAnnotation(Template.class));
-					}
-					count++;
-				}
-			}
-		}
 		return count;
 	}
 	
 	/**
-	 * Try to find a registered namespace for a given class name by starting
-	 * with its package and slowly reducing it downwards until either a match
-	 * can be found or no more segments are available in the package.
+	 * Handle all pages found (everything annotated with {@link Path}).
 	 * 
-	 * <p>
-	 * For example if we have the class {@code org.example.deep.pkg.TestClass}
-	 * and a namespace registered for {@code org.example} the search would be
-	 * {@code org.example.deep.pkg}, {@code org.example.deep} and finally
-	 * {@code org.example}.
-	 *  
+	 * @param manager
 	 * @param pages
-	 * @param className
+	 * @param s
 	 * @return
+	 * @throws Exception
 	 */
-	private NamespaceManager.Namespace findNamespace(String className)
+	private int handleTemplates(ClassDiscovery cd)
+		throws IOException
 	{
-		int idx = className.lastIndexOf('.');
-		while(idx > 0)
+		int count = 0;
+		
+		/**
+		 * Go through all classes annotated with Template.
+		 */
+		for(Class<?> type : cd.getAnnotatedWith(Template.class))
 		{
-			className = className.substring(0, idx);
-			
-			NamespaceManager.Namespace ns = manager.getBinding(className);
-			if(ns != null)
+			for(Context ctx : variants.getInitialContexts())
 			{
-				return ns;
+				templateCache.getTemplate(ctx, type, type.getAnnotation(Template.class));
 			}
 			
-			idx = className.lastIndexOf('.');
+			count++;
 		}
 		
-		return null;
+		/*
+		 * Go through components and cache their templates. Ignore their
+		 * errors though as certain components do not have templates.
+		 */
+		for(Class<?> type : cd.getAnnotatedWith(Component.class))
+		{
+			for(Context ctx : variants.getInitialContexts())
+			{
+				try
+				{
+					templateCache.getTemplate(ctx, type, type.getAnnotation(Template.class));
+				}
+				catch(TemplateException e)
+				{
+					// Ignore this exception
+				}
+			}
+			
+			count++;
+		}
+		
+		return count;
 	}
 }
