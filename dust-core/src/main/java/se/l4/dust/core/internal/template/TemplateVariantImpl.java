@@ -74,7 +74,7 @@ public class TemplateVariantImpl
 		
 		if(found.isEmpty())
 		{
-			transformed = template;
+			transformed = new ParsedTemplate(template.getDocType(), (Element) root);
 			transformedUrl = url;
 			return;
 		}

@@ -243,9 +243,7 @@ public class TemplateCacheImpl
 			ParsedTemplate cacheTemplate;
 			if(! templates.containsKey(secondKey))
 			{
-				cacheTemplate = url.equals(transformedUrl)
-					? template
-					: impl.getTransformedTemplate();
+				cacheTemplate = impl.getTransformedTemplate();
 				
 				templates.put(secondKey, cacheTemplate);
 			}
