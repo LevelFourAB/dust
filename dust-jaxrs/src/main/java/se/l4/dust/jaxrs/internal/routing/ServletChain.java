@@ -1,7 +1,6 @@
 package se.l4.dust.jaxrs.internal.routing;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -10,12 +9,12 @@ import javax.servlet.ServletResponse;
 
 public class ServletChain
 {
-	private final List<ServletEntry> entries;
+	private final ServletEntry[] entries;
 	private final FilterChain fallback;
 	
 	private int index;
 
-	public ServletChain(List<ServletEntry> entries, FilterChain fallback)
+	public ServletChain(ServletEntry[] entries, FilterChain fallback)
 	{
 		this.entries = entries;
 		this.fallback = fallback;
@@ -28,9 +27,9 @@ public class ServletChain
 	{
 		index++;
 		
-		if(index < entries.size())
+		if(index < entries.length)
 		{
-			ServletEntry entry = entries.get(index);
+			ServletEntry entry = entries[index];
 			entry.service(request, response, this);
 		}
 		else
