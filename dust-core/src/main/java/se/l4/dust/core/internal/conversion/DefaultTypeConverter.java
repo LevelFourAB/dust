@@ -13,13 +13,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.google.common.base.Function;
-import com.google.common.collect.MapMaker;
-
 import se.l4.dust.api.conversion.Conversion;
 import se.l4.dust.api.conversion.ConversionException;
 import se.l4.dust.api.conversion.NonGenericConversion;
 import se.l4.dust.api.conversion.TypeConverter;
+
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
 
 /**
  * Implementation of {@link TypeConverter}, supports chaining of conversions
@@ -31,8 +31,17 @@ import se.l4.dust.api.conversion.TypeConverter;
 public class DefaultTypeConverter
 	implements TypeConverter
 {
-	private Map<Class<?>, List<Conversion<?, ?>>> conversions;
-	private Map<CacheKey, Conversion<?, ?>> cache;
+	private static final Conversion<?, ?> NULL = new Conversion<Object, Object>()
+	{
+		@Override
+		public Object convert(Object in)
+		{
+			return null;
+		}
+	};
+	
+	private final Map<Class<?>, List<Conversion<?, ?>>> conversions;
+	private final Map<CacheKey, Conversion<?, ?>> cache;
 	
 	private static Map<Class<?>, Class<?>> primitives;
 	
@@ -95,8 +104,7 @@ public class DefaultTypeConverter
 		return new ConversionWrapper<I, O>(conversion);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public <T> T convert(Object in, Class<T> output)
+	private Class<?> getType(Class<?> in, Class<?> output)
 	{
 		Class<?> type;
 		if(in == null)
@@ -112,32 +120,52 @@ public class DefaultTypeConverter
 		}
 		else
 		{
-			type = in.getClass();
+			type = in;
 		}
 		
-		// Check if it is assignable
-		if(output.isAssignableFrom(type))
-		{
-			return (T) in;
-		}
+		return type;
+	}
+	
+	private Conversion<?, ?> getConversion(Class<?> in, Class<?> output)
+	{
+		if(in == null) return NULL;
 		
 		// Check cache first
-		CacheKey key = new CacheKey(type, output);
+		CacheKey key = new CacheKey(in, output);
 		Conversion tc = cache.get(key);
 		
 		if(tc == null)
 		{
 			// If not cached find suitable conversion
-			tc = findConversion(type, output);
-
-			if(tc == null)
-			{
-				// No suitable conversion found
-				throw new ConversionException("Unable to find suitable conversion between "
-					+ type + " and " + output);
-			}
+			tc = findConversion(in, output);
+			if(tc == null) tc = NULL;
 			
 			cache.put(key, tc);
+		}
+		
+		return tc == NULL ? null : tc;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> T convert(Object in, Class<T> output)
+	{
+		Class<?> type = getType(in == null ? null : in.getClass(), output);
+		
+		// Check if it is assignable
+		if(type == null)
+		{
+			// Non-primitive output and no input, return null
+			return null;
+		}
+		else if(output.isAssignableFrom(type))
+		{
+			return (T) in;
+		}
+		
+		Conversion tc = getConversion(type, output);
+		if(tc == null)
+		{
+			throw new ConversionException("Unable to find suitable conversion between " + type + " and " + output);
 		}
 		
 		return (T) tc.convert(in);
@@ -145,12 +173,13 @@ public class DefaultTypeConverter
 	
 	public boolean canConvertBetween(Class<?> in, Class<?> out)
 	{
-		return findConversion(in, out) != null;
+		Class<?> type = getType(in, out);
+		return getConversion(type, out) != null;
 	}
 	
 	public boolean canConvertBetween(Object in, Class<?> out)
 	{
-		return findConversion(in == null ? void.class : in.getClass(), out) != null;
+		return canConvertBetween(in == null ? null : in.getClass(), out);
 	}
 
 	/**
