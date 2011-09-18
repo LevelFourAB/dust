@@ -105,6 +105,18 @@ public class Element
 	
 	public Element setAttribute(String name, Content... args)
 	{
+		// Check for existing attribute
+		for(int i=0, n=attributes.length; i<n; i++)
+		{
+			if(attributes[i].getName().equals(name))
+			{
+				// Replace the attribute
+				attributes[i] = new Attribute(name, args);
+				return this;
+			}
+		}
+		
+		// New attribute
 		Attribute[] result = new Attribute[attributes.length + 1];
 		System.arraycopy(attributes, 0, result, 0, attributes.length);
 		result[attributes.length] = new Attribute(name, args);

@@ -13,6 +13,7 @@ import se.l4.dust.api.resource.variant.ResourceVariantManager.ResourceCallback;
 import se.l4.dust.api.template.dom.Comment;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Element;
+import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.dom.VariantContent;
 import se.l4.dust.api.template.spi.TemplateVariant;
@@ -122,6 +123,17 @@ public class TemplateVariantImpl
 		else if(content instanceof Element)
 		{
 			Element c = (Element) content.copy();
+			for(Attribute a : c.getAttributes())
+			{
+				Content[] values = a.getValue();
+				Content[] copy = new Content[values.length];
+				for(int i=0, n=values.length; i<n; i++)
+				{
+					copy[i] = transform(values[i]);
+				}
+				
+				c.setAttribute(a.getName(), copy);
+			}
 			List<Content> children = new ArrayList<Content>();
 			for(Content child : ((Element) content).getRawContents())
 			{

@@ -1,11 +1,11 @@
 package se.l4.dust.core.internal.template;
 
-import com.google.inject.Singleton;
-
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.DynamicContent;
 import se.l4.dust.api.template.spi.PropertySource;
 import se.l4.dust.api.template.spi.TemplateInfo;
+
+import com.google.inject.Singleton;
 
 /**
  * Property source for dynamic variables within a template. These are 
@@ -32,22 +32,24 @@ public class VarPropertySource
 		extends DynamicContent
 	{
 		private final String key;
+		private final String compoundKey;
 
 		public Content(String key)
 		{
-			this.key = "var:" + key;
+			this.key = key;
+			this.compoundKey = "var:" + key;
 		}
 		
 		@Override
 		public Object getValue(RenderingContext ctx, Object root)
 		{
-			return ctx.getValue(key);
+			return ctx.getValue(compoundKey);
 		}
 
 		@Override
 		public void setValue(RenderingContext ctx, Object root, Object data)
 		{
-			ctx.putValue(key, data);
+			ctx.putValue(compoundKey, data);
 		}
 		
 		public se.l4.dust.api.template.dom.Content copy()
