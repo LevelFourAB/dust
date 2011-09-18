@@ -23,6 +23,8 @@
 		<module>dust-css-less</module>
 
 		<module>dust-yui</module>
+
+		<module>dust-jrebel</module>
 	</modules>
 	
 	<build>
