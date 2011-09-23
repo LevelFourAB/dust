@@ -4,6 +4,7 @@ options {
 	output=AST;
 	backtrack=true;
 	memoize=true;
+	defaultErrorHandler=false;
 }
 
 tokens {
@@ -133,6 +134,8 @@ MINUS	:	'-';
 MULTIPLY:	'*';
 DIVIDE	:	'/';
 MODULO	:	'%';
+
+QMARK	:	'?';
 
 // Numbers	
 LONG	: 	'0'

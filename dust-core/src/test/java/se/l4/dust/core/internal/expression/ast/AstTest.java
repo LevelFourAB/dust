@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.antlr.runtime.RecognitionException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -375,7 +374,7 @@ public class AstTest
 			id(null, "t3")
 		));
 		
-		test("(t1 || t2) && t3)", and(
+		test("(t1 || t2) && t3", and(
 			or(id(null, "t1"), id(null, "t2")),
 			id(null, "t3")
 		));
@@ -638,15 +637,8 @@ public class AstTest
 	
 	private static void test(String expr, Node expectedResult)
 	{
-		try
-		{
-			Node root = ExpressionParser.parse(expr);
+		Node root = ExpressionParser.parse(expr);
 			
-			Assert.assertEquals("Nodes should be equal", expectedResult, root);
-		}
-		catch(RecognitionException e)
-		{
-			Assert.fail("Unable to parse the expression: " + e.getMessage());
-		}
+		Assert.assertEquals("Nodes should be equal", expectedResult, root);
 	}
 }

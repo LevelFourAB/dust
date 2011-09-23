@@ -7,11 +7,19 @@ import java.util.List;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
+import org.antlr.runtime.EarlyExitException;
+import org.antlr.runtime.MismatchedNotSetException;
+import org.antlr.runtime.MismatchedRangeException;
+import org.antlr.runtime.MismatchedSetException;
+import org.antlr.runtime.MismatchedTokenException;
+import org.antlr.runtime.MissingTokenException;
+import org.antlr.runtime.NoViableAltException;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenRewriteStream;
+import org.antlr.runtime.TokenStream;
+import org.antlr.runtime.UnwantedTokenException;
 import org.antlr.runtime.tree.CommonTree;
-import org.antlr.runtime.tree.CommonTreeAdaptor;
 import org.antlr.runtime.tree.Tree;
 
 import se.l4.dust.core.internal.expression.antlr.DustExpressionsLexer;
@@ -60,28 +68,39 @@ public class ExpressionParser
 	 * @return
 	 * @throws RecognitionException
 	 */
-	public static Node parse(String in)
-		throws RecognitionException
+	public static Node parse(final String in)
 	{
 		CharStream stream = new ANTLRStringStream(in);
-		DustExpressionsLexer lexer = new DustExpressionsLexer(stream);
-		TokenRewriteStream tokens = new TokenRewriteStream(lexer);
-		DustExpressionsParser parser = new DustExpressionsParser(tokens);
-		
-		CommonTreeAdaptor adaptor = new CommonTreeAdaptor()
+		DustExpressionsLexer lexer = new DustExpressionsLexer(stream)
 		{
 			@Override
-			public Object create(Token payload)
+			public void reportError(RecognitionException e)
 			{
-				return new CommonTree(payload);
+				ExpressionParser.reportLexerError(in, e);
 			}
 		};
+		TokenRewriteStream tokens = new TokenRewriteStream(lexer);
+		DustExpressionsParser parser = new DustExpressionsParser(tokens)
+		{
+			@Override
+			public void reportError(RecognitionException e)
+			{
+				ExpressionParser.reportParserError(in, e, getTokenStream());
+			};
+		};
 		
-		parser.setTreeAdaptor(adaptor);
-		DustExpressionsParser.root_return ret = parser.root();
-		CommonTree tree = (CommonTree) ret.getTree();
+		try
+		{
+			DustExpressionsParser.root_return ret = parser.root();
+			CommonTree tree = (CommonTree) ret.getTree();
 		
-		return createNode(tree);
+			return createNode(tree);
+		}
+		catch(RecognitionException e)
+		{
+			reportParserError(in, e, tokens);
+			return null;
+		}
 	}
 	
 	private static Node createNode(Tree tree)
@@ -307,5 +326,252 @@ public class ExpressionParser
 		}
 		
 		throw new Error("Unknown node with type " + tree.getType());
+	}
+	
+	private static void reportLexerError(String source, RecognitionException e)
+	{
+		String msg;
+		if(e instanceof MismatchedTokenException)
+		{
+			MismatchedTokenException mte = (MismatchedTokenException) e;
+			msg = "Mismatched character, got " + toDisplay(e.c) + " but expected " + toDisplay(mte.expecting);
+		}
+		else if(e instanceof NoViableAltException)
+		{
+			msg = "No viable continuation at character " + toDisplay(e.c);
+		}
+		else if(e instanceof EarlyExitException)
+		{
+			msg = "No viable continuation at character " + toDisplay(e.c);
+		}
+		else if(e instanceof MismatchedNotSetException)
+		{
+			MismatchedNotSetException mse = (MismatchedNotSetException) e;
+			msg = "Mismatched character, got " + toDisplay(e.c) + " but expected " + mse.expecting;
+		}
+		else if(e instanceof MismatchedSetException)
+		{
+			MismatchedSetException mse = (MismatchedSetException) e;
+			msg = "Mismatched character, got " + toDisplay(e.c) + " but expected " + mse.expecting;
+		}
+		else if(e instanceof MismatchedRangeException)
+		{
+			MismatchedRangeException mre = (MismatchedRangeException) e;
+			msg = "Mismatched character, got " + toDisplay(e.c) + " but expected something in range " + toDisplay(mre.a) + ".." + toDisplay(mre.b);
+		}
+		else
+		{
+			msg = "Unknwon error at " + toDisplay(e.c);
+		}
+		
+		throw new ExpressionParseException(source, e.line, e.charPositionInLine, msg);
+	}
+	
+	private static String toDisplay(int c)
+	{
+		return "'" + (char) c + "'";
+	}
+	
+	private static void reportParserError(String source, RecognitionException e, TokenStream tokens)
+	{
+		StringBuilder builder = new StringBuilder();
+		Token token = e.token;
+		
+		if(e instanceof NoViableAltException)
+		{
+			NoViableAltException v = (NoViableAltException) e;
+			
+			builder.append("Invalid continuation of ");
+			token = findLastKnown(tokens, token);
+			builder.append(getReadableName(token));
+			
+			outputAlternatives(builder, token);
+		}
+		else if(e instanceof MissingTokenException)
+		{
+			MissingTokenException mte = (MissingTokenException)e;
+			
+			builder.append("Invalid continuation of ");
+			builder.append(getReadableName(token));
+			
+			builder.append(". Parser expected ");
+			if(mte.expecting == Token.EOF)
+			{
+				builder.append("EOF");
+			}
+			else
+			{
+				builder.append(getReadableName(mte.expecting));
+			}
+			
+			outputAlternatives(builder, token);
+		}
+		else if(e instanceof UnwantedTokenException)
+		{
+			UnwantedTokenException uw = (UnwantedTokenException) e;
+			builder.append("Dangling ");
+			builder.append(getReadableName(token.getType()));
+			
+			builder.append(". Parser expected ");
+			if(uw.expecting == Token.EOF)
+			{
+				builder.append("EOF");
+			}
+			else
+			{
+				builder.append(getReadableName(uw.expecting));
+			}
+			
+			outputAlternatives(builder, findLastKnown(tokens, token));
+		}
+		else if(e instanceof MismatchedTokenException)
+		{
+			MismatchedTokenException me = (MismatchedTokenException) e;
+			
+			if(token == null)
+			{
+				builder.append("Mismatched token");
+			}
+			else
+			{
+				builder.append("Mismatched ");
+				builder.append(getReadableName(token.getType()));
+			}
+			
+			builder.append(". Parser expected ");
+			if(me.expecting == Token.EOF)
+			{
+				builder.append("EOF");
+			}
+			else
+			{
+				builder.append(getReadableName(me.expecting));
+			}
+		}
+		
+		String msg = builder.length() == 0 ? "Unknown error type" : builder.toString();
+		throw new ExpressionParseException(source, e.line, e.charPositionInLine, msg);
+	}
+	
+	private static Token findLastKnown(TokenStream stream, Token start)
+	{
+		if(start.getTokenIndex() > 0 && stream != null)
+		{
+			for(int i=start.getTokenIndex(); i>=0; i--)
+			{
+				Token t = stream.get(i);
+				if(t.getType() >= 0)
+				{
+					return t;
+				}
+			}
+		}
+		
+		return start;
+	}
+	
+	private static void outputAlternatives(StringBuilder builder, Token token)
+	{
+		String[] alts = getAlternativesFor(token.getType());
+		if(alts != null)
+		{
+			builder.append(". Did you mean to follow with ");
+			for(int i=0, n=alts.length; i<n; i++)
+			{
+				if(i > 0) builder.append(i == n - 1 ? " or " : ", ");
+				
+				builder.append(alts[i]);
+			}
+			builder.append("?");
+		}
+	}
+	
+	private static String getReadableName(Token t)
+	{
+		if(t.getType() == -1)
+		{
+			return t.getText();
+		}
+		
+		return getReadableName(t.getType());
+	}
+	
+	private static String getReadableName( int tokenType)
+	{
+		if(tokenType < 0)
+		{
+			return "token";
+		}
+		
+		switch(tokenType)
+		{
+			case AND:
+				return "&& expression";
+			case OR:
+				return "|| expression";
+			case CHAIN:
+			case CHAIN_NULL:
+				return "property expansion";
+			case IDENTIFIER:
+				return "property name";
+			case LPAREN:
+				return "'('";
+			case RPAREN:
+				return "')'";
+			case COMMA:
+				return "','";
+			case MINUS:
+				return "'-'";
+			case PLUS:
+				return "'+'";
+			case QMARK:
+				return "'?'";
+			case LONG:
+			case DOUBLE:
+				return "number";
+			case STRING:
+				return "string";
+			case NOT:
+				return "not expression";
+			case DIVIDE:
+				return "division";
+			case MULTIPLY:
+				return "multiplication";
+			case MODULO:
+				return "modulo";
+		}
+		
+		return tokenNames[tokenType];
+	}
+	
+	private static String[] getAlternativesFor(int tokenType)
+	{
+		switch(tokenType)
+		{
+			case IDENTIFIER:
+			case CHAIN:
+				return new String[] { 
+					"method call",
+					"property name"
+				};
+			case COMMA:
+				return new String[] {
+					"parameter",
+					"')'"
+				};
+			case MINUS:
+			case PLUS:
+				return new String[] {
+					"number",
+					"property",
+					"method call"
+				};
+			case QMARK:
+				return new String[] {
+					"expression to run when test is true"
+				};
+		}
+		
+		return null;
 	}
 }
