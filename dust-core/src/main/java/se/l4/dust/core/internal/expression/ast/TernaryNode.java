@@ -7,14 +7,16 @@ package se.l4.dust.core.internal.expression.ast;
  *
  */
 public class TernaryNode
-	implements Node
+	extends AbstractNode
 {
 	private final Node test;
 	private final Node left;
 	private final Node right;
 
-	public TernaryNode(Node test, Node left, Node right)
+	public TernaryNode(int line, int position, Node test, Node left, Node right)
 	{
+		super(line, position);
+		
 		this.test = test;
 		this.left = left;
 		this.right = right;

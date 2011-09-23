@@ -7,13 +7,15 @@ package se.l4.dust.core.internal.expression.ast;
  *
  */
 public class SignNode
-	implements Node
+	extends AbstractNode
 {
 	private final boolean negative;
 	private final Node node;
 
-	public SignNode(boolean negative, Node node)
+	public SignNode(int line, int position, boolean negative, Node node)
 	{
+		super(line, position);
+		
 		this.negative = negative;
 		this.node = node;
 	}

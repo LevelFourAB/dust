@@ -7,12 +7,14 @@ package se.l4.dust.core.internal.expression.ast;
  *
  */
 public class NegateNode
-	implements Node
+	extends AbstractNode
 {
 	private final Node node;
 
-	public NegateNode(Node node)
+	public NegateNode(int line, int position, Node node)
 	{
+		super(line, position);
+		
 		this.node = node;
 	}
 	

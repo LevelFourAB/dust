@@ -10,9 +10,9 @@ public class DivideNode
 	extends LeftRightNode
 {
 
-	public DivideNode(Node left, Node right)
+	public DivideNode(int line, int position, Node left, Node right)
 	{
-		super(left, right);
+		super(line, position, left, right);
 	}
 
 }

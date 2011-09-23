@@ -4,9 +4,9 @@ public class AndNode
 	extends LeftRightNode
 {
 
-	public AndNode(Node left, Node right)
+	public AndNode(int line, int position, Node left, Node right)
 	{
-		super(left, right);
+		super(line, position, left, right);
 	}
 
 }

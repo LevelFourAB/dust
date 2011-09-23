@@ -11,9 +11,9 @@ public class LessNode
 	extends LeftRightNode
 {
 
-	public LessNode(Node left, Node right)
+	public LessNode(int line, int position, Node left, Node right)
 	{
-		super(left, right);
+		super(line, position, left, right);
 	}
 
 }

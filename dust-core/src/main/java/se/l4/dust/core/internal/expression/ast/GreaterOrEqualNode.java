@@ -11,9 +11,9 @@ public class GreaterOrEqualNode
 	extends LeftRightNode
 {
 
-	public GreaterOrEqualNode(Node left, Node right)
+	public GreaterOrEqualNode(int line, int position, Node left, Node right)
 	{
-		super(left, right);
+		super(line, position, left, right);
 	}
 
 }

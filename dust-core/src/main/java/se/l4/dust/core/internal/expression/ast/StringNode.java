@@ -8,12 +8,14 @@ package se.l4.dust.core.internal.expression.ast;
  *
  */
 public class StringNode
-	implements Node
+	extends AbstractNode
 {
 	private final String value;
 
-	public StringNode(String value)
+	public StringNode(int line, int position, String value)
 	{
+		super(line, position);
+		
 		this.value = value;
 	}
 	
@@ -25,7 +27,6 @@ public class StringNode
 	 */
 	public static String decode(String in)
 	{
-		System.out.println("Input: " + in);
 		StringBuilder result = new StringBuilder(in.length());
 		for(int i=0, n=in.length(); i<n; i++)
 		{

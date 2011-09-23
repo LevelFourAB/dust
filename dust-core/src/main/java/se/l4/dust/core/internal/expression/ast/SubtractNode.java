@@ -11,9 +11,9 @@ public class SubtractNode
 	extends LeftRightNode
 {
 
-	public SubtractNode(Node left, Node right)
+	public SubtractNode(int line, int position, Node left, Node right)
 	{
-		super(left, right);
+		super(line, position, left, right);
 	}
 
 }

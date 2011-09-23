@@ -86,33 +86,36 @@ public class ExpressionParser
 	
 	private static Node createNode(Tree tree)
 	{
+		int line = tree.getLine();
+		int position = tree.getCharPositionInLine();
+		
 		switch(tree.getType())
 		{
 			case TRUE:
-				return new KeywordNode(KeywordNode.Type.TRUE);
+				return new KeywordNode(line, position, KeywordNode.Type.TRUE);
 			case FALSE:
-				return new KeywordNode(KeywordNode.Type.FALSE);
+				return new KeywordNode(line, position, KeywordNode.Type.FALSE);
 			case NULL:
-				return new KeywordNode(KeywordNode.Type.NULL);
+				return new KeywordNode(line, position, KeywordNode.Type.NULL);
 			case THIS:
-				return new KeywordNode(KeywordNode.Type.THIS);
+				return new KeywordNode(line, position, KeywordNode.Type.THIS);
 				
 			case LONG:
 			{
 				long v = Long.parseLong(tree.getText());
-				return new LongNode(v);
+				return new LongNode(line, position, v);
 			}
 			
 			case DOUBLE:
 			{
 				double v = Double.parseDouble(tree.getText());
-				return new DoubleNode(v);
+				return new DoubleNode(line, position, v);
 			}
 			
 			case STRING:
 			{
 				String v = tree.getText();
-				return new StringNode(StringNode.decode(v.substring(1, v.length()-1)));
+				return new StringNode(line, position, StringNode.decode(v.substring(1, v.length()-1)));
 			}
 			
 			case NAMESPACE:
@@ -121,12 +124,12 @@ public class ExpressionParser
 				String text = tree.getChild(0).getText();
 				
 				int idx = text.indexOf(':');
-				return new IdentifierNode(text.substring(0, idx), text.substring(idx+1));
+				return new IdentifierNode(line, position, text.substring(0, idx), text.substring(idx+1));
 			}
 			
 			case ID:
 			{
-				return new IdentifierNode(null, tree.getChild(0).getText());
+				return new IdentifierNode(line, position, null, tree.getChild(0).getText());
 			}
 			
 			case INVOKE:
@@ -141,7 +144,7 @@ public class ExpressionParser
 					params.add(createNode(tree.getChild(i)));
 				}
 				
-				return new InvokeNode(id, params);
+				return new InvokeNode(line, position, id, params);
 			}
 			
 			case TERNARY:
@@ -153,76 +156,76 @@ public class ExpressionParser
 					? createNode(tree.getChild(2)) 
 					: null;
 				
-				return new TernaryNode(test, left, right);
+				return new TernaryNode(line, position, test, left, right);
 			}
 			
 			case NOT:
 			{
 				Node child = createNode(tree.getChild(0));
-				return new NegateNode(child);
+				return new NegateNode(line, position, child);
 			}
 			
 			case CHAIN:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
-				return new ChainNode(left, right);
+				return new ChainNode(line, position, left, right);
 			}
 			
 			case EQUAL:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
-				return new EqualsNode(left, right);
+				return new EqualsNode(line, position, left, right);
 			}
 			
 			case NOT_EQUAL:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
-				return new NotEqualsNode(left, right);
+				return new NotEqualsNode(line, position, left, right);
 			}
 			
 			case LESS:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
-				return new LessNode(left, right);
+				return new LessNode(line, position, left, right);
 			}
 			
 			case LESS_OR_EQUAL:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
-				return new LessOrEqualNode(left, right);
+				return new LessOrEqualNode(line, position, left, right);
 			}
 			
 			case MORE:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
-				return new GreaterNode(left, right);
+				return new GreaterNode(line, position, left, right);
 			}
 			
 			case MORE_OR_EQUAL:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
-				return new GreaterOrEqualNode(left, right);
+				return new GreaterOrEqualNode(line, position, left, right);
 			}
 			
 			case OR:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
-				return new OrNode(left, right);
+				return new OrNode(line, position, left, right);
 			}
 			
 			case AND:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
-				return new AndNode(left, right);
+				return new AndNode(line, position, left, right);
 			}
 			
 			case PLUS:
@@ -241,13 +244,13 @@ public class ExpressionParser
 						return child;
 					}
 					
-					return new SignNode(false, child);
+					return new SignNode(line, position, false, child);
 				}
 				else
 				{
 					Node left = createNode(tree.getChild(0));
 					Node right = createNode(tree.getChild(1));
-					return new AddNode(left, right);
+					return new AddNode(line, position, left, right);
 				}
 			}
 			
@@ -264,20 +267,20 @@ public class ExpressionParser
 					// Optimization for static numbers
 					if(child instanceof LongNode)
 					{
-						return new LongNode(- ((LongNode) child).getValue());
+						return new LongNode(line, position, - ((LongNode) child).getValue());
 					}
 					else if(child instanceof DoubleNode)
 					{
-						return new DoubleNode(- ((DoubleNode) child).getValue());
+						return new DoubleNode(line, position, - ((DoubleNode) child).getValue());
 					}
 					
-					return new SignNode(true, child);
+					return new SignNode(line, position, true, child);
 				}
 				else
 				{
 					Node left = createNode(tree.getChild(0));
 					Node right = createNode(tree.getChild(1));
-					return new SubtractNode(left, right);
+					return new SubtractNode(line, position, left, right);
 				}
 			}
 			
@@ -285,21 +288,21 @@ public class ExpressionParser
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
-				return new MultiplyNode(left, right);
+				return new MultiplyNode(line, position, left, right);
 			}
 			
 			case DIVIDE:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
-				return new DivideNode(left, right);
+				return new DivideNode(line, position, left, right);
 			}
 			
 			case MODULO:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
-				return new ModuloNode(left, right);
+				return new ModuloNode(line, position, left, right);
 			}
 		}
 		

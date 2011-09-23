@@ -10,9 +10,9 @@ public class AddNode
 	extends LeftRightNode
 {
 
-	public AddNode(Node left, Node right)
+	public AddNode(int line, int position, Node left, Node right)
 	{
-		super(left, right);
+		super(line, position, left, right);
 	}
 
 }

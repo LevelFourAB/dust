@@ -7,13 +7,15 @@ package se.l4.dust.core.internal.expression.ast;
  *
  */
 public abstract class LeftRightNode
-	implements Node
+	extends AbstractNode
 {
 	protected final Node left;
 	protected final Node right;
 
-	public LeftRightNode(Node left, Node right)
+	public LeftRightNode(int line, int position, Node left, Node right)
 	{
+		super(line, position);
+		
 		this.left = left;
 		this.right = right;
 	}

@@ -8,5 +8,17 @@ package se.l4.dust.core.internal.expression.ast;
  */
 public interface Node
 {
-
+	/**
+	 * Get the line where the node originated.
+	 * 
+	 * @return
+	 */
+	int getLine();
+	
+	/**
+	 * Get at which position in the line the node originated.
+	 * 
+	 * @return
+	 */
+	int getPositionInLine();
 }

@@ -9,8 +9,8 @@ package se.l4.dust.core.internal.expression.ast;
 public class EqualsNode
 	extends LeftRightNode
 {
-	public EqualsNode(Node left, Node right)
+	public EqualsNode(int line, int position, Node left, Node right)
 	{
-		super(left, right);
+		super(line, position, left, right);
 	}
 }

@@ -11,13 +11,15 @@ import java.util.List;
  *
  */
 public class InvokeNode
-	implements Node
+	extends AbstractNode
 {
 	private final IdentifierNode id;
 	private final List<Node> parameters;
 
-	public InvokeNode(IdentifierNode id, List<Node> parameters)
+	public InvokeNode(int line, int position, IdentifierNode id, List<Node> parameters)
 	{
+		super(line, position);
+		
 		this.id = id;
 		this.parameters = parameters;
 	}

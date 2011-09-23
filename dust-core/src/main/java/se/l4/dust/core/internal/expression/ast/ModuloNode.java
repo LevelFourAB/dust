@@ -10,9 +10,9 @@ public class ModuloNode
 	extends LeftRightNode
 {
 
-	public ModuloNode(Node left, Node right)
+	public ModuloNode(int line, int position, Node left, Node right)
 	{
-		super(left, right);
+		super(line, position, left, right);
 	}
 
 }

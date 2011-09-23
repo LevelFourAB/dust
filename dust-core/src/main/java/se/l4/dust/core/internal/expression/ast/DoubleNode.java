@@ -7,12 +7,14 @@ package se.l4.dust.core.internal.expression.ast;
  *
  */
 public class DoubleNode
-	implements Node
+	extends AbstractNode
 {
 	private final double value;
 
-	public DoubleNode(double value)
+	public DoubleNode(int line, int position, double value)
 	{
+		super(line, position);
+		
 		this.value = value;
 	}
 	

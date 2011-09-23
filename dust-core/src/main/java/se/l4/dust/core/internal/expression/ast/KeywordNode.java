@@ -7,7 +7,7 @@ package se.l4.dust.core.internal.expression.ast;
  *
  */
 public class KeywordNode
-	implements Node
+	extends AbstractNode
 {
 	private final Type type;
 
@@ -19,8 +19,10 @@ public class KeywordNode
 		THIS
 	}
 	
-	public KeywordNode(Type type)
+	public KeywordNode(int line, int position, Type type)
 	{
+		super(line, position);
+		
 		this.type = type;
 	}
 	

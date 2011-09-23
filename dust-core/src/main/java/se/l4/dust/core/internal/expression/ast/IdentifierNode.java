@@ -7,13 +7,15 @@ package se.l4.dust.core.internal.expression.ast;
  *
  */
 public class IdentifierNode
-	implements Node
+	extends AbstractNode
 {
 	private final String namespace;
 	private final String identifier;
 
-	public IdentifierNode(String namespace, String identifier)
+	public IdentifierNode(int line, int position, String namespace, String identifier)
 	{
+		super(line, position);
+		
 		this.namespace = namespace;
 		this.identifier = identifier;
 	}

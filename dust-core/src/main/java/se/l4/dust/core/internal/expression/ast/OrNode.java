@@ -9,8 +9,8 @@ package se.l4.dust.core.internal.expression.ast;
 public class OrNode
 	extends LeftRightNode
 {
-	public OrNode(Node left, Node right)
+	public OrNode(int line, int position, Node left, Node right)
 	{
-		super(left, right);
+		super(line, position, left, right);
 	}
 }

@@ -7,12 +7,14 @@ package se.l4.dust.core.internal.expression.ast;
  *
  */
 public class LongNode
-	implements Node
+	extends AbstractNode
 {
 	private final long value;
 	
-	public LongNode(long value)
+	public LongNode(int line, int position, long value)
 	{
+		super(line, position);
+		
 		this.value = value;
 	}
 	

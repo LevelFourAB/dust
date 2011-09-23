@@ -9,8 +9,8 @@ package se.l4.dust.core.internal.expression.ast;
 public class ChainNode
 	extends LeftRightNode
 {
-	public ChainNode(Node left, Node right)
+	public ChainNode(int line, int position, Node left, Node right)
 	{
-		super(left, right);
+		super(line, position, left, right);
 	}
 }

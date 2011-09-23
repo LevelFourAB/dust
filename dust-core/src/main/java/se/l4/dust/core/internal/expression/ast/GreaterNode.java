@@ -11,9 +11,9 @@ public class GreaterNode
 	extends LeftRightNode
 {
 
-	public GreaterNode(Node left, Node right)
+	public GreaterNode(int line, int position, Node left, Node right)
 	{
-		super(left, right);
+		super(line, position, left, right);
 	}
 
 }

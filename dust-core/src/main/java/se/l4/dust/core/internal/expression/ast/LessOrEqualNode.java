@@ -11,9 +11,9 @@ public class LessOrEqualNode
 	extends LeftRightNode
 {
 
-	public LessOrEqualNode(Node left, Node right)
+	public LessOrEqualNode(int line, int position, Node left, Node right)
 	{
-		super(left, right);
+		super(line, position, left, right);
 	}
 
 }
