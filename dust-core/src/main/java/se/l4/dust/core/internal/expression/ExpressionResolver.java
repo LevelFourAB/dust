@@ -170,6 +170,35 @@ public class ExpressionResolver
 			Invoker leftInvoker = resolve(chain.getLeft(), root, context);
 			Invoker rightInvoker = resolve(chain.getRight(), root, context);
 			
+			if(leftInvoker.getResult() != rightInvoker.getResult())
+			{
+				// Non-matching results, check if we need to do some conversions
+				if(leftInvoker.getResult() == void.class || rightInvoker.getResult() == void.class)
+				{
+					// Void is special, skip for now
+				}
+				else if(isNumber(leftInvoker.getResult()))
+				{
+					// Left is number, might need to convert right
+					if(! isNumber(rightInvoker.getResult()))
+					{
+						rightInvoker = toConverting(rightInvoker, double.class);
+					}
+					
+					return new NumericComparisonInvoker(node, leftInvoker, rightInvoker);
+				}
+				else if(isNumber(rightInvoker.getResult()))
+				{
+					// Right is number, might need to convert left
+					if(! isNumber(leftInvoker.getResult()))
+					{
+						leftInvoker = toConverting(leftInvoker, double.class);
+					}
+					
+					return new NumericComparisonInvoker(node, leftInvoker, rightInvoker);
+				}
+			}
+			
 			EqualsInvoker invoker = new EqualsInvoker(node, leftInvoker, rightInvoker);
 			return node instanceof EqualsNode
 				? invoker
@@ -257,6 +286,11 @@ public class ExpressionResolver
 	private boolean isBoolean(Class<?> type)
 	{
 		return type == Boolean.class || type == boolean.class;
+	}
+	
+	private boolean isNumber(Class<?> type)
+	{
+		return Number.class.isAssignableFrom(Primitives.wrap(type));
 	}
 	
 	/**

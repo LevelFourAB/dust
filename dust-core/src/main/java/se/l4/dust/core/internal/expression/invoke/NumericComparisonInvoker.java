@@ -1,11 +1,13 @@
 package se.l4.dust.core.internal.expression.invoke;
 
 import se.l4.dust.core.internal.expression.ErrorHandler;
+import se.l4.dust.core.internal.expression.ast.EqualsNode;
 import se.l4.dust.core.internal.expression.ast.GreaterNode;
 import se.l4.dust.core.internal.expression.ast.GreaterOrEqualNode;
 import se.l4.dust.core.internal.expression.ast.LessNode;
 import se.l4.dust.core.internal.expression.ast.LessOrEqualNode;
 import se.l4.dust.core.internal.expression.ast.Node;
+import se.l4.dust.core.internal.expression.ast.NotEqualsNode;
 
 public class NumericComparisonInvoker
 	extends AbstractBooleanInvoker
@@ -15,7 +17,9 @@ public class NumericComparisonInvoker
 		LESS,
 		LESS_OR_EQUAL,
 		GREATER,
-		GREATER_OR_EQUAL;
+		GREATER_OR_EQUAL,
+		EQUALS,
+		NOT_EQUALS;
 		
 		public boolean check(Number lv, Number rv)
 		{
@@ -29,6 +33,10 @@ public class NumericComparisonInvoker
 					return lv.doubleValue() < rv.doubleValue();
 				case LESS_OR_EQUAL:
 					return lv.doubleValue() <= rv.doubleValue();
+				case EQUALS:
+					return lv.doubleValue() == rv.doubleValue();
+				case NOT_EQUALS:
+					return lv.doubleValue() != rv.doubleValue();
 			}
 			
 			throw new AssertionError("Unknown comparison type " + this);
@@ -56,6 +64,14 @@ public class NumericComparisonInvoker
 		else if(node instanceof GreaterOrEqualNode)
 		{
 			comparator = Comparator.GREATER_OR_EQUAL;
+		}
+		else if(node instanceof EqualsNode)
+		{
+			comparator = Comparator.EQUALS;
+		}
+		else if(node instanceof NotEqualsNode)
+		{
+			comparator = Comparator.NOT_EQUALS;
 		}
 		else
 		{
