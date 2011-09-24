@@ -126,7 +126,7 @@ public class DefaultTypeConverter
 		return type;
 	}
 	
-	private Conversion<?, ?> getConversion(Class<?> in, Class<?> output)
+	private Conversion<?, ?> getConversion0(Class<?> in, Class<?> output)
 	{
 		if(in == null) return NULL;
 		
@@ -146,6 +146,19 @@ public class DefaultTypeConverter
 		return tc == NULL ? null : tc;
 	}
 	
+	@Override
+	public <I, O> NonGenericConversion<I, O> getConversion(Class<I> in, Class<O> out)
+	{
+		Class<?> type = getType(in, out);
+		Conversion<?, ?> c = getConversion0(type, out);
+		if(c == null)
+		{
+			throw new ConversionException("Can not convert between " + in + " and " + out);
+		}
+		
+		return (NonGenericConversion<I, O>) toNonGeneric(c);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public <T> T convert(Object in, Class<T> output)
 	{
@@ -162,7 +175,7 @@ public class DefaultTypeConverter
 			return (T) in;
 		}
 		
-		Conversion tc = getConversion(type, output);
+		Conversion tc = getConversion0(type, output);
 		if(tc == null)
 		{
 			throw new ConversionException("Unable to find suitable conversion between " + type + " and " + output);
@@ -174,7 +187,7 @@ public class DefaultTypeConverter
 	public boolean canConvertBetween(Class<?> in, Class<?> out)
 	{
 		Class<?> type = getType(in, out);
-		return getConversion(type, out) != null;
+		return getConversion0(type, out) != null;
 	}
 	
 	public boolean canConvertBetween(Object in, Class<?> out)

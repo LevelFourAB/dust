@@ -1,39 +1,45 @@
-package se.l4.dust.core.internal.expression.ast;
+package se.l4.dust.core.internal.expression.invoke;
+
+import se.l4.dust.core.internal.expression.ErrorHandler;
+import se.l4.dust.core.internal.expression.ast.Node;
 
 /**
- * Abstract implementation of a node that has a left and a right part.
+ * Invoker for a chain of properties or methods.
  * 
  * @author Andreas Holstenson
  *
  */
-public abstract class LeftRightNode
-	extends AbstractNode
+public class ChainInvoker
+	implements Invoker
 {
-	protected final Node left;
-	protected final Node right;
+	private final Node node;
+	private final Invoker left;
+	private final Invoker right;
 
-	public LeftRightNode(int line, int position, Node left, Node right)
+	public ChainInvoker(Node node, Invoker left, Invoker right)
 	{
-		super(line, position);
-		
+		this.node = node;
 		this.left = left;
 		this.right = right;
 	}
 	
-	public Node getLeft()
+	@Override
+	public Class<?> getResult()
 	{
-		return left;
-	}
-	
-	public Node getRight()
-	{
-		return right;
+		return right.getResult();
 	}
 	
 	@Override
-	public String toString()
+	public Object interpret(ErrorHandler errors, Object root, Object instance)
 	{
-		return getClass().getSimpleName() + "[left=" + left + ", right=" + right + "]";
+		Object result = left.interpret(errors, root, instance);
+		return right.interpret(errors, root, result);
+	}
+	
+	@Override
+	public Node getNode()
+	{
+		return node;
 	}
 
 	@Override
@@ -55,7 +61,7 @@ public abstract class LeftRightNode
 			return false;
 		if(getClass() != obj.getClass())
 			return false;
-		LeftRightNode other = (LeftRightNode) obj;
+		ChainInvoker other = (ChainInvoker) obj;
 		if(left == null)
 		{
 			if(other.left != null)

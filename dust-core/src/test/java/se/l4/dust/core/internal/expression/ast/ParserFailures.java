@@ -29,6 +29,7 @@ public class ParserFailures
 		test("'m'c");
 		test("! /");
 		test(".2e");
+		test("2.kaka");
 	}
 	
 	private static void test(String text)

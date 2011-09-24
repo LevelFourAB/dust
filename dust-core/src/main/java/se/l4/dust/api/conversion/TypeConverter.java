@@ -51,4 +51,14 @@ public interface TypeConverter
 	 * @return
 	 */
 	boolean canConvertBetween(Object in, Class<?> out);
+	
+	/**
+	 * Get a conversion between the given input and output. If unsupported this
+	 * will throw {@link ConversionException}.
+	 * 
+	 * @param in
+	 * @param out
+	 * @return
+	 */
+	<I, O> NonGenericConversion<I, O> getConversion(Class<I> in, Class<O> out);
 }

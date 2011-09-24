@@ -19,6 +19,11 @@ public class StringNode
 		this.value = value;
 	}
 	
+	public String getValue()
+	{
+		return value;
+	}
+	
 	/**
 	 * Decode a string that contains escape characters.
 	 * 

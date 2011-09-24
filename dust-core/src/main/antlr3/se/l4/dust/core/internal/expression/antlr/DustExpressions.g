@@ -4,7 +4,6 @@ options {
 	output=AST;
 	backtrack=true;
 	memoize=true;
-	defaultErrorHandler=false;
 }
 
 tokens {
@@ -28,12 +27,11 @@ root	:	logicalExpression EOF!;
 
 expression
 	:	LPAREN expr=logicalExpression RPAREN -> $expr
-	|	keyword
 	|	constant
+	|	keyword
 	|	chain
 	;
 	
-constant:	LONG | DOUBLE | STRING;
 keyword	:	NULL | TRUE | FALSE | THIS;
 
 id	:	var=NAMESPACED_IDENTIFIER -> ^(NAMESPACE $var)
@@ -43,9 +41,11 @@ term	:	method
 	|	id
 	;
 
+constant:	LONG | DOUBLE | STRING;
+
 chain	:	term CHAIN chain -> ^(CHAIN term chain)
 	|	term CHAIN_NULL chain -> ^(CHAIN_NULL term chain)
-	| term;
+	|	term;
 	
 method	:	id LPAREN RPAREN -> ^(INVOKE id)
 	|	id LPAREN methodExpressions RPAREN -> ^(INVOKE id methodExpressions)
@@ -131,6 +131,13 @@ NOT	:	'!';
 
 PLUS	:	'+';
 MINUS	:	'-';
+
+fragment DIGIT
+	:	'0'..'9';
+	
+fragment SIGN
+	:	('+'|'-');
+	
 MULTIPLY:	'*';
 DIVIDE	:	'/';
 MODULO	:	'%';

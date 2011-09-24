@@ -26,6 +26,11 @@ public class KeywordNode
 		this.type = type;
 	}
 	
+	public Type getType()
+	{
+		return type;
+	}
+	
 	@Override
 	public String toString()
 	{

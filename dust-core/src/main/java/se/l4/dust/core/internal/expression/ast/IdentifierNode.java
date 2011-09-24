@@ -1,5 +1,6 @@
 package se.l4.dust.core.internal.expression.ast;
 
+
 /**
  * Node representing an identifier, with an optional namespace.
  * 
@@ -28,6 +29,11 @@ public class IdentifierNode
 	public String getIdentifier()
 	{
 		return identifier;
+	}
+	
+	public String toHumanReadable()
+	{
+		return namespace == null ? identifier : namespace + ":" + identifier;
 	}
 	
 	@Override
