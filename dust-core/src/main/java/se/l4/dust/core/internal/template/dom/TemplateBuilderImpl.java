@@ -6,13 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-
 import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.conversion.TypeConverter;
+import se.l4.dust.api.expression.Expression;
+import se.l4.dust.api.expression.Expressions;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.dom.Comment;
 import se.l4.dust.api.template.dom.Component;
@@ -25,6 +23,9 @@ import se.l4.dust.api.template.spi.PropertySource;
 import se.l4.dust.api.template.spi.TemplateBuilder;
 import se.l4.dust.api.template.spi.TemplateInfo;
 import se.l4.dust.core.internal.template.components.EmittableComponent;
+
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 /**
  * Implementation of {@link TemplateBuilder}.
@@ -44,6 +45,7 @@ public class TemplateBuilderImpl
 	
 	private final Map<String, String> boundNamespaces;
 	private final TemplateInfo namespaces;
+	private final Expressions expressions;
 	
 	private Class<?> context;
 	
@@ -57,13 +59,15 @@ public class TemplateBuilderImpl
 			NamespaceManager namespaceManager, 
 			TemplateManager templates,
 			TemplateCache templateCache,
-			TypeConverter converter)
+			TypeConverter converter,
+			Expressions expressions)
 	{
 		this.injector = injector;
 		this.namespaceManager = namespaceManager;
 		this.templates = templates;
 		this.templateCache = templateCache;
 		this.converter = converter;
+		this.expressions = expressions;
 		
 		boundNamespaces = new HashMap<String, String>();
 		namespaces = createNamespaces();
@@ -307,19 +311,21 @@ public class TemplateBuilderImpl
 	
 	public Content createDynamicContent(String prefix, String expression)
 	{
-		if(prefix == null)
+		if(prefix != null)
 		{
-			prefix = "mvel";
+			PropertySource source = templates.getPropertySource(prefix);
+			if(source != null)
+			{
+				// TODO: Find the property parent
+				return source.getPropertyContent(namespaces, context, expression);
+			}
+			
+			// Join expression again
+			expression = prefix + ":" + expression;
 		}
 		
-		PropertySource source = templates.getPropertySource(prefix);
-		if(source == null)
-		{
-			throw new TemplateException("No property source found for " + prefix);
-		}
-		
-		// TODO: Find the property parent
-		return source.getPropertyContent(namespaces, context, expression);
+		Expression expr = expressions.compile(boundNamespaces, expression, context);
+		return new ExpressionContent(expr);
 	}
 	
 	public TemplateBuilder comment(List<Content> content)

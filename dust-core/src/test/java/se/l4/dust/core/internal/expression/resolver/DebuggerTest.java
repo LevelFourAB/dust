@@ -1,5 +1,7 @@
 package se.l4.dust.core.internal.expression.resolver;
 
+import java.util.Collections;
+
 import junit.framework.Assert;
 
 import org.junit.Before;
@@ -9,6 +11,7 @@ import se.l4.crayon.Crayon;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.core.internal.conversion.ConversionModule;
 import se.l4.dust.core.internal.expression.ExpressionDebugger;
+import se.l4.dust.core.internal.expression.ExpressionsImpl;
 import se.l4.dust.core.internal.expression.model.Person;
 
 import com.google.inject.Guice;
@@ -24,6 +27,7 @@ import com.google.inject.Injector;
 public class DebuggerTest
 {
 	private TypeConverter tc;
+	private ExpressionsImpl expressions;
 
 	@Before
 	public void before()
@@ -31,6 +35,7 @@ public class DebuggerTest
 		Injector injector = Guice.createInjector(new ConversionModule());
 		injector.getInstance(Crayon.class).start();
 		tc = injector.getInstance(TypeConverter.class);
+		expressions = new ExpressionsImpl(tc);
 	}
 	
 	@Test
@@ -137,7 +142,14 @@ public class DebuggerTest
 	
 	private Object debug(String expr, Class<?> context, Object in)
 	{
-		ExpressionDebugger debugger = new ExpressionDebugger(tc, expr, context);
-		return debugger.execute(in);
+		ExpressionDebugger debugger = new ExpressionDebugger(
+			tc, 
+			expressions,
+			Collections.<String, String>emptyMap(),
+			expr, 
+			context
+		);
+		
+		return debugger.execute(null, in);
 	}
 }

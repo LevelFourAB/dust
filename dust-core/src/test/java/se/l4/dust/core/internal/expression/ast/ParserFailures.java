@@ -1,6 +1,6 @@
 package se.l4.dust.core.internal.expression.ast;
 
-import se.l4.dust.core.internal.expression.ExpressionException;
+import se.l4.dust.api.expression.ExpressionException;
 import se.l4.dust.core.internal.expression.ExpressionParser;
 
 /**

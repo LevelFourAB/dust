@@ -1,4 +1,4 @@
-package se.l4.dust.core.internal.expression;
+package se.l4.dust.api.expression;
 
 /**
  * Exception that indicates that a parse error has occurred.

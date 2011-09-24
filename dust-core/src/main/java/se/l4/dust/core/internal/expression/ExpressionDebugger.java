@@ -1,6 +1,10 @@
 package se.l4.dust.core.internal.expression;
 
+import java.util.Map;
+
+import se.l4.dust.api.Context;
 import se.l4.dust.api.conversion.TypeConverter;
+import se.l4.dust.api.expression.Expression;
 import se.l4.dust.core.internal.expression.ast.Node;
 import se.l4.dust.core.internal.expression.invoke.Invoker;
 
@@ -13,19 +17,26 @@ import se.l4.dust.core.internal.expression.invoke.Invoker;
  *
  */
 public class ExpressionDebugger
+	implements Expression
 {
 	private final Invoker invoker;
 	private final ErrorHandler errors;
 
-	public ExpressionDebugger(TypeConverter converter, String expression, Class<?> context)
+	public ExpressionDebugger(TypeConverter converter, 
+			ExpressionsImpl expressions,
+			Map<String, String> namespaces,
+			String expression, 
+			Class<?> context)
 	{
 		Node root = ExpressionParser.parse(expression);
 		
-		this.errors = new ErrorHandler(expression);
-		this.invoker = new ExpressionResolver(converter, errors, root).resolve(context);
+		this.errors = new ErrorHandlerImpl(expression);
+		this.invoker = new ExpressionResolver(converter, expressions, namespaces, errors, root)
+			.resolve(context);
 	}
 	
-	public Object execute(Object instance)
+	@Override
+	public Object execute(Context context, Object instance)
 	{
 		return invoker.interpret(errors, instance, instance);
 	}

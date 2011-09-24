@@ -22,6 +22,7 @@ import org.antlr.runtime.UnwantedTokenException;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
 
+import se.l4.dust.api.expression.ExpressionParseException;
 import se.l4.dust.core.internal.expression.antlr.DustExpressionsLexer;
 import se.l4.dust.core.internal.expression.antlr.DustExpressionsParser;
 import se.l4.dust.core.internal.expression.ast.AddNode;

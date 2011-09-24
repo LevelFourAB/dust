@@ -2,9 +2,14 @@ package se.l4.dust.core.internal.expression;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 import se.l4.dust.api.conversion.NonGenericConversion;
 import se.l4.dust.api.conversion.TypeConverter;
+import se.l4.dust.api.expression.DynamicProperty;
+import se.l4.dust.api.expression.ExpressionEncounter;
+import se.l4.dust.api.expression.ExpressionException;
+import se.l4.dust.api.expression.ExpressionSource;
 import se.l4.dust.core.internal.expression.ast.AndNode;
 import se.l4.dust.core.internal.expression.ast.ChainNode;
 import se.l4.dust.core.internal.expression.ast.DoubleNode;
@@ -28,6 +33,7 @@ import se.l4.dust.core.internal.expression.invoke.AndInvoker;
 import se.l4.dust.core.internal.expression.invoke.ChainInvoker;
 import se.l4.dust.core.internal.expression.invoke.ConstantInvoker;
 import se.l4.dust.core.internal.expression.invoke.ConvertingInvoker;
+import se.l4.dust.core.internal.expression.invoke.DynamicPropertyInvoker;
 import se.l4.dust.core.internal.expression.invoke.EqualsInvoker;
 import se.l4.dust.core.internal.expression.invoke.Invoker;
 import se.l4.dust.core.internal.expression.invoke.MethodInvoker;
@@ -52,10 +58,20 @@ public class ExpressionResolver
 	private final Node root;
 	private final ErrorHandler errors;
 	private final TypeConverter converter;
+	
+	private final ExpressionsImpl expressions;
+	private final Map<String, String> namespaces;
 
-	public ExpressionResolver(TypeConverter converter, ErrorHandler errors, Node root)
+	public ExpressionResolver(
+			TypeConverter converter, 
+			ExpressionsImpl expressions,
+			Map<String, String> namespaces,
+			ErrorHandler errors, 
+			Node root)
 	{
 		this.converter = converter;
+		this.expressions = expressions;
+		this.namespaces = namespaces;
 		this.errors = errors;
 		this.root = root;
 	}
@@ -68,29 +84,37 @@ public class ExpressionResolver
 	 */
 	public Invoker resolve(Class<?> context)
 	{
-		return resolve(root, context, context);
+		EncounterImpl encounter = new EncounterImpl(root, context);
+		return resolve0(encounter, root, context, context);
 	}
 	
 	/**
 	 * Resolve the given node against the specified context.
+	 * @param encounter 
 	 * 
 	 * @param node
 	 * @param context
 	 * @return
 	 */
-	private Invoker resolve(Node node, Class<?> root, Class<?> context)
+	private Invoker resolve(EncounterImpl encounter, Node node, Class<?> root, Class<?> context)
+	{
+		encounter.setContext(node, context);
+		return resolve0(encounter, node, root, context);
+	}
+	
+	private Invoker resolve0(EncounterImpl encounter, Node node, Class<?> root, Class<?> context)
 	{
 		if(node instanceof IdentifierNode)
 		{
-			return resolveIdentifier((IdentifierNode) node, context);
+			return resolveIdentifier(encounter, (IdentifierNode) node, context);
 		}
 		else if(node instanceof ChainNode)
 		{
 			// Resolve a chain of other nodes
 			ChainNode chain = (ChainNode) node;
 			
-			Invoker leftInvoker = resolve(chain.getLeft(), root, context);
-			Invoker rightInvoker = resolve(chain.getRight(), root, leftInvoker.getResult());
+			Invoker leftInvoker = resolve(encounter, chain.getLeft(), root, context);
+			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, leftInvoker.getResult());
 			
 			return new ChainInvoker(node, leftInvoker, rightInvoker);
 		}
@@ -129,7 +153,7 @@ public class ExpressionResolver
 		{
 			// Resolve the wrapped node and optionally convert
 			NegateNode nn = (NegateNode) node;
-			Invoker invoker = resolve(nn.getNode(), root, context);
+			Invoker invoker = resolve(encounter, nn.getNode(), root, context);
 			
 			if(! isBoolean(invoker.getResult()))
 			{
@@ -146,8 +170,8 @@ public class ExpressionResolver
 			 * execute the condition.
 			 */
 			LeftRightNode chain = (LeftRightNode) node;
-			Invoker leftInvoker = resolve(chain.getLeft(), root, context);
-			Invoker rightInvoker = resolve(chain.getRight(), root, context);
+			Invoker leftInvoker = resolve(encounter, chain.getLeft(), root, context);
+			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, context);
 			
 			if(! isBoolean(leftInvoker.getResult()))
 			{
@@ -167,8 +191,8 @@ public class ExpressionResolver
 		{
 			// Not equals is treated as an equals node wrapped with a negation
 			LeftRightNode chain = (LeftRightNode) node;
-			Invoker leftInvoker = resolve(chain.getLeft(), root, context);
-			Invoker rightInvoker = resolve(chain.getRight(), root, context);
+			Invoker leftInvoker = resolve(encounter, chain.getLeft(), root, context);
+			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, context);
 			
 			if(leftInvoker.getResult() != rightInvoker.getResult())
 			{
@@ -209,8 +233,8 @@ public class ExpressionResolver
 		{
 			// Numeric comparisons are all handled by the same invoker
 			LeftRightNode chain = (LeftRightNode) node;
-			Invoker leftInvoker = resolve(chain.getLeft(), root, context);
-			Invoker rightInvoker = resolve(chain.getRight(), root, context);
+			Invoker leftInvoker = resolve(encounter, chain.getLeft(), root, context);
+			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, context);
 			
 			if(! Number.class.isAssignableFrom(Primitives.wrap(leftInvoker.getResult())))
 			{
@@ -227,9 +251,9 @@ public class ExpressionResolver
 		else if(node instanceof TernaryNode)
 		{
 			TernaryNode tn = (TernaryNode) node;
-			Invoker test = resolve(tn.getTest(), root, context);
-			Invoker left = resolve(tn.getLeft(), root, context);
-			Invoker right = tn.getRight() == null ? null : resolve(tn.getRight(), root, context);
+			Invoker test = resolve(encounter, tn.getTest(), root, context);
+			Invoker left = resolve(encounter, tn.getLeft(), root, context);
+			Invoker right = tn.getRight() == null ? null : resolve(encounter, tn.getRight(), root, context);
 			
 			if(! isBoolean(test.getResult()))
 			{
@@ -250,7 +274,7 @@ public class ExpressionResolver
 			for(Node n : params)
 			{
 				// Resolution always occurs against the root
-				actualParams[i] = resolve(n, root, root);
+				actualParams[i] = resolve(encounter, n, root, root);
 				i++;
 			}
 			
@@ -302,12 +326,30 @@ public class ExpressionResolver
 	 * @param context
 	 * @return
 	 */
-	private Invoker resolveIdentifier(IdentifierNode node, Class<?> context)
+	private Invoker resolveIdentifier(EncounterImpl encounter, IdentifierNode node, Class<?> context)
 	{
 		if(node.getNamespace() != null)
 		{
-			// TODO: Resolve via property sources
-			throw errors.error(node, "No namespace handler found for " + node.toHumanReadable());
+			// First resolve the namespace
+			String ns = namespaces.get(node.getNamespace());
+			if(ns == null)
+			{
+				throw errors.error(node, "No namespace bound for prefix " + node.getNamespace());
+			}
+			
+			ExpressionSource source = expressions.getSource(ns);
+			if(source == null)
+			{
+				throw errors.error(node, "There are not properties or methods available in namespace " + ns);
+			}
+			
+			DynamicProperty property = source.getProperty(encounter, node.getIdentifier());
+			if(property == null)
+			{
+				throw errors.error(node, "There is no property named " + node.getIdentifier() + " in namespace " + ns);
+			}
+			
+			return new DynamicPropertyInvoker(node, property);
 		}
 		
 		for(Method m : context.getMethods())
@@ -415,4 +457,52 @@ public class ExpressionResolver
 		throw errors.error(node, "No matching method found");
 	}
 
+	private class EncounterImpl
+		implements ExpressionEncounter
+	{
+		private final Class<?> root;
+		private Class<?> context;
+		private boolean isRoot;
+		private Node node;
+		
+		public EncounterImpl(Node start, Class<?> root)
+		{
+			this.root = root;
+			this.context = root;
+			node = start;
+			isRoot = true;
+		}
+		
+		public void setContext(Node node, Class<?> context)
+		{
+			this.context = context;
+			this.node = node;
+			isRoot = false;
+		}
+
+		@Override
+		public boolean isRoot()
+		{
+			return isRoot;
+		}
+
+		@Override
+		public Class<?> getContext()
+		{
+			return context;
+		}
+
+		@Override
+		public Class<?> getRoot()
+		{
+			return root;
+		}
+
+		@Override
+		public ExpressionException error(String message)
+		{
+			return errors.error(node, message);
+		}
+		
+	}
 }
