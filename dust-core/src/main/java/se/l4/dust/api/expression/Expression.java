@@ -19,5 +19,14 @@ public interface Expression
 	 * 		instance to execute on
 	 * @return
 	 */
-	Object execute(Context context, Object instance);
+	Object get(Context context, Object instance);
+	
+	/**
+	 * Set the value of this expression (if possible).
+	 * 
+	 * @param context
+	 * @param instance
+	 * @param value
+	 */
+	void set(Context context, Object instance, Object value);
 }

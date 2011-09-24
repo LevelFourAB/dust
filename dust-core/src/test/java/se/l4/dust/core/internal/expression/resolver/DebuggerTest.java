@@ -150,6 +150,6 @@ public class DebuggerTest
 			context
 		);
 		
-		return debugger.execute(null, in);
+		return debugger.get(null, in);
 	}
 }

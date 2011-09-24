@@ -10,8 +10,10 @@ import se.l4.dust.api.expression.DynamicProperty;
 import se.l4.dust.api.expression.ExpressionEncounter;
 import se.l4.dust.api.expression.ExpressionException;
 import se.l4.dust.api.expression.ExpressionSource;
+import se.l4.dust.core.internal.expression.ast.AddNode;
 import se.l4.dust.core.internal.expression.ast.AndNode;
 import se.l4.dust.core.internal.expression.ast.ChainNode;
+import se.l4.dust.core.internal.expression.ast.DivideNode;
 import se.l4.dust.core.internal.expression.ast.DoubleNode;
 import se.l4.dust.core.internal.expression.ast.EqualsNode;
 import se.l4.dust.core.internal.expression.ast.GreaterNode;
@@ -23,11 +25,14 @@ import se.l4.dust.core.internal.expression.ast.LeftRightNode;
 import se.l4.dust.core.internal.expression.ast.LessNode;
 import se.l4.dust.core.internal.expression.ast.LessOrEqualNode;
 import se.l4.dust.core.internal.expression.ast.LongNode;
+import se.l4.dust.core.internal.expression.ast.ModuloNode;
+import se.l4.dust.core.internal.expression.ast.MultiplyNode;
 import se.l4.dust.core.internal.expression.ast.NegateNode;
 import se.l4.dust.core.internal.expression.ast.Node;
 import se.l4.dust.core.internal.expression.ast.NotEqualsNode;
 import se.l4.dust.core.internal.expression.ast.OrNode;
 import se.l4.dust.core.internal.expression.ast.StringNode;
+import se.l4.dust.core.internal.expression.ast.SubtractNode;
 import se.l4.dust.core.internal.expression.ast.TernaryNode;
 import se.l4.dust.core.internal.expression.invoke.AndInvoker;
 import se.l4.dust.core.internal.expression.invoke.ChainInvoker;
@@ -40,7 +45,9 @@ import se.l4.dust.core.internal.expression.invoke.MethodInvoker;
 import se.l4.dust.core.internal.expression.invoke.MethodPropertyInvoker;
 import se.l4.dust.core.internal.expression.invoke.NegateInvoker;
 import se.l4.dust.core.internal.expression.invoke.NumericComparisonInvoker;
+import se.l4.dust.core.internal.expression.invoke.NumericOperationInvoker;
 import se.l4.dust.core.internal.expression.invoke.OrInvoker;
+import se.l4.dust.core.internal.expression.invoke.StringConcatInvoker;
 import se.l4.dust.core.internal.expression.invoke.TernaryInvoker;
 import se.l4.dust.core.internal.expression.invoke.ThisInvoker;
 
@@ -288,6 +295,28 @@ public class ExpressionResolver
 				return resolveMethod(node, id, actualParams, context);
 			}
 		}
+		else if(node instanceof AddNode)
+		{
+			AddNode an = (AddNode) node;
+			Invoker left = resolve(encounter, an.getLeft(), root, context);
+			Invoker right = resolve(encounter, an.getLeft(), root, context);
+			
+			if(isNumber(left.getResult()) && isNumber(right.getResult()))
+			{
+				return new NumericOperationInvoker(node, left, right);
+			}
+			
+			return new StringConcatInvoker(node, left, right);
+		}
+		else if(node instanceof SubtractNode || node instanceof DivideNode 
+				|| node instanceof MultiplyNode || node instanceof ModuloNode)
+		{
+			LeftRightNode an = (LeftRightNode) node;
+			Invoker left = resolve(encounter, an.getLeft(), root, context);
+			Invoker right = resolve(encounter, an.getLeft(), root, context);
+			
+			return new NumericOperationInvoker(node, left, right);
+		}
 		
 		throw errors.error(node, "Unknown node of type: " + node.getClass());
 	}
@@ -375,10 +404,24 @@ public class ExpressionResolver
 				continue;
 			}
 				
-			name = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, name);
-			if(name.equals(node.getIdentifier()))
+			String lowerName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, name);
+			if(lowerName.equals(node.getIdentifier()))
 			{
-				return new MethodPropertyInvoker(node, m);
+				Method setter = null;
+				try
+				{
+					setter = context.getMethod("set" + name, m.getReturnType());
+				}
+				catch(SecurityException e)
+				{
+					// Ignore, not all getters have setters
+				}
+				catch(NoSuchMethodException e)
+				{
+					// Ignore, not all getters have setters
+				}
+				
+				return new MethodPropertyInvoker(node, m, setter);
 			}
 		}
 		

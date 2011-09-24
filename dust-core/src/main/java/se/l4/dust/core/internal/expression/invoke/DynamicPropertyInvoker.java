@@ -33,6 +33,13 @@ public class DynamicPropertyInvoker
 	{
 		return property.getValue(null, instance);
 	}
+	
+	@Override
+	public void set(ErrorHandler errors, Object root, Object instance,
+			Object value)
+	{
+		throw errors.error(node, "Can not set value of this expression");
+	}
 
 	@Override
 	public Node getNode()

@@ -24,14 +24,13 @@ public class ExpressionContent
 	@Override
 	public Object getValue(RenderingContext ctx, Object root)
 	{
-		return expr.execute(ctx, root);
+		return expr.get(ctx, root);
 	}
 
 	@Override
 	public void setValue(RenderingContext ctx, Object root, Object data)
 	{
-		// TODO Auto-generated method stub
-		
+		expr.set(ctx, root, data);
 	}
 
 }

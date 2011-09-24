@@ -22,6 +22,16 @@ public interface Invoker
 	Object interpret(ErrorHandler errors, Object root, Object instance);
 	
 	/**
+	 * Set the value of this invoker. Not all invokers support setting values.
+	 * 
+	 * @param errors
+	 * @param root
+	 * @param instance
+	 * @param value
+	 */
+	void set(ErrorHandler errors, Object root, Object instance, Object value);
+	
+	/**
 	 * Get the node of the invoker.
 	 * 
 	 * @return

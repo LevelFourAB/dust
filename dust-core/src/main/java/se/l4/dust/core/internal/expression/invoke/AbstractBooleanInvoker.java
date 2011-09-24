@@ -63,5 +63,12 @@ public abstract class AbstractBooleanInvoker
 		return check(errors, lv, rv);
 	}
 	
+	@Override
+	public void set(ErrorHandler errors, Object root, Object instance,
+			Object value)
+	{
+		throw errors.error(node, "Can not set value of this expression");
+	}
+	
 	protected abstract boolean check(ErrorHandler errors, Object left, Object right);
 }

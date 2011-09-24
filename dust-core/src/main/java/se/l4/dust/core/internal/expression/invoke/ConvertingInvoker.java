@@ -38,6 +38,13 @@ public class ConvertingInvoker
 		Object value = wrapped.interpret(errors, root, instance);
 		return conversion.convert(value);
 	}
+	
+	@Override
+	public void set(ErrorHandler errors, Object root, Object instance,
+			Object value)
+	{
+		wrapped.set(errors, root, instance, value);
+	}
 
 	@Override
 	public Node getNode()

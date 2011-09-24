@@ -67,4 +67,11 @@ public class ThisInvoker
 			return false;
 		return true;
 	}
+	
+	@Override
+	public void set(ErrorHandler errors, Object root, Object instance,
+			Object value)
+	{
+		throw errors.error(node, "Can not set value of this expression");
+	}
 }

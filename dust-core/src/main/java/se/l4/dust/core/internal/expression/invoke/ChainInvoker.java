@@ -37,6 +37,13 @@ public class ChainInvoker
 	}
 	
 	@Override
+	public void set(ErrorHandler errors, Object root, Object instance, Object value)
+	{
+		Object result = left.interpret(errors, root, instance);
+		right.set(errors, root, result, value);
+	}
+	
+	@Override
 	public Node getNode()
 	{
 		return node;

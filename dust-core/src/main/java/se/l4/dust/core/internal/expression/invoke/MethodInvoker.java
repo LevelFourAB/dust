@@ -60,6 +60,13 @@ public class MethodInvoker
 			throw errors.error(node, "Error executing: " + e.getMessage(), e);
 		}
 	}
+	
+	@Override
+	public void set(ErrorHandler errors, Object root, Object instance,
+			Object value)
+	{
+		throw errors.error(node, "Can not set value of this expression");
+	}
 
 	@Override
 	public Node getNode()

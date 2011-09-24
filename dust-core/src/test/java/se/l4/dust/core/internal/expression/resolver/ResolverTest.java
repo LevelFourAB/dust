@@ -66,7 +66,7 @@ public class ResolverTest
 		throws Exception
 	{
 		Method m = Person.class.getMethod("getName");
-		test("name", Person.class, new MethodPropertyInvoker(null, m));
+		test("name", Person.class, new MethodPropertyInvoker(null, m, null));
 	}
 	
 	@Test
@@ -107,8 +107,8 @@ public class ResolverTest
 		Method m1 = Person.class.getMethod("getName");
 		Method m2 = String.class.getMethod("getClass");
 		test("name.class", Person.class, new ChainInvoker(null, 
-			new MethodPropertyInvoker(null, m1),
-			new MethodPropertyInvoker(null, m2)
+			new MethodPropertyInvoker(null, m1, null),
+			new MethodPropertyInvoker(null, m2, null)
 		));
 	}
 	
@@ -134,7 +134,7 @@ public class ResolverTest
 				m1,
 				new Invoker[0]
 			),
-			new MethodPropertyInvoker(null, m2)
+			new MethodPropertyInvoker(null, m2, null)
 		));
 	}
 	

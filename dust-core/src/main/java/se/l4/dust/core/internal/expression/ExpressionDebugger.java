@@ -36,8 +36,14 @@ public class ExpressionDebugger
 	}
 	
 	@Override
-	public Object execute(Context context, Object instance)
+	public Object get(Context context, Object instance)
 	{
 		return invoker.interpret(errors, instance, instance);
+	}
+	
+	@Override
+	public void set(Context context, Object instance, Object value)
+	{
+		invoker.set(errors, instance, instance, value);
 	}
 }

@@ -16,18 +16,20 @@ public class MethodPropertyInvoker
 	implements Invoker
 {
 	private final Node node;
-	private final Method method;
+	private final Method getter;
+	private final Method setter;
 
-	public MethodPropertyInvoker(Node node, Method method)
+	public MethodPropertyInvoker(Node node, Method getter, Method setter)
 	{
 		this.node = node;
-		this.method = method;
+		this.getter = getter;
+		this.setter = setter;
 	}
 	
 	@Override
 	public Class<?> getResult()
 	{
-		return method.getReturnType();
+		return getter.getReturnType();
 	}
 	
 	@Override
@@ -40,7 +42,35 @@ public class MethodPropertyInvoker
 		
 		try
 		{
-			return method.invoke(instance);
+			return getter.invoke(instance);
+		}
+		catch(InvocationTargetException e)
+		{
+			throw errors.error(node, "Exception caught while executing getter: " + e.getMessage(), e);
+		}
+		catch(Exception e)
+		{
+			throw errors.error(node, "Error executing: " + e.getMessage(), e);
+		}
+	}
+	
+	@Override
+	public void set(ErrorHandler errors, Object root, Object instance,
+			Object value)
+	{
+		if(setter == null)
+		{
+			throw errors.error(node, "No setter available matching getter " + getter.getName());
+		}
+		
+		if(instance == null)
+		{
+			throw errors.error(node, "Object is null, can't set a property on a null object");
+		}
+		
+		try
+		{
+			setter.invoke(instance, value);
 		}
 		catch(InvocationTargetException e)
 		{
@@ -63,7 +93,7 @@ public class MethodPropertyInvoker
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((method == null) ? 0 : method.hashCode());
+		result = prime * result + ((getter == null) ? 0 : getter.hashCode());
 		return result;
 	}
 
@@ -77,12 +107,12 @@ public class MethodPropertyInvoker
 		if(getClass() != obj.getClass())
 			return false;
 		MethodPropertyInvoker other = (MethodPropertyInvoker) obj;
-		if(method == null)
+		if(getter == null)
 		{
-			if(other.method != null)
+			if(other.getter != null)
 				return false;
 		}
-		else if(!method.equals(other.method))
+		else if(!getter.equals(other.getter))
 			return false;
 		return true;
 	}
