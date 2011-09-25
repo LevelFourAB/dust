@@ -1,9 +1,9 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import java.lang.reflect.Type;
-
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker that negates a value.
@@ -36,9 +36,9 @@ public class NegateInvoker
 	}
 	
 	@Override
-	public Type getReturnType()
+	public ResolvedType getReturnType()
 	{
-		return getReturnClass();
+		return null;
 	}
 	
 	@Override

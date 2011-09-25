@@ -1,5 +1,6 @@
 package se.l4.dust.core.internal.expression;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import se.l4.dust.api.expression.ExpressionSource;
@@ -24,18 +25,20 @@ public class CommonSourceTest
 	@Test
 	public void testEmit()
 	{
-		execute("t:emit", Element.Attribute.ATTR_EMIT);
+		Assert.assertEquals(execute("t:emit", ""), Element.Attribute.ATTR_EMIT);
+		Assert.assertEquals(execute("true ? t:skip", ""), Element.Attribute.ATTR_SKIP);
 	}
 	
 	@Test
 	public void testSkip()
 	{
-		execute("t:skip", Element.Attribute.ATTR_SKIP);
+		Assert.assertEquals(execute("t:skip", ""), Element.Attribute.ATTR_SKIP);
+		Assert.assertEquals(execute("true ? t:skip", ""), Element.Attribute.ATTR_SKIP);
 	}
 	
 	@Test
 	public void testEncode()
 	{
-		execute("t:urlencode('value')", "value");
+		Assert.assertEquals(execute("t:urlencode('value')", ""), "value");
 	}
 }

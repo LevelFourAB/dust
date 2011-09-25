@@ -1,9 +1,9 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import java.lang.reflect.Type;
-
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker for ternary ifs.
@@ -54,7 +54,7 @@ public class TernaryInvoker
 	}
 	
 	@Override
-	public Type getReturnType()
+	public ResolvedType getReturnType()
 	{
 		if(right == null)
 		{
@@ -70,7 +70,7 @@ public class TernaryInvoker
 		}
 		
 		// TODO: Better guessing for the return type
-		return Object.class;
+		return null;
 	}
 	
 	@Override

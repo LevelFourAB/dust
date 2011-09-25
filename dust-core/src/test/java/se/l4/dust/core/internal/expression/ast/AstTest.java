@@ -520,6 +520,18 @@ public class AstTest
 		));
 	}
 	
+	@Test
+	public void testIndex()
+	{
+		test("test[0]", index(id(null, "test"), longNode(0)));
+	}
+	
+	@Test
+	public void testMultipleIndexes()
+	{
+		test("test[0]['red']", index(id(null, "test"), longNode(0), string("red")));
+	}
+	
 	private IdentifierNode id(String ns, String id)
 	{
 		return new IdentifierNode(0, 0, ns, id);
@@ -633,6 +645,11 @@ public class AstTest
 	private Node notEquals(Node left, Node right)
 	{
 		return new NotEqualsNode(0, 0, left, right);
+	}
+	
+	private Node index(Node left, Node... indexes)
+	{
+		return new IndexNode(0, 0, left, indexes);
 	}
 	
 	private static void test(String expr, Node expectedResult)

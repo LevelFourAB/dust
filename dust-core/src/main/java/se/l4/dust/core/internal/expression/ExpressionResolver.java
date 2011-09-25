@@ -20,6 +20,7 @@ import se.l4.dust.core.internal.expression.ast.EqualsNode;
 import se.l4.dust.core.internal.expression.ast.GreaterNode;
 import se.l4.dust.core.internal.expression.ast.GreaterOrEqualNode;
 import se.l4.dust.core.internal.expression.ast.IdentifierNode;
+import se.l4.dust.core.internal.expression.ast.IndexNode;
 import se.l4.dust.core.internal.expression.ast.InvokeNode;
 import se.l4.dust.core.internal.expression.ast.KeywordNode;
 import se.l4.dust.core.internal.expression.ast.LeftRightNode;
@@ -36,6 +37,7 @@ import se.l4.dust.core.internal.expression.ast.StringNode;
 import se.l4.dust.core.internal.expression.ast.SubtractNode;
 import se.l4.dust.core.internal.expression.ast.TernaryNode;
 import se.l4.dust.core.internal.expression.invoke.AndInvoker;
+import se.l4.dust.core.internal.expression.invoke.ArrayIndexInvoker;
 import se.l4.dust.core.internal.expression.invoke.ChainInvoker;
 import se.l4.dust.core.internal.expression.invoke.ConstantInvoker;
 import se.l4.dust.core.internal.expression.invoke.ConvertingInvoker;
@@ -105,7 +107,7 @@ public class ExpressionResolver
 	public Invoker resolve(Class<?> context)
 	{
 		EncounterImpl encounter = new EncounterImpl(root, context);
-		return resolve0(encounter, root, context, context);
+		return resolveFromRoot(encounter, root, context);
 	}
 	
 	/**
@@ -116,30 +118,42 @@ public class ExpressionResolver
 	 * @param context
 	 * @return
 	 */
-	private Invoker resolve(EncounterImpl encounter, Node node, Class<?> root, Class<?> context)
+	private Invoker resolve(EncounterImpl encounter, Node node, Class<?> root, Class<?> context, ResolvedType typeContext)
 	{
 		encounter.setContext(node, context);
 		encounter.increaseLevel();
 		
-		Invoker invoker = resolve0(encounter, node, root, context);
+		Invoker invoker = resolve0(encounter, node, root, context, typeContext);
 		
 		encounter.decreaseLevel();
 		return invoker;
 	}
 	
-	private Invoker resolve0(EncounterImpl encounter, Node node, Class<?> root, Class<?> context)
+	private Invoker resolveFromRoot(EncounterImpl encounter, Node node, Class<?> root)
+	{
+		encounter.setContext(node, root);
+		int level = encounter.getLevel();
+		encounter.setLevel(0);
+		
+		Invoker invoker = resolve0(encounter, node, root, root, null);
+		
+		encounter.setLevel(level);
+		return invoker;
+	}
+	
+	private Invoker resolve0(EncounterImpl encounter, Node node, Class<?> root, Class<?> context, ResolvedType typeContext)
 	{
 		if(node instanceof IdentifierNode)
 		{
-			return resolveIdentifier(encounter, (IdentifierNode) node, context);
+			return resolveIdentifier(encounter, (IdentifierNode) node, context, typeContext);
 		}
 		else if(node instanceof ChainNode)
 		{
 			// Resolve a chain of other nodes
 			ChainNode chain = (ChainNode) node;
 			
-			Invoker leftInvoker = resolve(encounter, chain.getLeft(), root, context);
-			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, leftInvoker.getReturnClass());
+			Invoker leftInvoker = resolve(encounter, chain.getLeft(), root, context, typeContext);
+			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, leftInvoker.getReturnClass(), leftInvoker.getReturnType());
 			
 			return new ChainInvoker(node, leftInvoker, rightInvoker);
 		}
@@ -178,7 +192,7 @@ public class ExpressionResolver
 		{
 			// Resolve the wrapped node and optionally convert
 			NegateNode nn = (NegateNode) node;
-			Invoker invoker = resolve(encounter, nn.getNode(), root, context);
+			Invoker invoker = resolveFromRoot(encounter, nn.getNode(), root);
 			
 			if(! isBoolean(invoker.getReturnClass()))
 			{
@@ -195,8 +209,8 @@ public class ExpressionResolver
 			 * execute the condition.
 			 */
 			LeftRightNode chain = (LeftRightNode) node;
-			Invoker leftInvoker = resolve(encounter, chain.getLeft(), root, context);
-			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, context);
+			Invoker leftInvoker = resolveFromRoot(encounter, chain.getLeft(), root);
+			Invoker rightInvoker = resolveFromRoot(encounter, chain.getRight(), root);
 			
 			if(! isBoolean(leftInvoker.getReturnClass()))
 			{
@@ -216,8 +230,8 @@ public class ExpressionResolver
 		{
 			// Not equals is treated as an equals node wrapped with a negation
 			LeftRightNode chain = (LeftRightNode) node;
-			Invoker leftInvoker = resolve(encounter, chain.getLeft(), root, context);
-			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, context);
+			Invoker leftInvoker = resolveFromRoot(encounter, chain.getLeft(), root);
+			Invoker rightInvoker = resolveFromRoot(encounter, chain.getRight(), root);
 			
 			if(leftInvoker.getReturnClass() != rightInvoker.getReturnClass())
 			{
@@ -258,8 +272,8 @@ public class ExpressionResolver
 		{
 			// Numeric comparisons are all handled by the same invoker
 			LeftRightNode chain = (LeftRightNode) node;
-			Invoker leftInvoker = resolve(encounter, chain.getLeft(), root, context);
-			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, context);
+			Invoker leftInvoker = resolveFromRoot(encounter, chain.getLeft(), root);
+			Invoker rightInvoker = resolveFromRoot(encounter, chain.getRight(), root);
 			
 			if(! Number.class.isAssignableFrom(Primitives.wrap(leftInvoker.getReturnClass())))
 			{
@@ -276,9 +290,9 @@ public class ExpressionResolver
 		else if(node instanceof TernaryNode)
 		{
 			TernaryNode tn = (TernaryNode) node;
-			Invoker test = resolve(encounter, tn.getTest(), root, context);
-			Invoker left = resolve(encounter, tn.getLeft(), root, context);
-			Invoker right = tn.getRight() == null ? null : resolve(encounter, tn.getRight(), root, context);
+			Invoker test = resolveFromRoot(encounter, tn.getTest(), root);
+			Invoker left = resolveFromRoot(encounter, tn.getLeft(), root);
+			Invoker right = tn.getRight() == null ? null : resolveFromRoot(encounter, tn.getRight(), root);
 			
 			if(! isBoolean(test.getReturnClass()))
 			{
@@ -299,7 +313,7 @@ public class ExpressionResolver
 			for(Node n : params)
 			{
 				// Resolution always occurs against the root
-				actualParams[i] = resolve(encounter, n, root, root);
+				actualParams[i] = resolveFromRoot(encounter, n, root);
 				i++;
 			}
 			
@@ -333,18 +347,21 @@ public class ExpressionResolver
 			}
 			else
 			{
-				return resolveMethod(node, id, actualParams, context);
+				return resolveMethod(node, id, actualParams, context, typeContext);
 			}
 		}
 		else if(node instanceof AddNode)
 		{
 			AddNode an = (AddNode) node;
-			Invoker left = resolve(encounter, an.getLeft(), root, context);
-			Invoker right = resolve(encounter, an.getLeft(), root, context);
+			Invoker left = resolveFromRoot(encounter, an.getLeft(), root);
+			Invoker right= resolveFromRoot(encounter, an.getRight(), root);
 			
 			if(isNumber(left.getReturnClass()) && isNumber(right.getReturnClass()))
 			{
-				return new NumericOperationInvoker(node, left, right);
+				boolean floatingPoint = isFloatingPoint(left.getReturnClass()) 
+					|| isFloatingPoint(right.getReturnClass());
+				
+				return new NumericOperationInvoker(node, left, right, floatingPoint);
 			}
 			
 			return new StringConcatInvoker(node, left, right);
@@ -353,10 +370,70 @@ public class ExpressionResolver
 				|| node instanceof MultiplyNode || node instanceof ModuloNode)
 		{
 			LeftRightNode an = (LeftRightNode) node;
-			Invoker left = resolve(encounter, an.getLeft(), root, context);
-			Invoker right = resolve(encounter, an.getLeft(), root, context);
+			Invoker left = resolveFromRoot(encounter, an.getLeft(), root);
+			Invoker right = resolveFromRoot(encounter, an.getRight(), root);
 			
-			return new NumericOperationInvoker(node, left, right);
+			boolean floatingPoint = isFloatingPoint(left.getReturnClass()) 
+				|| isFloatingPoint(right.getReturnClass()); 
+			
+			return new NumericOperationInvoker(node, left, right, floatingPoint);
+		}
+		else if(node instanceof IndexNode)
+		{
+			IndexNode index = (IndexNode) node;
+			
+			// Resolve the left node (will become part of the chain)
+			Invoker left = resolve(encounter, index.getLeft(), root, context, typeContext);
+			
+			Node[] indexes = index.getIndexes();
+			for(int i=0, n=indexes.length; i<n; i++)
+			{
+				Node ni = indexes[i];
+				Invoker ii = resolveFromRoot(encounter, ni, root);
+				
+				if(Map.class.isAssignableFrom(left.getReturnClass()))
+				{
+					// Left is currently a map, create a method invocation
+					Invoker invoker = resolveMethod(
+						ni, 
+						new IdentifierNode(0, 0, null, "get"), 
+						new Invoker[] { ii }, 
+						left.getReturnClass(),
+						left.getReturnType()
+					);
+					
+					left = new ChainInvoker(index, left, invoker);
+				}
+				else if(List.class.isAssignableFrom(left.getReturnClass()))
+				{
+					Invoker invoker = resolveMethod(
+						ni, 
+						new IdentifierNode(0, 0, null, "get"), 
+						new Invoker[] { ii }, 
+						left.getReturnClass(),
+						left.getReturnType()
+					);
+					
+					left = new ChainInvoker(index, left, invoker);
+				}
+				else if(left.getReturnClass().isArray())
+				{
+					if(! isNumber(ii.getReturnClass()))
+					{
+						ii = toConverting(ii, Integer.class);
+					}
+					
+					left = new ChainInvoker(index, left, 
+						new ArrayIndexInvoker(node, left.getReturnClass().getComponentType(), ii)
+					);
+				}
+				else
+				{
+					throw errors.error(ni, "Return type is not a map, list or an array. Type is " + left.getReturnClass());
+				}
+			}
+			
+			return left;
 		}
 		
 		throw errors.error(node, "Unknown node of type: " + node.getClass());
@@ -387,16 +464,22 @@ public class ExpressionResolver
 		return Number.class.isAssignableFrom(Primitives.wrap(type));
 	}
 	
+	private boolean isFloatingPoint(Class<?> type)
+	{
+		Class<?> wrapped = Primitives.wrap(type);
+		return Float.class.isAssignableFrom(wrapped) || Double.class.isAssignableFrom(wrapped);
+	}
+	
 	/**
 	 * Resolve an identifier based on the specified context. This will look
 	 * for a getter and return a {@link MethodPropertyInvoker} if a suitable
 	 * one is found.
 	 * 
 	 * @param node
-	 * @param context
+	 * @param classContext
 	 * @return
 	 */
-	private Invoker resolveIdentifier(EncounterImpl encounter, IdentifierNode node, Class<?> context)
+	private Invoker resolveIdentifier(EncounterImpl encounter, IdentifierNode node, Class<?> classContext, ResolvedType typeContext)
 	{
 		if(node.getNamespace() != null)
 		{
@@ -422,7 +505,7 @@ public class ExpressionResolver
 			return new DynamicPropertyInvoker(node, property);
 		}
 		
-		ResolvedType type = typeResolver.resolve(context);
+		ResolvedType type = typeContext == null ? typeResolver.resolve(classContext) : typeContext;
 		ResolvedTypeWithMembers members = memberResolver.resolve(type, null, null);
 		for(ResolvedMethod rm : members.getMemberMethods())
 		{
@@ -454,7 +537,7 @@ public class ExpressionResolver
 				Method setter = null;
 				try
 				{
-					setter = context.getMethod("set" + name, m.getReturnType());
+					setter = classContext.getMethod("set" + name, m.getReturnType());
 				}
 				catch(SecurityException e)
 				{
@@ -465,17 +548,22 @@ public class ExpressionResolver
 					// Ignore, not all getters have setters
 				}
 				
-				return new MethodPropertyInvoker(node, rm.getReturnType().getErasedType(), m, setter);
+				return new MethodPropertyInvoker(
+					node, 
+					rm.getReturnType(), 
+					m, 
+					setter
+				);
 			}
 		}
 		
-		throw errors.error(node, "Unable to find a suitable getter for '" + node.toHumanReadable()  + "' in " + context);
+		throw errors.error(node, "Unable to find a suitable getter for '" + node.toHumanReadable()  + "' in " + classContext);
 	}
 	
-	private Invoker resolveMethod(Node node, IdentifierNode id, Invoker[] actualParams, Class<?> context)
+	private Invoker resolveMethod(Node node, IdentifierNode id, Invoker[] actualParams, Class<?> context, ResolvedType typeContext)
 	{
 		// First pass: Look for exact matches
-		ResolvedType type = typeResolver.resolve(context);
+		ResolvedType type = typeContext == null ? typeResolver.resolve(context) : typeContext;
 		ResolvedTypeWithMembers members = memberResolver.resolve(type, null, null);
 		
 		_outer:
@@ -504,7 +592,7 @@ public class ExpressionResolver
 				}
 			}
 			
-			return new MethodInvoker(node, rm.getReturnType().getErasedType(), m, actualParams);
+			return new MethodInvoker(node, rm.getReturnType(), m, actualParams);
 		}
 	
 		// Second pass: Try to convert params
@@ -543,7 +631,7 @@ public class ExpressionResolver
 				}
 			}
 			
-			return new MethodInvoker(node, rm.getReturnType().getErasedType(), m, newParams);
+			return new MethodInvoker(node, rm.getReturnType(), m, newParams);
 		}
 		
 		throw errors.error(node, "No matching method found");
@@ -564,6 +652,16 @@ public class ExpressionResolver
 			node = start;
 		}
 		
+		public int getLevel()
+		{
+			return level;
+		}
+		
+		public void setLevel(int level)
+		{
+			this.level = level;
+		}
+
 		public void setContext(Node node, Class<?> context)
 		{
 			this.context = context;

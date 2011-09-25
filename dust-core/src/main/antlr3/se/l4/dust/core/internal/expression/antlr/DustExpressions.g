@@ -13,6 +13,7 @@ tokens {
 	NOT;
 	GROUP;
 	TERNARY;
+	INDEXED;
 }
 
 @parser::header {
@@ -37,8 +38,8 @@ keyword	:	NULL | TRUE | FALSE | THIS;
 id	:	var=NAMESPACED_IDENTIFIER -> ^(NAMESPACE $var)
 	|	var=IDENTIFIER -> ^(ID $var);
 	
-term	:	method
-	|	id
+term	:	(id | method) ('[' expression ']')+ -> ^(INDEXED id? method? expression+)
+	|	(id | method) 
 	;
 
 constant:	LONG | DOUBLE | STRING;
@@ -53,7 +54,7 @@ method	:	id LPAREN RPAREN -> ^(INVOKE id)
 	
 methodExpressions
 	:	expression (COMMA! expression)*;
-
+	
 not	:	'!' logicalExpression -> ^(NOT logicalExpression);
 
 // Logical operations
@@ -96,6 +97,8 @@ FALSE	:	'false';
 COMMA	:	',';
 LPAREN	:	'(';
 RPAREN	:	')';
+LBRACKET:	'[';
+RBRACKER:	']';
 
 CHAIN	:	'.';
 CHAIN_NULL	:	'?.';

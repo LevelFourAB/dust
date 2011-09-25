@@ -1,7 +1,10 @@
 package se.l4.dust.core.internal.expression.resolver;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import junit.framework.Assert;
 
@@ -142,6 +145,85 @@ public class DebuggerTest
 		
 		Object o = debug("get('entry').class", map);
 		Assert.assertEquals(String.class, o);
+	}
+	
+	@Test
+	public void testMapIndex()
+	{
+		IndexContainer container = new IndexContainer();
+		
+		Object o = debug("map['test']", container);
+		Assert.assertEquals("one", o);
+	}
+	
+	@Test
+	public void testListIndex()
+	{
+		IndexContainer container = new IndexContainer();
+		
+		Object o = debug("list[0]", container);
+		Assert.assertEquals("entry", o);
+	}
+	
+	@Test
+	public void testArrayIndex()
+	{
+		IndexContainer container = new IndexContainer();
+		
+		Object o = debug("array[0]", container);
+		Assert.assertEquals("entry", o);
+	}
+	
+	@Test
+	public void testMultiStepIndex()
+	{
+		IndexContainer container = new IndexContainer();
+		
+		Object o = debug("multiStep['key'][0]", container);
+		Assert.assertEquals("entry", o);
+	}
+	
+	@Test
+	public void testMultiStepArrayIndex()
+	{
+		IndexContainer container = new IndexContainer();
+		
+		Object o = debug("multiArray[0][0]", container);
+		Assert.assertEquals("entry", o);
+	}
+	
+	public static class IndexContainer
+	{
+		public Map<String, String> getMap()
+		{
+			Map<String, String> result = new HashMap<String, String>();
+			result.put("test", "one");
+			return result;
+		}
+		
+		public List<String> getList()
+		{
+			return Arrays.asList("entry");
+		}
+		
+		public String[] getArray()
+		{
+			return new String[] { "entry" };
+		}
+		
+		public String[][] getMultiArray()
+		{
+			return new String[][] {
+				{ "entry" }
+			};
+		}
+		
+		public Map<String, List<String>> getMultiStep()
+		{
+			Map<String, List<String>> result = new HashMap<String, List<String>>();
+			result.put("key", Arrays.asList("entry"));
+			return result;
+		}
 	}
 	
 	private Object debug(String expr, Object in)

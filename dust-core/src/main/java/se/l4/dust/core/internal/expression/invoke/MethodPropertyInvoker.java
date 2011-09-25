@@ -2,10 +2,11 @@ package se.l4.dust.core.internal.expression.invoke;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker for a property method.
@@ -19,13 +20,13 @@ public class MethodPropertyInvoker
 	private final Node node;
 	private final Method getter;
 	private final Method setter;
-	private final Class<?> returnClass;
+	private final ResolvedType type;
 
-	public MethodPropertyInvoker(Node node, Class<?> type, Method getter, Method setter)
+	public MethodPropertyInvoker(Node node, ResolvedType type, Method getter, Method setter)
 	{
 		this.node = node;
+		this.type = type;
 		
-		this.returnClass = type;
 		this.getter = getter;
 		this.setter = setter;
 	}
@@ -33,13 +34,13 @@ public class MethodPropertyInvoker
 	@Override
 	public Class<?> getReturnClass()
 	{
-		return returnClass;
+		return type.getErasedType();
 	}
 	
 	@Override
-	public Type getReturnType()
+	public ResolvedType getReturnType()
 	{
-		return getter.getGenericReturnType();
+		return type;
 	}
 	
 	@Override

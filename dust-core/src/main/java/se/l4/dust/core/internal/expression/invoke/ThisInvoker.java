@@ -1,9 +1,9 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import java.lang.reflect.Type;
-
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker that handles the this keyword.
@@ -36,9 +36,9 @@ public class ThisInvoker
 	}
 	
 	@Override
-	public Type getReturnType()
+	public ResolvedType getReturnType()
 	{
-		return context;
+		return null;
 	}
 	
 	@Override

@@ -1,10 +1,10 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import java.lang.reflect.Type;
-
 import se.l4.dust.api.expression.DynamicProperty;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker that wraps {@link DynamicProperty}.
@@ -31,9 +31,9 @@ public class DynamicPropertyInvoker
 	}
 	
 	@Override
-	public Type getReturnType()
+	public ResolvedType getReturnType()
 	{
-		return property.getType();
+		return null;
 	}
 
 	@Override

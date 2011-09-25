@@ -34,6 +34,7 @@ import se.l4.dust.core.internal.expression.ast.EqualsNode;
 import se.l4.dust.core.internal.expression.ast.GreaterNode;
 import se.l4.dust.core.internal.expression.ast.GreaterOrEqualNode;
 import se.l4.dust.core.internal.expression.ast.IdentifierNode;
+import se.l4.dust.core.internal.expression.ast.IndexNode;
 import se.l4.dust.core.internal.expression.ast.InvokeNode;
 import se.l4.dust.core.internal.expression.ast.KeywordNode;
 import se.l4.dust.core.internal.expression.ast.LessNode;
@@ -323,6 +324,17 @@ public class ExpressionParser
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
 				return new ModuloNode(line, position, left, right);
+			}
+			
+			case INDEXED:
+			{
+				Node left = createNode(tree.getChild(0));
+				Node[] indexes = new Node[tree.getChildCount() - 1];
+				for(int i=0, n=indexes.length; i<n; i++)
+				{
+					indexes[i] = createNode(tree.getChild(i+1));
+				}
+				return new IndexNode(line, position, left, indexes);
 			}
 		}
 		

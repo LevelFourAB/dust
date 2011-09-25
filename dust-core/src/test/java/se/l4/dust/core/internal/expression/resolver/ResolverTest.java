@@ -66,7 +66,7 @@ public class ResolverTest
 		throws Exception
 	{
 		Method m = Person.class.getMethod("getName");
-		test("name", Person.class, new MethodPropertyInvoker(null, m.getReturnType(), m, null));
+		test("name", Person.class, new MethodPropertyInvoker(null, null, m, null));
 	}
 	
 	@Test
@@ -107,8 +107,8 @@ public class ResolverTest
 		Method m1 = Person.class.getMethod("getName");
 		Method m2 = String.class.getMethod("getClass");
 		test("name.class", Person.class, new ChainInvoker(null, 
-			new MethodPropertyInvoker(null, m1.getReturnType(), m1, null),
-			new MethodPropertyInvoker(null, m2.getReturnType(), m2, null)
+			new MethodPropertyInvoker(null, null, m1, null),
+			new MethodPropertyInvoker(null, null, m2, null)
 		));
 	}
 	
@@ -118,7 +118,7 @@ public class ResolverTest
 	{
 		Method m1 = Person.class.getMethod("getName");
 		test("getName()", Person.class, new MethodInvoker(null,
-			m1.getReturnType(),
+			null,
 			m1,
 			new Invoker[0]
 		));
@@ -132,11 +132,11 @@ public class ResolverTest
 		Method m2 = String.class.getMethod("getClass");
 		test("getName().class", Person.class, new ChainInvoker(null,
 			new MethodInvoker(null,
-				m1.getReturnType(),
+				null,
 				m1,
 				new Invoker[0]
 			),
-			new MethodPropertyInvoker(null, m2.getReturnType(), m2, null)
+			new MethodPropertyInvoker(null, null, m2, null)
 		));
 	}
 	
@@ -150,12 +150,26 @@ public class ResolverTest
 	@Test
 	public void testGenericMethod()
 	{
-		class TestMap
-			extends HashMap<String, String>
+		resolve("get('red').bytes", TestMap.class);
+	}
+	
+	@Test
+	public void testIndexedMethod()
+	{
+		resolve("map['string']", IndexContainer.class);
+	}
+	
+	public static class IndexContainer
+	{
+		public Map<String, String> getMap()
 		{
+			return null;
 		}
-		
-		Invoker invoker = resolve("get('red').bytes", TestMap.class);
+	}
+	
+	public static class TestMap
+		extends HashMap<String, String>
+	{
 	}
 	
 	private void test(String expr, Class<?> context, Invoker expectedResult)

@@ -36,4 +36,10 @@ public class ErrorHandlerImpl
 	{
 		return new ExpressionException(expression, node.getLine(), node.getPositionInLine(), message);
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "ErrorHandler[" + expression + "]";
+	}
 }

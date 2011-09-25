@@ -2,11 +2,12 @@ package se.l4.dust.core.internal.expression.invoke;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker that runs methods.
@@ -20,9 +21,9 @@ public class MethodInvoker
 	private final Node node;
 	private final Method method;
 	private final Invoker[] params;
-	private final Class<?> type;
+	private final ResolvedType type;
 
-	public MethodInvoker(Node node, Class<?> type, Method method, Invoker[] params)
+	public MethodInvoker(Node node, ResolvedType type, Method method, Invoker[] params)
 	{
 		this.node = node;
 		this.type = type;
@@ -33,13 +34,13 @@ public class MethodInvoker
 	@Override
 	public Class<?> getReturnClass()
 	{
-		return type;
+		return type.getErasedType();
 	}
 	
 	@Override
-	public Type getReturnType()
+	public ResolvedType getReturnType()
 	{
-		return method.getGenericReturnType();
+		return type;
 	}
 
 	@Override

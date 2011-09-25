@@ -1,7 +1,5 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import java.lang.reflect.Type;
-
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ast.AddNode;
 import se.l4.dust.core.internal.expression.ast.DivideNode;
@@ -9,6 +7,8 @@ import se.l4.dust.core.internal.expression.ast.ModuloNode;
 import se.l4.dust.core.internal.expression.ast.MultiplyNode;
 import se.l4.dust.core.internal.expression.ast.Node;
 import se.l4.dust.core.internal.expression.ast.SubtractNode;
+
+import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker for numeric operations.
@@ -27,7 +27,7 @@ public class NumericOperationInvoker
 		MULTIPLY,
 		MODULO;
 		
-		public double calculate(Number in, Number out)
+		public double calculateFp(Number in, Number out)
 		{
 			switch(this)
 			{
@@ -45,17 +45,38 @@ public class NumericOperationInvoker
 			
 			throw new AssertionError("Unknown operation: " + this);
 		}
+		
+		public long calculate(Number in, Number out)
+		{
+			switch(this)
+			{
+				case ADD:
+					return in.longValue() + out.longValue();
+				case DIVIDE:
+					return in.longValue() / out.longValue();
+				case MODULO:
+					return in.longValue() % out.longValue();
+				case MULTIPLY:
+					return in.longValue() * out.longValue();
+				case SUBTRACT:
+					return in.longValue() - out.longValue();
+			}
+			
+			throw new AssertionError("Unknown operation: " + this);
+		}
 	}
 	private final Node node;
 	private final Invoker left;
 	private final Invoker right;
 	private final Operation operation;
+	private final boolean floatingPoint;
 
-	public NumericOperationInvoker(Node node, Invoker left, Invoker right)
+	public NumericOperationInvoker(Node node, Invoker left, Invoker right, boolean floatingPoint)
 	{
 		this.node = node;
 		this.left = left;
 		this.right = right;
+		this.floatingPoint = floatingPoint;
 		
 		if(node instanceof AddNode)
 		{
@@ -92,13 +113,13 @@ public class NumericOperationInvoker
 	@Override
 	public Class<?> getReturnClass()
 	{
-		return Number.class;
+		return floatingPoint ? Double.class : Long.class;
 	}
 	
 	@Override
-	public Type getReturnType()
+	public ResolvedType getReturnType()
 	{
-		return Number.class;
+		return null;
 	}
 	
 	@Override
@@ -106,6 +127,12 @@ public class NumericOperationInvoker
 	{
 		Number lv = (Number) left.interpret(errors, root, instance);
 		Number rv = (Number) right.interpret(errors, root, instance);
+		
+		if(floatingPoint)
+		{
+			return operation.calculateFp(lv, rv);
+		}
+		
 		return operation.calculate(lv, rv);
 	}
 	

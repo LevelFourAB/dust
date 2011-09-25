@@ -1,9 +1,9 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import java.lang.reflect.Type;
-
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker for a chain of properties or methods.
@@ -30,9 +30,9 @@ public class ChainInvoker
 	{
 		return right.getReturnClass();
 	}
-	
+
 	@Override
-	public Type getReturnType()
+	public ResolvedType getReturnType()
 	{
 		return right.getReturnType();
 	}

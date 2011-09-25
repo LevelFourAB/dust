@@ -1,9 +1,9 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import java.lang.reflect.Type;
-
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
 
 public interface Invoker
 {
@@ -16,11 +16,12 @@ public interface Invoker
 	Class<?> getReturnClass();
 	
 	/**
-	 * Get the generic return type of the invocation.
+	 * Get the generic return type of the invocation. This may return
+	 * {@code null} if no generic type is available.
 	 * 
 	 * @return
 	 */
-	Type getReturnType();
+	ResolvedType getReturnType();
 	
 	/**
 	 * Invoke in interpreted mode.
