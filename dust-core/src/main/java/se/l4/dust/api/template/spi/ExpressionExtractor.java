@@ -47,8 +47,6 @@ public class ExpressionExtractor
 		StringBuilder buffer = new StringBuilder();
 		String namespace = null;
 
-		if(line >= 340 && line <= 350) System.out.println(line + ": " + value);
-		
 		int currentExpressionStart = column;
 		int currentExpressionStartLine = line;
 		for(int i=0, n=value.length(); i<n; i++)
