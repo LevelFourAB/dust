@@ -1,5 +1,7 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import java.lang.reflect.Type;
+
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ast.AddNode;
 import se.l4.dust.core.internal.expression.ast.DivideNode;
@@ -88,7 +90,13 @@ public class NumericOperationInvoker
 	}
 	
 	@Override
-	public Class<?> getResult()
+	public Class<?> getReturnClass()
+	{
+		return Number.class;
+	}
+	
+	@Override
+	public Type getReturnType()
 	{
 		return Number.class;
 	}

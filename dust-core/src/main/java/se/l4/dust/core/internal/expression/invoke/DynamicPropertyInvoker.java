@@ -1,5 +1,7 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import java.lang.reflect.Type;
+
 import se.l4.dust.api.expression.DynamicProperty;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ast.Node;
@@ -23,7 +25,13 @@ public class DynamicPropertyInvoker
 	}
 
 	@Override
-	public Class<?> getResult()
+	public Class<?> getReturnClass()
+	{
+		return property.getType();
+	}
+	
+	@Override
+	public Type getReturnType()
 	{
 		return property.getType();
 	}

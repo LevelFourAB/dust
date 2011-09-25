@@ -1,5 +1,7 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import java.lang.reflect.Type;
+
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ast.Node;
 
@@ -30,9 +32,15 @@ public abstract class AbstractBooleanInvoker
 	}
 	
 	@Override
-	public Class<?> getResult()
+	public Class<?> getReturnClass()
 	{
 		return Boolean.class;
+	}
+	
+	@Override
+	public Type getReturnType()
+	{
+		return getReturnClass();
 	}
 	
 	protected <T> T castLeftNotNull(ErrorHandler errors, Object value)

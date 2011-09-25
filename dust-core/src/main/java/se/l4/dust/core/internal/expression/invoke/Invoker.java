@@ -1,16 +1,26 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import java.lang.reflect.Type;
+
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ast.Node;
 
 public interface Invoker
 {
 	/**
-	 * Get the return type of the invocation.
+	 * Get the return class of the invocation, for the generic type use
+	 * {@link #getReturnType()}.
 	 * 
 	 * @return
 	 */
-	Class<?> getResult();
+	Class<?> getReturnClass();
+	
+	/**
+	 * Get the generic return type of the invocation.
+	 * 
+	 * @return
+	 */
+	Type getReturnType();
 	
 	/**
 	 * Invoke in interpreted mode.

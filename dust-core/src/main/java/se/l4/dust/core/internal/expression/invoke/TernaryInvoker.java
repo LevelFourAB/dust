@@ -1,5 +1,7 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import java.lang.reflect.Type;
+
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ast.Node;
 
@@ -32,19 +34,39 @@ public class TernaryInvoker
 	}
 	
 	@Override
-	public Class<?> getResult()
+	public Class<?> getReturnClass()
 	{
 		if(right == null)
 		{
-			return left.getResult();
+			return left.getReturnClass();
 		}
-		else if(left.getResult().isAssignableFrom(right.getResult()))
+		else if(left.getReturnClass().isAssignableFrom(right.getReturnClass()))
 		{
-			return left.getResult();
+			return left.getReturnClass();
 		}
-		else if(right.getResult().isAssignableFrom(left.getResult()))
+		else if(right.getReturnClass().isAssignableFrom(left.getReturnClass()))
 		{
-			return right.getResult();
+			return right.getReturnClass();
+		}
+		
+		// TODO: Better guessing for the return type
+		return Object.class;
+	}
+	
+	@Override
+	public Type getReturnType()
+	{
+		if(right == null)
+		{
+			return left.getReturnType();
+		}
+		else if(left.getReturnClass().isAssignableFrom(right.getReturnClass()))
+		{
+			return left.getReturnType();
+		}
+		else if(right.getReturnClass().isAssignableFrom(left.getReturnClass()))
+		{
+			return right.getReturnType();
 		}
 		
 		// TODO: Better guessing for the return type

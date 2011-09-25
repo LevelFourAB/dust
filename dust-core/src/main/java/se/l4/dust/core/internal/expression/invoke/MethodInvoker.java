@@ -2,6 +2,7 @@ package se.l4.dust.core.internal.expression.invoke;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 
 import se.l4.dust.core.internal.expression.ErrorHandler;
@@ -19,18 +20,26 @@ public class MethodInvoker
 	private final Node node;
 	private final Method method;
 	private final Invoker[] params;
+	private final Class<?> type;
 
-	public MethodInvoker(Node node, Method method, Invoker[] params)
+	public MethodInvoker(Node node, Class<?> type, Method method, Invoker[] params)
 	{
 		this.node = node;
+		this.type = type;
 		this.method = method;
 		this.params = params;
 	}
 
 	@Override
-	public Class<?> getResult()
+	public Class<?> getReturnClass()
 	{
-		return method.getReturnType();
+		return type;
+	}
+	
+	@Override
+	public Type getReturnType()
+	{
+		return method.getGenericReturnType();
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import java.lang.reflect.Type;
+
 import se.l4.dust.api.conversion.Conversion;
 import se.l4.dust.api.conversion.NonGenericConversion;
 import se.l4.dust.core.internal.expression.ErrorHandler;
@@ -27,7 +29,13 @@ public class ConvertingInvoker
 	}
 
 	@Override
-	public Class<?> getResult()
+	public Class<?> getReturnClass()
+	{
+		return conversion.getOutput();
+	}
+	
+	@Override
+	public Type getReturnType()
 	{
 		return conversion.getOutput();
 	}

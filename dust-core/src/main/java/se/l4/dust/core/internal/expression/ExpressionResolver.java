@@ -51,6 +51,11 @@ import se.l4.dust.core.internal.expression.invoke.StringConcatInvoker;
 import se.l4.dust.core.internal.expression.invoke.TernaryInvoker;
 import se.l4.dust.core.internal.expression.invoke.ThisInvoker;
 
+import com.fasterxml.classmate.MemberResolver;
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.ResolvedTypeWithMembers;
+import com.fasterxml.classmate.TypeResolver;
+import com.fasterxml.classmate.members.ResolvedMethod;
 import com.google.common.base.CaseFormat;
 import com.google.common.primitives.Primitives;
 
@@ -68,6 +73,8 @@ public class ExpressionResolver
 	
 	private final ExpressionsImpl expressions;
 	private final Map<String, String> namespaces;
+	private TypeResolver typeResolver;
+	private MemberResolver memberResolver;
 
 	public ExpressionResolver(
 			TypeConverter converter, 
@@ -81,6 +88,10 @@ public class ExpressionResolver
 		this.namespaces = namespaces;
 		this.errors = errors;
 		this.root = root;
+		
+		typeResolver = new TypeResolver();
+		memberResolver = new MemberResolver(typeResolver);
+		memberResolver.setIncludeLangObject(true);
 	}
 	
 	/**
@@ -106,6 +117,7 @@ public class ExpressionResolver
 	private Invoker resolve(EncounterImpl encounter, Node node, Class<?> root, Class<?> context)
 	{
 		encounter.setContext(node, context);
+		System.out.println("Context is now " + context);
 		return resolve0(encounter, node, root, context);
 	}
 	
@@ -121,7 +133,7 @@ public class ExpressionResolver
 			ChainNode chain = (ChainNode) node;
 			
 			Invoker leftInvoker = resolve(encounter, chain.getLeft(), root, context);
-			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, leftInvoker.getResult());
+			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, leftInvoker.getReturnClass());
 			
 			return new ChainInvoker(node, leftInvoker, rightInvoker);
 		}
@@ -162,7 +174,7 @@ public class ExpressionResolver
 			NegateNode nn = (NegateNode) node;
 			Invoker invoker = resolve(encounter, nn.getNode(), root, context);
 			
-			if(! isBoolean(invoker.getResult()))
+			if(! isBoolean(invoker.getReturnClass()))
 			{
 				invoker = toConverting(invoker, boolean.class);
 			}
@@ -180,12 +192,12 @@ public class ExpressionResolver
 			Invoker leftInvoker = resolve(encounter, chain.getLeft(), root, context);
 			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, context);
 			
-			if(! isBoolean(leftInvoker.getResult()))
+			if(! isBoolean(leftInvoker.getReturnClass()))
 			{
 				leftInvoker = toConverting(leftInvoker, boolean.class);
 			}
 			
-			if(! isBoolean(rightInvoker.getResult()))
+			if(! isBoolean(rightInvoker.getReturnClass()))
 			{
 				rightInvoker = toConverting(rightInvoker, boolean.class);
 			}
@@ -201,27 +213,27 @@ public class ExpressionResolver
 			Invoker leftInvoker = resolve(encounter, chain.getLeft(), root, context);
 			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, context);
 			
-			if(leftInvoker.getResult() != rightInvoker.getResult())
+			if(leftInvoker.getReturnClass() != rightInvoker.getReturnClass())
 			{
 				// Non-matching results, check if we need to do some conversions
-				if(leftInvoker.getResult() == void.class || rightInvoker.getResult() == void.class)
+				if(leftInvoker.getReturnClass() == void.class || rightInvoker.getReturnClass() == void.class)
 				{
 					// Void is special, skip for now
 				}
-				else if(isNumber(leftInvoker.getResult()))
+				else if(isNumber(leftInvoker.getReturnClass()))
 				{
 					// Left is number, might need to convert right
-					if(! isNumber(rightInvoker.getResult()))
+					if(! isNumber(rightInvoker.getReturnClass()))
 					{
 						rightInvoker = toConverting(rightInvoker, double.class);
 					}
 					
 					return new NumericComparisonInvoker(node, leftInvoker, rightInvoker);
 				}
-				else if(isNumber(rightInvoker.getResult()))
+				else if(isNumber(rightInvoker.getReturnClass()))
 				{
 					// Right is number, might need to convert left
-					if(! isNumber(leftInvoker.getResult()))
+					if(! isNumber(leftInvoker.getReturnClass()))
 					{
 						leftInvoker = toConverting(leftInvoker, double.class);
 					}
@@ -243,12 +255,12 @@ public class ExpressionResolver
 			Invoker leftInvoker = resolve(encounter, chain.getLeft(), root, context);
 			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, context);
 			
-			if(! Number.class.isAssignableFrom(Primitives.wrap(leftInvoker.getResult())))
+			if(! Number.class.isAssignableFrom(Primitives.wrap(leftInvoker.getReturnClass())))
 			{
 				leftInvoker = toConverting(leftInvoker, Double.class);
 			}
 			
-			if(! Number.class.isAssignableFrom(Primitives.wrap(rightInvoker.getResult())))
+			if(! Number.class.isAssignableFrom(Primitives.wrap(rightInvoker.getReturnClass())))
 			{
 				rightInvoker = toConverting(rightInvoker, Double.class);
 			}
@@ -262,7 +274,7 @@ public class ExpressionResolver
 			Invoker left = resolve(encounter, tn.getLeft(), root, context);
 			Invoker right = tn.getRight() == null ? null : resolve(encounter, tn.getRight(), root, context);
 			
-			if(! isBoolean(test.getResult()))
+			if(! isBoolean(test.getReturnClass()))
 			{
 				test = toConverting(test, boolean.class);
 			}
@@ -301,7 +313,7 @@ public class ExpressionResolver
 			Invoker left = resolve(encounter, an.getLeft(), root, context);
 			Invoker right = resolve(encounter, an.getLeft(), root, context);
 			
-			if(isNumber(left.getResult()) && isNumber(right.getResult()))
+			if(isNumber(left.getReturnClass()) && isNumber(right.getReturnClass()))
 			{
 				return new NumericOperationInvoker(node, left, right);
 			}
@@ -323,7 +335,7 @@ public class ExpressionResolver
 	
 	private ConvertingInvoker toConverting(Invoker invoker, Class<?> output)
 	{
-		Class<?> in = invoker.getResult();
+		Class<?> in = invoker.getReturnClass();
 		if(converter.canConvertBetween(in, output))
 		{
 			NonGenericConversion<?, ?> conversion = converter.getConversion(in, output);
@@ -332,7 +344,7 @@ public class ExpressionResolver
 		
 		// No suitable conversion, throw error
 		throw errors.error(invoker.getNode(), "Expected type " + output 
-			+ ", but got " + invoker.getResult() 
+			+ ", but got " + invoker.getReturnClass() 
 			+ " with no way of converting to " + output.getSimpleName());
 	}
 	
@@ -381,8 +393,11 @@ public class ExpressionResolver
 			return new DynamicPropertyInvoker(node, property);
 		}
 		
-		for(Method m : context.getMethods())
+		ResolvedType type = typeResolver.resolve(context);
+		ResolvedTypeWithMembers members = memberResolver.resolve(type, null, null);
+		for(ResolvedMethod rm : members.getMemberMethods())
 		{
+			Method m = rm.getRawMember();
 			if(m.getParameterTypes().length != 0)
 			{
 				// Only support methods zero parameters
@@ -421,7 +436,7 @@ public class ExpressionResolver
 					// Ignore, not all getters have setters
 				}
 				
-				return new MethodPropertyInvoker(node, m, setter);
+				return new MethodPropertyInvoker(node, rm.getReturnType().getErasedType(), m, setter);
 			}
 		}
 		
@@ -431,9 +446,13 @@ public class ExpressionResolver
 	private Invoker resolveMethod(Node node, IdentifierNode id, Invoker[] actualParams, Class<?> context)
 	{
 		// First pass: Look for exact matches
+		ResolvedType type = typeResolver.resolve(context);
+		ResolvedTypeWithMembers members = memberResolver.resolve(type, null, null);
+		
 		_outer:
-		for(Method m : context.getMethods())
+		for(ResolvedMethod rm : members.getMemberMethods())
 		{
+			Method m = rm.getRawMember();
 			String name = m.getName();
 			if(false == name.equals(id.getIdentifier()))
 			{
@@ -449,20 +468,21 @@ public class ExpressionResolver
 			// Potentially the correct method
 			for(int i=0, n=types.length; i<n; i++)
 			{
-				if(! types[i].isAssignableFrom(actualParams[i].getResult()))
+				if(! types[i].isAssignableFrom(actualParams[i].getReturnClass()))
 				{
 					// Not directly assignable, continue
 					continue _outer;
 				}
 			}
 			
-			return new MethodInvoker(node, m, actualParams);
+			return new MethodInvoker(node, rm.getReturnType().getErasedType(), m, actualParams);
 		}
 	
 		// Second pass: Try to convert params
 		_outer:
-		for(Method m : context.getMethods())
+		for(ResolvedMethod rm : members.getMemberMethods())
 		{
+			Method m = rm.getRawMember();
 			String name = m.getName();
 			if(false == name.equals(id.getIdentifier()))
 			{
@@ -479,11 +499,11 @@ public class ExpressionResolver
 			Invoker[] newParams = new Invoker[actualParams.length];
 			for(int i=0, n=types.length; i<n; i++)
 			{
-				if(types[i].isAssignableFrom(actualParams[i].getResult()))
+				if(types[i].isAssignableFrom(actualParams[i].getReturnClass()))
 				{
 					newParams[i] = actualParams[i];
 				}
-				else if(converter.canConvertBetween(actualParams[i].getResult(), types[i]))
+				else if(converter.canConvertBetween(actualParams[i].getReturnClass(), types[i]))
 				{
 					newParams[i] = toConverting(actualParams[i], types[i]);
 				}
@@ -494,7 +514,7 @@ public class ExpressionResolver
 				}
 			}
 			
-			return new MethodInvoker(node, m, newParams);
+			return new MethodInvoker(node, rm.getReturnType().getErasedType(), m, newParams);
 		}
 		
 		throw errors.error(node, "No matching method found");

@@ -66,7 +66,7 @@ public class ResolverTest
 		throws Exception
 	{
 		Method m = Person.class.getMethod("getName");
-		test("name", Person.class, new MethodPropertyInvoker(null, m, null));
+		test("name", Person.class, new MethodPropertyInvoker(null, m.getReturnType(), m, null));
 	}
 	
 	@Test
@@ -107,8 +107,8 @@ public class ResolverTest
 		Method m1 = Person.class.getMethod("getName");
 		Method m2 = String.class.getMethod("getClass");
 		test("name.class", Person.class, new ChainInvoker(null, 
-			new MethodPropertyInvoker(null, m1, null),
-			new MethodPropertyInvoker(null, m2, null)
+			new MethodPropertyInvoker(null, m1.getReturnType(), m1, null),
+			new MethodPropertyInvoker(null, m2.getReturnType(), m2, null)
 		));
 	}
 	
@@ -118,6 +118,7 @@ public class ResolverTest
 	{
 		Method m1 = Person.class.getMethod("getName");
 		test("getName()", Person.class, new MethodInvoker(null,
+			m1.getReturnType(),
 			m1,
 			new Invoker[0]
 		));
@@ -131,10 +132,11 @@ public class ResolverTest
 		Method m2 = String.class.getMethod("getClass");
 		test("getName().class", Person.class, new ChainInvoker(null,
 			new MethodInvoker(null,
+				m1.getReturnType(),
 				m1,
 				new Invoker[0]
 			),
-			new MethodPropertyInvoker(null, m2, null)
+			new MethodPropertyInvoker(null, m2.getReturnType(), m2, null)
 		));
 	}
 	
@@ -145,7 +147,25 @@ public class ResolverTest
 		test("t:emit", Person.class, new DynamicPropertyInvoker(null, new Property("emit")));
 	}
 	
+	@Test
+	public void testGenericMethod()
+	{
+		class TestMap
+			extends HashMap<String, String>
+		{
+		}
+		
+		Invoker invoker = resolve("get('red').bytes", TestMap.class);
+	}
+	
 	private void test(String expr, Class<?> context, Invoker expectedResult)
+	{
+		Invoker invoker = resolve(expr, context);
+		
+		Assert.assertEquals("Resolved result does not match", expectedResult, invoker);
+	}
+
+	private Invoker resolve(String expr, Class<?> context)
 	{
 		ErrorHandler errors = new ErrorHandlerImpl(expr);
 		Node node = ExpressionParser.parse(expr);
@@ -156,8 +176,7 @@ public class ResolverTest
 				errors, 
 				node
 			).resolve(context);
-		
-		Assert.assertEquals("Resolved result does not match", expectedResult, invoker);
+		return invoker;
 	}
 	
 	private static class TestSource

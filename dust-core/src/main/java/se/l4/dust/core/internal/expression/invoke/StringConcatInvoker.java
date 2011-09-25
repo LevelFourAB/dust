@@ -1,5 +1,7 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import java.lang.reflect.Type;
+
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ast.Node;
 
@@ -18,9 +20,15 @@ public class StringConcatInvoker
 	}
 
 	@Override
-	public Class<?> getResult()
+	public Class<?> getReturnClass()
 	{
 		return String.class;
+	}
+	
+	@Override
+	public Type getReturnType()
+	{
+		return getReturnClass();
 	}
 
 	@Override
@@ -41,8 +49,7 @@ public class StringConcatInvoker
 	@Override
 	public Node getNode()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return node;
 	}
 
 }

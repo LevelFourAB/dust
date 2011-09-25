@@ -1,6 +1,7 @@
 package se.l4.dust.core.internal.expression.resolver;
 
 import java.util.Collections;
+import java.util.HashMap;
 
 import junit.framework.Assert;
 
@@ -133,6 +134,16 @@ public class DebuggerTest
 		Assert.assertEquals(true, o);
 	}
 	
+	@Test
+	public void testMapAccess()
+	{
+		TestMap map = new TestMap();
+		map.put("entry", "value");
+		
+		Object o = debug("get('entry').class", map);
+		Assert.assertEquals(String.class, o);
+	}
+	
 	private Object debug(String expr, Object in)
 	{
 		if(in == null) throw new NullPointerException("in must not be null");
@@ -151,5 +162,10 @@ public class DebuggerTest
 		);
 		
 		return debugger.get(null, in);
+	}
+	
+	public static class TestMap
+		extends HashMap<String, String>
+	{
 	}
 }

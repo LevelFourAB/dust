@@ -1,5 +1,7 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import java.lang.reflect.Type;
+
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ast.Node;
 
@@ -28,9 +30,15 @@ public class ConstantInvoker
 	}
 	
 	@Override
-	public Class<?> getResult()
+	public Class<?> getReturnClass()
 	{
 		return value == null ? void.class : value.getClass();
+	}
+	
+	@Override
+	public Type getReturnType()
+	{
+		return getReturnClass();
 	}
 	
 	@Override

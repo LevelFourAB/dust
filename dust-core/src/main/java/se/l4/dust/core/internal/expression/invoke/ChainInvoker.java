@@ -1,5 +1,7 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import java.lang.reflect.Type;
+
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ast.Node;
 
@@ -24,9 +26,15 @@ public class ChainInvoker
 	}
 	
 	@Override
-	public Class<?> getResult()
+	public Class<?> getReturnClass()
 	{
-		return right.getResult();
+		return right.getReturnClass();
+	}
+	
+	@Override
+	public Type getReturnType()
+	{
+		return right.getReturnType();
 	}
 	
 	@Override
