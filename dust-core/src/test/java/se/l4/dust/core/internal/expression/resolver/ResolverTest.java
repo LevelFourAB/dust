@@ -159,6 +159,30 @@ public class ResolverTest
 		resolve("map['string']", IndexContainer.class);
 	}
 	
+	@Test
+	public void testMethodNullParam()
+		throws Exception
+	{
+		Method m1 = Person.class.getMethod("getSuffixedName", String.class);
+		test("getSuffixedName(null)", Person.class, new MethodInvoker(null,
+			null,
+			m1,
+			new Invoker[] { new ConstantInvoker(null, null) }
+		));
+	}
+	
+	@Test
+	public void testMethodConstantParam()
+		throws Exception
+	{
+		Method m1 = Person.class.getMethod("getSuffixedName", String.class);
+		test("getSuffixedName('value')", Person.class, new MethodInvoker(null,
+			null,
+			m1,
+			new Invoker[] { new ConstantInvoker(null, "value") }
+		));
+	}
+	
 	public static class IndexContainer
 	{
 		public Map<String, String> getMap()

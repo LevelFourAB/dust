@@ -34,4 +34,9 @@ public class Person
 	{
 		this.age = age;
 	}
+	
+	public String getSuffixedName(String suffix)
+	{
+		return name + suffix;
+	}
 }

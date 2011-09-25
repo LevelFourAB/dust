@@ -585,7 +585,12 @@ public class ExpressionResolver
 			// Potentially the correct method
 			for(int i=0, n=types.length; i<n; i++)
 			{
-				if(! types[i].isAssignableFrom(actualParams[i].getReturnClass()))
+				if((actualParams[i].getReturnClass() == void.class || actualParams[i].getReturnClass() == Void.class)
+					&& ! types[i].isPrimitive())
+				{
+					// Do nothing, input is null and non-primitive input
+				}
+				else if(! types[i].isAssignableFrom(actualParams[i].getReturnClass()))
 				{
 					// Not directly assignable, continue
 					continue _outer;
@@ -623,6 +628,11 @@ public class ExpressionResolver
 				else if(converter.canConvertBetween(actualParams[i].getReturnClass(), types[i]))
 				{
 					newParams[i] = toConverting(actualParams[i], types[i]);
+				}
+				if((actualParams[i].getReturnClass() == void.class || actualParams[i].getReturnClass() == Void.class)
+						&& ! types[i].isPrimitive())
+				{
+					newParams[i] = actualParams[i];
 				}
 				else
 				{
