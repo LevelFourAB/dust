@@ -6,6 +6,7 @@ import java.util.Map;
 
 import se.l4.dust.api.conversion.NonGenericConversion;
 import se.l4.dust.api.conversion.TypeConverter;
+import se.l4.dust.api.expression.DynamicMethod;
 import se.l4.dust.api.expression.DynamicProperty;
 import se.l4.dust.api.expression.ExpressionEncounter;
 import se.l4.dust.api.expression.ExpressionException;
@@ -38,6 +39,7 @@ import se.l4.dust.core.internal.expression.invoke.AndInvoker;
 import se.l4.dust.core.internal.expression.invoke.ChainInvoker;
 import se.l4.dust.core.internal.expression.invoke.ConstantInvoker;
 import se.l4.dust.core.internal.expression.invoke.ConvertingInvoker;
+import se.l4.dust.core.internal.expression.invoke.DynamicMethodInvoker;
 import se.l4.dust.core.internal.expression.invoke.DynamicPropertyInvoker;
 import se.l4.dust.core.internal.expression.invoke.EqualsInvoker;
 import se.l4.dust.core.internal.expression.invoke.Invoker;
@@ -117,8 +119,12 @@ public class ExpressionResolver
 	private Invoker resolve(EncounterImpl encounter, Node node, Class<?> root, Class<?> context)
 	{
 		encounter.setContext(node, context);
-		System.out.println("Context is now " + context);
-		return resolve0(encounter, node, root, context);
+		encounter.increaseLevel();
+		
+		Invoker invoker = resolve0(encounter, node, root, context);
+		
+		encounter.decreaseLevel();
+		return invoker;
 	}
 	
 	private Invoker resolve0(EncounterImpl encounter, Node node, Class<?> root, Class<?> context)
@@ -299,8 +305,31 @@ public class ExpressionResolver
 			
 			if(id.getNamespace() != null)
 			{
-				// TODO: Resolve method
-				throw errors.error(node, "No namespace handler found for " + id.toHumanReadable());
+				String ns = namespaces.get(id.getNamespace());
+				if(ns == null)
+				{
+					throw errors.error(node, "No namespace bound for prefix " + id.getNamespace());
+				}
+				
+				ExpressionSource source = expressions.getSource(ns);
+				if(source == null)
+				{
+					throw errors.error(node, "There are not properties or methods available in namespace " + ns);
+				}
+				
+				Class[] actualParamTypes = new Class[actualParams.length];
+				for(int j=0, n=actualParams.length; j<n; j++)
+				{
+					actualParamTypes[j] = actualParams[j].getReturnClass();
+				}
+				
+				DynamicMethod method = source.getMethod(encounter, id.getIdentifier(), actualParamTypes);
+				if(method == null)
+				{
+					throw errors.error(node, "There is no method named " + id.getIdentifier() + " in namespace " + ns);
+				}
+				
+				return new DynamicMethodInvoker(node, method, actualParams);
 			}
 			else
 			{
@@ -525,28 +554,36 @@ public class ExpressionResolver
 	{
 		private final Class<?> root;
 		private Class<?> context;
-		private boolean isRoot;
 		private Node node;
+		private int level;
 		
 		public EncounterImpl(Node start, Class<?> root)
 		{
 			this.root = root;
 			this.context = root;
 			node = start;
-			isRoot = true;
 		}
 		
 		public void setContext(Node node, Class<?> context)
 		{
 			this.context = context;
 			this.node = node;
-			isRoot = false;
 		}
 
 		@Override
 		public boolean isRoot()
 		{
-			return isRoot;
+			return level == 0;
+		}
+		
+		public void increaseLevel()
+		{
+			level++;
+		}
+		
+		public void decreaseLevel()
+		{
+			level--;
 		}
 
 		@Override

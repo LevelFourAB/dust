@@ -1,10 +1,9 @@
 package se.l4.dust.core.internal.expression;
 
-import se.l4.dust.api.expression.DynamicMethod;
-import se.l4.dust.api.expression.DynamicProperty;
-import se.l4.dust.api.expression.ExpressionEncounter;
-import se.l4.dust.api.expression.ExpressionSource;
-import se.l4.dust.api.expression.StaticProperty;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+import se.l4.dust.api.expression.ReflectiveExpressionSource;
 import se.l4.dust.api.template.dom.Element;
 
 /**
@@ -14,30 +13,30 @@ import se.l4.dust.api.template.dom.Element;
  *
  */
 public class CommonSource
-	implements ExpressionSource
+	extends ReflectiveExpressionSource
 {
-
-	@Override
-	public DynamicProperty getProperty(ExpressionEncounter encounter, String name)
+	@Property
+	public Object skip()
 	{
-		if(name.equals("skip"))
-		{
-			return new StaticProperty(Element.Attribute.ATTR_SKIP);
-		}
-		else if(name.equals("emit"))
-		{
-			return new StaticProperty(Element.Attribute.ATTR_EMIT);
-		}
-		
-		return null;
+		return Element.Attribute.ATTR_SKIP;
 	}
-
-	@Override
-	public DynamicMethod getMethod(ExpressionEncounter encounter, String name, Class... parameters)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	
+	@Property
+	public Object emit()
+	{
+		return Element.Attribute.ATTR_EMIT;
+	}
+	
+	@Method
+	public String urlencode(String in)
+	{
+		try
+		{
+			return URLEncoder.encode(in, "UTF-8");
+		}
+		catch(UnsupportedEncodingException e)
+		{
+			throw new AssertionError("UTF-8 unsupported");
+		}
+	}
 }

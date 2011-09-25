@@ -22,4 +22,11 @@ public interface DynamicMethod
 	 * @return
 	 */
 	Object invoke(Context context, Object instance, Object... parameters);
+	
+	/**
+	 * Get the type of the return value.
+	 * 
+	 * @return
+	 */
+	Class<?> getType();
 }
