@@ -463,14 +463,6 @@ public class AstTest
 			id(null, "t1"),
 			longNode(12)
 		));
-		
-		test("t1 < 12 < t2", lessThan(
-			lessThan(
-				id(null, "t1"),
-				longNode(12)
-			),
-			id(null, "t2")
-		));
 	}
 	
 	@Test
@@ -479,14 +471,6 @@ public class AstTest
 		test("t1 <= 12", lessThanOrEqual(
 			id(null, "t1"),
 			longNode(12)
-		));
-		
-		test("t1 <= 12 <= t2", lessThanOrEqual(
-			lessThanOrEqual(
-				id(null, "t1"),
-				longNode(12)
-			),
-			id(null, "t2")
 		));
 	}
 	
@@ -497,14 +481,6 @@ public class AstTest
 			id(null, "t1"),
 			longNode(12)
 		));
-		
-		test("t1 > 12 > t2", greaterThan(
-			greaterThan(
-				id(null, "t1"),
-				longNode(12)
-			),
-			id(null, "t2")
-		));
 	}
 	
 	@Test
@@ -513,26 +489,6 @@ public class AstTest
 		test("t1 >= 12", greaterThanOrEqual(
 			id(null, "t1"),
 			longNode(12)
-		));
-		
-		test("t1 >= 12 >= t2", greaterThanOrEqual(
-			greaterThanOrEqual(
-				id(null, "t1"),
-				longNode(12)
-			),
-			id(null, "t2")
-		));
-	}
-	
-	@Test
-	public void testMixedConditions()
-	{
-		test("t1 >= 12 <= t2", lessThanOrEqual(
-			greaterThanOrEqual(
-				id(null, "t1"),
-				longNode(12)
-			),
-			id(null, "t2")
 		));
 	}
 	

@@ -72,7 +72,7 @@ equalityExpression
 	;
 	
 relationalExpression
-	:	additiveExpression ( (LESS | LESS_OR_EQUAL | MORE | MORE_OR_EQUAL)^ additiveExpression)*
+	:	additiveExpression ( (LESS | LESS_OR_EQUAL | MORE | MORE_OR_EQUAL)^ additiveExpression)?
 	;
 
 additiveExpression
