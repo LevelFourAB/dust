@@ -2,7 +2,6 @@ package se.l4.dust.core.internal.conversion;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -20,6 +19,7 @@ import se.l4.dust.api.conversion.TypeConverter;
 
 import com.google.common.base.Function;
 import com.google.common.collect.MapMaker;
+import com.google.common.primitives.Primitives;
 
 /**
  * Implementation of {@link TypeConverter}, supports chaining of conversions
@@ -42,21 +42,6 @@ public class DefaultTypeConverter
 	
 	private final Map<Class<?>, List<Conversion<?, ?>>> conversions;
 	private final Map<CacheKey, Conversion<?, ?>> cache;
-	
-	private static Map<Class<?>, Class<?>> primitives;
-	
-	static
-	{
-		primitives = new HashMap<Class<?>, Class<?>>();
-		primitives.put(boolean.class, Boolean.class);
-		primitives.put(byte.class, Byte.class);
-		primitives.put(short.class, Short.class);
-		primitives.put(int.class, Integer.class);
-		primitives.put(long.class, Long.class);
-		primitives.put(float.class, Float.class);
-		primitives.put(double.class, Double.class);
-		primitives.put(void.class, Void.class);
-	}
 	
 	public DefaultTypeConverter()
 	{
@@ -212,8 +197,8 @@ public class DefaultTypeConverter
 	@SuppressWarnings("unchecked")
 	private <I, O> Conversion<I, O> findConversion(Class<I> in, Class<O> out)
 	{
-		in = (Class) wrap(in);
-		out = (Class) wrap(out);
+		in = (Class) Primitives.wrap(in);
+		out = (Class) Primitives.wrap(out);
 		
 		Set<Conversion<I, O>> tested = new HashSet<Conversion<I, O>>();
 		PriorityQueue<NonGenericConversion<I, O>> queue = new PriorityQueue<NonGenericConversion<I, O>>(
@@ -358,30 +343,6 @@ public class DefaultTypeConverter
 		}
 		
 		return in.getSuperclass();
-	}
-	
-	/**
-	 * Wrap the given primitive in its object equivalent.
-	 * 
-	 * @param in
-	 * @return
-	 */
-	private static Class<?> wrap(Class<?> in)
-	{
-		if(false == in.isPrimitive())
-		{
-			return in;
-		}
-		
-		Class<?> c = primitives.get(in);
-		if(c != null)
-		{
-			return c;
-		}
-		else
-		{
-			throw new ConversionException("Unsupported type " + in);
-		}
 	}
 	
 	private static class CacheKey
