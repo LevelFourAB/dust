@@ -621,6 +621,7 @@ public class ExpressionResolver
 			Invoker[] newParams = new Invoker[actualParams.length];
 			for(int i=0, n=types.length; i<n; i++)
 			{
+				System.out.println(types[i] + " " + actualParams[i].getReturnClass());
 				if(types[i].isAssignableFrom(actualParams[i].getReturnClass()))
 				{
 					newParams[i] = actualParams[i];
@@ -629,7 +630,7 @@ public class ExpressionResolver
 				{
 					newParams[i] = toConverting(actualParams[i], types[i]);
 				}
-				if((actualParams[i].getReturnClass() == void.class || actualParams[i].getReturnClass() == Void.class)
+				else if((actualParams[i].getReturnClass() == void.class || actualParams[i].getReturnClass() == Void.class)
 						&& ! types[i].isPrimitive())
 				{
 					newParams[i] = actualParams[i];

@@ -53,7 +53,7 @@ method	:	id LPAREN RPAREN -> ^(INVOKE id)
 	;
 	
 methodExpressions
-	:	expression (COMMA! expression)*;
+	:	logicalExpression (COMMA! logicalExpression)*;
 	
 not	:	'!' logicalExpression -> ^(NOT logicalExpression);
 

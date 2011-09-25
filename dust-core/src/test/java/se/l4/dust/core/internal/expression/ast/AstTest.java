@@ -129,6 +129,38 @@ public class AstTest
 	}
 	
 	@Test
+	public void testChainedMethodWithParams()
+	{
+		test("chain.method('string', 12)", chain(id(null, "chain"), invoke(
+			id(null, "method"), 
+			Arrays.<Node>asList(
+				string("string"),
+				longNode(12)
+			)
+		)));
+	}
+	
+	@Test
+	public void testChainedMethodWithParams2()
+	{
+		test("links.action(object, 't/' + rev + '/s')", chain(
+			id(null, "links"), 
+			invoke(
+				id(null, "action"), 
+			Arrays.<Node>asList(
+				id(null, "object"),
+				add(
+					add(
+						string("t/"),
+						id(null, "rev")
+					),
+					string("/s")
+				)
+			)
+		)));
+	}
+	
+	@Test
 	public void testSimpleChain()
 	{
 		test("prop1.prop2", chain(
