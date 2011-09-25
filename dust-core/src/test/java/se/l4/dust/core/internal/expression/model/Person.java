@@ -1,5 +1,7 @@
 package se.l4.dust.core.internal.expression.model;
 
+import se.l4.dust.api.annotation.Expose;
+
 /**
  * Person representation for tests.
  * 
@@ -10,6 +12,8 @@ public class Person
 {
 	private String name;
 	private int age;
+	@Expose
+	private boolean verified;
 	
 	public Person()
 	{

@@ -1,5 +1,6 @@
 package se.l4.dust.core.internal.expression.resolver;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +27,7 @@ import se.l4.dust.core.internal.expression.ast.Node;
 import se.l4.dust.core.internal.expression.invoke.ChainInvoker;
 import se.l4.dust.core.internal.expression.invoke.ConstantInvoker;
 import se.l4.dust.core.internal.expression.invoke.DynamicPropertyInvoker;
+import se.l4.dust.core.internal.expression.invoke.FieldPropertyInvoker;
 import se.l4.dust.core.internal.expression.invoke.Invoker;
 import se.l4.dust.core.internal.expression.invoke.MethodInvoker;
 import se.l4.dust.core.internal.expression.invoke.MethodPropertyInvoker;
@@ -181,6 +183,14 @@ public class ResolverTest
 			m1,
 			new Invoker[] { new ConstantInvoker(null, "value") }
 		));
+	}
+	
+	@Test
+	public void testExposedProperty()
+		throws Exception
+	{
+		Field f = Person.class.getDeclaredField("verified");
+		test("verified", Person.class, new FieldPropertyInvoker(null, null, f));
 	}
 	
 	public static class IndexContainer

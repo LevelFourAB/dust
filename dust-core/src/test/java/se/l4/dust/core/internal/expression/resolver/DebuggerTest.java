@@ -192,6 +192,15 @@ public class DebuggerTest
 		Assert.assertEquals("entry", o);
 	}
 	
+	@Test
+	public void testPersonVerified()
+	{
+		Person p = new Person();
+		Object o = debug("verified", p);
+		
+		Assert.assertEquals(false, o);
+	}
+	
 	public static class IndexContainer
 	{
 		public Map<String, String> getMap()

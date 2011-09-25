@@ -1,9 +1,12 @@
 package se.l4.dust.core.internal.expression;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 
+import se.l4.dust.api.annotation.Expose;
 import se.l4.dust.api.conversion.NonGenericConversion;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.DynamicMethod;
@@ -44,6 +47,7 @@ import se.l4.dust.core.internal.expression.invoke.ConvertingInvoker;
 import se.l4.dust.core.internal.expression.invoke.DynamicMethodInvoker;
 import se.l4.dust.core.internal.expression.invoke.DynamicPropertyInvoker;
 import se.l4.dust.core.internal.expression.invoke.EqualsInvoker;
+import se.l4.dust.core.internal.expression.invoke.FieldPropertyInvoker;
 import se.l4.dust.core.internal.expression.invoke.Invoker;
 import se.l4.dust.core.internal.expression.invoke.MethodInvoker;
 import se.l4.dust.core.internal.expression.invoke.MethodPropertyInvoker;
@@ -59,6 +63,7 @@ import com.fasterxml.classmate.MemberResolver;
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.ResolvedTypeWithMembers;
 import com.fasterxml.classmate.TypeResolver;
+import com.fasterxml.classmate.members.ResolvedField;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import com.google.common.base.CaseFormat;
 import com.google.common.primitives.Primitives;
@@ -557,7 +562,24 @@ public class ExpressionResolver
 			}
 		}
 		
-		throw errors.error(node, "Unable to find a suitable getter for '" + node.toHumanReadable()  + "' in " + classContext);
+		// Go through fields and expose public members
+		for(ResolvedField rf : members.getMemberFields())
+		{
+			Field field = rf.getRawMember();
+			if(! field.getName().equals(node.getIdentifier())) continue;
+			
+			if(Modifier.isPublic(field.getModifiers())
+				|| field.isAnnotationPresent(Expose.class))
+			{
+				return new FieldPropertyInvoker(
+					node, 
+					rf.getType(), 
+					field 
+				);
+			}
+		}
+		
+		throw errors.error(node, "Unable to find a suitable getter or field for '" + node.toHumanReadable()  + "' in " + classContext);
 	}
 	
 	private Invoker resolveMethod(Node node, IdentifierNode id, Invoker[] actualParams, Class<?> context, ResolvedType typeContext)
