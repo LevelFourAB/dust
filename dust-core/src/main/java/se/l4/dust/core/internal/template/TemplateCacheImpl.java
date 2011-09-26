@@ -25,6 +25,7 @@ import se.l4.dust.api.template.spi.internal.XmlTemplateParser;
 import se.l4.dust.core.internal.template.dom.TemplateBuilderImpl;
 
 import com.google.common.base.Function;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ComputationException;
 import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
@@ -103,41 +104,48 @@ public class TemplateCacheImpl
 	public ParsedTemplate getTemplate(Context context, Class<?> c, Template annotation)
 		throws IOException
 	{
-		if(annotation != null)
+		try
 		{
-			return getTemplate0(context, c, annotation);
+			URL url = inner.getTemplateUrl(c);
+			return getTemplate(context, c, url);
 		}
-		
+		catch(ComputationException e)
+		{
+			Throwables.propagateIfPossible(e.getCause());
+			throw e;
+		}
+	}
+	
+	private URL findTemplateUrl(Class<?> c)
+	{
 		Class<?> current = c;
 		while(current != Object.class)
 		{
 			Template t = current.getAnnotation(Template.class);
 			if(t != null)
 			{
-				return getTemplate0(context, current, t);
+				return findTemplateUrl(current, t);
 			}
 			
 			current = current.getSuperclass();
 		}
 		
-		return getTemplate(context, c, "");
+		return findTemplateUrl(c, "");
 	}
 
-	private ParsedTemplate getTemplate0(Context context, Class<?> c, Template annotation)
-		throws IOException
+	private URL findTemplateUrl(Class<?> c, Template annotation)
 	{
 		if(annotation.value() == Object.class)
 		{
-			return getTemplate(context, c, annotation.name());
+			return findTemplateUrl(c, annotation.name());
 		}
 		else
 		{
-			return getTemplate(context, annotation.value(), annotation.name());
+			return findTemplateUrl(annotation.value(), annotation.name());
 		}
 	}
 	
-	private ParsedTemplate getTemplate(Context context, Class<?> c, String name)
-		throws IOException
+	private URL findTemplateUrl(Class<?> c, String name)
 	{
 		if(name.equals(""))
 		{
@@ -150,7 +158,7 @@ public class TemplateCacheImpl
 			throw new TemplateException("Could not find template " + name + " besides class " + c);
 		}
 		
-		return getTemplate(context, c, url);
+		return url;
 	}
 	
 	public ParsedTemplate getTemplate(Context context, Class<?> dataContext, URL url)
@@ -203,12 +211,15 @@ public class TemplateCacheImpl
 	private interface InnerCache
 	{
 		ParsedTemplate getTemplate(Context context, Class<?> ctx, URL url);
+		
+		URL getTemplateUrl(Class<?> ctx);
 	}
 	
 	private class ProductionCache
 		implements InnerCache
 	{
 		protected final ConcurrentMap<Key, ParsedTemplate> templates;
+		private final ConcurrentMap<Class<?>, URL> urlCache;
 		
 		public ProductionCache()
 		{
@@ -218,6 +229,17 @@ public class TemplateCacheImpl
 					public ParsedTemplate apply(Key key)
 					{
 						return loadTemplate(key.context, key.url);
+					}
+				});
+		
+
+			urlCache = new MapMaker()
+				.makeComputingMap(new Function<Class<?>, URL>()
+				{
+					@Override
+					public URL apply(Class<?> input)
+					{
+						return findTemplateUrl(input);
 					}
 				});
 		}
@@ -275,6 +297,12 @@ public class TemplateCacheImpl
 			{
 				throw new TemplateException("Unable to load " + raw + "; " + e.getCause().getMessage(), e.getCause());
 			}
+		}
+		
+		@Override
+		public URL getTemplateUrl(Class<?> ctx)
+		{
+			return urlCache.get(ctx);
 		}
 	}
 	
@@ -335,6 +363,12 @@ public class TemplateCacheImpl
 			{
 				throw new TemplateException("Could not create reference to resource");
 			}
+		}
+		
+		@Override
+		public URL getTemplateUrl(Class<?> ctx)
+		{
+			return findTemplateUrl(ctx);
 		}
 	}
 	
