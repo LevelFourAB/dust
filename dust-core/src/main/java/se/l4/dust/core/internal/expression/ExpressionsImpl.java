@@ -6,11 +6,14 @@ import java.util.concurrent.ConcurrentMap;
 
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.Expression;
-import se.l4.dust.api.expression.Expressions;
 import se.l4.dust.api.expression.ExpressionSource;
+import se.l4.dust.api.expression.Expressions;
+import se.l4.dust.core.internal.expression.ast.Node;
+import se.l4.dust.core.internal.expression.invoke.Invoker;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.Stage;
 
 /**
  * Implementation of {@link Expressions}.
@@ -24,11 +27,13 @@ public class ExpressionsImpl
 {
 	private final TypeConverter converter;
 	private final ConcurrentMap<String, ExpressionSource> sources;
+	private final boolean production;
 	
 	@Inject
-	public ExpressionsImpl(TypeConverter converter)
+	public ExpressionsImpl(TypeConverter converter, Stage stage)
 	{
 		this.converter = converter;
+		production = stage != Stage.DEVELOPMENT;
 		sources = new ConcurrentHashMap<String, ExpressionSource>();
 	}
 
@@ -46,6 +51,24 @@ public class ExpressionsImpl
 	@Override
 	public Expression compile(Map<String, String> namespaces, String expression, Class<?> localContext)
 	{
-		return new ExpressionDebugger(converter, this, namespaces, expression, localContext);
+		if(production)
+		{
+			ErrorHandler errors = new ErrorHandlerImpl(expression);
+			Node node = ExpressionParser.parse(expression);
+			Invoker invoker = new ExpressionResolver(
+				converter, 
+				this,
+				namespaces,
+				errors, 
+				node
+			).resolve(localContext);
+			
+			ExpressionCompiler compiler = new ExpressionCompiler(errors, localContext, invoker);
+			return compiler.compile();
+		}
+		else
+		{
+			return new ExpressionDebugger(converter, this, namespaces, expression, localContext);
+		}
 	}
 }

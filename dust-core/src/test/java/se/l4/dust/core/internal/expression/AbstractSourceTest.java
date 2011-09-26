@@ -15,6 +15,7 @@ import se.l4.dust.core.internal.expression.invoke.Invoker;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Stage;
 
 /**
  * Abstract test class for {@link ExpressionSource}.
@@ -35,7 +36,7 @@ public abstract class AbstractSourceTest
 		injector.getInstance(Crayon.class).start();
 		tc = injector.getInstance(TypeConverter.class);
 		
-		expressions = new ExpressionsImpl(tc);
+		expressions = new ExpressionsImpl(tc, Stage.DEVELOPMENT);
 		expressions.addSource("dust:test", createSource());
 		
 		namespaces = new HashMap<String, String>();

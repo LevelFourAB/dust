@@ -36,6 +36,7 @@ import se.l4.dust.core.internal.expression.model.Person;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Stage;
 
 /**
  * Expression resolution tests. Tests that the resolver will handle expressions
@@ -56,7 +57,7 @@ public class ResolverTest
 		Injector injector = Guice.createInjector(new ConversionModule());
 		injector.getInstance(Crayon.class).start();
 		tc = injector.getInstance(TypeConverter.class);
-		expressions = new ExpressionsImpl(tc);
+		expressions = new ExpressionsImpl(tc, Stage.DEVELOPMENT);
 		expressions.addSource("dust:test", new TestSource());
 		
 		namespaces = new HashMap<String, String>();

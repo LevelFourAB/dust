@@ -11,15 +11,16 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import se.l4.crayon.Crayon;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.core.internal.conversion.ConversionModule;
 import se.l4.dust.core.internal.expression.ExpressionDebugger;
 import se.l4.dust.core.internal.expression.ExpressionsImpl;
 import se.l4.dust.core.internal.expression.model.Person;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Stage;
 
 /**
  * Tests that run expression in debug mode (interpreted) and verify that
@@ -39,7 +40,7 @@ public class DebuggerTest
 		Injector injector = Guice.createInjector(new ConversionModule());
 		injector.getInstance(Crayon.class).start();
 		tc = injector.getInstance(TypeConverter.class);
-		expressions = new ExpressionsImpl(tc);
+		expressions = new ExpressionsImpl(tc, Stage.DEVELOPMENT);
 	}
 	
 	@Test

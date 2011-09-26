@@ -8,9 +8,6 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import se.l4.crayon.Crayon;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.Expression;
@@ -27,6 +24,16 @@ import se.l4.dust.core.internal.expression.model.Person;
 import se.l4.dust.core.internal.expression.resolver.DebuggerTest.IndexContainer;
 import se.l4.dust.core.internal.expression.resolver.DebuggerTest.TestMap;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Stage;
+
+/**
+ * Test for compiled expressions.
+ * 
+ * @author Andreas Holstenson
+ *
+ */
 public class CompilerTest
 {
 	private TypeConverter tc;
@@ -39,7 +46,7 @@ public class CompilerTest
 		Injector injector = Guice.createInjector(new ConversionModule());
 		injector.getInstance(Crayon.class).start();
 		tc = injector.getInstance(TypeConverter.class);
-		expressions = new ExpressionsImpl(tc);
+		expressions = new ExpressionsImpl(tc, Stage.DEVELOPMENT);
 		namespaces = new HashMap<String, String>();
 	}
 	
