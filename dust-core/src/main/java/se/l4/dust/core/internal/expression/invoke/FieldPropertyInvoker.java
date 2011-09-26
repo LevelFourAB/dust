@@ -3,10 +3,13 @@ package se.l4.dust.core.internal.expression.invoke;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import se.l4.dust.core.internal.expression.ErrorHandler;
-import se.l4.dust.core.internal.expression.ast.Node;
-
 import com.fasterxml.classmate.ResolvedType;
+import com.google.common.primitives.Primitives;
+
+import se.l4.dust.api.expression.ExpressionException;
+import se.l4.dust.core.internal.expression.ErrorHandler;
+import se.l4.dust.core.internal.expression.ExpressionCompiler;
+import se.l4.dust.core.internal.expression.ast.Node;
 
 public class FieldPropertyInvoker
 	implements Invoker
@@ -85,6 +88,32 @@ public class FieldPropertyInvoker
 			throw errors.error(node, "Can't access the field: " + e.getMessage(), e);
 		}
 	}
+	
+	@Override
+	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		if(Modifier.isPrivate(field.getModifiers()))
+		{
+			String in = compiler.addInput(FieldInvoker.class, new FieldInvoker(field));
+			Class<?> t = Primitives.wrap(field.getType());
+			return compiler.unwrap(t, "((" + t.getName() + ") " + in + ".get($2))");
+		}
+		
+		return context + "." + field.getName();
+	}
+	
+	@Override
+	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		if(Modifier.isPrivate(field.getModifiers()))
+		{
+			String in = compiler.addInput(FieldInvoker.class, new FieldInvoker(field));
+			
+			return in + ".set($2, $3)";
+		}
+		
+		return context + "." + field.getName() + " = $3";
+	}
 
 	@Override
 	public int hashCode()
@@ -113,5 +142,47 @@ public class FieldPropertyInvoker
 		else if(!field.equals(other.field))
 			return false;
 		return true;
+	}
+	
+	public static class FieldInvoker
+	{
+		private final Field field;
+
+		public FieldInvoker(Field field)
+		{
+			this.field = field;
+		}
+		
+		public Object get(Object instance)
+		{
+			try
+			{
+				return field.get(instance);
+			}
+			catch(IllegalArgumentException e)
+			{
+				throw new ExpressionException(null, 0, 0, "Can't get the field: " + e.getMessage());
+			}
+			catch(IllegalAccessException e)
+			{
+				throw new ExpressionException(null, 0, 0, "Can't get the field: " + e.getMessage());
+			}
+		}
+		
+		public void set(Object instance, Object value)
+		{
+			try
+			{
+				field.set(instance, value);
+			}
+			catch(IllegalArgumentException e)
+			{
+				throw new ExpressionException(null, 0, 0, "Can't set the field: " + e.getMessage());
+			}
+			catch(IllegalAccessException e)
+			{
+				throw new ExpressionException(null, 0, 0, "Can't set the field: " + e.getMessage());
+			}
+		}
 	}
 }

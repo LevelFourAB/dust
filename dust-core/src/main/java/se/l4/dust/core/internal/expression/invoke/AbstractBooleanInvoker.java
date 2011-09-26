@@ -1,9 +1,10 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import se.l4.dust.core.internal.expression.ErrorHandler;
-import se.l4.dust.core.internal.expression.ast.Node;
-
 import com.fasterxml.classmate.ResolvedType;
+
+import se.l4.dust.core.internal.expression.ErrorHandler;
+import se.l4.dust.core.internal.expression.ExpressionCompiler;
+import se.l4.dust.core.internal.expression.ast.Node;
 
 /**
  * Abstract base class for boolean operations.
@@ -14,9 +15,9 @@ import com.fasterxml.classmate.ResolvedType;
 public abstract class AbstractBooleanInvoker
 	implements Invoker
 {
-	private final Node node;
-	private final Invoker left;
-	private final Invoker right;
+	protected final Node node;
+	protected final Invoker left;
+	protected final Invoker right;
 
 	public AbstractBooleanInvoker(Node node, Invoker left, Invoker right)
 	{
@@ -34,7 +35,7 @@ public abstract class AbstractBooleanInvoker
 	@Override
 	public Class<?> getReturnClass()
 	{
-		return Boolean.class;
+		return boolean.class;
 	}
 	
 	@Override
@@ -76,6 +77,12 @@ public abstract class AbstractBooleanInvoker
 			Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
+	}
+	
+	@Override
+	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		return null;
 	}
 	
 	protected abstract boolean check(ErrorHandler errors, Object left, Object right);

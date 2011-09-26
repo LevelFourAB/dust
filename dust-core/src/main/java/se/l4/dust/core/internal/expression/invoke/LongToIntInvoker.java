@@ -6,57 +6,39 @@ import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
 
-/**
- * Invoker that negates a value.
- * 
- * @author Andreas Holstenson
- *
- */
-public class NegateInvoker
+public class LongToIntInvoker
 	implements Invoker
 {
 	private final Node node;
-	private final Invoker wrapped;
+	private final Invoker input;
 
-	public NegateInvoker(Node node, Invoker wrapped)
+	public LongToIntInvoker(Node node, Invoker input)
 	{
 		this.node = node;
-		this.wrapped = wrapped;
+		this.input = input;
 	}
-	
-	@Override
-	public Node getNode()
-	{
-		return node;
-	}
-	
+
 	@Override
 	public Class<?> getReturnClass()
 	{
-		return boolean.class;
+		return int.class;
 	}
-	
+
 	@Override
 	public ResolvedType getReturnType()
 	{
 		return null;
 	}
-	
+
 	@Override
 	public Object interpret(ErrorHandler errors, Object root, Object instance)
 	{
-		Object result = wrapped.interpret(errors, root, instance);
-		if(result == null)
-		{
-			throw errors.error(wrapped.getNode(), "Result of invocation was null but should have returned a boolean");
-		}
-		
-		return ! ((Boolean) result).booleanValue();
+		Object value = input.interpret(errors, root, instance);
+		return ((Number) value).intValue();
 	}
-	
+
 	@Override
-	public void set(ErrorHandler errors, Object root, Object instance,
-			Object value)
+	public void set(ErrorHandler errors, Object root, Object instance, Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
 	}
@@ -64,7 +46,8 @@ public class NegateInvoker
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
-		return "! " + compiler.unwrap(wrapped.getReturnClass(), wrapped.toJavaGetter(errors, compiler, context));
+		String value = input.toJavaGetter(errors, compiler, context);
+		return "((int) " + value + ")";
 	}
 	
 	@Override
@@ -72,4 +55,12 @@ public class NegateInvoker
 	{
 		return null;
 	}
+
+	@Override
+	public Node getNode()
+	{
+		return node;
+	}
+
+
 }

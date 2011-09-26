@@ -1,9 +1,11 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import se.l4.dust.core.internal.expression.ErrorHandler;
-import se.l4.dust.core.internal.expression.ast.Node;
-
 import com.fasterxml.classmate.ResolvedType;
+import com.google.common.primitives.Primitives;
+
+import se.l4.dust.core.internal.expression.ErrorHandler;
+import se.l4.dust.core.internal.expression.ExpressionCompiler;
+import se.l4.dust.core.internal.expression.ast.Node;
 
 /**
  * Invoker that holds a constant value.
@@ -32,7 +34,7 @@ public class ConstantInvoker
 	@Override
 	public Class<?> getReturnClass()
 	{
-		return value == null ? void.class : value.getClass();
+		return value == null ? void.class : Primitives.unwrap(value.getClass());
 	}
 	
 	@Override
@@ -52,6 +54,40 @@ public class ConstantInvoker
 			Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
+	}
+	
+	@Override
+	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		if(value == null)
+		{
+			return "null";
+		}
+		else if(value instanceof Number)
+		{
+			if(value instanceof Long)
+			{
+				return ((Number) value).longValue() + "l";
+			}
+			else
+			{
+				return String.valueOf(((Number) value).doubleValue());
+			}
+		}
+		else if(value instanceof Boolean)
+		{
+			return String.valueOf(((Boolean) value).booleanValue());
+		}
+		else
+		{
+			return compiler.addInput((Class) value.getClass(), value);
+		}
+	}
+	
+	@Override
+	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		return null;
 	}
 
 	@Override

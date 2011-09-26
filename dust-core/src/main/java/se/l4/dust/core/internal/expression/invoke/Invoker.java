@@ -1,9 +1,10 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import se.l4.dust.core.internal.expression.ErrorHandler;
-import se.l4.dust.core.internal.expression.ast.Node;
-
 import com.fasterxml.classmate.ResolvedType;
+
+import se.l4.dust.core.internal.expression.ErrorHandler;
+import se.l4.dust.core.internal.expression.ExpressionCompiler;
+import se.l4.dust.core.internal.expression.ast.Node;
 
 public interface Invoker
 {
@@ -48,4 +49,26 @@ public interface Invoker
 	 * @return
 	 */
 	Node getNode();
+
+	/**
+	 * Get this invoker as a Java expression that can be compiled with 
+	 * Javassist.
+	 * 
+	 * @param errors
+	 * @param compiler
+	 * @param context
+	 * 		context as a Java expression. Can be chained.
+	 * @return
+	 */
+	String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context);
+	
+	/**
+	 * Get this invoker as Java expression that can be compiled with Javassist.
+	 * 
+	 * @param errors
+	 * @param compiler
+	 * @param context
+	 * @return
+	 */
+	String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context);
 }

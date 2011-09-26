@@ -7,8 +7,11 @@ import org.junit.Before;
 
 import se.l4.crayon.Crayon;
 import se.l4.dust.api.conversion.TypeConverter;
+import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.expression.ExpressionSource;
 import se.l4.dust.core.internal.conversion.ConversionModule;
+import se.l4.dust.core.internal.expression.ast.Node;
+import se.l4.dust.core.internal.expression.invoke.Invoker;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -50,14 +53,27 @@ public abstract class AbstractSourceTest
 	
 	protected Object execute(String expr, Class<?> context, Object in)
 	{
-		ExpressionDebugger debugger = new ExpressionDebugger(
-			tc, 
-			expressions,
-			namespaces,
-			expr, 
-			context
-		);
+//		ExpressionDebugger debugger = new ExpressionDebugger(
+//			tc, 
+//			expressions,
+//			namespaces,
+//			expr, 
+//			context
+//		);
 		
-		return debugger.get(null, in);
+		ErrorHandler errors = new ErrorHandlerImpl(expr);
+		Node node = ExpressionParser.parse(expr);
+		Invoker invoker = new ExpressionResolver(
+				tc, 
+				expressions,
+				namespaces,
+				errors, 
+				node
+			).resolve(context);
+		
+		ExpressionCompiler compiler = new ExpressionCompiler(errors, context, invoker);
+		Expression compiled = compiler.compile();
+		
+		return compiled.get(null, in);
 	}
 }

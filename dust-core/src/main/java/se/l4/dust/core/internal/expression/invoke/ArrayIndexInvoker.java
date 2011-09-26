@@ -2,10 +2,11 @@ package se.l4.dust.core.internal.expression.invoke;
 
 import java.lang.reflect.Array;
 
-import se.l4.dust.core.internal.expression.ErrorHandler;
-import se.l4.dust.core.internal.expression.ast.Node;
-
 import com.fasterxml.classmate.ResolvedType;
+
+import se.l4.dust.core.internal.expression.ErrorHandler;
+import se.l4.dust.core.internal.expression.ExpressionCompiler;
+import se.l4.dust.core.internal.expression.ast.Node;
 
 /**
  * Invoker that gets a specific index from an array.
@@ -51,6 +52,18 @@ public class ArrayIndexInvoker
 			Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
+	}
+	
+	@Override
+	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		return context + "[" + index.toJavaGetter(errors, compiler, context) + "]";
+	}
+	
+	@Override
+	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		return null;
 	}
 
 	@Override

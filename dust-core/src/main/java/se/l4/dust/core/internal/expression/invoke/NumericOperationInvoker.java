@@ -1,14 +1,15 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import com.fasterxml.classmate.ResolvedType;
+
 import se.l4.dust.core.internal.expression.ErrorHandler;
+import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.AddNode;
 import se.l4.dust.core.internal.expression.ast.DivideNode;
 import se.l4.dust.core.internal.expression.ast.ModuloNode;
 import se.l4.dust.core.internal.expression.ast.MultiplyNode;
 import se.l4.dust.core.internal.expression.ast.Node;
 import se.l4.dust.core.internal.expression.ast.SubtractNode;
-
-import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker for numeric operations.
@@ -64,6 +65,25 @@ public class NumericOperationInvoker
 			
 			throw new AssertionError("Unknown operation: " + this);
 		}
+		
+		public String getOperator()
+		{
+			switch(this)
+			{
+				case ADD:
+					return "+";
+				case DIVIDE:
+					return "/";
+				case MODULO:
+					return "%";
+				case MULTIPLY:
+					return "*";
+				case SUBTRACT:
+					return "-";
+			}
+			
+			throw new AssertionError("Unknown operation: " + this);
+		}
 	}
 	private final Node node;
 	private final Invoker left;
@@ -113,7 +133,7 @@ public class NumericOperationInvoker
 	@Override
 	public Class<?> getReturnClass()
 	{
-		return floatingPoint ? Double.class : Long.class;
+		return floatingPoint ? double.class : long.class;
 	}
 	
 	@Override
@@ -143,4 +163,21 @@ public class NumericOperationInvoker
 		throw errors.error(node, "Can not set value of this expression");
 	}
 
+	@Override
+	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		String lj = left.toJavaGetter(errors, compiler, context);
+		String rj = right.toJavaGetter(errors, compiler, context);
+		
+		return "(" + compiler.unwrap(left.getReturnClass(), lj) 
+			+ " " + operation.getOperator() + " " +
+			compiler.unwrap(right.getReturnClass(), rj) 
+			+ ")";
+	}
+	
+	@Override
+	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		return null;
+	}
 }

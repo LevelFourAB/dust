@@ -6,6 +6,15 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.classmate.MemberResolver;
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.ResolvedTypeWithMembers;
+import com.fasterxml.classmate.TypeResolver;
+import com.fasterxml.classmate.members.ResolvedField;
+import com.fasterxml.classmate.members.ResolvedMethod;
+import com.google.common.base.CaseFormat;
+import com.google.common.primitives.Primitives;
+
 import se.l4.dust.api.annotation.Expose;
 import se.l4.dust.api.conversion.NonGenericConversion;
 import se.l4.dust.api.conversion.TypeConverter;
@@ -49,6 +58,7 @@ import se.l4.dust.core.internal.expression.invoke.DynamicPropertyInvoker;
 import se.l4.dust.core.internal.expression.invoke.EqualsInvoker;
 import se.l4.dust.core.internal.expression.invoke.FieldPropertyInvoker;
 import se.l4.dust.core.internal.expression.invoke.Invoker;
+import se.l4.dust.core.internal.expression.invoke.LongToIntInvoker;
 import se.l4.dust.core.internal.expression.invoke.MethodInvoker;
 import se.l4.dust.core.internal.expression.invoke.MethodPropertyInvoker;
 import se.l4.dust.core.internal.expression.invoke.NegateInvoker;
@@ -58,15 +68,6 @@ import se.l4.dust.core.internal.expression.invoke.OrInvoker;
 import se.l4.dust.core.internal.expression.invoke.StringConcatInvoker;
 import se.l4.dust.core.internal.expression.invoke.TernaryInvoker;
 import se.l4.dust.core.internal.expression.invoke.ThisInvoker;
-
-import com.fasterxml.classmate.MemberResolver;
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.ResolvedTypeWithMembers;
-import com.fasterxml.classmate.TypeResolver;
-import com.fasterxml.classmate.members.ResolvedField;
-import com.fasterxml.classmate.members.ResolvedMethod;
-import com.google.common.base.CaseFormat;
-import com.google.common.primitives.Primitives;
 
 /**
  * Resolver for expressions, turns the AST into an invocation chain.
@@ -423,9 +424,9 @@ public class ExpressionResolver
 				}
 				else if(left.getReturnClass().isArray())
 				{
-					if(! isNumber(ii.getReturnClass()))
+					if(ii.getReturnClass() != int.class)
 					{
-						ii = toConverting(ii, Integer.class);
+						ii = toConverting(ii, int.class);
 					}
 					
 					left = new ChainInvoker(index, left, 
@@ -444,8 +445,13 @@ public class ExpressionResolver
 		throw errors.error(node, "Unknown node of type: " + node.getClass());
 	}
 	
-	private ConvertingInvoker toConverting(Invoker invoker, Class<?> output)
+	private Invoker toConverting(Invoker invoker, Class<?> output)
 	{
+		if(output == int.class && invoker.getReturnClass() == long.class)
+		{
+			return new LongToIntInvoker(invoker.getNode(), invoker);
+		}
+		
 		Class<?> in = invoker.getReturnClass();
 		if(converter.canConvertBetween(in, output))
 		{

@@ -1,10 +1,11 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import com.fasterxml.classmate.ResolvedType;
+
 import se.l4.dust.api.expression.DynamicMethod;
 import se.l4.dust.core.internal.expression.ErrorHandler;
+import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
-
-import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker for {@link DynamicMethod}.
@@ -60,6 +61,49 @@ public class DynamicMethodInvoker
 			Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
+	}
+	
+	@Override
+	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		String in = compiler.addInput(DynamicMethod.class, method);
+		
+		StringBuilder builder = new StringBuilder();
+		builder.append("((").append(getReturnClass().getName()).append(") ")
+			.append(in)
+			.append(".invoke($1, ")
+			.append(context);
+		
+		if(params.length == 0)
+		{
+			builder.append(", null");
+		}
+		else
+		{
+			builder.append(", new java.lang.String[] { ");
+		
+			for(int i=0, n=params.length; i<n; i++)
+			{
+				if(i > 0) builder.append(", ");
+				
+				String v = params[i].toJavaGetter(errors, compiler, context);
+				builder.append(
+					compiler.wrap(params[i].getReturnClass(), v)
+				);
+			}
+			
+			builder.append(" }");
+		}
+		
+		builder.append("))");
+		
+		return builder.toString();
+	}
+	
+	@Override
+	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		return null;
 	}
 
 	@Override

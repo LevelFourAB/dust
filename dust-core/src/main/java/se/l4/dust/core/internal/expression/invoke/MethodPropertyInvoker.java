@@ -3,10 +3,12 @@ package se.l4.dust.core.internal.expression.invoke;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import se.l4.dust.core.internal.expression.ErrorHandler;
-import se.l4.dust.core.internal.expression.ast.Node;
-
 import com.fasterxml.classmate.ResolvedType;
+import com.google.common.primitives.Primitives;
+
+import se.l4.dust.core.internal.expression.ErrorHandler;
+import se.l4.dust.core.internal.expression.ExpressionCompiler;
+import se.l4.dust.core.internal.expression.ast.Node;
 
 /**
  * Invoker for a property method.
@@ -91,6 +93,21 @@ public class MethodPropertyInvoker
 		{
 			throw errors.error(node, "Error executing: " + e.getMessage(), e);
 		}
+	}
+	
+	@Override
+	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		return context + "." + getter.getName() + "()";
+	}
+	
+	@Override
+	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		if(setter == null) return null;
+		
+		Class<?> type = Primitives.wrap(setter.getParameterTypes()[0]);
+		return context + "." + setter.getName() + "(" + compiler.unwrap(type, "(" + type.getName() + ") $3") + ")";
 	}
 	
 	@Override

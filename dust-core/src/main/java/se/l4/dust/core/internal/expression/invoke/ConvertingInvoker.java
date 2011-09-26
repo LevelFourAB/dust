@@ -1,11 +1,12 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import com.fasterxml.classmate.ResolvedType;
+
 import se.l4.dust.api.conversion.Conversion;
 import se.l4.dust.api.conversion.NonGenericConversion;
 import se.l4.dust.core.internal.expression.ErrorHandler;
+import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
-
-import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Special invoker that will use {@link Conversion} to convert the return
@@ -52,6 +53,21 @@ public class ConvertingInvoker
 			Object value)
 	{
 		wrapped.set(errors, root, instance, value);
+	}
+	
+	@Override
+	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		return null;
+	}
+	
+	@Override
+	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		String expr = wrapped.toJavaGetter(errors, compiler, context);
+		String id = compiler.addInput(Conversion.class, conversion);
+		
+		return "((" + getReturnClass().getName() + ") " + id + ".convert(" + compiler.wrap(wrapped.getReturnClass(), expr) + "))";
 	}
 
 	@Override

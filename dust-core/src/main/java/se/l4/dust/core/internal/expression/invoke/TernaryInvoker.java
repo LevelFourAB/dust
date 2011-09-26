@@ -1,9 +1,10 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import se.l4.dust.core.internal.expression.ErrorHandler;
-import se.l4.dust.core.internal.expression.ast.Node;
-
 import com.fasterxml.classmate.ResolvedType;
+
+import se.l4.dust.core.internal.expression.ErrorHandler;
+import se.l4.dust.core.internal.expression.ExpressionCompiler;
+import se.l4.dust.core.internal.expression.ast.Node;
 
 /**
  * Invoker for ternary ifs.
@@ -96,5 +97,22 @@ public class TernaryInvoker
 			Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
+	}
+	
+	@Override
+	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		return "((" + getReturnClass().getName() + ") (" 
+			+ test.toJavaGetter(errors, compiler, context)
+			+ " ? "
+			+ left.toJavaGetter(errors, compiler, context)
+			+ " : " + (right == null ? "null" : right.toJavaGetter(errors, compiler, context))
+			+ "))";
+	}
+	
+	@Override
+	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		return null;
 	}
 }

@@ -4,10 +4,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import se.l4.dust.core.internal.expression.ErrorHandler;
-import se.l4.dust.core.internal.expression.ast.Node;
-
 import com.fasterxml.classmate.ResolvedType;
+
+import se.l4.dust.core.internal.expression.ErrorHandler;
+import se.l4.dust.core.internal.expression.ExpressionCompiler;
+import se.l4.dust.core.internal.expression.ast.Node;
 
 /**
  * Invoker that runs methods.
@@ -76,6 +77,36 @@ public class MethodInvoker
 			Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
+	}
+	
+	@Override
+	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		StringBuilder builder = new StringBuilder();
+		builder
+			.append("((")
+			.append(getReturnClass().getName())
+			.append(") ")
+			.append(context).append(".").append(method.getName())
+			.append("(");
+		
+		for(int i=0, n=params.length; i<n; i++)
+		{
+			if(i > 0) builder.append(", ");
+			
+			builder.append(
+				params[i].toJavaGetter(errors, compiler, compiler.getRootContext())
+			);
+		}
+		
+		builder.append("))");
+		return builder.toString();
+	}
+	
+	@Override
+	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
+	{
+		return null;
 	}
 
 	@Override

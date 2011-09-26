@@ -11,15 +11,15 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import se.l4.crayon.Crayon;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.core.internal.conversion.ConversionModule;
 import se.l4.dust.core.internal.expression.ExpressionDebugger;
 import se.l4.dust.core.internal.expression.ExpressionsImpl;
 import se.l4.dust.core.internal.expression.model.Person;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 
 /**
  * Tests that run expression in debug mode (interpreted) and verify that
@@ -197,6 +197,16 @@ public class DebuggerTest
 	{
 		Person p = new Person();
 		Object o = debug("verified", p);
+		
+		Assert.assertEquals(false, o);
+	}
+	
+	@Test
+	public void testAnd2()
+	{
+		Person p = new Person();
+		p.setName("false");
+		Object o = debug("verified && name", p);
 		
 		Assert.assertEquals(false, o);
 	}
