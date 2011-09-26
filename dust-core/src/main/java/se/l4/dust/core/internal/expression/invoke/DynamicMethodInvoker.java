@@ -1,11 +1,11 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import com.fasterxml.classmate.ResolvedType;
-
 import se.l4.dust.api.expression.DynamicMethod;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker for {@link DynamicMethod}.
@@ -69,7 +69,9 @@ public class DynamicMethodInvoker
 		String in = compiler.addInput(DynamicMethod.class, method);
 		
 		StringBuilder builder = new StringBuilder();
-		builder.append("((").append(getReturnClass().getName()).append(") ")
+		builder.append("(")
+			.append(compiler.cast(getReturnClass()))
+			.append(" ")
 			.append(in)
 			.append(".invoke($1, ")
 			.append(context);

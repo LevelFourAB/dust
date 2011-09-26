@@ -12,12 +12,11 @@ import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
-
-import com.google.common.primitives.Primitives;
-
 import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.expression.ExpressionException;
 import se.l4.dust.core.internal.expression.invoke.Invoker;
+
+import com.google.common.primitives.Primitives;
 
 /**
  * Compiler for expressions. Will take a tree of {@link Invoker}s and compile
@@ -140,6 +139,29 @@ public class ExpressionCompiler
 		DeclaredItem item = new DeclaredItem("input" + items.size(), input, instance);
 		items.add(item);
 		return "this." + item.name;
+	}
+	
+	/**
+	 * Create a cast (including parenthesizes).
+	 * 
+	 * @param result
+	 * @return
+	 */
+	public String cast(Class<?> result)
+	{
+		return "(" + castNoParens(result) + ")";
+	}
+	
+	private String castNoParens(Class<?> result)
+	{
+		if(result.isArray())
+		{
+			return castNoParens(result.getComponentType()) + "[]";
+		}
+		else
+		{
+			return result.getName();
+		}
 	}
 
 	/**

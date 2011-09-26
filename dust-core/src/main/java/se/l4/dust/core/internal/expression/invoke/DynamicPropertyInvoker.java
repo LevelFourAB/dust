@@ -1,12 +1,12 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import com.fasterxml.classmate.ResolvedType;
-import com.google.common.primitives.Primitives;
-
 import se.l4.dust.api.expression.DynamicProperty;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
+import com.google.common.primitives.Primitives;
 
 /**
  * Invoker that wraps {@link DynamicProperty}.
@@ -57,7 +57,7 @@ public class DynamicPropertyInvoker
 		String id = compiler.addInput(DynamicProperty.class, property);
 		Class<?> t = Primitives.wrap(getReturnClass());
 		return "(" + compiler.unwrap(t, 
-			"(" + t.getName() + ") " + id + ".getValue($1, " + context + ")") 
+			compiler.cast(t) + " " + id + ".getValue($1, " + context + ")") 
 			+ ")";
 	}
 	
