@@ -6,6 +6,9 @@ import java.net.URLEncoder;
 import se.l4.dust.api.expression.ReflectiveExpressionSource;
 import se.l4.dust.api.template.dom.Element;
 
+import com.google.inject.Inject;
+import com.google.inject.Stage;
+
 /**
  * Source of common properties and methods used within expressions.
  * 
@@ -15,6 +18,12 @@ import se.l4.dust.api.template.dom.Element;
 public class CommonSource
 	extends ReflectiveExpressionSource
 {
+	@Inject
+	public CommonSource(Stage stage)
+	{
+		super(stage);
+	}
+	
 	@Property
 	public Object skip()
 	{

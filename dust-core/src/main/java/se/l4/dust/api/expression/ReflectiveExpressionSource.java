@@ -12,12 +12,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import se.l4.dust.api.Context;
+
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-
-import se.l4.dust.api.Context;
+import com.google.inject.Stage;
 
 /**
  * Expression source that works by using reflection to find methods on its
@@ -85,7 +86,14 @@ public abstract class ReflectiveExpressionSource
 	private final Map<String, PropertyImpl> properties;
 	private final Multimap<String, MethodImpl> methods;
 	
-	public ReflectiveExpressionSource()
+	/**
+	 * Creata a new expression source that will scan and expose any public
+	 * methods annotated with {@link Method} or {@link Property}.
+	 * 
+	 * @param stage
+	 * 		the stage that Guice is in, should be injected into the subclass
+	 */
+	public ReflectiveExpressionSource(Stage stage)
 	{
 		properties = createProperties();
 		methods = createMethods();

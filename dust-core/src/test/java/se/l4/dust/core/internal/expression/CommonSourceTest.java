@@ -7,6 +7,8 @@ import se.l4.dust.api.expression.ExpressionSource;
 import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.core.internal.expression.model.Person;
 
+import com.google.inject.Stage;
+
 /**
  * Test for {@link CommonSource}.
  * 
@@ -20,7 +22,7 @@ public class CommonSourceTest
 	@Override
 	protected ExpressionSource createSource()
 	{
-		return new CommonSource();
+		return new CommonSource(Stage.PRODUCTION);
 	}
 
 	@Test
