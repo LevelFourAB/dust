@@ -44,7 +44,7 @@ public class DynamicPropertyInvoker
 	{
 		try
 		{
-			return property.getValue(null, instance);
+			return property.getValue(context, instance);
 		}
 		catch(Throwable t)
 		{
@@ -58,7 +58,7 @@ public class DynamicPropertyInvoker
 	{
 		try
 		{
-			property.setValue(null, instance, value);
+			property.setValue(context, instance, value);
 		}
 		catch(Throwable t)
 		{

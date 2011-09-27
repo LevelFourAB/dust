@@ -56,7 +56,7 @@ public class DynamicMethodInvoker
 				values[i] = params[i].get(errors, context, root, root);
 			}
 			
-			return method.invoke(null, instance, values);
+			return method.invoke(context, instance, values);
 		}
 		catch(Throwable t)
 		{
