@@ -1,5 +1,6 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import se.l4.dust.api.Context;
 import se.l4.dust.api.conversion.Conversion;
 import se.l4.dust.api.conversion.NonGenericConversion;
 import se.l4.dust.core.internal.expression.ErrorHandler;
@@ -42,17 +43,17 @@ public class ConvertingInvoker
 	}
 
 	@Override
-	public Object interpret(ErrorHandler errors, Object root, Object instance)
+	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
-		Object value = wrapped.interpret(errors, root, instance);
+		Object value = wrapped.get(errors, context, root, instance);
 		return conversion.convert(value);
 	}
 	
 	@Override
-	public void set(ErrorHandler errors, Object root, Object instance,
-			Object value)
+	public void set(ErrorHandler errors, Context context, Object root,
+			Object instance, Object value)
 	{
-		wrapped.set(errors, root, instance, value);
+		wrapped.set(errors, context, root, instance, value);
 	}
 	
 	@Override

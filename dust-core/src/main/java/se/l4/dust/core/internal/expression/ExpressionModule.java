@@ -23,7 +23,7 @@ public class ExpressionModule
 	@Contribution
 	public void bindExpressionSources(Expressions expressions,
 			CommonSource s1,
-			VarProperty s2)
+			VarPropertySource s2)
 	{
 		expressions.addSource("dust:common", s1);
 		expressions.addSource("dust:variables", s2);

@@ -1,5 +1,6 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import se.l4.dust.api.Context;
 import se.l4.dust.api.expression.DynamicMethod;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
@@ -40,7 +41,7 @@ public class DynamicMethodInvoker
 	}
 
 	@Override
-	public Object interpret(ErrorHandler errors, Object root, Object instance)
+	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
 		if(instance == null)
 		{
@@ -50,15 +51,15 @@ public class DynamicMethodInvoker
 		Object[] values = new Object[params.length];
 		for(int i=0, n=params.length; i<n; i++)
 		{
-			values[i] = params[i].interpret(errors, root, root);
+			values[i] = params[i].get(errors, context, root, root);
 		}
 		
 		return method.invoke(null, instance, values);
 	}
 
 	@Override
-	public void set(ErrorHandler errors, Object root, Object instance,
-			Object value)
+	public void set(ErrorHandler errors, Context context, Object root,
+			Object instance, Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
 	}

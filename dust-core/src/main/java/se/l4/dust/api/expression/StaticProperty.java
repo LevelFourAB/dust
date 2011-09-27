@@ -23,6 +23,12 @@ public class StaticProperty
 	{
 		return value;
 	}
+	
+	@Override
+	public void setValue(Context context, Object root, Object value)
+	{
+		throw new ExpressionException("setValue is unsupported for this property");
+	}
 
 	@Override
 	public Class<?> getType()

@@ -10,6 +10,11 @@ public class ExpressionException
 	extends RuntimeException
 {
 
+	public ExpressionException(String message)
+	{
+		super(message);
+	}
+	
 	public ExpressionException(String source, int line, int position, String message)
 	{
 		super(constructError(source, line, position, message));

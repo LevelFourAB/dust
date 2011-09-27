@@ -1,5 +1,6 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import se.l4.dust.api.Context;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
@@ -75,12 +76,12 @@ public class TernaryInvoker
 	}
 	
 	@Override
-	public Object interpret(ErrorHandler errors, Object root, Object instance)
+	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
-		Object result = test.interpret(errors, root, instance);
+		Object result = test.get(errors, context, root, instance);
 		if(Boolean.TRUE.equals(result))
 		{
-			return left.interpret(errors, root, instance);
+			return left.get(errors, context, root, instance);
 		}
 		else if(right == null)
 		{
@@ -88,13 +89,13 @@ public class TernaryInvoker
 		}
 		else
 		{
-			return right.interpret(errors, root, instance);
+			return right.get(errors, context, root, instance);
 		}
 	}
 	
 	@Override
-	public void set(ErrorHandler errors, Object root, Object instance,
-			Object value)
+	public void set(ErrorHandler errors, Context context, Object root,
+			Object instance, Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
 	}

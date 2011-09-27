@@ -53,6 +53,7 @@ import se.l4.dust.core.internal.expression.invoke.ArrayIndexInvoker;
 import se.l4.dust.core.internal.expression.invoke.ChainInvoker;
 import se.l4.dust.core.internal.expression.invoke.ConstantInvoker;
 import se.l4.dust.core.internal.expression.invoke.ConvertingInvoker;
+import se.l4.dust.core.internal.expression.invoke.DynamicConversionInvoker;
 import se.l4.dust.core.internal.expression.invoke.DynamicMethodInvoker;
 import se.l4.dust.core.internal.expression.invoke.DynamicPropertyInvoker;
 import se.l4.dust.core.internal.expression.invoke.EqualsInvoker;
@@ -158,7 +159,7 @@ public class ExpressionResolver
 			// Resolve a chain of other nodes
 			ChainNode chain = (ChainNode) node;
 			
-			Invoker leftInvoker = resolve(encounter, chain.getLeft(), root, context, typeContext);
+			Invoker leftInvoker = resolve0(encounter, chain.getLeft(), root, context, typeContext);
 			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, leftInvoker.getReturnClass(), leftInvoker.getReturnType());
 			
 			return new ChainInvoker(node, leftInvoker, rightInvoker);
@@ -465,6 +466,11 @@ public class ExpressionResolver
 			+ " with no way of converting to " + output.getSimpleName());
 	}
 	
+	private Invoker toDynamcConverting(Invoker invoker, Class<?> output)
+	{
+		return new DynamicConversionInvoker(converter, invoker.getNode(), output, invoker);
+	}
+	
 	private boolean isBoolean(Class<?> type)
 	{
 		return type == Boolean.class || type == boolean.class;
@@ -661,6 +667,11 @@ public class ExpressionResolver
 						&& ! types[i].isPrimitive())
 				{
 					newParams[i] = actualParams[i];
+				}
+				else if(actualParams[i].getReturnClass() == Object.class)
+				{
+					// TODO: Variant return class?
+					newParams[i] = toDynamcConverting(actualParams[i], types[i]);
 				}
 				else
 				{

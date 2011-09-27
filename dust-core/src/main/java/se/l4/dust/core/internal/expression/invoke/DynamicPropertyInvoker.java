@@ -1,12 +1,13 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import com.fasterxml.classmate.ResolvedType;
+import com.google.common.primitives.Primitives;
+
+import se.l4.dust.api.Context;
 import se.l4.dust.api.expression.DynamicProperty;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
-
-import com.fasterxml.classmate.ResolvedType;
-import com.google.common.primitives.Primitives;
 
 /**
  * Invoker that wraps {@link DynamicProperty}.
@@ -39,16 +40,16 @@ public class DynamicPropertyInvoker
 	}
 
 	@Override
-	public Object interpret(ErrorHandler errors, Object root, Object instance)
+	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
 		return property.getValue(null, instance);
 	}
 	
 	@Override
-	public void set(ErrorHandler errors, Object root, Object instance,
-			Object value)
+	public void set(ErrorHandler errors, Context context, Object root,
+			Object instance, Object value)
 	{
-		throw errors.error(node, "Can not set value of this expression");
+		property.setValue(null, instance, value);
 	}
 	
 	@Override
@@ -64,7 +65,8 @@ public class DynamicPropertyInvoker
 	@Override
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
-		return null;
+		String id = compiler.addInput(DynamicProperty.class, property);
+		return id + ".setValue($1, " + context + ", $3)"; 
 	}
 
 	@Override

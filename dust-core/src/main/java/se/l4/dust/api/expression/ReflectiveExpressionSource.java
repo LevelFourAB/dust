@@ -12,13 +12,21 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import se.l4.dust.api.Context;
-
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
+import se.l4.dust.api.Context;
+
+/**
+ * Expression source that works by using reflection to find methods on its
+ * subclasses. Every method annotated with either {@link Property}
+ * or {@link Method} will be exposed in the source.
+ * 
+ * @author Andreas Holstenson
+ *
+ */
 public abstract class ReflectiveExpressionSource
 	implements ExpressionSource
 {
@@ -66,6 +74,9 @@ public abstract class ReflectiveExpressionSource
 	 * @author Andreas Holstenson
 	 *
 	 */
+	@Target(ElementType.PARAMETER)
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
 	public @interface Instance
 	{
 		
@@ -311,6 +322,12 @@ public abstract class ReflectiveExpressionSource
 				Throwables.propagateIfPossible(e);
 				throw Throwables.propagate(e);
 			}
+		}
+		
+		@Override
+		public void setValue(Context context, Object root, Object value)
+		{
+			throw new ExpressionException("setValue is unsupported for this property");
 		}
 
 		@Override

@@ -3,6 +3,7 @@ package se.l4.dust.core.internal.expression.invoke;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
+import se.l4.dust.api.Context;
 import se.l4.dust.api.expression.ExpressionException;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
@@ -45,7 +46,7 @@ public class FieldPropertyInvoker
 	}
 	
 	@Override
-	public Object interpret(ErrorHandler errors, Object root, Object instance)
+	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
 		if(instance == null)
 		{
@@ -67,8 +68,8 @@ public class FieldPropertyInvoker
 	}
 	
 	@Override
-	public void set(ErrorHandler errors, Object root, Object instance,
-			Object value)
+	public void set(ErrorHandler errors, Context context, Object root,
+			Object instance, Object value)
 	{
 		if(Modifier.isFinal(field.getModifiers()))
 		{

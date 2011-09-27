@@ -20,6 +20,15 @@ public interface DynamicProperty
 	Object getValue(Context context, Object root);
 	
 	/**
+	 * Set the value of this property.
+	 * 
+	 * @param context
+	 * @param root
+	 * @param value
+	 */
+	void setValue(Context context, Object root, Object value);
+	
+	/**
 	 * Get the type of the result.
 	 * 
 	 * @return

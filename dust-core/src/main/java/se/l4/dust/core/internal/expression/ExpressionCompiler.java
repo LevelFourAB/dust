@@ -12,11 +12,12 @@ import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
+
+import com.google.common.primitives.Primitives;
+
 import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.expression.ExpressionException;
 import se.l4.dust.core.internal.expression.invoke.Invoker;
-
-import com.google.common.primitives.Primitives;
 
 /**
  * Compiler for expressions. Will take a tree of {@link Invoker}s and compile

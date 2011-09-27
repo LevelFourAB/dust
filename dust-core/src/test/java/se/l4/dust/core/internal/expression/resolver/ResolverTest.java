@@ -10,6 +10,10 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Stage;
+
 import se.l4.crayon.Crayon;
 import se.l4.dust.api.Context;
 import se.l4.dust.api.conversion.TypeConverter;
@@ -33,10 +37,6 @@ import se.l4.dust.core.internal.expression.invoke.MethodInvoker;
 import se.l4.dust.core.internal.expression.invoke.MethodPropertyInvoker;
 import se.l4.dust.core.internal.expression.invoke.ThisInvoker;
 import se.l4.dust.core.internal.expression.model.Person;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Stage;
 
 /**
  * Expression resolution tests. Tests that the resolver will handle expressions
@@ -262,6 +262,11 @@ public class ResolverTest
 		public Object getValue(Context context, Object root)
 		{
 			return 12;
+		}
+		
+		@Override
+		public void setValue(Context context, Object root, Object value)
+		{
 		}
 
 		@Override

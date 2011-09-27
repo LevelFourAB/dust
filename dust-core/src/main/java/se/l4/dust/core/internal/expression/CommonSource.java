@@ -39,4 +39,10 @@ public class CommonSource
 			throw new AssertionError("UTF-8 unsupported");
 		}
 	}
+	
+	@Method("urlencode")
+	public String urlencodeInput(@Instance String in)
+	{
+		return urlencode(in);
+	}
 }

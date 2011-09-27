@@ -12,7 +12,7 @@ import se.l4.dust.api.expression.ExpressionSource;
  * @author Andreas Holstenson
  *
  */
-public class VarProperty
+public class VarPropertySource
 	implements ExpressionSource
 {
 
@@ -25,7 +25,7 @@ public class VarProperty
 	@Override
 	public DynamicProperty getProperty(ExpressionEncounter encounter, String name)
 	{
-		return new Content(name);
+		return encounter.isRoot() ? new Content(name) : null;
 	}
 
 	public static class Content
@@ -50,6 +50,12 @@ public class VarProperty
 		public Object getValue(Context ctx, Object root)
 		{
 			return ctx.getValue(compoundKey);
+		}
+		
+		@Override
+		public void setValue(Context context, Object root, Object value)
+		{
+			context.putValue(compoundKey, value);
 		}
 	}
 }

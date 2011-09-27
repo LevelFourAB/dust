@@ -5,6 +5,10 @@ import java.util.Map;
 
 import org.junit.Before;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Stage;
+
 import se.l4.crayon.Crayon;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.Expression;
@@ -12,10 +16,6 @@ import se.l4.dust.api.expression.ExpressionSource;
 import se.l4.dust.core.internal.conversion.ConversionModule;
 import se.l4.dust.core.internal.expression.ast.Node;
 import se.l4.dust.core.internal.expression.invoke.Invoker;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Stage;
 
 /**
  * Abstract test class for {@link ExpressionSource}.
@@ -52,15 +52,15 @@ public abstract class AbstractSourceTest
 		return execute(expr, in.getClass(), in);
 	}
 	
-	protected Object execute(String expr, Class<?> context, Object in)
+	protected Expression compile(String expr, Class<?> context)
 	{
 //		ExpressionDebugger debugger = new ExpressionDebugger(
-//			tc, 
-//			expressions,
-//			namespaces,
-//			expr, 
-//			context
-//		);
+//				tc, 
+//				expressions,
+//				namespaces,
+//				expr, 
+//				context
+//			);
 		
 		ErrorHandler errors = new ErrorHandlerImpl(expr);
 		Node node = ExpressionParser.parse(expr);
@@ -73,8 +73,12 @@ public abstract class AbstractSourceTest
 			).resolve(context);
 		
 		ExpressionCompiler compiler = new ExpressionCompiler(errors, context, invoker);
-		Expression compiled = compiler.compile();
-		
+		return compiler.compile();
+	}
+	
+	protected Object execute(String expr, Class<?> context, Object in)
+	{
+		Expression compiled = compile(expr, context);
 		return compiled.get(null, in);
 	}
 }

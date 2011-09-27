@@ -3,6 +3,7 @@ package se.l4.dust.core.internal.expression.invoke;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import se.l4.dust.api.Context;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
@@ -46,7 +47,7 @@ public class MethodPropertyInvoker
 	}
 	
 	@Override
-	public Object interpret(ErrorHandler errors, Object root, Object instance)
+	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
 		if(instance == null)
 		{
@@ -68,8 +69,8 @@ public class MethodPropertyInvoker
 	}
 	
 	@Override
-	public void set(ErrorHandler errors, Object root, Object instance,
-			Object value)
+	public void set(ErrorHandler errors, Context context, Object root,
+			Object instance, Object value)
 	{
 		if(setter == null)
 		{

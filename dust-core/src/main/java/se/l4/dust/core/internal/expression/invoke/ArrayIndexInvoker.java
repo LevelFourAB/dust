@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 
 import com.fasterxml.classmate.ResolvedType;
 
+import se.l4.dust.api.Context;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
@@ -41,15 +42,15 @@ public class ArrayIndexInvoker
 	}
 
 	@Override
-	public Object interpret(ErrorHandler errors, Object root, Object instance)
+	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
-		Number number = (Number) index.interpret(errors, root, root);
+		Number number = (Number) index.get(errors, context, root, root);
 		return Array.get(instance, number.intValue());
 	}
 
 	@Override
-	public void set(ErrorHandler errors, Object root, Object instance,
-			Object value)
+	public void set(ErrorHandler errors, Context context, Object root,
+			Object instance, Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
 	}

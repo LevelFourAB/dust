@@ -38,12 +38,12 @@ public class ExpressionDebugger
 	@Override
 	public Object get(Context context, Object instance)
 	{
-		return invoker.interpret(errors, instance, instance);
+		return invoker.get(errors, context, instance, instance);
 	}
 	
 	@Override
 	public void set(Context context, Object instance, Object value)
 	{
-		invoker.set(errors, instance, instance, value);
+		invoker.set(errors, context, instance, instance, value);
 	}
 }

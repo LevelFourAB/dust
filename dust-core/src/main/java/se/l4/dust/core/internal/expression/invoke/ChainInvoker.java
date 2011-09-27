@@ -2,6 +2,7 @@ package se.l4.dust.core.internal.expression.invoke;
 
 import com.fasterxml.classmate.ResolvedType;
 
+import se.l4.dust.api.Context;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
@@ -39,17 +40,17 @@ public class ChainInvoker
 	}
 	
 	@Override
-	public Object interpret(ErrorHandler errors, Object root, Object instance)
+	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
-		Object result = left.interpret(errors, root, instance);
-		return right.interpret(errors, root, result);
+		Object result = left.get(errors, context, root, instance);
+		return right.get(errors, context, root, result);
 	}
 	
 	@Override
-	public void set(ErrorHandler errors, Object root, Object instance, Object value)
+	public void set(ErrorHandler errors, Context context, Object root, Object instance, Object value)
 	{
-		Object result = left.interpret(errors, root, instance);
-		right.set(errors, root, result, value);
+		Object result = left.get(errors, context, root, instance);
+		right.set(errors, context, root, result, value);
 	}
 	
 	@Override
