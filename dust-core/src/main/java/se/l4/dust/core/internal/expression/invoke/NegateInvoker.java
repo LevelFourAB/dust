@@ -1,11 +1,11 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import com.fasterxml.classmate.ResolvedType;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker that negates a value.
@@ -46,13 +46,20 @@ public class NegateInvoker
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
-		Object result = wrapped.get(errors, context, root, instance);
-		if(result == null)
+		try
 		{
-			throw errors.error(wrapped.getNode(), "Result of invocation was null but should have returned a boolean");
+			Object result = wrapped.get(errors, context, root, instance);
+			if(result == null)
+			{
+				throw errors.error(wrapped.getNode(), "Result of invocation was null but should have returned a boolean");
+			}
+			
+			return ! ((Boolean) result).booleanValue();
 		}
-		
-		return ! ((Boolean) result).booleanValue();
+		catch(Throwable t)
+		{
+			throw errors.error(node, t);
+		}
 	}
 	
 	@Override

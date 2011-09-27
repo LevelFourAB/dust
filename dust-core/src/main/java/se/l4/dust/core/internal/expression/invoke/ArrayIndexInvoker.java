@@ -2,12 +2,12 @@ package se.l4.dust.core.internal.expression.invoke;
 
 import java.lang.reflect.Array;
 
-import com.fasterxml.classmate.ResolvedType;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker that gets a specific index from an array.
@@ -44,8 +44,15 @@ public class ArrayIndexInvoker
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
-		Number number = (Number) index.get(errors, context, root, root);
-		return Array.get(instance, number.intValue());
+		try
+		{
+			Number number = (Number) index.get(errors, context, root, root);
+			return Array.get(instance, number.intValue());
+		}
+		catch(Throwable t)
+		{
+			throw errors.error(node, t);
+		}
 	}
 
 	@Override

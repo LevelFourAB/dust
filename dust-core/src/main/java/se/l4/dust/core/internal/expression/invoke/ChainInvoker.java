@@ -1,11 +1,11 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import com.fasterxml.classmate.ResolvedType;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker for a chain of properties or methods.
@@ -42,15 +42,29 @@ public class ChainInvoker
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
-		Object result = left.get(errors, context, root, instance);
-		return right.get(errors, context, root, result);
+		try
+		{
+			Object result = left.get(errors, context, root, instance);
+			return right.get(errors, context, root, result);
+		}
+		catch(Throwable t)
+		{
+			throw errors.error(node, t);
+		}
 	}
 	
 	@Override
 	public void set(ErrorHandler errors, Context context, Object root, Object instance, Object value)
 	{
-		Object result = left.get(errors, context, root, instance);
-		right.set(errors, context, root, result, value);
+		try
+		{
+			Object result = left.get(errors, context, root, instance);
+			right.set(errors, context, root, result, value);
+		}
+		catch(Throwable t)
+		{
+			throw errors.error(node, t);
+		}
 	}
 	
 	@Override

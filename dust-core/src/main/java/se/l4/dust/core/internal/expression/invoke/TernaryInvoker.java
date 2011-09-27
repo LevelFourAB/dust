@@ -78,18 +78,25 @@ public class TernaryInvoker
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
-		Object result = test.get(errors, context, root, instance);
-		if(Boolean.TRUE.equals(result))
+		try
 		{
-			return left.get(errors, context, root, instance);
+			Object result = test.get(errors, context, root, instance);
+			if(Boolean.TRUE.equals(result))
+			{
+				return left.get(errors, context, root, instance);
+			}
+			else if(right == null)
+			{
+				return null;
+			}
+			else
+			{
+				return right.get(errors, context, root, instance);
+			}
 		}
-		else if(right == null)
+		catch(Throwable t)
 		{
-			return null;
-		}
-		else
-		{
-			return right.get(errors, context, root, instance);
+			throw errors.error(node, t);
 		}
 	}
 	

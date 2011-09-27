@@ -38,6 +38,29 @@ public class ErrorHandlerImpl
 	}
 	
 	@Override
+	public ExpressionException error(Node node, Throwable cause)
+	{
+		String message;
+		if(cause instanceof ExpressionException)
+		{
+			if(((ExpressionException) cause).hasSource())
+			{
+				throw (ExpressionException) cause;
+			}
+			
+			message = cause.getMessage();
+		}
+		else
+		{
+			message = cause.getMessage() == null
+				? "Failed with " + cause.getClass().getSimpleName()
+				: cause.getClass().getSimpleName() + ": " + cause.getMessage();
+		}
+		
+		return new ExpressionException(expression, node.getLine(), node.getPositionInLine(), message);
+	}
+	
+	@Override
 	public String toString()
 	{
 		return "ErrorHandler[" + expression + "]";

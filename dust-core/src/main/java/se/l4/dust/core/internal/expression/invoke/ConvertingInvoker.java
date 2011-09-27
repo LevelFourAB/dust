@@ -45,8 +45,15 @@ public class ConvertingInvoker
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
-		Object value = wrapped.get(errors, context, root, instance);
-		return conversion.convert(value);
+		try
+		{
+			Object value = wrapped.get(errors, context, root, instance);
+			return conversion.convert(value);
+		}
+		catch(Throwable t)
+		{
+			throw errors.error(node, t);
+		}
 	}
 	
 	@Override

@@ -53,14 +53,14 @@ public class MethodInvoker
 			throw errors.error(node, "Object is null, can't invoke a method on a null object");
 		}
 		
-		Object[] values = new Object[params.length];
-		for(int i=0, n=params.length; i<n; i++)
-		{
-			values[i] = params[i].get(errors, context, root, root);
-		}
-		
 		try
 		{
+			Object[] values = new Object[params.length];
+			for(int i=0, n=params.length; i<n; i++)
+			{
+				values[i] = params[i].get(errors, context, root, root);
+			}
+			
 			return method.invoke(instance, values);
 		}
 		catch(InvocationTargetException e)
@@ -69,7 +69,7 @@ public class MethodInvoker
 		}
 		catch(Exception e)
 		{
-			throw errors.error(node, "Error executing: " + e.getMessage(), e);
+			throw errors.error(node, e);
 		}
 	}
 	

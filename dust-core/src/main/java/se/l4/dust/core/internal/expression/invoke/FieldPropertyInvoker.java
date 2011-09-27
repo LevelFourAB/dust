@@ -65,6 +65,10 @@ public class FieldPropertyInvoker
 		{
 			throw errors.error(node, "Can't access the field: " + e.getMessage(), e);
 		}
+		catch(Throwable t)
+		{
+			throw errors.error(node, t);
+		}
 	}
 	
 	@Override

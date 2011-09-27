@@ -48,13 +48,20 @@ public class DynamicMethodInvoker
 			throw errors.error(node, "Object is null, can't invoke a method on a null object");
 		}
 		
-		Object[] values = new Object[params.length];
-		for(int i=0, n=params.length; i<n; i++)
+		try
 		{
-			values[i] = params[i].get(errors, context, root, root);
+			Object[] values = new Object[params.length];
+			for(int i=0, n=params.length; i<n; i++)
+			{
+				values[i] = params[i].get(errors, context, root, root);
+			}
+			
+			return method.invoke(null, instance, values);
 		}
-		
-		return method.invoke(null, instance, values);
+		catch(Throwable t)
+		{
+			throw errors.error(node, t);
+		}
 	}
 
 	@Override

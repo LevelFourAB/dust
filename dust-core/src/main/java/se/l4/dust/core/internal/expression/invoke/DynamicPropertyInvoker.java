@@ -1,13 +1,13 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import com.fasterxml.classmate.ResolvedType;
-import com.google.common.primitives.Primitives;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.api.expression.DynamicProperty;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
+import com.google.common.primitives.Primitives;
 
 /**
  * Invoker that wraps {@link DynamicProperty}.
@@ -42,14 +42,28 @@ public class DynamicPropertyInvoker
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
-		return property.getValue(null, instance);
+		try
+		{
+			return property.getValue(null, instance);
+		}
+		catch(Throwable t)
+		{
+			throw errors.error(node, t);
+		}
 	}
 	
 	@Override
 	public void set(ErrorHandler errors, Context context, Object root,
 			Object instance, Object value)
 	{
-		property.setValue(null, instance, value);
+		try
+		{
+			property.setValue(null, instance, value);
+		}
+		catch(Throwable t)
+		{
+			throw errors.error(node, t);
+		}
 	}
 	
 	@Override

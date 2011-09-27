@@ -9,15 +9,32 @@ package se.l4.dust.api.expression;
 public class ExpressionException
 	extends RuntimeException
 {
-
+	private final boolean source;
+	
 	public ExpressionException(String message)
 	{
 		super(message);
+		
+		source = false;
 	}
 	
 	public ExpressionException(String source, int line, int position, String message)
 	{
 		super(constructError(source, line, position, message));
+		
+		this.source = true;
+	}
+	
+	public ExpressionException(String source, int line, int position, String message, Throwable cause)
+	{
+		super(constructError(source, line, position, message), cause);
+		
+		this.source = true;
+	}
+	
+	public boolean hasSource()
+	{
+		return source;
 	}
 	
 	private static String constructError(String source, int line, int position, String message)

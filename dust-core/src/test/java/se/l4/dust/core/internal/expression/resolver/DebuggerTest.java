@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import se.l4.crayon.Crayon;
 import se.l4.dust.api.conversion.TypeConverter;
+import se.l4.dust.api.expression.ExpressionException;
 import se.l4.dust.core.internal.conversion.ConversionModule;
 import se.l4.dust.core.internal.expression.ExpressionDebugger;
 import se.l4.dust.core.internal.expression.ExpressionsImpl;
@@ -210,6 +211,36 @@ public class DebuggerTest
 		Object o = debug("verified && name", p);
 		
 		Assert.assertEquals(false, o);
+	}
+	
+	@Test
+	public void testPersonNullFailure()
+	{
+		try
+		{
+			System.out.println("UGH?");
+			debug("verified", Person.class, null);
+		
+			Assert.fail();
+		}
+		catch(ExpressionException e)
+		{
+		}
+	}
+	
+	@Test
+	public void testPersonInnerFailure()
+	{
+		try
+		{
+			Person p = new Person();
+			debug("name.length()", p);
+		
+			Assert.fail();
+		}
+		catch(ExpressionException e)
+		{
+		}
 	}
 	
 	public static class IndexContainer

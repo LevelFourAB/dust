@@ -1,11 +1,11 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import com.fasterxml.classmate.ResolvedType;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
 
 public class StringConcatInvoker
 	implements Invoker
@@ -36,9 +36,16 @@ public class StringConcatInvoker
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
-		Object lv = left.get(errors, context, root, instance);
-		Object rv = right.get(errors, context, root, instance);
-		return String.valueOf(lv) + String.valueOf(rv);
+		try
+		{
+			Object lv = left.get(errors, context, root, instance);
+			Object rv = right.get(errors, context, root, instance);
+			return String.valueOf(lv) + String.valueOf(rv);
+		}
+		catch(Throwable t)
+		{
+			throw errors.error(node, t);
+		}
 	}
 
 	@Override

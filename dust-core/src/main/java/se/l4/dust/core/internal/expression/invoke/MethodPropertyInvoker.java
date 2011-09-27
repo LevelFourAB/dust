@@ -64,7 +64,7 @@ public class MethodPropertyInvoker
 		}
 		catch(Exception e)
 		{
-			throw errors.error(node, "Error executing: " + e.getMessage(), e);
+			throw errors.error(node, e);
 		}
 	}
 	

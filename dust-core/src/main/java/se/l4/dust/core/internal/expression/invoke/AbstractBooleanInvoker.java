@@ -1,11 +1,11 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import com.fasterxml.classmate.ResolvedType;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Abstract base class for boolean operations.
@@ -68,9 +68,16 @@ public abstract class AbstractBooleanInvoker
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
-		Object lv = left.get(errors, context, root, instance);
-		Object rv = right.get(errors, context, root, instance);
-		return check(errors, lv, rv);
+		try
+		{
+			Object lv = left.get(errors, context, root, instance);
+			Object rv = right.get(errors, context, root, instance);
+			return check(errors, lv, rv);
+		}
+		catch(Throwable t)
+		{
+			throw errors.error(node, t);
+		}
 	}
 	
 	@Override

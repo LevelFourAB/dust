@@ -1,13 +1,13 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import com.fasterxml.classmate.ResolvedType;
-import com.google.common.primitives.Primitives;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
+import com.google.common.primitives.Primitives;
 
 /**
  * Invoker that will attempt to use a dynamic conversion from the return
@@ -47,8 +47,15 @@ public class DynamicConversionInvoker
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
-		Object result = wrapped.get(errors, context, root, instance);
-		return converter.convert(result, type);
+		try
+		{
+			Object result = wrapped.get(errors, context, root, instance);
+			return converter.convert(result, type);
+		}
+		catch(Throwable t)
+		{
+			throw errors.error(node, t);
+		}
 	}
 
 	@Override

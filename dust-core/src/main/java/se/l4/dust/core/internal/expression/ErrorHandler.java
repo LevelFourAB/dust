@@ -13,7 +13,7 @@ public interface ErrorHandler
 	 * @param message
 	 * @return
 	 */
-	public abstract ExpressionException error(Node node, String message);
+	ExpressionException error(Node node, String message);
 
 	/**
 	 * Report a fatal error.
@@ -22,7 +22,15 @@ public interface ErrorHandler
 	 * @param message
 	 * @return
 	 */
-	public abstract ExpressionException error(Node node, String message,
-			Throwable cause);
+	ExpressionException error(Node node, String message, Throwable cause);
+
+	/**
+	 * Report a fatal error.
+	 * 
+	 * @param node
+	 * @param message
+	 * @return
+	 */
+	ExpressionException error(Node node, Throwable cause);
 
 }
