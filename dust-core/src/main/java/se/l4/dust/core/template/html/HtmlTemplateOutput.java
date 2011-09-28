@@ -3,11 +3,13 @@ package se.l4.dust.core.template.html;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.Set;
+
+import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableSet;
 
 import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
-
-import com.google.common.base.Charsets;
 
 /**
  * Template output that will output its contents as HTML.
@@ -18,6 +20,17 @@ import com.google.common.base.Charsets;
 public class HtmlTemplateOutput
 	implements TemplateOutputStream
 {
+	private static final Set<String> singleTags;
+	
+	static
+	{
+		singleTags = ImmutableSet.<String>builder()
+			.add("br")
+			.add("hr")
+			.add("img")
+			.build();
+	}
+	
 	private final OutputStreamWriter writer;
 	private boolean inComment;
 	private boolean written;
@@ -111,6 +124,11 @@ public class HtmlTemplateOutput
 	public void endElement(String name)
 		throws IOException
 	{
+		if(singleTags.contains(name))
+		{
+			return;
+		}
+		
 		writer.write("</");
 		writer.write(name);
 		writer.write('>');
