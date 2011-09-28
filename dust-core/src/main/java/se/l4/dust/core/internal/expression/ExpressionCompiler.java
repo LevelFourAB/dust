@@ -50,6 +50,7 @@ public class ExpressionCompiler
 	
 	public Expression compile()
 	{
+		String expressionBeingCompiled = null;
 		try
 		{
 			ClassPool pool = ClassPool.getDefault();
@@ -105,12 +106,14 @@ public class ExpressionCompiler
 			CtMethod impl = CtNewMethod.copy(get, type, null);
 			
 			String fullExpr = "return "	+ wrap(root.getReturnClass(), javaGetter) + ";";
+			expressionBeingCompiled = fullExpr;
 			impl.setBody(fullExpr);
 			type.addMethod(impl);
 			
 			impl = CtNewMethod.copy(set, type, null);
 			if(javaSetter != null)
 			{
+				expressionBeingCompiled = javaSetter;
 				impl.setBody(javaSetter + ";");
 			}
 			else
@@ -126,7 +129,11 @@ public class ExpressionCompiler
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+			if(expressionBeingCompiled != null)
+			{
+				throw errors.error(root.getNode(), "Compilation failed; Source was: " + expressionBeingCompiled + ". " + e.getMessage(), e);				
+			}
+			
 			throw errors.error(root.getNode(), "Compilation failed; " + e.getMessage(), e);
 		}
 	}
@@ -180,7 +187,7 @@ public class ExpressionCompiler
 	{
 		if(! type.isPrimitive() || type == void.class) return input;
 		
-		return Primitives.wrap(type).getName() + ".valueOf(" + input + ")";
+		return Primitives.wrap(type).getName() + ".valueOf((" + type.getName() + ") " + input + ")";
 	}
 	
 	/**
