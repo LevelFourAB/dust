@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
@@ -52,6 +53,9 @@ public class ExpressionCompiler
 		try
 		{
 			ClassPool pool = ClassPool.getDefault();
+			pool.insertClassPath(new ClassClassPath(context));
+			pool.insertClassPath(new ClassClassPath(Expression.class));
+			
 			CtClass exprIf = pool.get(Expression.class.getName());
 			CtMethod get = exprIf.getMethod("get", "(Lse/l4/dust/api/Context;Ljava/lang/Object;)Ljava/lang/Object;");
 			CtMethod set = exprIf.getMethod("set", "(Lse/l4/dust/api/Context;Ljava/lang/Object;Ljava/lang/Object;)V");
