@@ -9,6 +9,15 @@ import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Function;
+import com.google.common.base.Throwables;
+import com.google.common.collect.ComputationException;
+import com.google.common.collect.MapMaker;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
+import com.google.inject.Stage;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateException;
@@ -23,15 +32,6 @@ import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.spi.internal.XmlTemplateParser;
 import se.l4.dust.core.internal.template.dom.TemplateBuilderImpl;
-
-import com.google.common.base.Function;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ComputationException;
-import com.google.common.collect.MapMaker;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
-import com.google.inject.Stage;
 
 /**
  * Implementation of {@link TemplateCache}.
@@ -106,8 +106,8 @@ public class TemplateCacheImpl
 	{
 		try
 		{
-			URL url = inner.getTemplateUrl(c);
-			return getTemplate(context, c, url);
+			ContextKey tpl = inner.getTemplateUrl(c);
+			return getTemplate(context, tpl.ctx, tpl.url);
 		}
 		catch(ComputationException e)
 		{
@@ -116,7 +116,7 @@ public class TemplateCacheImpl
 		}
 	}
 	
-	private URL findTemplateUrl(Class<?> c)
+	private ContextKey findTemplateUrl(Class<?> c)
 	{
 		Class<?> current = c;
 		while(current != Object.class)
@@ -133,7 +133,7 @@ public class TemplateCacheImpl
 		return findTemplateUrl(c, "");
 	}
 
-	private URL findTemplateUrl(Class<?> c, Template annotation)
+	private ContextKey findTemplateUrl(Class<?> c, Template annotation)
 	{
 		if(annotation.value() == Object.class)
 		{
@@ -145,7 +145,7 @@ public class TemplateCacheImpl
 		}
 	}
 	
-	private URL findTemplateUrl(Class<?> c, String name)
+	private ContextKey findTemplateUrl(Class<?> c, String name)
 	{
 		if(name.equals(""))
 		{
@@ -158,7 +158,7 @@ public class TemplateCacheImpl
 			throw new TemplateException("Could not find template " + name + " besides class " + c);
 		}
 		
-		return url;
+		return new ContextKey(c, url);
 	}
 	
 	public ParsedTemplate getTemplate(Context context, Class<?> dataContext, URL url)
@@ -212,14 +212,14 @@ public class TemplateCacheImpl
 	{
 		ParsedTemplate getTemplate(Context context, Class<?> ctx, URL url);
 		
-		URL getTemplateUrl(Class<?> ctx);
+		ContextKey getTemplateUrl(Class<?> ctx);
 	}
 	
 	private class ProductionCache
 		implements InnerCache
 	{
 		protected final ConcurrentMap<Key, ParsedTemplate> templates;
-		private final ConcurrentMap<Class<?>, URL> urlCache;
+		private final ConcurrentMap<Class<?>, ContextKey> urlCache;
 		
 		public ProductionCache()
 		{
@@ -234,10 +234,10 @@ public class TemplateCacheImpl
 		
 
 			urlCache = new MapMaker()
-				.makeComputingMap(new Function<Class<?>, URL>()
+				.makeComputingMap(new Function<Class<?>, ContextKey>()
 				{
 					@Override
-					public URL apply(Class<?> input)
+					public ContextKey apply(Class<?> input)
 					{
 						return findTemplateUrl(input);
 					}
@@ -300,7 +300,7 @@ public class TemplateCacheImpl
 		}
 		
 		@Override
-		public URL getTemplateUrl(Class<?> ctx)
+		public ContextKey getTemplateUrl(Class<?> ctx)
 		{
 			return urlCache.get(ctx);
 		}
@@ -366,7 +366,7 @@ public class TemplateCacheImpl
 		}
 		
 		@Override
-		public URL getTemplateUrl(Class<?> ctx)
+		public ContextKey getTemplateUrl(Class<?> ctx)
 		{
 			return findTemplateUrl(ctx);
 		}
@@ -436,6 +436,65 @@ public class TemplateCacheImpl
 			else if(!context.equals(other.context))
 				return false;
 			if(!Arrays.equals(extra, other.extra))
+				return false;
+			if(url == null)
+			{
+				if(other.url != null)
+					return false;
+			}
+			else if(!url.equals(other.url))
+				return false;
+			return true;
+		}
+	}
+	
+	/**
+	 * Key used to lookup URLs for classes.
+	 * 
+	 * @author Andreas Holstenson
+	 *
+	 */
+	private static class ContextKey
+	{
+		private final Class<?> ctx;
+		private final URL url;
+
+		public ContextKey(Class<?> ctx, URL url)
+		{
+			this.ctx = ctx;
+			this.url = url;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((ctx == null)
+				? 0
+				: ctx.hashCode());
+			result = prime * result + ((url == null)
+				? 0
+				: url.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if(this == obj)
+				return true;
+			if(obj == null)
+				return false;
+			if(getClass() != obj.getClass())
+				return false;
+			ContextKey other = (ContextKey) obj;
+			if(ctx == null)
+			{
+				if(other.ctx != null)
+					return false;
+			}
+			else if(!ctx.equals(other.ctx))
 				return false;
 			if(url == null)
 			{
