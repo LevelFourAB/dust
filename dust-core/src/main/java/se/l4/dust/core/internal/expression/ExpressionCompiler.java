@@ -30,6 +30,14 @@ import se.l4.dust.core.internal.expression.invoke.Invoker;
 public class ExpressionCompiler
 {
 	private static final AtomicInteger compiled = new AtomicInteger();
+	private static final ClassPool pool;
+	
+	static
+	{
+		pool = ClassPool.getDefault();
+		pool.insertClassPath(new ClassClassPath(Expression.class));
+	}
+	
 	private final ErrorHandler errors;
 	private final Invoker root;
 	
@@ -53,10 +61,6 @@ public class ExpressionCompiler
 		String expressionBeingCompiled = null;
 		try
 		{
-			ClassPool pool = ClassPool.getDefault();
-			pool.insertClassPath(new ClassClassPath(context));
-			pool.insertClassPath(new ClassClassPath(Expression.class));
-			
 			CtClass exprIf = pool.get(Expression.class.getName());
 			CtMethod get = exprIf.getMethod("get", "(Lse/l4/dust/api/Context;Ljava/lang/Object;)Ljava/lang/Object;");
 			CtMethod set = exprIf.getMethod("set", "(Lse/l4/dust/api/Context;Ljava/lang/Object;Ljava/lang/Object;)V");
