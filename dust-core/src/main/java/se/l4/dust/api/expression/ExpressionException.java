@@ -53,7 +53,7 @@ public class ExpressionException
 			result.append("  ")
 				.append(i+1)
 				.append(": ")
-				.append(lines[i])
+				.append(lines[i].replace('\t', ' '))
 				.append('\n');
 			
 			if(i == line-1)
