@@ -179,6 +179,24 @@ public class ExpressionCompiler
 			return result.getName();
 		}
 	}
+	
+	public String castOrWrap(Class<?> outputType, String expr, Class<?> exprType)
+	{
+		String casted = "(" + cast(exprType) + " " + expr + ")";
+		if(outputType.isAssignableFrom(exprType))
+		{
+			return casted;
+		}
+		else if(outputType.isPrimitive())
+		{
+			// The expr type should be compatible
+			return "(" + unwrap(exprType, casted) + ")";
+		}
+		else
+		{
+			return casted;
+		}
+	}
 
 	/**
 	 * Potentially wrap the given input.

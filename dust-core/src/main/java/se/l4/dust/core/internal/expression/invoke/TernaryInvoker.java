@@ -1,11 +1,12 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import com.fasterxml.classmate.ResolvedType;
+import com.google.common.base.Defaults;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
-
-import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker for ternary ifs.
@@ -110,11 +111,15 @@ public class TernaryInvoker
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
-		return "(" + compiler.cast(getReturnClass()) + " (" 
+		Class<?> type = getReturnClass();
+		return "(" + compiler.cast(type) + " (" 
 			+ test.toJavaGetter(errors, compiler, context)
 			+ " ? "
-			+ left.toJavaGetter(errors, compiler, context)
-			+ " : " + (right == null ? "null" : right.toJavaGetter(errors, compiler, context))
+			+ compiler.castOrWrap(type, left.toJavaGetter(errors, compiler, context), left.getReturnClass())
+			+ " : " 
+			+ (right == null ? String.valueOf(Defaults.defaultValue(type)) : 
+				compiler.castOrWrap(type, right.toJavaGetter(errors, compiler, context), right.getReturnClass())
+			)
 			+ "))";
 	}
 	
