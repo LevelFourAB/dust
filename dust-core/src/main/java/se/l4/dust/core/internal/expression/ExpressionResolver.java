@@ -12,6 +12,7 @@ import com.fasterxml.classmate.ResolvedTypeWithMembers;
 import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.classmate.members.ResolvedField;
 import com.fasterxml.classmate.members.ResolvedMethod;
+import com.fasterxml.classmate.types.ResolvedRecursiveType;
 import com.google.common.base.CaseFormat;
 import com.google.common.primitives.Primitives;
 
@@ -457,7 +458,7 @@ public class ExpressionResolver
 		if(converter.canConvertBetween(in, output))
 		{
 			NonGenericConversion<?, ?> conversion = converter.getConversion(in, output);
-			return new ConvertingInvoker(invoker.getNode(), conversion, invoker);
+			return new ConvertingInvoker(invoker.getNode(), conversion, output, invoker);
 		}
 		
 		// No suitable conversion, throw error
@@ -597,6 +598,11 @@ public class ExpressionResolver
 	private Invoker resolveMethod(Node node, IdentifierNode id, Invoker[] actualParams, Class<?> context, ResolvedType typeContext)
 	{
 		// First pass: Look for exact matches
+		if(typeContext instanceof ResolvedRecursiveType)
+		{
+			typeContext = typeResolver.resolve(typeContext.getErasedType(), typeContext.getTypeBindings());
+		}
+		
 		ResolvedType type = typeContext == null ? typeResolver.resolve(context) : typeContext;
 		ResolvedTypeWithMembers members = memberResolver.resolve(type, null, null);
 		
@@ -683,7 +689,51 @@ public class ExpressionResolver
 			return new MethodInvoker(node, rm.getReturnType(), m, newParams);
 		}
 		
-		throw errors.error(node, "No matching method found");
+		StringBuilder builder = new StringBuilder()
+			.append("No matching method found, looked in ")
+			.append(context.getName())
+			.append(". Parameter types were: ");
+		
+		if(actualParams.length == 0)
+		{
+			builder.append("[]");
+		}
+		else
+		{
+			builder.append("[");
+			for(int i=0, n=actualParams.length; i<n; i++)
+			{
+				if(i > 0) builder.append(", ");
+				
+				builder.append(actualParams[i].getReturnClass().getName());
+			}
+			builder.append("]");
+		}
+		
+		builder.append("\n\nResolved the methods on ")
+			.append(type.getFullDescription())
+			.append(":");
+		
+		for(ResolvedMethod rm : members.getMemberMethods())
+		{
+			builder.append("\n");
+			
+			Method m = rm.getRawMember();
+			builder.append(rm.getName())
+				.append("(");
+			
+			Class<?>[] types = m.getParameterTypes();
+			for(int i=0, n=types.length; i<n; i++)
+			{
+				if(i > 0) builder.append(", ");
+				
+				builder.append(types[i].getName());
+			}
+			
+			builder.append(")");
+		}
+		
+		throw errors.error(node, builder.toString());
 	}
 
 	private class EncounterImpl
