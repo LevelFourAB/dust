@@ -8,6 +8,10 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Stage;
+
 import se.l4.crayon.Crayon;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.Expression;
@@ -23,10 +27,6 @@ import se.l4.dust.core.internal.expression.invoke.Invoker;
 import se.l4.dust.core.internal.expression.model.Person;
 import se.l4.dust.core.internal.expression.resolver.DebuggerTest.IndexContainer;
 import se.l4.dust.core.internal.expression.resolver.DebuggerTest.TestMap;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Stage;
 
 /**
  * Test for compiled expressions.
@@ -360,6 +360,22 @@ public class CompilerTest
 		Assert.assertEquals(false, o);
 	}
 	
+	@Test
+	public void testLongToDoubleInMethod()
+	{
+		Container d = new Container();
+		Object o = compileAndRun("ld.get(-10)", d);
+		Assert.assertEquals(-10, o);
+	}
+	
+	@Test
+	public void testTernaryPrimitive()
+	{
+		LongToDouble d = new LongToDouble();
+		Object o = compileAndRun("true ? 10 : 0", d);
+		Assert.assertEquals(10l, o);
+	}
+	
 	private Object compileAndRun(String expr, Object in)
 	{
 		if(in == null) throw new NullPointerException("in must not be null");
@@ -382,5 +398,28 @@ public class CompilerTest
 		ExpressionCompiler compiler = new ExpressionCompiler(errors, context, invoker);
 		Expression compiled = compiler.compile();
 		return compiled.get(null, in);
+	}
+	
+	public static class Container
+	{
+		private LongToDouble longToDouble;
+
+		public Container()
+		{
+			longToDouble = new LongToDouble();
+		}
+		
+		public LongToDouble getLd()
+		{
+			return longToDouble;
+		}
+	}
+	
+	public static class LongToDouble
+	{
+		public int get(double d)
+		{
+			return (int) d;
+		}
 	}
 }
