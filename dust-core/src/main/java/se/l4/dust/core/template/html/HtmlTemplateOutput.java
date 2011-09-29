@@ -151,6 +151,12 @@ public class HtmlTemplateOutput
 	public void text(String text)
 		throws IOException
 	{
+		if(text == null)
+		{
+			writer.write("null");
+			return;
+		}
+		
 		if(inComment)
 		{
 			for(int i=0, n=text.length(); i<n; i++)
