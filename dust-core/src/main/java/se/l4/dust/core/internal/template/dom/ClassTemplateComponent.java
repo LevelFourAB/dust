@@ -150,7 +150,7 @@ public class ClassTemplateComponent
 
 		if(root instanceof Element)
 		{
-			emitter.emit(ctx, out, o, this, data, (Element) root);
+			emitter.emit(out, o, this, data, (Element) root);
 		}
 		else
 		{
@@ -164,7 +164,7 @@ public class ClassTemplateComponent
 			
 			Element templateRoot = template.getRoot();
 			
-			emitter.emit(ctx, out, root, this, data, templateRoot);
+			emitter.emit(out, root, this, data, templateRoot);
 		}
 	}
 	

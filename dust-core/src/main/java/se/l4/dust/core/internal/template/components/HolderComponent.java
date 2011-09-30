@@ -33,7 +33,7 @@ public class HolderComponent
 	{
 		for(Content c : getRawContents())
 		{
-			emitter.emit(ctx, out, data, this, lastData, c);
+			emitter.emit(out, data, lastComponent, lastData, c);
 		}
 	}
 

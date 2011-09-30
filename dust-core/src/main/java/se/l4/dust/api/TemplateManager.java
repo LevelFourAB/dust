@@ -1,6 +1,7 @@
 package se.l4.dust.api;
 
 import se.l4.dust.api.annotation.Component;
+import se.l4.dust.api.template.mixin.TemplateMixin;
 import se.l4.dust.api.template.spi.PropertySource;
 
 /**
@@ -70,6 +71,31 @@ public interface TemplateManager
 		 * @return
 		 */
 		String getComponentName(Class<?> component);
+		
+		/**
+		 * Add a mixin to this namespace. This mixin will be triggered when
+		 * the given attribute is found on an element.
+		 * 
+		 * @param mixin
+		 * @return
+		 */
+		TemplateNamespace addMixin(String attribute, TemplateMixin mixin);
+		
+		/**
+		 * Get if a mixin exists for the given attribute.
+		 * 
+		 * @param attribute
+		 * @return
+		 */
+		boolean hasMixin(String attribute);
+		
+		/**
+		 * Get a mixin (if registered) for the given attribute.
+		 * 
+		 * @param attribute
+		 * @return
+		 */
+		TemplateMixin getMixin(String attribute);
 	}
 	
 	/**

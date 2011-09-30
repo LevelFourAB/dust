@@ -2,8 +2,6 @@ package se.l4.dust.core.internal.template.dom;
 
 import java.io.IOException;
 
-import com.google.inject.Inject;
-
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.Comment;
 import se.l4.dust.api.template.dom.Content;
@@ -13,6 +11,9 @@ import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.dom.Text;
+import se.l4.dust.api.template.dom.WrappedElement;
+import se.l4.dust.api.template.mixin.ElementEncounter;
+import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
 import se.l4.dust.core.internal.template.TemplateContext;
 import se.l4.dust.core.internal.template.components.EmittableComponent;
@@ -25,13 +26,22 @@ import se.l4.dust.core.internal.template.components.EmittableComponent;
  *
  */
 public class Emitter
+	implements ElementEncounter
 {
-	@Inject
-	public Emitter()
+	private final ParsedTemplate template;
+	private final RenderingContext ctx;
+	private final Object data;
+
+	private Object current;
+	
+	public Emitter(ParsedTemplate template, RenderingContext ctx, Object data)
 	{
+		this.template = template;
+		this.ctx = ctx;
+		this.data = data;
 	}
 	
-	public void process(ParsedTemplate template, RenderingContext ctx, Object data, TemplateOutputStream out)
+	public void process(TemplateOutputStream out)
 		throws IOException
 	{
 		TemplateContext.set(ctx);
@@ -43,10 +53,10 @@ public class Emitter
 			out.docType(docType.getName(), docType.getPublicId(), docType.getSystemId());
 		}
 		
-		emit(ctx, out, data, null, null, template.getRoot());
+		emit(out, data, null, null, template.getRoot());
 	}
 
-	private String[] createAttributes(Element element, RenderingContext ctx, Object data)
+	private String[] createAttributes(Element element, Object data)
 	{
 		Attribute[] rawAttrs = element.getAttributes();
 		String[] attrs = new String[rawAttrs.length * 2];
@@ -59,7 +69,7 @@ public class Emitter
 		return attrs;
 	}
 
-	public void emit(RenderingContext ctx, 
+	public void emit(
 			TemplateOutputStream out, 
 			Object data, 
 			EmittableComponent lastComponent, 
@@ -86,7 +96,7 @@ public class Emitter
 			
 			for(Content sc : ((Comment) c).getRawContents())
 			{
-				emit(ctx, out, data, lastComponent, lastData, sc);
+				emit(out, data, lastComponent, lastData, sc);
 			}
 			
 			out.endComment();
@@ -95,16 +105,45 @@ public class Emitter
 		{
 			Element element = (Element) c;
 			Content[] content = element.getRawContents();
-			String[] attrs = createAttributes(element, ctx, data);
+			String[] attrs = createAttributes(element, data);
 			
 			out.startElement(element.getName(), attrs, false);
 			
 			for(Content subContent : content)
 			{
-				emit(ctx, out, data, lastComponent, lastData, subContent);
+				emit(out, data, lastComponent, lastData, subContent);
 			}
 			
 			out.endElement(element.getName());
 		}
+		else if(c instanceof WrappedElement)
+		{
+			this.current = data;
+			
+			WrappedElement we = (WrappedElement) c;
+			ElementWrapper wrapper = we.getWrapper();
+			wrapper.beforeElement(this);
+			
+			emit(out, data, lastComponent, lastData, we.getElement());
+			
+			this.current = data;
+			wrapper.afterElement(this);
+		}
+		else
+		{
+			throw new AssertionError("Found content that can not be emitted: " + c);
+		}
+	}
+	
+	@Override
+	public RenderingContext getContext()
+	{
+		return ctx;
+	}
+	
+	@Override
+	public Object getObject()
+	{
+		return current;
 	}
 }

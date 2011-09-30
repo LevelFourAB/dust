@@ -103,6 +103,20 @@ public class Element
 		return this;
 	}
 	
+	public void replaceContent(Content existing, Content newContent)
+	{
+		for(int i=0, n=contents.length; i<n; i++)
+		{
+			if(contents[i] == existing)
+			{
+				contents[i] = newContent;
+				return;
+			}
+		}
+		
+		throw new IllegalArgumentException("No such content");
+	}
+	
 	public Element setAttribute(String name, Content... args)
 	{
 		// Check for existing attribute
@@ -304,5 +318,5 @@ public class Element
 			}
 		}
 	}
-	
+
 }

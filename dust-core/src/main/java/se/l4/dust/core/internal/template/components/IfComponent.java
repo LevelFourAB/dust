@@ -41,7 +41,7 @@ public class IfComponent
 			{
 				if(c == elseElement) continue;
 			
-				emitter.emit(ctx, out, data, this, lastData, c);
+				emitter.emit(out, data, this, lastData, c);
 			}
 		}
 		else if(elseElement != null)
@@ -49,7 +49,7 @@ public class IfComponent
 			// Render the else
 			for(Content c : elseElement.getRawContents())
 			{
-				emitter.emit(ctx, out, data, this, lastData, c);
+				emitter.emit(out, data, this, lastData, c);
 			}
 		}
 	}

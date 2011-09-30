@@ -3,8 +3,6 @@ package se.l4.dust.core.internal.template;
 import java.io.IOException;
 import java.net.URL;
 
-import com.google.inject.Inject;
-
 import se.l4.dust.api.annotation.Template;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateCache;
@@ -13,23 +11,32 @@ import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
 import se.l4.dust.core.internal.template.dom.Emitter;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+/**
+ * Renderer of templates, delegates most of its work to {@link Emitter}.
+ * 
+ * @author Andreas Holstenson
+ *
+ */
+@Singleton
 public class TemplateRendererImpl
 	implements TemplateRenderer
 {
-	private final Emitter emitter;
 	private final TemplateCache cache;
 
 	@Inject
-	public TemplateRendererImpl(Emitter emitter, TemplateCache cache)
+	public TemplateRendererImpl(TemplateCache cache)
 	{
-		this.emitter = emitter;
 		this.cache = cache;
 	}
 	
 	public void render(RenderingContext ctx, ParsedTemplate template, Object data, TemplateOutputStream out)
 		throws IOException
 	{
-		emitter.process(template, ctx, data, out);
+		Emitter emitter = new Emitter(template, ctx, data);
+		emitter.process(out);
 	}
 	
 	public void render(RenderingContext ctx, Object data, TemplateOutputStream out)

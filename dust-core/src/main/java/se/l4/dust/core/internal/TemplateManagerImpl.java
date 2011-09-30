@@ -13,6 +13,7 @@ import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Component;
 import se.l4.dust.api.discovery.ClassDiscovery;
 import se.l4.dust.api.discovery.DiscoveryFactory;
+import se.l4.dust.api.template.mixin.TemplateMixin;
 import se.l4.dust.api.template.spi.PropertySource;
 
 import com.google.common.base.Function;
@@ -95,6 +96,7 @@ public class TemplateManagerImpl
 		
 		private final String namespace;
 		private final Map<String, Class<?>> components;
+		private final Map<String, TemplateMixin> mixins;
 		
 		private final ClassDiscovery discovery;
 		private final boolean dev;
@@ -113,6 +115,8 @@ public class TemplateManagerImpl
 			{
 				addComponent(c);
 			}
+			
+			mixins = new ConcurrentHashMap<String, TemplateMixin>();
 		}
 		
 		public TemplateNamespace addComponent(Class<?> component)
@@ -201,6 +205,25 @@ public class TemplateManagerImpl
 			}
 			
 			return component.getSimpleName().toLowerCase();
+		}
+		
+		@Override
+		public TemplateNamespace addMixin(String attribute, TemplateMixin mixin)
+		{
+			mixins.put(attribute, mixin);
+			return this;
+		}
+		
+		@Override
+		public TemplateMixin getMixin(String attribute)
+		{
+			return mixins.get(attribute);
+		}
+		
+		@Override
+		public boolean hasMixin(String attribute)
+		{
+			return mixins.containsKey(attribute);
 		}
 	}
 }

@@ -133,7 +133,7 @@ public class LoopComponent
 		
 		for(Content c : getRawContents())
 		{
-			emitter.emit(ctx, out, data, this, lastData, c);
+			emitter.emit(out, data, this, lastData, c);
 		}
 	}
 	
