@@ -83,6 +83,21 @@ public abstract class ReflectiveExpressionSource
 		
 	}
 	
+	/**
+	 * Annotation to define that a parameter should be an external value
+	 * such as the current context.
+	 * 
+	 * @author Andreas Holstenson
+	 *
+	 */
+	@Target(ElementType.PARAMETER)
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
+	public @interface Bind
+	{
+		
+	}
+	
 	private final Map<String, PropertyImpl> properties;
 	private final Multimap<String, MethodImpl> methods;
 	
@@ -129,6 +144,14 @@ public abstract class ReflectiveExpressionSource
 					instance = parameterTypes[i];
 					providers[i] = INSTANCE;
 				}
+				else if(hasAnnotation(annotations[i], Bind.class))
+				{
+					providers[i] = createFor(parameterTypes[i]);
+					if(providers[i] == null)
+					{
+						throw new IllegalArgumentException("Method " + method + " has an unsupported bound parameter");
+					}
+				}
 				else
 				{
 					throw new IllegalArgumentException("Method " + method + " has an unsupported parameter");
@@ -142,7 +165,7 @@ public abstract class ReflectiveExpressionSource
 		
 		return results.build();
 	}
-	
+
 	/**
 	 * Create all the exported method.
 	 * 
@@ -172,6 +195,14 @@ public abstract class ReflectiveExpressionSource
 					
 					instance = parameterTypes[i];
 					providers[i] = INSTANCE;
+				}
+				else if(hasAnnotation(annotations[i], Bind.class))
+				{
+					providers[i] = createFor(parameterTypes[i]);
+					if(providers[i] == null)
+					{
+						throw new IllegalArgumentException("Method " + method + " has an unsupported bound parameter");
+					}
 				}
 				else
 				{
@@ -212,6 +243,17 @@ public abstract class ReflectiveExpressionSource
 		}
 		
 		return false;
+	}
+	
+
+	private Provider createFor(Class<?> type)
+	{
+		if(type == Context.class)
+		{
+			return CONTEXT;
+		}
+		
+		return null;
 	}
 	
 	@Override
@@ -287,6 +329,17 @@ public abstract class ReflectiveExpressionSource
 			public Object get(Context context, Object root, Object[] arguments)
 			{
 				return root;
+			}
+		};
+		
+	/** Provider for the current context. */
+	private static final Provider CONTEXT =
+		new Provider()
+		{
+			@Override
+			public Object get(Context context, Object root, Object[] arguments)
+			{
+				return context;
 			}
 		};
 	
