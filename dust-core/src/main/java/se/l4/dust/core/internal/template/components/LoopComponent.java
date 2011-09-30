@@ -89,7 +89,7 @@ public class LoopComponent
 			}
 			else
 			{
-				throw new TemplateException("Unable to convert " + sourceData + " to either Iterable or Iterator");
+				throw new TemplateException("Unable to convert value of type " + sourceData.getClass() + " to either Iterable or Iterator; Value is: " + sourceData);
 			}
 		}
 		
