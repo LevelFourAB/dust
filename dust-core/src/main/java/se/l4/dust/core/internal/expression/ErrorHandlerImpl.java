@@ -34,7 +34,7 @@ public class ErrorHandlerImpl
 	@Override
 	public ExpressionException error(Node node, String message, Throwable cause)
 	{
-		return new ExpressionException(expression, node.getLine(), node.getPositionInLine(), message);
+		return new ExpressionException(expression, node.getLine(), node.getPositionInLine(), message, cause);
 	}
 	
 	@Override
@@ -57,7 +57,7 @@ public class ErrorHandlerImpl
 				: cause.getClass().getSimpleName() + ": " + cause.getMessage();
 		}
 		
-		return new ExpressionException(expression, node.getLine(), node.getPositionInLine(), message);
+		return new ExpressionException(expression, node.getLine(), node.getPositionInLine(), message, cause);
 	}
 	
 	@Override
