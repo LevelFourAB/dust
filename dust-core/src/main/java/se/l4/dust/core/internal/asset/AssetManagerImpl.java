@@ -12,14 +12,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Pattern;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ComputationException;
-import com.google.common.collect.MapMaker;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Singleton;
-import com.google.inject.Stage;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
@@ -34,6 +26,14 @@ import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.api.resource.variant.ResourceVariantManager.ResourceCallback;
 import se.l4.dust.core.internal.resource.MergedResourceVariant;
+
+import com.google.common.base.Function;
+import com.google.common.collect.ComputationException;
+import com.google.common.collect.MapMaker;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
+import com.google.inject.Stage;
 
 @Singleton
 public class AssetManagerImpl

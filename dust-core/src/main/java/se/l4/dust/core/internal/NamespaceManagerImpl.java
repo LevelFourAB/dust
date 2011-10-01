@@ -153,7 +153,7 @@ public class NamespaceManagerImpl
 			this.pkg = pkg;
 			this.version = version;
 			
-			locator = prefix != null && loader != null 
+			locator = loader != null 
 				? new ClassLoaderLocator(loader, pkg)
 				: null;
 		}
