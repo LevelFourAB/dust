@@ -10,7 +10,6 @@ import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Order;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.core.CoreModule;
-import se.l4.dust.jaxrs.annotation.ContextScoped;
 import se.l4.dust.jaxrs.annotation.RequestScoped;
 import se.l4.dust.jaxrs.annotation.SessionScoped;
 import se.l4.dust.jaxrs.internal.NormalPageManager;
@@ -20,7 +19,7 @@ import se.l4.dust.jaxrs.internal.asset.AssetWriter;
 import se.l4.dust.jaxrs.internal.asset.ContextAssetSource;
 import se.l4.dust.jaxrs.internal.template.TemplateWriter;
 import se.l4.dust.jaxrs.spi.Configuration;
-import se.l4.dust.jaxrs.spi.Context;
+import se.l4.dust.jaxrs.spi.RequestContext;
 
 import com.google.inject.Provides;
 
@@ -41,7 +40,6 @@ public class WebModule
 		// Bind scopes
 		bindScope(SessionScoped.class, WebScopes.SESSION);
 		bindScope(RequestScoped.class, WebScopes.REQUEST);
-		bindScope(ContextScoped.class, WebScopes.CONTEXT);
 		
 		// Bind own services
 		bind(PageManager.class).to(NormalPageManager.class);
@@ -71,25 +69,25 @@ public class WebModule
 	}
 	
 	@Provides
-	public HttpServletRequest provideHttpServletRequest(Context ctx)
+	public HttpServletRequest provideHttpServletRequest(RequestContext ctx)
 	{
 		return ctx.getHttpServletRequest();
 	}
 	
 	@Provides
-	public HttpServletResponse provideHttpServletResponse(Context ctx)
+	public HttpServletResponse provideHttpServletResponse(RequestContext ctx)
 	{
 		return ctx.getHttpServletResponse();
 	}
 	
 	@Provides
-	public HttpSession provideHttpSession(Context ctx)
+	public HttpSession provideHttpSession(RequestContext ctx)
 	{
 		return ctx.getHttpSession();
 	}
 	
 	@Provides
-	public ServletContext provideServletContext(Context ctx)
+	public ServletContext provideServletContext(RequestContext ctx)
 	{
 		return ctx.getServletContext();
 	}

@@ -1,4 +1,4 @@
-package se.l4.dust.jaxrs.annotation;
+package se.l4.dust.api.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -6,8 +6,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import se.l4.dust.api.Context;
+
 import com.google.inject.ScopeAnnotation;
 
+/**
+ * Specifies that a class should be scoped to the current {@link Context}.
+ * 
+ * @author Andreas Holstenson
+ *
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @ScopeAnnotation

@@ -15,7 +15,6 @@ import se.l4.dust.api.template.dom.WrappedElement;
 import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
-import se.l4.dust.core.internal.template.TemplateContext;
 import se.l4.dust.core.internal.template.components.EmittableComponent;
 
 /**
@@ -44,8 +43,6 @@ public class Emitter
 	public void process(TemplateOutputStream out)
 		throws IOException
 	{
-		TemplateContext.set(ctx);
-	
 		DocType docType = template.getDocType();
 		if(docType != null)
 		{

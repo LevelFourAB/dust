@@ -2,13 +2,13 @@ package se.l4.dust.jaxrs;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import se.l4.dust.jaxrs.spi.Context;
+import se.l4.dust.jaxrs.spi.RequestContext;
 
 import com.google.inject.Key;
+import com.google.inject.OutOfScopeException;
 import com.google.inject.Provider;
 import com.google.inject.Scope;
 
@@ -20,15 +20,15 @@ import com.google.inject.Scope;
  */
 public class WebScopes
 {
-	private static String KEY = "";
-	private static final AtomicReference<Context> context;
+	private static String KEY = "dust.";
+	private static final AtomicReference<RequestContext> context;
 	
 	static
 	{
-		context = new AtomicReference<Context>();
+		context = new AtomicReference<RequestContext>();
 	}
 	
-	public static void setContext(Context ctx)
+	public static void setContext(RequestContext ctx)
 	{
 		context.set(ctx);
 	}
@@ -46,7 +46,7 @@ public class WebScopes
 					
 					if(req == null)
 					{
-//						throw new OutOfScopeException("Request scoped objects can only be used within HTTP requests");
+						throw new OutOfScopeException("Request scoped objects can only be used within HTTP requests");
 					}
 					
 					String localKey = KEY + key.toString();
@@ -84,6 +84,11 @@ public class WebScopes
 				{
 					HttpSession session = context.get().getHttpSession();
 					
+					if(session == null)
+					{
+						throw new OutOfScopeException("Session scoped objects can only be used within HTTP requests");
+					}
+					
 					synchronized(session)
 					{
 						String localKey = KEY + key.toString();
@@ -103,41 +108,6 @@ public class WebScopes
 				public String toString()
 				{
 					return "WebScopes.SESSION";
-				}
-			};
-		}
-	};
-	
-	public static final Scope CONTEXT = new Scope()
-	{
-		public <T> Provider<T> scope(final Key<T> key, final Provider<T> p)
-		{
-			return new Provider<T>()
-			{
-				@SuppressWarnings("unchecked")
-				public T get()
-				{
-					ServletContext ctx = context.get().getServletContext();
-					
-					synchronized(ctx)
-					{
-						String localKey = KEY + key.toString();
-						
-						Object o = ctx.getAttribute(localKey);
-						if(o == null)
-						{
-							o = p.get();
-							ctx.setAttribute(localKey, o);
-						}
-						
-						return (T) o;
-					}
-				}
-				
-				@Override
-				public String toString()
-				{
-					return "WebScopes.CONTEXT";
 				}
 			};
 		}
