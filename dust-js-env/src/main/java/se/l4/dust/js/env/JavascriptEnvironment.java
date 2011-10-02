@@ -10,6 +10,8 @@ import java.util.List;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Builder for creating a JavaScript environment that is suitable for running
@@ -32,9 +34,17 @@ public class JavascriptEnvironment
 	
 	public JavascriptEnvironment()
 	{
+		this(null);
+	}
+	
+	public JavascriptEnvironment(String name)
+	{
 		fragments = new ArrayList<Fragment>();
-		add(JavascriptEnvironment.class.getResource("bootstrap.js"));
-		add(JavascriptEnvironment.class.getResource("env.rhino.1.2.js"));
+		Logger logger = name == null 
+			? LoggerFactory.getLogger(JavascriptEnvironment.class)
+			: LoggerFactory.getLogger(name);
+				
+		define("console", new JavascriptConsole(logger));
 	}
 	
 	/**
