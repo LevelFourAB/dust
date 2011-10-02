@@ -72,7 +72,7 @@ public class DynamicPropertyInvoker
 		String id = compiler.addInput(DynamicProperty.class, property);
 		Class<?> t = Primitives.wrap(getReturnClass());
 		return "(" + compiler.unwrap(t, 
-			compiler.cast(t) + " " + id + ".getValue($1, " + context + ")") 
+			"(" + compiler.cast(t) + " " + id + ".getValue($1, " + context + "))") 
 			+ ")";
 	}
 	
