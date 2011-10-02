@@ -4,6 +4,7 @@ import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Order;
 import se.l4.dust.api.asset.AssetManager;
+import se.l4.dust.core.CoreModule;
 
 /**
  * Module that activates CoffeeScript compilation for all files ending with 
@@ -19,7 +20,7 @@ public class CoffeeScriptModule
 	@Override
 	protected void configure()
 	{
-		
+		install(new CoreModule());
 	}
 
 	@Contribution(name="dust-js-coffeescript")

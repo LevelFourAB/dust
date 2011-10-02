@@ -55,8 +55,8 @@ public class CoffeeScriptProcessor
 		try
 		{
 			Object result = new JavascriptEnvironment()
-				.add(CoffeeScriptProcessor.class.getResource("coffee-script.js"))
 				.add(CoffeeScriptProcessor.class.getResource("processor.js"))
+				.add(CoffeeScriptProcessor.class.getResource("coffee-script.js"))
 				.define("code", value)
 				.evaluate("compileResource(code);");
 			

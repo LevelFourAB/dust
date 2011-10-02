@@ -1,6 +1,10 @@
+window = {};
+
+attachEvent = function() {};
+
 var compileResource = function(code) {
 	
-	return window.CoffeeScript.compile(code, {
+	return CoffeeScript.compile(code, {
 		
 	});
 }
