@@ -14,6 +14,7 @@ public class Person
 	private int age;
 	@Expose
 	private boolean verified;
+	public String role;
 	
 	public Person()
 	{

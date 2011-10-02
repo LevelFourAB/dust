@@ -8,10 +8,6 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Stage;
-
 import se.l4.crayon.Crayon;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.Expression;
@@ -27,6 +23,10 @@ import se.l4.dust.core.internal.expression.invoke.Invoker;
 import se.l4.dust.core.internal.expression.model.Person;
 import se.l4.dust.core.internal.expression.resolver.DebuggerTest.IndexContainer;
 import se.l4.dust.core.internal.expression.resolver.DebuggerTest.TestMap;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Stage;
 
 /**
  * Test for compiled expressions.
@@ -374,6 +374,43 @@ public class CompilerTest
 		LongToDouble d = new LongToDouble();
 		Object o = compileAndRun("true ? 10 : 0", d);
 		Assert.assertEquals(10l, o);
+	}
+	
+	@Test
+	public void testCalculateLong()
+	{
+		Assert.assertEquals(14l, compileAndRun("12 + 2", ""));
+		Assert.assertEquals(10l, compileAndRun("12 - 2", ""));
+		Assert.assertEquals(24l, compileAndRun("12 * 2", ""));
+		Assert.assertEquals(6l, compileAndRun("12 / 2", ""));
+		Assert.assertEquals(2l, compileAndRun("12 % 10", ""));
+	}
+	
+	@Test
+	public void testCalculateDouble()
+	{
+		Assert.assertEquals(14., compileAndRun("12.0 + 2", ""));
+		Assert.assertEquals(10., compileAndRun("12.0 - 2", ""));
+		Assert.assertEquals(24., compileAndRun("12.0 * 2", ""));
+		Assert.assertEquals(6., compileAndRun("12.0 / 2", ""));
+		Assert.assertEquals(2., compileAndRun("12.0 % 10", ""));
+	}
+	
+	@Test
+	public void testReturnThis()
+	{
+		Object t = new Object();
+		Assert.assertSame(t, compileAndRun("this", t));
+	}
+	
+	@Test
+	public void testGetPublicField()
+	{
+		Person p = new Person();
+		p.role = "test";
+		
+		Object o = compileAndRun("role", p);
+		Assert.assertEquals("test", o);
 	}
 	
 	private Object compileAndRun(String expr, Object in)
