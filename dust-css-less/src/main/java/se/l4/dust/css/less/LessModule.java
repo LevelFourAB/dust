@@ -4,6 +4,7 @@ import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Order;
 import se.l4.dust.api.asset.AssetManager;
+import se.l4.dust.core.CoreModule;
 
 /**
  * Module that activates LESS CSS for all files ending with {@code .less}.
@@ -18,7 +19,7 @@ public class LessModule
 	@Override
 	protected void configure()
 	{
-		
+		install(new CoreModule());
 	}
 
 	@Contribution(name="dust-css-less")
