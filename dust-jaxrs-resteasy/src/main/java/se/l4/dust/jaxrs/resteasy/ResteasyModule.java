@@ -23,7 +23,7 @@ import se.l4.dust.jaxrs.resteasy.internal.ResteasyConfiguration;
 import se.l4.dust.jaxrs.resteasy.internal.ResteasyContext;
 import se.l4.dust.jaxrs.resteasy.internal.ResteasyRenderingContext;
 import se.l4.dust.jaxrs.spi.Configuration;
-import se.l4.dust.jaxrs.spi.Context;
+import se.l4.dust.jaxrs.spi.RequestContext;
 
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -53,7 +53,7 @@ public class ResteasyModule
 		
 		// Bind SPI interfaces 
 		bind(Configuration.class).to(ResteasyConfiguration.class);
-		bind(Context.class).to(ResteasyContext.class);
+		bind(RequestContext.class).to(ResteasyContext.class);
 		bind(RenderingContext.class).to(ResteasyRenderingContext.class);
 	}
 	

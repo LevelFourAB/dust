@@ -6,12 +6,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * Information about the current context.
+ * Information about the current request context.
  * 
- * @author andreas
+ * @author Andreas Holstenson
  *
  */
-public interface Context
+public interface RequestContext
 {
 	/**
 	 * Get the current servlet request.

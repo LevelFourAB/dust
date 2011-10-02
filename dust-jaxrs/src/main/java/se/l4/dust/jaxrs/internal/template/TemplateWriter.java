@@ -13,6 +13,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import se.l4.dust.api.Context;
 import se.l4.dust.api.annotation.Template;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateCache;
@@ -37,12 +38,12 @@ public class TemplateWriter
 {
 	private final TemplateRenderer renderer;
 	private final TemplateCache cache;
-	private final com.google.inject.Provider<RenderingContext> ctx;
+	private final com.google.inject.Provider<Context> ctx;
 	private final com.google.inject.Provider<HttpServletRequest> requests;
 
 	@Inject
 	public TemplateWriter(TemplateRenderer renderer, TemplateCache cache,
-			com.google.inject.Provider<RenderingContext> ctx,
+			com.google.inject.Provider<Context> ctx,
 			com.google.inject.Provider<HttpServletRequest> requests)
 	{
 		this.renderer = renderer;
@@ -94,7 +95,7 @@ public class TemplateWriter
 	{
 		Template tpl = findAnnotation(annotations);
 		
-		RenderingContext context = ctx.get();
+		RenderingContext context = (RenderingContext) ctx.get();
 		if(context instanceof WebRenderingContext)
 		{
 			((WebRenderingContext) context).setup(requests.get());

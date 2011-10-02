@@ -12,16 +12,19 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import se.l4.dust.api.Scopes;
+import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.jaxrs.internal.ServletBinderImpl;
 import se.l4.dust.jaxrs.internal.routing.FilterChainImpl;
 import se.l4.dust.jaxrs.internal.routing.FilterEntry;
 import se.l4.dust.jaxrs.internal.routing.ServletChain;
 import se.l4.dust.jaxrs.internal.routing.ServletEntry;
 import se.l4.dust.jaxrs.spi.Configuration;
-import se.l4.dust.jaxrs.spi.Context;
+import se.l4.dust.jaxrs.spi.RequestContext;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 import com.google.inject.Stage;
 
 /**
@@ -58,7 +61,7 @@ public class DustFilter
 		Injector injector = (Injector) ctx.getAttribute(Injector.class.getName());
 		
 		// Setup context for scoping
-		WebScopes.setContext(injector.getInstance(Context.class));
+		WebScopes.setContext(injector.getInstance(RequestContext.class));
 		
 		// Setup the configuration filter
 		Configuration config = injector.getInstance(Configuration.class);
@@ -82,12 +85,15 @@ public class DustFilter
 	{
 		protected final ServletBinderImpl binder;
 		protected final ServletContext ctx;
+		protected final Provider<RenderingContext> contexts;
 		
 		@Inject
-		public Production(ServletBinderImpl binder, ServletContext ctx)
+		public Production(ServletBinderImpl binder, ServletContext ctx, 
+				Provider<RenderingContext> contexts)
 		{
 			this.binder = binder;
 			this.ctx = ctx;
+			this.contexts = contexts;
 		}
 		
 		public void doFilter(ServletRequest request, ServletResponse response,
@@ -103,7 +109,16 @@ public class DustFilter
 				)
 			);
 			
-			innerChain.doFilter(request, response);
+			try
+			{
+				Scopes.setActiveContext(contexts.get());
+				
+				innerChain.doFilter(request, response);
+			}
+			finally
+			{
+				Scopes.clearActiveContext();
+			}
 		}
 		
 		public void destroy()
@@ -154,9 +169,10 @@ public class DustFilter
 		extends Production
 	{
 		@Inject
-		public Development(ServletBinderImpl binder, ServletContext ctx)
+		public Development(ServletBinderImpl binder, ServletContext ctx,
+				Provider<RenderingContext> contexts)
 		{
-			super(binder, ctx);
+			super(binder, ctx, contexts);
 		}
 	}
 	

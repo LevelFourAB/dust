@@ -3,10 +3,8 @@ package se.l4.dust.core.internal.template;
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
 import se.l4.dust.api.TemplateManager;
-import se.l4.dust.api.annotation.TemplateScoped;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateRenderer;
-import se.l4.dust.api.template.TemplateScope;
 import se.l4.dust.core.internal.TemplateManagerImpl;
 import se.l4.dust.core.internal.template.components.BodyComponent;
 import se.l4.dust.core.internal.template.components.HolderComponent;
@@ -36,8 +34,6 @@ public class TemplateModule
 		bind(TemplateCache.class).to(TemplateCacheImpl.class);
 		
 		bind(TemplateRenderer.class).to(TemplateRendererImpl.class);
-		
-		bindScope(TemplateScoped.class, TemplateScope.INSTANCE);
 	}
 	
 	@Contribution

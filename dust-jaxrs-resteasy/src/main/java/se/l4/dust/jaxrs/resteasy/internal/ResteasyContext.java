@@ -10,7 +10,7 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import se.l4.dust.jaxrs.spi.Context;
+import se.l4.dust.jaxrs.spi.RequestContext;
 
 /**
  * Context for Reaseasy, mostly delegates to {@link ResteasyProviderFactory}.
@@ -20,7 +20,7 @@ import se.l4.dust.jaxrs.spi.Context;
  */
 @Singleton
 public class ResteasyContext
-	implements Context
+	implements RequestContext
 {
 	private final ResteasyConfiguration configuration;
 
