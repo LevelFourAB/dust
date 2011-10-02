@@ -1,5 +1,8 @@
 package se.l4.dust.api.template.mixin;
 
+import java.util.List;
+
+import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Element;
 
 /**
@@ -30,9 +33,56 @@ public interface MixinEncounter
 	Element.Attribute getAttribute(String name);
 	
 	/**
+	 * Bind an extra namespace for this encounter.
+	 * 
+	 * @param prefix
+	 * @param uri
+	 * @return
+	 */
+	MixinEncounter bindNamespace(String prefix, String uri);
+	
+	/**
+	 * Parse an expression.
+	 * 
+	 * @param expression
+	 * @return
+	 */
+	Content parseExpression(String expression);
+	
+	/**
 	 * Wrap the current element with the specified wrapper.
 	 * 
 	 * @param wrapper
 	 */
 	void wrap(ElementWrapper wrapper);
+	
+	/**
+	 * Insert content at the beginning of the current element.
+	 * 
+	 * @param content
+	 */
+	void prepend(Content... content);
+	
+	/**
+	 * Insert content at the beginning of the current element, see
+	 * {@link #prepend(Content...)}.
+	 * 
+	 * @param content
+	 */
+	void prepend(List<Content> content);
+	
+	/**
+	 * Insert content at the end of the current element.
+	 * 
+	 * @param content
+	 */
+	void append(Content... content);
+	
+	/**
+	 * Insert content at the end of the current element, see
+	 * {@link #append(Content...)}.
+	 * 
+	 * @param content
+	 */
+	void append(List<Content> content);
 }

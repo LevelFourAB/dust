@@ -1,6 +1,7 @@
 package se.l4.dust.core.internal.template.dom;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -427,7 +428,7 @@ public class TemplateBuilderImpl
 			if(namespace.hasMixin(name))
 			{
 				TemplateMixin mixin = namespace.getMixin(name);
-				mixin.element(new MixinEncounterImpl());
+				mixin.element(new MixinEncounterImpl(boundNamespaces));
 			}
 		}
 	}
@@ -435,8 +436,11 @@ public class TemplateBuilderImpl
 	private class MixinEncounterImpl
 		implements MixinEncounter
 	{
-		public MixinEncounterImpl()
+		private final Map<String, String> boundNamespaces;
+		
+		public MixinEncounterImpl(Map<String, String> ns)
 		{
+			boundNamespaces = new HashMap<String, String>(ns);
 		}
 
 		@Override
@@ -469,5 +473,42 @@ public class TemplateBuilderImpl
 			}
 		}
 		
+		@Override
+		public void append(Content... content)
+		{
+			current.addContent(Arrays.asList(content));
+		}
+		
+		@Override
+		public void append(List<Content> content)
+		{
+			current.addContent(content);
+		}
+		
+		@Override
+		public void prepend(Content... content)
+		{
+			current.prependContent(Arrays.asList(content));
+		}
+		
+		@Override
+		public void prepend(List<Content> content)
+		{
+			current.prependContent(content);
+		}
+		
+		@Override
+		public MixinEncounter bindNamespace(String prefix, String uri)
+		{
+			boundNamespaces.put(prefix, uri);
+			return this;
+		}
+		
+		@Override
+		public Content parseExpression(String expression)
+		{
+			Expression expr = expressions.compile(boundNamespaces, expression, context);
+			return new ExpressionContent(expr);
+		}
 	}
 }
