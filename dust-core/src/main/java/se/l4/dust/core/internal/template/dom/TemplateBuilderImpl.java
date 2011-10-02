@@ -455,7 +455,6 @@ public class TemplateBuilderImpl
 		public void wrap(ElementWrapper wrapper)
 		{
 			WrappedElement wrapped = new WrappedElement(current, wrapper);
-			System.out.println("Current is " + current);
 			if(current.getParent() == null)
 			{
 				// Special case, wrapping the root element

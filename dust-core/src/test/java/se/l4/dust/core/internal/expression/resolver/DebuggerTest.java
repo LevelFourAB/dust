@@ -218,7 +218,6 @@ public class DebuggerTest
 	{
 		try
 		{
-			System.out.println("UGH?");
 			debug("verified", Person.class, null);
 		
 			Assert.fail();
