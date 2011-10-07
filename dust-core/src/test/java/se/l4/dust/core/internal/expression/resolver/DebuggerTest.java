@@ -279,6 +279,15 @@ public class DebuggerTest
 		Assert.assertEquals("test", o);
 	}
 	
+	@Test
+	public void testAndChain()
+	{
+		Person p = new Person();
+		
+		Object o = debug("name != null && name.length() > 0", p);
+		Assert.assertEquals(false, o);
+	}
+	
 	public static class IndexContainer
 	{
 		public Map<String, String> getMap()
