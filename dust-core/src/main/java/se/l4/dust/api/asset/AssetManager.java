@@ -86,6 +86,15 @@ public interface AssetManager
 		AssetBuilder process(Class<? extends AssetProcessor> processor, Object... args);
 		
 		/**
+		 * Indicate that the built asset should be processed with the specified
+		 * processor.
+		 * 
+		 * @param processor
+		 * @return
+		 */
+		AssetBuilder process(AssetProcessor processor);
+		
+		/**
 		 * Create the asset.
 		 */
 		void create();
@@ -165,6 +174,7 @@ public interface AssetManager
 	 *  
 	 * @param processor
 	 */
+	@Deprecated
 	void processAssets(String namespace, String filter, Class<? extends AssetProcessor> processor);
 	
 	/**
@@ -183,6 +193,7 @@ public interface AssetManager
 	 *  
 	 * @param processor
 	 */
+	@Deprecated
 	void processAssets(String namespace, String filter, Class<? extends AssetProcessor> processor, Object... arguments);
 	
 	/**

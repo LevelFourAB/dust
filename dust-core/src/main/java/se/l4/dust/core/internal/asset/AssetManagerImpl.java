@@ -12,6 +12,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ComputationException;
+import com.google.common.collect.MapMaker;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
+import com.google.inject.Stage;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
@@ -26,14 +35,6 @@ import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.api.resource.variant.ResourceVariantManager.ResourceCallback;
 import se.l4.dust.core.internal.resource.MergedResourceVariant;
-
-import com.google.common.base.Function;
-import com.google.common.collect.ComputationException;
-import com.google.common.collect.MapMaker;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Singleton;
-import com.google.inject.Stage;
 
 @Singleton
 public class AssetManagerImpl
@@ -134,7 +135,7 @@ public class AssetManagerImpl
 	public void processAssets(String namespace, String filter, Class<? extends AssetProcessor> processor)
 	{
 		AssetNamespace ans = cache.get(namespace);
-		ans.addProcessors(filter, processor);
+		ans.addProcessor(filter, processor, new Object[0]);
 	}
 	
 	public void processAssets(String namespace, String filter,
@@ -198,7 +199,23 @@ public class AssetManagerImpl
 
 		public AssetBuilder process(Class<? extends AssetProcessor> processor, Object... args)
 		{
-			processors.add(new ProcessorDef(Pattern.quote(pathToFile), new Class[] { processor }, args));
+			processors.add(new ProcessorDef(Pattern.quote(pathToFile), new Provider[] { injector.getProvider(processor) }, args));
+			
+			return this;
+		}
+		
+		@Override
+		public AssetBuilder process(final AssetProcessor processor)
+		{
+			Provider<AssetProcessor> provider = new Provider<AssetProcessor>()
+			{
+				@Override
+				public AssetProcessor get()
+				{
+					return processor;
+				}
+			};
+			processors.add(new ProcessorDef(Pattern.quote(pathToFile), new Provider[] { provider }, new Object[0]));
 			
 			return this;
 		}
@@ -293,14 +310,9 @@ public class AssetManagerImpl
 			return new MergedResource(resources);
 		}
 
-		public void addProcessors(String filter, Class<? extends AssetProcessor>... classes)
-		{
-			processors.add(new ProcessorDef(filter, classes, new Object[0]));
-		}
-		
 		public void addProcessor(String filter, Class<? extends AssetProcessor> processor, Object[] arguments)
 		{
-			processors.add(new ProcessorDef(filter, new Class[] { processor }, arguments));
+			processors.add(new ProcessorDef(filter, new Provider[] { injector.getProvider(processor) }, arguments));
 		}
 		
 		public Asset get(Context context, String path)
@@ -630,14 +642,14 @@ public class AssetManagerImpl
 	private class ProcessorDef
 	{
 		private final Pattern filter;
-		private final Class<? extends AssetProcessor>[] classes;
+		private final Provider<? extends AssetProcessor>[] processors;
 		private final Object[] arguments;
 		
-		public ProcessorDef(String filter, Class<? extends AssetProcessor>[] classes, Object[] arguments)
+		public ProcessorDef(String filter, Provider<? extends AssetProcessor>[] processors, Object[] arguments)
 		{
 			this.arguments = arguments;
 			this.filter = Pattern.compile(filter);
-			this.classes = classes;
+			this.processors = processors;
 		}
 		
 		public boolean matches(String path)
@@ -648,9 +660,9 @@ public class AssetManagerImpl
 		public Resource filter(String ns, String path, Resource in)
 			throws IOException
 		{
-			for(Class<? extends AssetProcessor> type : classes)
+			for(Provider<? extends AssetProcessor> processor : processors)
 			{
-				AssetProcessor instance = injector.getInstance(type);
+				AssetProcessor instance = processor.get();
 				
 				Resource out = instance.process(ns, path, in, arguments);
 				
