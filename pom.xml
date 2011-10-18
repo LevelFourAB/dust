@@ -18,6 +18,7 @@
 
 		<module>dust-js-env</module>
 		<module>dust-js-uglify</module>
+		<module>dust-js-closure</module>
 		<module>dust-js-templates</module>
 		<module>dust-js-coffeescript</module>
 
