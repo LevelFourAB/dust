@@ -6,14 +6,14 @@ import java.io.InputStream;
 
 import org.mozilla.javascript.JavaScriptException;
 
-import se.l4.dust.api.asset.AssetProcessor;
-import se.l4.dust.api.resource.MemoryResource;
-import se.l4.dust.api.resource.NamedResource;
-import se.l4.dust.api.resource.Resource;
-import se.l4.dust.js.env.JavascriptEnvironment;
-
 import com.google.inject.Inject;
 import com.google.inject.Stage;
+
+import se.l4.dust.api.asset.AssetEncounter;
+import se.l4.dust.api.asset.AssetProcessor;
+import se.l4.dust.api.resource.MemoryResource;
+import se.l4.dust.api.resource.Resource;
+import se.l4.dust.js.env.JavascriptEnvironment;
 
 /**
  * Processor that runs UglifyJS on JavaScript files and compresses them. This
@@ -33,34 +33,14 @@ public class UglifyProcessor
 		this.stage = stage;
 	}
 
-	public Resource process(String namespace, String path, Resource in,
-			Object... arguments)
+	public void process(AssetEncounter encounter)
 		throws IOException
 	{
-		Stage minimum = Stage.PRODUCTION;
-		if(arguments.length > 0)
-		{
-			if(arguments[0] instanceof Stage)
-			{
-				minimum = (Stage) arguments[0];
-			}
-			else
-			{
-				throw new RuntimeException("Passed unknown argument to UglifyProcessor");
-			}
-		}
+		if(! encounter.isProduction()) return;
 		
-		if(minimum == Stage.PRODUCTION && minimum != stage)
-		{
-			/*
-			 * Do nothing if we should only run in production, but we are in
-			 * development. 
-			 */
-			return in;
-		}
-		
-		InputStream stream = in.openStream();
-		ByteArrayOutputStream out = new ByteArrayOutputStream(in.getContentLength());
+		Resource resource = encounter.getResource();
+		InputStream stream = resource.openStream();
+		ByteArrayOutputStream out = new ByteArrayOutputStream(resource.getContentLength());
 		try
 		{
 			int len = 0;
@@ -75,7 +55,7 @@ public class UglifyProcessor
 			stream.close();
 		}
 		
-		String value = new String(out.toByteArray(), in.getContentEncoding() != null ? in.getContentEncoding() : "UTF-8");
+		String value = new String(out.toByteArray(), resource.getContentEncoding() != null ? resource.getContentEncoding() : "UTF-8");
 		
 		try
 		{
@@ -87,7 +67,7 @@ public class UglifyProcessor
 				.evaluate("uglify(jsSource, {});");
 			
 			MemoryResource res = new MemoryResource("text/css", "UTF-8", ((String) result).getBytes("UTF-8"));
-			return new NamedResource(res, path);
+			encounter.replaceWith(res);
 		}
 		catch(JavaScriptException e)
 		{

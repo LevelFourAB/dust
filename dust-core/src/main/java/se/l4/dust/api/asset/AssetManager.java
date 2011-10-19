@@ -83,7 +83,7 @@ public interface AssetManager
 		 * 
 		 * @return
 		 */
-		AssetBuilder process(Class<? extends AssetProcessor> processor, Object... args);
+		AssetBuilder process(Class<? extends AssetProcessor> processor);
 		
 		/**
 		 * Indicate that the built asset should be processed with the specified
@@ -174,27 +174,16 @@ public interface AssetManager
 	 *  
 	 * @param processor
 	 */
-	@Deprecated
 	void processAssets(String namespace, String filter, Class<? extends AssetProcessor> processor);
 	
 	/**
 	 * Define that assets in the given namespace matching the regular expression
-	 * should be processed by the given classes before being used.
+	 * should be processed by the given classes before being used. See
+	 * documentation for {@link #processAssets(String, String, Class)}.
 	 * 
-	 * <p>
-	 * Examples:
-	 * <pre>
-	 * // Pass two arguments to the processor
-	 * processAssets(ns, "logo.png", ImageScaler.class, 100, 200);
-	 * </pre>
-	 * 
-	 * <p>
-	 * Processing is only done once for every asset.
-	 *  
 	 * @param processor
 	 */
-	@Deprecated
-	void processAssets(String namespace, String filter, Class<? extends AssetProcessor> processor, Object... arguments);
+	void processAssets(String namespace, String filter, AssetProcessor processor);
 	
 	/**
 	 * Start building a custom combined asset. Combined assets are special in

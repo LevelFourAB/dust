@@ -9,21 +9,21 @@ import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
-import se.l4.dust.api.DefaultContext;
-import se.l4.dust.api.asset.Asset;
-import se.l4.dust.api.asset.AssetException;
-import se.l4.dust.api.asset.AssetManager;
-import se.l4.dust.api.asset.AssetProcessor;
-import se.l4.dust.api.resource.MemoryResource;
-import se.l4.dust.api.resource.NamedResource;
-import se.l4.dust.api.resource.Resource;
-import se.l4.dust.js.env.JavascriptEnvironment;
-
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 import com.google.inject.Inject;
 import com.google.inject.Stage;
+
+import se.l4.dust.api.DefaultContext;
+import se.l4.dust.api.asset.Asset;
+import se.l4.dust.api.asset.AssetEncounter;
+import se.l4.dust.api.asset.AssetException;
+import se.l4.dust.api.asset.AssetManager;
+import se.l4.dust.api.asset.AssetProcessor;
+import se.l4.dust.api.resource.MemoryResource;
+import se.l4.dust.api.resource.Resource;
+import se.l4.dust.js.env.JavascriptEnvironment;
 
 /**
  * Processor of LESS style sheets. This processor will convert LESS files into
@@ -46,9 +46,10 @@ public class LessProcessor
 		development = stage != Stage.PRODUCTION;
 	}
 
-	public Resource process(String namespace, String path, Resource in, Object... arguments)
+	public void process(AssetEncounter encounter)
 		throws IOException
 	{
+		String path = encounter.getPath();
 		if(path.endsWith(".less"))
 		{
 			// Rewrite path to end with .css
@@ -58,8 +59,9 @@ public class LessProcessor
 		int idx = path.lastIndexOf('/');
 		String folder = idx > 0 ? path.substring(0, idx+1) : "";
 		
-		InputStream stream = in.openStream();
-		ByteArrayOutputStream out = new ByteArrayOutputStream(in.getContentLength());
+		Resource resource = encounter.getResource();
+		InputStream stream = resource.openStream();
+		ByteArrayOutputStream out = new ByteArrayOutputStream(resource.getContentLength());
 		try
 		{
 			int len = 0;
@@ -74,13 +76,13 @@ public class LessProcessor
 			stream.close();
 		}
 		
-		String value = new String(out.toByteArray(), in.getContentEncoding() != null ? in.getContentEncoding() : "UTF-8");
+		String value = new String(out.toByteArray(), resource.getContentEncoding() != null ? resource.getContentEncoding() : "UTF-8");
 		
 		try
 		{
 			Object result = new JavascriptEnvironment(getClass().getName())
 				.define("development", development)
-				.define("importer", new Importer(assets, namespace, folder))
+				.define("importer", new Importer(assets, encounter.getNamepace(), folder))
 				.add(LessProcessor.class.getResource("env.js"))
 				.add(LessProcessor.class.getResource("less-1.1.4.js"))
 				.add(LessProcessor.class.getResource("processor.js"))
@@ -88,7 +90,7 @@ public class LessProcessor
 				.evaluate("compileResource(css);");
 			
 			MemoryResource res = new MemoryResource("text/css", "UTF-8", ((String) result).getBytes("UTF-8"));
-			return new NamedResource(res, path);
+			encounter.replaceWith(res).rename(path);
 		}
 		catch(JavaScriptException e)
 		{

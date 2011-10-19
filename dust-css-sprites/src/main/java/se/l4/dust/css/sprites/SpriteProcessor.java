@@ -25,16 +25,17 @@ import org.carrot2.labs.smartsprites.resource.ResourceHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
+
 import se.l4.dust.api.asset.Asset;
+import se.l4.dust.api.asset.AssetEncounter;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.resource.MemoryResource;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.template.DefaultRenderingContext;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
 
 /**
  * Processor that uses SmartSprites to create automatic sprite images from
@@ -59,12 +60,11 @@ public class SpriteProcessor
 		this.contexts = contexts;
 	}
 	
-	public Resource process(String namespace, 
-			String path, 
-			Resource stream, 
-			Object... arguments)
+	public void process(AssetEncounter encounter)
 		throws IOException
 	{
+		String path = encounter.getPath();
+		String namespace = encounter.getNamepace();
 		logger.info("Processing sprites in file " + path + " found in " + namespace);
 		
 		List<String> cssFiles = new LinkedList<String>();
@@ -117,7 +117,7 @@ public class SpriteProcessor
 			contexts.get(), 
 			namespace, 
 			path, 
-			stream
+			encounter.getResource()
 		);
 		SpriteBuilder builder = new SpriteBuilder(params, log, handler);
 		builder.buildSprites();
@@ -143,7 +143,10 @@ public class SpriteProcessor
 			}
 		}
 		
-		return resource;
+		if(resource != null)
+		{
+			encounter.replaceWith(resource);
+		}
 	}
 	
 	private String getMimeType(String key)

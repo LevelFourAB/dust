@@ -15,10 +15,24 @@ public class Closure
 {
 	private CompilationLevel level;
 	private boolean multiThreaded;
+	private boolean activeInDevelopment;
 	
 	public Closure()
 	{
 		level = CompilationLevel.SIMPLE_OPTIMIZATIONS;
+	}
+	
+	/**
+	 * Set that optimization should be performed even when running in
+	 * development mode.
+	 * 
+	 * @return
+	 */
+	public Closure activeInDevelopment()
+	{
+		activeInDevelopment = true;
+		
+		return this;
 	}
 	
 	/**
@@ -66,6 +80,6 @@ public class Closure
 	 */
 	public AssetProcessor build()
 	{
-		return new ClosureAssetProcessor(level, multiThreaded);
+		return new ClosureAssetProcessor(level, multiThreaded, activeInDevelopment);
 	}
 }

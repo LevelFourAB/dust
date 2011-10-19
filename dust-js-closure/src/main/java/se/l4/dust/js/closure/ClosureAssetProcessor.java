@@ -10,6 +10,7 @@ import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.JSSourceFile;
 import com.google.javascript.jscomp.Result;
 
+import se.l4.dust.api.asset.AssetEncounter;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.resource.MemoryResource;
 import se.l4.dust.api.resource.Resource;
@@ -26,21 +27,27 @@ public class ClosureAssetProcessor
 {
 	private final CompilationLevel level;
 	private final boolean multiThreaded;
+	private final boolean activeInDevelopment;
 
 	public ClosureAssetProcessor(
 			CompilationLevel level, 
-			boolean multiThreaded)
+			boolean multiThreaded, 
+			boolean activeInDevelopment)
 	{
 		this.level = level;
 		this.multiThreaded = multiThreaded;
+		this.activeInDevelopment = activeInDevelopment;
 	}
 
-	public Resource process(String namespace, 
-			String path, 
-			Resource in,
-			Object... arguments)
+	public void process(AssetEncounter encounter)
 		throws IOException
 	{
+		if(! encounter.isProduction() && ! activeInDevelopment)
+		{
+			// Not running in production and not set to active
+			return;
+		}
+		
 		Compiler.setLoggingLevel(Level.WARNING);
 		
 		Compiler compiler = new Compiler();
@@ -57,8 +64,9 @@ public class ClosureAssetProcessor
 		JSSourceFile[] sources = new JSSourceFile[1];
 		InputStream[] streams = new InputStream[1];
 		
-		streams[0] = in.openStream();
-		sources[0] = JSSourceFile.fromInputStream(path, streams[0]);
+		Resource resource = encounter.getResource();
+		streams[0] = resource.openStream();
+		sources[0] = JSSourceFile.fromInputStream(encounter.getPath(), streams[0]);
 		
 		JSSourceFile extern = JSSourceFile.fromCode("result.js", "");
 		Result result = compiler.compile(extern, sources, options);
@@ -71,7 +79,8 @@ public class ClosureAssetProcessor
 		
 		streams[0].close();
 		
-		return new MemoryResource("text/javascript", "UTF-8", source.getBytes("UTF-8"));
+		MemoryResource mr = new MemoryResource("text/javascript", "UTF-8", source.getBytes("UTF-8"));
+		encounter.replaceWith(mr);
 	}
 
 }

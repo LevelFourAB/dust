@@ -2,8 +2,6 @@ package se.l4.dust.api.asset;
 
 import java.io.IOException;
 
-import se.l4.dust.api.resource.Resource;
-
 /**
  * Processor of an asset, used to modify the asset data in runtime before
  * returning it to the client.
@@ -28,6 +26,6 @@ public interface AssetProcessor
 	 * @throws IOException
 	 * 		if unable to process the stream
 	 */
-	Resource process(String namespace, String path, Resource in, Object... arguments)
+	void process(AssetEncounter encounter)
 		throws IOException;
 }

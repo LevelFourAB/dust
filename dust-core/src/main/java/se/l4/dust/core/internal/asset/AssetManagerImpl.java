@@ -29,7 +29,6 @@ import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.asset.AssetSource;
 import se.l4.dust.api.resource.MergedResource;
-import se.l4.dust.api.resource.NamedResource;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
@@ -45,6 +44,8 @@ public class AssetManagerImpl
 	private final ConcurrentMap<String, AssetNamespace> cache;
 	private final NamespaceManager manager;
 	private final ResourceVariantManager variants;
+	
+	private final boolean production;
 	
 	private final List<Object> sources;
 	private final Set<String> protectedExtensions;
@@ -74,6 +75,8 @@ public class AssetManagerImpl
 						return new DevAssetNamespace(from);
 					}
 				};
+				
+			production = false;
 		}
 		else
 		{
@@ -84,6 +87,8 @@ public class AssetManagerImpl
 						return new AssetNamespace(from);
 					}
 				};
+				
+			production = true;
 		}
 		
 		cache = new MapMaker().makeComputingMap(f);
@@ -135,15 +140,13 @@ public class AssetManagerImpl
 	public void processAssets(String namespace, String filter, Class<? extends AssetProcessor> processor)
 	{
 		AssetNamespace ans = cache.get(namespace);
-		ans.addProcessor(filter, processor, new Object[0]);
+		ans.addProcessor(filter, processor);
 	}
 	
-	public void processAssets(String namespace, String filter,
-			Class<? extends AssetProcessor> processor, 
-			Object... arguments)
+	public void processAssets(String namespace, String filter, AssetProcessor processor)
 	{
 		AssetNamespace ans = cache.get(namespace);
-		ans.addProcessor(filter, processor, arguments);
+		ans.addProcessor(filter, processor);
 	}
 	
 	public AssetBuilder addAsset(String namespace, String pathToFile)
@@ -197,9 +200,9 @@ public class AssetManagerImpl
 			return this;
 		}
 
-		public AssetBuilder process(Class<? extends AssetProcessor> processor, Object... args)
+		public AssetBuilder process(Class<? extends AssetProcessor> processor)
 		{
-			processors.add(new ProcessorDef(Pattern.quote(pathToFile), new Provider[] { injector.getProvider(processor) }, args));
+			processors.add(new ProcessorDef(Pattern.quote(pathToFile), injector.getProvider(processor)));
 			
 			return this;
 		}
@@ -207,15 +210,7 @@ public class AssetManagerImpl
 		@Override
 		public AssetBuilder process(final AssetProcessor processor)
 		{
-			Provider<AssetProcessor> provider = new Provider<AssetProcessor>()
-			{
-				@Override
-				public AssetProcessor get()
-				{
-					return processor;
-				}
-			};
-			processors.add(new ProcessorDef(Pattern.quote(pathToFile), new Provider[] { provider }, new Object[0]));
+			processors.add(new ProcessorDef(Pattern.quote(pathToFile), new InstanceProvider<AssetProcessor>(processor)));
 			
 			return this;
 		}
@@ -310,9 +305,14 @@ public class AssetManagerImpl
 			return new MergedResource(resources);
 		}
 
-		public void addProcessor(String filter, Class<? extends AssetProcessor> processor, Object[] arguments)
+		public void addProcessor(String filter, Class<? extends AssetProcessor> processor)
 		{
-			processors.add(new ProcessorDef(filter, new Provider[] { injector.getProvider(processor) }, arguments));
+			processors.add(new ProcessorDef(filter, injector.getProvider(processor)));
+		}
+		
+		public void addProcessor(String filter, AssetProcessor processor)
+		{
+			processors.add(new ProcessorDef(filter, new InstanceProvider<AssetProcessor>(processor)));
 		}
 		
 		public Asset get(Context context, String path)
@@ -421,19 +421,25 @@ public class AssetManagerImpl
 			
 			boolean processed = false;
 			Resource current = resource;
-			NamedResource lastNamed = null;
+			String lastName = path;
 			
 			if(! extensionProcessors.isEmpty())
 			{
 				AssetProcessor ext = extensionProcessors.get(extension);
 				if(ext != null)
 				{
-					current = ext.process(namespace, path, current);
+					AssetEncounterImpl encounter = new AssetEncounterImpl(manager, production, current, namespace, lastName);
 					
-					if(current instanceof NamedResource)
+					ext.process(encounter);
+					
+					if(encounter.isReplaced())
 					{
-						// Rename the resource
-						lastNamed = (NamedResource) current;
+						current = encounter.getReplacedWith();
+					}
+					
+					if(encounter.isRenamed())
+					{
+						lastName = encounter.getRenamedTo();
 					}
 				}
 			}
@@ -461,13 +467,19 @@ public class AssetManagerImpl
 							processed = true;
 						}
 						
-						current = def.filter(namespace, path, current);
+						AssetEncounterImpl encounter = new AssetEncounterImpl(manager, production, current, namespace, lastName);
+						
+						def.getProcessor().process(encounter);
 						applied.add(def);
 						
-						if(current instanceof NamedResource)
+						if(encounter.isReplaced())
 						{
-							// Rename the resource
-							lastNamed = (NamedResource) current;
+							current = encounter.getReplacedWith();
+						}
+						
+						if(encounter.isRenamed())
+						{
+							lastName = encounter.getRenamedTo();
 							
 							// Reapply filters in order
 							continue _outer;
@@ -479,16 +491,17 @@ public class AssetManagerImpl
 			}
 			
 			String originalPath = path;
-			if(lastNamed != null)
+			boolean renamed = ! lastName.equals(path);
+			if(renamed)
 			{
-				// The resource has been renamed
-				path = lastNamed.getName();
+				// The resource has been renamed, update path
+				path = lastName;
 			}
 			
 			// Create the actual asset (to make sure the new path is applied)
 			Asset asset = createAsset(protect, path, current, resource, originalPath);
 			
-			if(lastNamed != null)
+			if(renamed)
 			{
 				// If renamed, also apply it to its new path
 				set(path, asset);
@@ -642,14 +655,12 @@ public class AssetManagerImpl
 	private class ProcessorDef
 	{
 		private final Pattern filter;
-		private final Provider<? extends AssetProcessor>[] processors;
-		private final Object[] arguments;
+		private final Provider<? extends AssetProcessor> processor;
 		
-		public ProcessorDef(String filter, Provider<? extends AssetProcessor>[] processors, Object[] arguments)
+		public ProcessorDef(String filter, Provider<? extends AssetProcessor> processor)
 		{
-			this.arguments = arguments;
 			this.filter = Pattern.compile(filter);
-			this.processors = processors;
+			this.processor = processor;
 		}
 		
 		public boolean matches(String path)
@@ -657,19 +668,9 @@ public class AssetManagerImpl
 			return filter.matcher(path).matches();
 		}
 		
-		public Resource filter(String ns, String path, Resource in)
-			throws IOException
+		public AssetProcessor getProcessor()
 		{
-			for(Provider<? extends AssetProcessor> processor : processors)
-			{
-				AssetProcessor instance = processor.get();
-				
-				Resource out = instance.process(ns, path, in, arguments);
-				
-				in = out;
-			}
-			
-			return in;
+			return processor.get();
 		}
 	}
 	
@@ -703,6 +704,23 @@ public class AssetManagerImpl
 			}
 			
 			return asset == null ? NULL_ASSET : asset;
+		}
+	}
+	
+	private static class InstanceProvider<T>
+		implements Provider<T>
+	{
+		private final T instance;
+		
+		public InstanceProvider(T instance)
+		{
+			this.instance = instance;
+		}
+		
+		@Override
+		public T get()
+		{
+			return instance;
 		}
 	}
 }
