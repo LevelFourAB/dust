@@ -242,6 +242,52 @@ public class DebuggerTest
 		}
 	}
 	
+	@Test
+	public void testCalculateLong()
+	{
+		Assert.assertEquals(14l, debug("12 + 2", ""));
+		Assert.assertEquals(10l, debug("12 - 2", ""));
+		Assert.assertEquals(24l, debug("12 * 2", ""));
+		Assert.assertEquals(6l, debug("12 / 2", ""));
+		Assert.assertEquals(2l, debug("12 % 10", ""));
+	}
+	
+	@Test
+	public void testCalculateDouble()
+	{
+		Assert.assertEquals(14., debug("12.0 + 2", ""));
+		Assert.assertEquals(10., debug("12.0 - 2", ""));
+		Assert.assertEquals(24., debug("12.0 * 2", ""));
+		Assert.assertEquals(6., debug("12.0 / 2", ""));
+		Assert.assertEquals(2., debug("12.0 % 10", ""));
+	}
+	
+	@Test
+	public void testReturnThis()
+	{
+		Object t = new Object();
+		Assert.assertSame(t, debug("this", t));
+	}
+	
+	@Test
+	public void testGetPublicField()
+	{
+		Person p = new Person();
+		p.role = "test";
+		
+		Object o = debug("role", p);
+		Assert.assertEquals("test", o);
+	}
+	
+	@Test
+	public void testAndChain()
+	{
+		Person p = new Person();
+		
+		Object o = debug("name != null && name.length() > 0", p);
+		Assert.assertEquals(false, o);
+	}
+	
 	public static class IndexContainer
 	{
 		public Map<String, String> getMap()

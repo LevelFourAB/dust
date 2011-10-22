@@ -117,7 +117,7 @@ public class FieldPropertyInvoker
 			return in + ".set($2, $3)";
 		}
 		
-		return context + "." + field.getName() + " = $3";
+		return context + "." + field.getName() + " = " + compiler.cast(field.getType()) + " $3";
 	}
 
 	@Override

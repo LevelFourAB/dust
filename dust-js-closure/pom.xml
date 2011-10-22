@@ -1,0 +1,29 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>se.l4.dust</groupId>
+		<artifactId>dust-base</artifactId>
+		<version>0.3-SNAPSHOT</version>
+	</parent>
+	
+	<artifactId>dust-js-closure</artifactId>
+	<packaging>jar</packaging>
+	<name>${pom.artifactId}</name>
+	
+	<dependencies>
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>dust-core</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.google.javascript</groupId>
+			<artifactId>closure-compiler</artifactId>
+			<version>r1459</version>
+		</dependency>
+	</dependencies>
+</project>
+

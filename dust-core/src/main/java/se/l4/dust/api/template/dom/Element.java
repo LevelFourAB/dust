@@ -103,6 +103,29 @@ public class Element
 		return this;
 	}
 	
+	/**
+	 * Prepend content to this element.
+	 * 
+	 * @param objects
+	 * @return
+	 */
+	public Element prependContent(Collection<Content> objects)
+	{
+		Content[] result = new Content[contents.length + objects.size()];
+		System.arraycopy(contents, 0, result, objects.size(), contents.length);
+		
+		int index = 0;
+		for(Content o : objects)
+		{
+			result[index++] = o;
+			o.setParent(this);
+		}
+		
+		contents = result;
+		
+		return this;
+	}
+	
 	public void replaceContent(Content existing, Content newContent)
 	{
 		for(int i=0, n=contents.length; i<n; i++)
