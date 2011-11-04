@@ -381,9 +381,19 @@ public class ExpressionResolver
 			Invoker left = resolveFromRoot(encounter, an.getLeft(), root);
 			Invoker right = resolveFromRoot(encounter, an.getRight(), root);
 			
+			if(! isNumber(left.getReturnClass()))
+			{
+				left = toConverting(left, Number.class);
+			}
+			
+			if(! isNumber(right.getReturnClass()))
+			{
+				right = toConverting(left, Number.class);
+			}
+			
 			boolean floatingPoint = isFloatingPoint(left.getReturnClass()) 
 				|| isFloatingPoint(right.getReturnClass()); 
-			
+				
 			return new NumericOperationInvoker(node, left, right, floatingPoint);
 		}
 		else if(node instanceof IndexNode)
