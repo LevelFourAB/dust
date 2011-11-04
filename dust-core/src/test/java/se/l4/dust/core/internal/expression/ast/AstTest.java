@@ -517,7 +517,18 @@ public class AstTest
 	@Test
 	public void testMultipleIndexes()
 	{
+		System.out.println("f");
 		test("test[0]['red']", index(id(null, "test"), longNode(0), string("red")));
+	}
+	
+	@Test
+	public void testArray()
+	{
+		test("[]", array());
+		
+		test("[1, 2]", array(longNode(1), longNode(2)));
+		
+		test("[1 + 2]", array(add(longNode(1), longNode(2))));
 	}
 	
 	private IdentifierNode id(String ns, String id)
@@ -638,6 +649,11 @@ public class AstTest
 	private Node index(Node left, Node... indexes)
 	{
 		return new IndexNode(0, 0, left, indexes);
+	}
+	
+	private Node array(Node... values)
+	{
+		return new ArrayNode(0, 0, values);
 	}
 	
 	private static void test(String expr, Node expectedResult)

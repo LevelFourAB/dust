@@ -1,5 +1,7 @@
 package se.l4.dust.core.internal.expression.resolver;
 
+import static org.junit.Assert.*;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,6 +13,10 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Stage;
+
 import se.l4.crayon.Crayon;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.ExpressionException;
@@ -18,10 +24,6 @@ import se.l4.dust.core.internal.conversion.ConversionModule;
 import se.l4.dust.core.internal.expression.ExpressionDebugger;
 import se.l4.dust.core.internal.expression.ExpressionsImpl;
 import se.l4.dust.core.internal.expression.model.Person;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Stage;
 
 /**
  * Tests that run expression in debug mode (interpreted) and verify that
@@ -286,6 +288,37 @@ public class DebuggerTest
 		
 		Object o = debug("name != null && name.length() > 0", p);
 		Assert.assertEquals(false, o);
+	}
+	
+	@Test
+	public void testLongArray()
+	{
+		Person p = new Person();
+		
+		Object o = debug("[ 1, 2 ]", p);
+		if(! (o instanceof long[])) throw new AssertionError("Not a long array");
+		assertArrayEquals(new long[] { 1l, 2l }, (long[]) o);
+	}
+	
+	@Test
+	public void testStringArray()
+	{
+		Person p = new Person();
+		
+		Object o = debug("[ 'value1', 'value2' ]", p);
+		if(! (o instanceof String[])) throw new AssertionError("Not a string array");
+		assertArrayEquals(new String[] { "value1", "value2" }, (String[]) o);
+	}
+	
+	@Test
+	public void testMixedArray()
+	{
+		Person p = new Person();
+		p.setName("test");
+		
+		Object o = debug("[ 'value1', 2, name ]", p);
+		if(! (o instanceof Object[])) throw new AssertionError("Not an object array");
+		assertArrayEquals(new Object[] { "value1", 2l, "test" }, (Object[]) o);
 	}
 	
 	public static class IndexContainer

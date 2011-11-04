@@ -28,6 +28,7 @@ import se.l4.dust.core.internal.expression.ExpressionParser;
 import se.l4.dust.core.internal.expression.ExpressionResolver;
 import se.l4.dust.core.internal.expression.ExpressionsImpl;
 import se.l4.dust.core.internal.expression.ast.Node;
+import se.l4.dust.core.internal.expression.invoke.ArrayInvoker;
 import se.l4.dust.core.internal.expression.invoke.ChainInvoker;
 import se.l4.dust.core.internal.expression.invoke.ConstantInvoker;
 import se.l4.dust.core.internal.expression.invoke.DynamicPropertyInvoker;
@@ -192,6 +193,36 @@ public class ResolverTest
 	{
 		Field f = Person.class.getDeclaredField("verified");
 		test("verified", Person.class, new FieldPropertyInvoker(null, null, f));
+	}
+	
+	@Test
+	public void testLongArray()
+		throws Exception
+	{
+		test("[ 1, 2 ]", Person.class, new ArrayInvoker(null, long.class, new Invoker[] {
+			new ConstantInvoker(null, 1l),
+			new ConstantInvoker(null, 2l),
+		}));
+	}
+	
+	@Test
+	public void testStringArray()
+		throws Exception
+	{
+		test("[ '1', '' ]", Person.class, new ArrayInvoker(null, String.class, new Invoker[] {
+			new ConstantInvoker(null, "1"),
+			new ConstantInvoker(null, ""),
+		}));
+	}
+	
+	@Test
+	public void testArrayWithProperty()
+		throws Exception
+	{
+		Method m = Person.class.getMethod("getName");
+		test("[ name ]", Person.class, new ArrayInvoker(null, String.class, new Invoker[] {
+			new MethodPropertyInvoker(null, null, m, null)
+		}));
 	}
 	
 	public static class IndexContainer

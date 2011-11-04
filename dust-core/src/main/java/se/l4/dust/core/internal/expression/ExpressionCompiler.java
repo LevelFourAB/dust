@@ -168,7 +168,13 @@ public class ExpressionCompiler
 		return "(" + castNoParens(result) + ")";
 	}
 	
-	private String castNoParens(Class<?> result)
+	/**
+	 * Create a cast, but exclude parenthesizes.
+	 * 
+	 * @param result
+	 * @return
+	 */
+	public String castNoParens(Class<?> result)
 	{
 		if(result.isArray())
 		{
