@@ -14,6 +14,7 @@ tokens {
 	GROUP;
 	TERNARY;
 	INDEXED;
+	ARRAY;
 }
 
 @parser::header {
@@ -28,6 +29,7 @@ root	:	logicalExpression EOF!;
 
 expression
 	:	LPAREN expr=logicalExpression RPAREN -> $expr
+	|	array
 	|	constant
 	|	keyword
 	|	chain
@@ -57,6 +59,10 @@ methodExpressions
 	
 not	:	'!' logicalExpression -> ^(NOT logicalExpression);
 
+array	:	LBRACKET RBRACKET -> ^(ARRAY)
+	|	LBRACKET methodExpressions RBRACKET -> ^(ARRAY methodExpressions)
+	;
+	
 // Logical operations
 logicalExpression
 	:	test=booleanAndExpression '?' left=booleanAndExpression (':' right=booleanAndExpression)? -> ^(TERNARY $test $left $right?)
@@ -98,7 +104,7 @@ COMMA	:	',';
 LPAREN	:	'(';
 RPAREN	:	')';
 LBRACKET:	'[';
-RBRACKER:	']';
+RBRACKET:	']';
 
 CHAIN	:	'.';
 CHAIN_NULL	:	'?.';

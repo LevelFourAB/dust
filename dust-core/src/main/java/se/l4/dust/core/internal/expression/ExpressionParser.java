@@ -27,6 +27,7 @@ import se.l4.dust.core.internal.expression.antlr.DustExpressionsLexer;
 import se.l4.dust.core.internal.expression.antlr.DustExpressionsParser;
 import se.l4.dust.core.internal.expression.ast.AddNode;
 import se.l4.dust.core.internal.expression.ast.AndNode;
+import se.l4.dust.core.internal.expression.ast.ArrayNode;
 import se.l4.dust.core.internal.expression.ast.ChainNode;
 import se.l4.dust.core.internal.expression.ast.DivideNode;
 import se.l4.dust.core.internal.expression.ast.DoubleNode;
@@ -335,6 +336,17 @@ public class ExpressionParser
 					indexes[i] = createNode(tree.getChild(i+1));
 				}
 				return new IndexNode(line, position, left, indexes);
+			}
+			
+			case ARRAY:
+			{
+				Node[] values = new Node[tree.getChildCount()];
+				for(int i=0, n=values.length; i<n; i++)
+				{
+					values[i] = createNode(tree.getChild(i));
+				}
+				
+				return new ArrayNode(line, position, values);
 			}
 		}
 		

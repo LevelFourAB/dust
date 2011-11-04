@@ -3,6 +3,7 @@ package se.l4.dust.core.internal.expression;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +27,7 @@ import se.l4.dust.api.expression.ExpressionException;
 import se.l4.dust.api.expression.ExpressionSource;
 import se.l4.dust.core.internal.expression.ast.AddNode;
 import se.l4.dust.core.internal.expression.ast.AndNode;
+import se.l4.dust.core.internal.expression.ast.ArrayNode;
 import se.l4.dust.core.internal.expression.ast.ChainNode;
 import se.l4.dust.core.internal.expression.ast.DivideNode;
 import se.l4.dust.core.internal.expression.ast.DoubleNode;
@@ -51,6 +53,7 @@ import se.l4.dust.core.internal.expression.ast.SubtractNode;
 import se.l4.dust.core.internal.expression.ast.TernaryNode;
 import se.l4.dust.core.internal.expression.invoke.AndInvoker;
 import se.l4.dust.core.internal.expression.invoke.ArrayIndexInvoker;
+import se.l4.dust.core.internal.expression.invoke.ArrayInvoker;
 import se.l4.dust.core.internal.expression.invoke.ChainInvoker;
 import se.l4.dust.core.internal.expression.invoke.ConstantInvoker;
 import se.l4.dust.core.internal.expression.invoke.ConvertingInvoker;
@@ -70,6 +73,7 @@ import se.l4.dust.core.internal.expression.invoke.OrInvoker;
 import se.l4.dust.core.internal.expression.invoke.StringConcatInvoker;
 import se.l4.dust.core.internal.expression.invoke.TernaryInvoker;
 import se.l4.dust.core.internal.expression.invoke.ThisInvoker;
+import se.l4.dust.core.internal.expression.invoke.TypeResolving;
 
 /**
  * Resolver for expressions, turns the AST into an invocation chain.
@@ -381,9 +385,19 @@ public class ExpressionResolver
 			Invoker left = resolveFromRoot(encounter, an.getLeft(), root);
 			Invoker right = resolveFromRoot(encounter, an.getRight(), root);
 			
+			if(! isNumber(left.getReturnClass()))
+			{
+				left = toConverting(left, Number.class);
+			}
+			
+			if(! isNumber(right.getReturnClass()))
+			{
+				right = toConverting(left, Number.class);
+			}
+			
 			boolean floatingPoint = isFloatingPoint(left.getReturnClass()) 
 				|| isFloatingPoint(right.getReturnClass()); 
-			
+				
 			return new NumericOperationInvoker(node, left, right, floatingPoint);
 		}
 		else if(node instanceof IndexNode)
@@ -442,6 +456,30 @@ public class ExpressionResolver
 			}
 			
 			return left;
+		}
+		else if(node instanceof ArrayNode)
+		{
+			ArrayNode array = (ArrayNode) node;
+			Node[] nodes = array.getValues();
+			
+			Invoker[] invokers = new Invoker[nodes.length];
+			List<ResolvedType> types = new ArrayList<ResolvedType>();
+			
+			for(int i=0, n=invokers.length; i<n; i++)
+			{
+				invokers[i] = resolveFromRoot(encounter, nodes[i], root);
+				ResolvedType rt = invokers[i].getReturnType();
+				types.add(rt == null ? typeResolver.resolve(invokers[i].getReturnClass()) : rt);
+			}
+			
+			List<ResolvedType> common = TypeResolving.findCommonTypes(types);
+			
+			// TODO: Better selection than just picking the first one
+			return new ArrayInvoker(
+				node, 
+				common.isEmpty() ? Object.class : common.get(0).getErasedType(), 
+				invokers
+			);
 		}
 		
 		throw errors.error(node, "Unknown node of type: " + node.getClass());
