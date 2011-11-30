@@ -11,6 +11,13 @@ import se.l4.dust.api.Context;
 public interface Expression
 {
 	/**
+	 * Get the return class of the expression.
+	 * 
+	 * @return
+	 */
+	Class<?> getReturnClass();
+	
+	/**
 	 * Execute the expression using the given context and instance.
 	 * 
 	 * @param context

@@ -1,5 +1,6 @@
 package se.l4.dust.core.internal.expression.compiler;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.util.HashMap;
@@ -9,10 +10,6 @@ import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Stage;
 
 import se.l4.crayon.Crayon;
 import se.l4.dust.api.conversion.TypeConverter;
@@ -29,6 +26,10 @@ import se.l4.dust.core.internal.expression.invoke.Invoker;
 import se.l4.dust.core.internal.expression.model.Person;
 import se.l4.dust.core.internal.expression.resolver.DebuggerTest.IndexContainer;
 import se.l4.dust.core.internal.expression.resolver.DebuggerTest.TestMap;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Stage;
 
 /**
  * Test for compiled expressions.
@@ -446,6 +447,17 @@ public class CompilerTest
 		assertArrayEquals(new Object[] { "value1", 2l, "test" }, (Object[]) o);
 	}
 	
+	@Test
+	public void testGetReturnClass()
+	{
+		Expression expr = compile("this", Person.class);
+		assertThat(expr.getReturnClass(), is((Object) Person.class));
+		
+		expr = compile("'static'", Person.class);
+		assertThat(expr.getReturnClass(), is((Object) String.class));
+	}
+	
+	
 	private Object compileAndRun(String expr, Object in)
 	{
 		if(in == null) throw new NullPointerException("in must not be null");
@@ -453,7 +465,7 @@ public class CompilerTest
 		return compileAndRun(expr, in.getClass(), in);
 	}
 	
-	private Object compileAndRun(String expr, Class<?> context, Object in)
+	private Expression compile(String expr, Class<?> context)
 	{
 		ErrorHandler errors = new ErrorHandlerImpl(expr);
 		Node node = ExpressionParser.parse(expr);
@@ -466,7 +478,12 @@ public class CompilerTest
 			).resolve(context);
 		
 		ExpressionCompiler compiler = new ExpressionCompiler(errors, context, invoker);
-		Expression compiled = compiler.compile();
+		return compiler.compile();
+	}
+	
+	private Object compileAndRun(String expr, Class<?> context, Object in)
+	{
+		Expression compiled = compile(expr, context);
 		return compiled.get(null, in);
 	}
 	

@@ -27,4 +27,12 @@ public interface Expressions
 	 * @return
 	 */
 	Expression compile(Map<String, String> namespaces, String expression, Class<?> localContext);
+
+	/**
+	 * Resolve a suitable type for the given object.
+	 * 
+	 * @param context
+	 * @return
+	 */
+	Class<?> resolveType(Object context);
 }

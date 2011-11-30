@@ -36,6 +36,12 @@ public class ExpressionDebugger
 	}
 	
 	@Override
+	public Class<?> getReturnClass()
+	{
+		return invoker.getReturnClass();
+	}
+	
+	@Override
 	public Object get(Context context, Object instance)
 	{
 		return invoker.get(errors, context, instance, instance);

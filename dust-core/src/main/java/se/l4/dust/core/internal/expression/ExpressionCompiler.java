@@ -13,12 +13,11 @@ import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
-
-import com.google.common.primitives.Primitives;
-
 import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.expression.ExpressionException;
 import se.l4.dust.core.internal.expression.invoke.Invoker;
+
+import com.google.common.primitives.Primitives;
 
 /**
  * Compiler for expressions. Will take a tree of {@link Invoker}s and compile
@@ -64,13 +63,15 @@ public class ExpressionCompiler
 			CtClass exprIf = pool.get(Expression.class.getName());
 			CtMethod get = exprIf.getMethod("get", "(Lse/l4/dust/api/Context;Ljava/lang/Object;)Ljava/lang/Object;");
 			CtMethod set = exprIf.getMethod("set", "(Lse/l4/dust/api/Context;Ljava/lang/Object;Ljava/lang/Object;)V");
+			CtMethod returnClass = exprIf.getMethod("getReturnClass", "()Ljava/lang/Class;");
 			
 			CtClass type = pool.makeClass("se.l4.dust.core.internal.expression.Expression$$" + compiled.incrementAndGet());
 			type.addInterface(exprIf);
 			
-			// Create the expression
+			// Create the expressions
 			String javaGetter = root.toJavaGetter(errors, this, rootContext);
 			String javaSetter = root.toJavaSetter(errors, this, rootContext);
+			String returnClassExpr = "return " + castNoParens(root.getReturnClass()) + ".class;";
 			
 			// Create constructor information
 			Class[] typed = new Class[items.size()];
@@ -124,6 +125,11 @@ public class ExpressionCompiler
 			{
 				impl.setBody("throw new " + ExpressionException.class.getName() + "(null, 0, 0, \"Setter not supported\");");
 			}
+			type.addMethod(impl);
+			
+			// Add the get method
+			impl = CtNewMethod.copy(returnClass, type, null);
+			impl.setBody(returnClassExpr);
 			type.addMethod(impl);
 			
 			Class<? extends Expression> c = type.toClass();
