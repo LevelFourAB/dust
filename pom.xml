@@ -62,16 +62,11 @@
 			<name>JBoss</name>
 			<url>http://repository.jboss.org/nexus/content/groups/public-jboss/</url>
 		</repository>
-		<repository>
-			<id>crayon-releases</id>
-			<name>Crayon Releases</name>
-			<url>http://crayon-java.googlecode.com/svn/repository/releases</url>
-		</repository>
 	</repositories>
 
 	<properties>
 		<resteasy-version>2.1.0.GA</resteasy-version>
-		<crayon-version>0.5</crayon-version>
+		<crayon-version>0.6</crayon-version>
 	</properties>
 	
 	<dependencyManagement>
