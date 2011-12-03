@@ -12,7 +12,6 @@ import se.l4.dust.core.internal.template.components.IfComponent;
 import se.l4.dust.core.internal.template.components.LoopComponent;
 import se.l4.dust.core.internal.template.components.ParameterComponent;
 import se.l4.dust.core.internal.template.components.RawComponent;
-import se.l4.dust.core.internal.template.expression.MvelPropertySource;
 
 /**
  * Module that activates template functions. Binds they default implementations
@@ -52,12 +51,10 @@ public class TemplateModule
 	public void contributePropertySources(TemplateManager manager,
 			CyclePropertySource s1,
 			VarPropertySource s2,
-			MvelPropertySource s3,
 			MessagePropertySource s4)
 	{
 		manager.addPropertySource("cycle", s1);
 		manager.addPropertySource("var", s2);
-		manager.addPropertySource("mvel", s3);
 		manager.addPropertySource("message", s4);
 		manager.addPropertySource("m", s4);
 	}
