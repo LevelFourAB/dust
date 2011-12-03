@@ -1,12 +1,25 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
 
 	<groupId>se.l4.dust</groupId>
 	<artifactId>dust-base</artifactId>
 	<version>0.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>${project.artifactId}</name>
+	<name>Dust</name>
+	
+	<description>
+		Dust is a template engine and asset management library built to be used
+		with JAX-RS (via Resteasy).
+	</description>
+	
+	<url>https://github.com/LevelFourAB/dust</url>
 
 	<modules>
 		<module>dust-core</module>
@@ -41,18 +54,6 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
-
-			<plugin>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 	
@@ -79,11 +80,29 @@
 		 	</dependency>
 		</dependencies>
 	</dependencyManagement>
+	
+	<!-- License -->
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
+	<!-- Main Github repo -->
 	<scm>
-		<connection>scm:git:git@github.com:aholstenson/dust.git</connection>
-		<url>scm:git:git@github.com:aholstenson/dust.git</url>
-		<developerConnection>scm:git:git@github.com:aholstenson/dust.git</developerConnection>
+		<connection>scm:git:git@github.com:LevelFourAB/dust.git</connection>
+		<url>scm:git:git@github.com:LevelFourAB/dust.git</url>
+		<developerConnection>scm:git:git@github.com:LevelFourAB/dust.git</developerConnection>
 	</scm>
+	
+	<developers>
+		<developer>
+			<id>aholstenson</id>
+			<name>Andreas Holstenson</name>
+			<email>a@holstenson.se</email>
+		</developer>
+	</developers>
 </project>
 
