@@ -1,5 +1,7 @@
 package se.l4.dust.js.templates.internal;
 
+import se.l4.dust.api.TemplateException;
+import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.Comment;
 import se.l4.dust.api.template.dom.Content;
@@ -8,11 +10,38 @@ import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.dom.Text;
+import se.l4.dust.core.internal.expression.ExpressionParser;
+import se.l4.dust.core.internal.expression.ast.AddNode;
+import se.l4.dust.core.internal.expression.ast.AndNode;
+import se.l4.dust.core.internal.expression.ast.ArrayNode;
+import se.l4.dust.core.internal.expression.ast.ChainNode;
+import se.l4.dust.core.internal.expression.ast.DivideNode;
+import se.l4.dust.core.internal.expression.ast.DoubleNode;
+import se.l4.dust.core.internal.expression.ast.EqualsNode;
+import se.l4.dust.core.internal.expression.ast.GreaterNode;
+import se.l4.dust.core.internal.expression.ast.GreaterOrEqualNode;
+import se.l4.dust.core.internal.expression.ast.IdentifierNode;
+import se.l4.dust.core.internal.expression.ast.IndexNode;
+import se.l4.dust.core.internal.expression.ast.InvokeNode;
+import se.l4.dust.core.internal.expression.ast.KeywordNode;
+import se.l4.dust.core.internal.expression.ast.LessNode;
+import se.l4.dust.core.internal.expression.ast.LessOrEqualNode;
+import se.l4.dust.core.internal.expression.ast.LongNode;
+import se.l4.dust.core.internal.expression.ast.ModuloNode;
+import se.l4.dust.core.internal.expression.ast.MultiplyNode;
+import se.l4.dust.core.internal.expression.ast.NegateNode;
+import se.l4.dust.core.internal.expression.ast.Node;
+import se.l4.dust.core.internal.expression.ast.NotEqualsNode;
+import se.l4.dust.core.internal.expression.ast.OrNode;
+import se.l4.dust.core.internal.expression.ast.SignNode;
+import se.l4.dust.core.internal.expression.ast.StringNode;
+import se.l4.dust.core.internal.expression.ast.SubtractNode;
+import se.l4.dust.core.internal.expression.ast.TernaryNode;
 import se.l4.dust.core.internal.template.components.IfComponent;
 import se.l4.dust.core.internal.template.components.LoopComponent;
 import se.l4.dust.core.internal.template.components.ParameterComponent;
 import se.l4.dust.core.internal.template.components.RawComponent;
-import se.l4.dust.core.internal.template.expression.MvelPropertySource;
+import se.l4.dust.core.internal.template.dom.ExpressionContent;
 
 /**
  * Converter of {@link ParsedTemplate} into a JavaScript based function.
@@ -112,13 +141,9 @@ public class TemplateConverter
 			{
 				for(Content c : value)
 				{
-					if(c instanceof MvelPropertySource.Content)
+					if(c instanceof ExpressionContent)
 					{
-						// MVEL Expression, try to handle as JavaScript
-						String expression = ((MvelPropertySource.Content) c).getExpression();
-						pushExpression("p.push(");
-						pushExpression(expression);
-						pushExpression(");");
+						handleExpression(c);
 					}
 					else if(c instanceof DynamicContent)
 					{
@@ -224,13 +249,9 @@ public class TemplateConverter
 			
 			pushString("-->");
 		}
-		else if(content instanceof MvelPropertySource.Content)
+		else if(content instanceof ExpressionContent)
 		{
-			// MVEL Expression, try to handle as JavaScript
-			String expression = ((MvelPropertySource.Content) content).getExpression();
-			pushExpression("p.push(");
-			pushExpression(expression);
-			pushExpression(");");
+			handleExpression(content);
 		}
 		else if(content instanceof DynamicContent)
 		{
@@ -250,15 +271,24 @@ public class TemplateConverter
 	{
 		for(Content c : attr.getValue())
 		{
-			if(c instanceof MvelPropertySource.Content)
+			if(c instanceof ExpressionContent)
 			{
-				return ((MvelPropertySource.Content) c).getExpression();
+				return translateExpression(c);
 			}
 		}
 		
 		return null;
 	}
 
+	private void handleExpression(Content c)
+	{
+		String translated = translateExpression(c);
+		
+		pushExpression("p.push(");
+		pushExpression(translated);
+		pushExpression(");");
+	}
+	
 	private void transformIfComponent(Content content)
 	{
 		IfComponent ic = (IfComponent) content;
@@ -267,10 +297,10 @@ public class TemplateConverter
 		
 		for(Content c : ic.getAttributeValue("test"))
 		{
-			if(c instanceof MvelPropertySource.Content)
+			if(c instanceof ExpressionContent)
 			{
-				String expression = ((MvelPropertySource.Content) c).getExpression();
-				pushExpression(expression);
+				String translated = translateExpression(c);
+				pushExpression(translated);
 			}
 			else
 			{
@@ -298,6 +328,14 @@ public class TemplateConverter
 		}
 		
 		pushExpression("}\n");
+	}
+
+	private String translateExpression(Content c)
+	{
+		Expression expression = ((ExpressionContent) c).getExpression();
+		Node ast = ExpressionParser.parse(expression.getSource());
+		String translated = translate(ast);
+		return translated;
 	}
 	
 	private static void encode(String in, StringBuilder out)
@@ -362,5 +400,194 @@ public class TemplateConverter
 					}
 			}
 		}
+	}
+	
+	public static String translate(Node node)
+	{
+		if(node instanceof AddNode)
+		{
+			AddNode ad = (AddNode) node;
+			return "(" + translate(ad.getLeft()) + "+" + translate(ad.getRight()) + ")";
+		}
+		else if(node instanceof SubtractNode)
+		{
+			SubtractNode sd = (SubtractNode) node;
+			return "(" + translate(sd.getLeft()) + "-" + translate(sd.getRight()) + ")";
+		}
+		else if(node instanceof DivideNode)
+		{
+			DivideNode sd = (DivideNode) node;
+			return "(" + translate(sd.getLeft()) + "/" + translate(sd.getRight()) + ")";
+		}
+		else if(node instanceof MultiplyNode)
+		{
+			MultiplyNode sd = (MultiplyNode) node;
+			return "(" + translate(sd.getLeft()) + "*" + translate(sd.getRight()) + ")";
+		}
+		else if(node instanceof ModuloNode)
+		{
+			ModuloNode sd = (ModuloNode) node;
+			return "(" + translate(sd.getLeft()) + "%" + translate(sd.getRight()) + ")";
+		}
+		else if(node instanceof DoubleNode)
+		{
+			DoubleNode dn = (DoubleNode) node;
+			return String.valueOf(dn.getValue());
+		}
+		else if(node instanceof LongNode)
+		{
+			return String.valueOf(((LongNode) node).getValue());
+		}
+		else if(node instanceof StringNode)
+		{
+			StringBuilder out = new StringBuilder();
+			String value = ((StringNode) node).getValue();
+			out.append("'");
+			encode(value, out);
+			out.append("'");
+			return out.toString();
+		}
+		else if(node instanceof KeywordNode)
+		{
+			KeywordNode kn = (KeywordNode) node;
+			switch(kn.getType())
+			{
+				case FALSE:
+					return "false";
+				case TRUE:
+					return "true";
+				case NULL:
+					return "null";
+				case THIS:
+					// XXX: What should we do with this one?
+					return "";
+			}
+		}
+		else if(node instanceof ChainNode)
+		{
+			ChainNode chain = (ChainNode) node;
+			
+			return translate(chain.getLeft()) + "." + translate(chain.getRight());
+		}
+		else if(node instanceof IdentifierNode)
+		{
+			IdentifierNode id = (IdentifierNode) node;
+			if(id.getNamespace() != null)
+			{
+				// Namespaces are mapped to "native" JS-functions
+				StringBuilder builder = new StringBuilder();
+				builder.append("dust.namespace['");
+				encode(id.getNamespace(), builder);
+				builder.append("']['");
+				encode(id.getIdentifier(), builder);
+				builder.append("']");
+				
+				// TODO: Properties that are invoked on an instance
+			}
+			else
+			{
+				return id.getIdentifier();
+			}
+		}
+		else if(node instanceof InvokeNode)
+		{
+			throw new TemplateException("Invocation of methods is not yet supported by JS templates");
+		}
+		else if(node instanceof IndexNode)
+		{
+			IndexNode in = (IndexNode) node;
+			StringBuilder builder = new StringBuilder();
+			
+			builder.append(translate(in.getLeft()));
+			
+			for(Node n : in.getIndexes())
+			{
+				builder
+					.append("[")
+					.append(translate(n))
+					.append("]");
+			}
+			
+			return builder.toString();
+		}
+		else if(node instanceof ArrayNode)
+		{
+			ArrayNode an = (ArrayNode) node;
+			Node[] values = an.getValues();
+			StringBuilder builder = new StringBuilder()
+				.append("[");
+			
+			for(int i=0, n=values.length; i<n; i++)
+			{
+				if(i > 0) builder.append(",");
+				
+				builder.append(translate(values[i]));
+			}
+			
+			builder.append("]");
+		}
+		else if(node instanceof AndNode)
+		{
+			AndNode and = (AndNode) node;
+			return "(" + translate(and.getLeft()) + " && " + translate(and.getRight()) + ")";
+		}
+		else if(node instanceof OrNode)
+		{
+			OrNode and = (OrNode) node;
+			return "(" + translate(and.getLeft()) + " || " + translate(and.getRight()) + ")";
+		}
+		else if(node instanceof EqualsNode)
+		{
+			EqualsNode equals = (EqualsNode) node;
+			return "(" + translate(equals.getLeft()) + "==" + translate(equals.getRight()) + ")";
+		}
+		else if(node instanceof NotEqualsNode)
+		{
+			NotEqualsNode ne = (NotEqualsNode) node;
+			return "(" + translate(ne.getLeft()) + "!=" + translate(ne.getRight()) + ")";
+		}
+		else if(node instanceof GreaterNode)
+		{
+			GreaterNode gt = (GreaterNode) node;
+			return "(" + translate(gt.getLeft()) + ">" + translate(gt.getRight()) + ")";
+		}
+		else if(node instanceof GreaterOrEqualNode)
+		{
+			GreaterOrEqualNode gt = (GreaterOrEqualNode) node;
+			return "(" + translate(gt.getLeft()) + ">=" + translate(gt.getRight()) + ")";
+		}
+		else if(node instanceof LessNode)
+		{
+			LessNode lt = (LessNode) node;
+			return "(" + translate(lt.getLeft()) + "<" + translate(lt.getRight()) + ")";
+		}
+		else if(node instanceof LessOrEqualNode)
+		{
+			LessOrEqualNode lt = (LessOrEqualNode) node;
+			return "(" + translate(lt.getLeft()) + "<=" + translate(lt.getRight()) + ")";
+		}
+		else if(node instanceof GreaterNode)
+		{
+			GreaterNode gt = (GreaterNode) node;
+			return "(" + translate(gt.getLeft()) + ">" + translate(gt.getRight()) + ")";
+		}
+		else if(node instanceof NegateNode)
+		{
+			return "!" + translate(((NegateNode) node).getNode());
+		}
+		else if(node instanceof SignNode)
+		{
+			SignNode sn = (SignNode) node;
+			return (sn.isNegative() ? "-" : "+") + translate(sn.getNode());
+		}
+		else if(node instanceof TernaryNode)
+		{
+			TernaryNode tn = (TernaryNode) node;
+			return translate(tn.getTest()) + " ? " 
+				+ translate(tn.getLeft()) + " : "
+				+ (tn.getRight() == null ? "null" : translate(tn.getRight()));
+		}
+		
+		throw new IllegalArgumentException("Unknown node " + node.getClass());
 	}
 }
