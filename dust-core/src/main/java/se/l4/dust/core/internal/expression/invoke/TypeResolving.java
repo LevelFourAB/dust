@@ -74,13 +74,22 @@ public class TypeResolving
 				{
 					return 1;
 				}
+				else if(! o1.isInterface() && o2.isInterface())
+				{
+					return -1;
+				}
 				else if(o1.isAbstract() && ! o2.isAbstract())
 				{
 					return 1;
 				}
-				else
+				else if(! o1.isAbstract() && o2.isAbstract())
 				{
 					return -1;
+				}
+				else
+				{
+					// Default to name
+					return o1.getClass().getName().compareTo(o2.getClass().getName());
 				}
 			}
 		});
