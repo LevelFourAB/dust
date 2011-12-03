@@ -66,7 +66,7 @@
 	</repositories>
 
 	<properties>
-		<resteasy-version>2.1.0.GA</resteasy-version>
+		<resteasy-version>2.2.3.GA</resteasy-version>
 		<crayon-version>0.6</crayon-version>
 	</properties>
 	
