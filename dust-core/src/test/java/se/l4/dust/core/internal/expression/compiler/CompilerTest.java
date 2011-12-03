@@ -477,7 +477,7 @@ public class CompilerTest
 				node
 			).resolve(context);
 		
-		ExpressionCompiler compiler = new ExpressionCompiler(errors, context, invoker);
+		ExpressionCompiler compiler = new ExpressionCompiler(errors, expr, context, invoker);
 		return compiler.compile();
 	}
 	

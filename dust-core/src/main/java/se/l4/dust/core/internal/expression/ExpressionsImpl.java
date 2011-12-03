@@ -108,7 +108,7 @@ public class ExpressionsImpl
 				node
 			).resolve(localContext);
 			
-			ExpressionCompiler compiler = new ExpressionCompiler(errors, localContext, invoker);
+			ExpressionCompiler compiler = new ExpressionCompiler(errors, expression, localContext, invoker);
 			return compiler.compile();
 		}
 		else

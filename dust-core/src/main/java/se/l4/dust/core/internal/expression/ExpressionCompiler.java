@@ -43,10 +43,12 @@ public class ExpressionCompiler
 	private final List<DeclaredItem> items;
 	private final Class<?> context;
 	private final String rootContext;
+	private final String source;
 	
-	public ExpressionCompiler(ErrorHandler errors, Class<?> context, Invoker root)
+	public ExpressionCompiler(ErrorHandler errors, String source, Class<?> context, Invoker root)
 	{
 		this.errors = errors;
+		this.source = source;
 		this.context = context;
 		this.root = root;
 		
@@ -64,6 +66,7 @@ public class ExpressionCompiler
 			CtMethod get = exprIf.getMethod("get", "(Lse/l4/dust/api/Context;Ljava/lang/Object;)Ljava/lang/Object;");
 			CtMethod set = exprIf.getMethod("set", "(Lse/l4/dust/api/Context;Ljava/lang/Object;Ljava/lang/Object;)V");
 			CtMethod returnClass = exprIf.getMethod("getReturnClass", "()Ljava/lang/Class;");
+			CtMethod source = exprIf.getMethod("getSource", "()Ljava/lang/String;");
 			
 			CtClass type = pool.makeClass("se.l4.dust.core.internal.expression.Expression$$" + compiled.incrementAndGet());
 			type.addInterface(exprIf);
@@ -72,6 +75,7 @@ public class ExpressionCompiler
 			String javaGetter = root.toJavaGetter(errors, this, rootContext);
 			String javaSetter = root.toJavaSetter(errors, this, rootContext);
 			String returnClassExpr = "return " + castNoParens(root.getReturnClass()) + ".class;";
+			String sourceGetter = "return " + addInput(String.class, this.source) + ";";
 			
 			// Create constructor information
 			Class[] typed = new Class[items.size()];
@@ -127,9 +131,14 @@ public class ExpressionCompiler
 			}
 			type.addMethod(impl);
 			
-			// Add the get method
+			// Add the return class method
 			impl = CtNewMethod.copy(returnClass, type, null);
 			impl.setBody(returnClassExpr);
+			type.addMethod(impl);
+			
+			// Add the source inspector
+			impl = CtNewMethod.copy(source, type, null);
+			impl.setBody(sourceGetter);
 			type.addMethod(impl);
 			
 			Class<? extends Expression> c = type.toClass();

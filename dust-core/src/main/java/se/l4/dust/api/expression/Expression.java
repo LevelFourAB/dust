@@ -36,4 +36,11 @@ public interface Expression
 	 * @param value
 	 */
 	void set(Context context, Object instance, Object value);
+	
+	/**
+	 * Get the source of this expression.
+	 * 
+	 * @return
+	 */
+	String getSource();
 }
