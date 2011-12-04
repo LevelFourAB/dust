@@ -324,6 +324,12 @@ public class ClassTemplateComponent
 			if(attribute != null)
 			{
 				Attribute attr = getAttribute(attribute);
+				
+				if(attr == null)
+				{
+					throw new TemplateException("Attribute '" +attribute+ "' is missing in template file for method " + method);
+				}
+				
 				return attr.getValue(ctx, root);
 			}
 			else if(binding != null)
