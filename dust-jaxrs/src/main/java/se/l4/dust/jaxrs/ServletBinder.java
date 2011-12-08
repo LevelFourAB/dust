@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
-
+import com.google.inject.Provider;
 import com.google.inject.Scopes;
 
 /**
@@ -112,6 +112,20 @@ public interface ServletBinder
 		 * @param type
 		 */
 		void with(Class<? extends Filter> type);
+		
+		/**
+		 * Define a provider to use to get an instance of the filter.
+		 * 
+		 * @param provider
+		 */
+		void with(Provider<? extends Filter> provider);
+		
+		/**
+		 * Define an already created instance to use.
+		 * 
+		 * @param instance
+		 */
+		void with(Filter instance);
 	}
 	
 	/**
@@ -147,5 +161,19 @@ public interface ServletBinder
 		 * @param type
 		 */
 		void with(Class<? extends Servlet> type);
+		
+		/**
+		 * Define a provider to use to get an instance of the servlet.
+		 * 
+		 * @param provider
+		 */
+		void with(Provider<? extends Servlet> provider);
+		
+		/**
+		 * Define an already created instance to use.
+		 * 
+		 * @param instance
+		 */
+		void with(Servlet instance);
 	}
 }
