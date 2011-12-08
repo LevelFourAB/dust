@@ -97,6 +97,12 @@ public class NamespaceManagerImpl
 
 		public NamespaceBinder setPackage(String pkg)
 		{
+			if(loader != null)
+			{
+				// If no loader provides use the context loader
+				loader = Thread.currentThread().getContextClassLoader();
+			}
+			
 			this.pkg = pkg;
 			return this;
 		}
