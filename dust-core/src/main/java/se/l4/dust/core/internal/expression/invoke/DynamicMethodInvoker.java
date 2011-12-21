@@ -90,7 +90,7 @@ public class DynamicMethodInvoker
 		}
 		else
 		{
-			builder.append(", new java.lang.String[] { ");
+			builder.append(", new java.lang.Object[] { ");
 		
 			for(int i=0, n=params.length; i<n; i++)
 			{

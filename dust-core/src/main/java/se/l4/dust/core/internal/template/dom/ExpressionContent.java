@@ -5,6 +5,12 @@ import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.DynamicContent;
 
+/**
+ * Content that will evaluate an expression.
+ * 
+ * @author Andreas Holstenson
+ *
+ */
 public class ExpressionContent
 	extends DynamicContent
 {
@@ -33,4 +39,8 @@ public class ExpressionContent
 		expr.set(ctx, root, data);
 	}
 
+	public Expression getExpression()
+	{
+		return expr;
+	}
 }

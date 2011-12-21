@@ -11,6 +11,13 @@ import se.l4.dust.api.Context;
 public interface Expression
 {
 	/**
+	 * Get the return class of the expression.
+	 * 
+	 * @return
+	 */
+	Class<?> getReturnClass();
+	
+	/**
 	 * Execute the expression using the given context and instance.
 	 * 
 	 * @param context
@@ -29,4 +36,11 @@ public interface Expression
 	 * @param value
 	 */
 	void set(Context context, Object instance, Object value);
+	
+	/**
+	 * Get the source of this expression.
+	 * 
+	 * @return
+	 */
+	String getSource();
 }

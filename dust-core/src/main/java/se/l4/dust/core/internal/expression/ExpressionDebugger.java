@@ -21,6 +21,7 @@ public class ExpressionDebugger
 {
 	private final Invoker invoker;
 	private final ErrorHandler errors;
+	private final String expression;
 
 	public ExpressionDebugger(TypeConverter converter, 
 			ExpressionsImpl expressions,
@@ -28,11 +29,18 @@ public class ExpressionDebugger
 			String expression, 
 			Class<?> context)
 	{
+		this.expression = expression;
 		Node root = ExpressionParser.parse(expression);
 		
 		this.errors = new ErrorHandlerImpl(expression);
 		this.invoker = new ExpressionResolver(converter, expressions, namespaces, errors, root)
 			.resolve(context);
+	}
+	
+	@Override
+	public Class<?> getReturnClass()
+	{
+		return invoker.getReturnClass();
 	}
 	
 	@Override
@@ -45,5 +53,11 @@ public class ExpressionDebugger
 	public void set(Context context, Object instance, Object value)
 	{
 		invoker.set(errors, context, instance, instance, value);
+	}
+	
+	@Override
+	public String getSource()
+	{
+		return expression;
 	}
 }

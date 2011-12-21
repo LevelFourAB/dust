@@ -50,6 +50,15 @@ public interface MixinEncounter
 	Content parseExpression(String expression);
 	
 	/**
+	 * Parse an expression on an alternative context.
+	 * 
+	 * @param expression
+	 * @param context
+	 * @return
+	 */
+	Content parseExpression(String expression, Object context);
+	
+	/**
 	 * Wrap the current element with the specified wrapper.
 	 * 
 	 * @param wrapper
@@ -85,4 +94,12 @@ public interface MixinEncounter
 	 * @param content
 	 */
 	void append(List<Content> content);
+	
+	/**
+	 * Set the value of a given attribute.
+	 * 
+	 * @param attribute
+	 * @param content
+	 */
+	void setAttribute(String attribute, Content content);
 }

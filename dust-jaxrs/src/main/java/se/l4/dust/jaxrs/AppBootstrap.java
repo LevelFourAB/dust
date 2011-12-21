@@ -3,11 +3,11 @@ package se.l4.dust.jaxrs;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
-import com.google.inject.Injector;
-
 import se.l4.crayon.Configurator;
-import se.l4.crayon.Environment;
 import se.l4.dust.Dust;
+
+import com.google.inject.Injector;
+import com.google.inject.Stage;
 
 /**
  * Bootstrap that delegates to a {@link Configurator}.
@@ -37,7 +37,7 @@ public abstract class AppBootstrap
 		boolean production = ! "false".equalsIgnoreCase(productionStr);
 			
 		// New context, let's initialize the system
-		configurator = new Configurator(production ? Environment.PRODUCTION : Environment.DEVELOPMENT);
+		configurator = new Configurator(production ? Stage.PRODUCTION : Stage.DEVELOPMENT);
 	
 		initialize(configurator);
 

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.asset.AssetException;
 
 import com.google.inject.Singleton;
 
@@ -96,6 +97,12 @@ public class NamespaceManagerImpl
 
 		public NamespaceBinder setPackage(String pkg)
 		{
+			if(loader != null)
+			{
+				// If no loader provides use the context loader
+				loader = Thread.currentThread().getContextClassLoader();
+			}
+			
 			this.pkg = pkg;
 			return this;
 		}
@@ -155,7 +162,7 @@ public class NamespaceManagerImpl
 			
 			locator = loader != null 
 				? new ClassLoaderLocator(loader, pkg)
-				: null;
+				: new FailingLocator(uri);
 		}
 
 		public String getPrefix()
@@ -205,6 +212,23 @@ public class NamespaceManagerImpl
 		public URL locateResource(String path)
 		{
 			return loader.getResource(base + path);
+		}
+	}
+	
+	private static class FailingLocator
+		implements Locator
+	{
+		private final String uri;
+
+		public FailingLocator(String uri)
+		{
+			this.uri = uri;
+		}
+		
+		@Override
+		public URL locateResource(String path)
+		{
+			throw new AssetException("The namespace " + uri + " does not have any assets. Did you tie it to a package or class?");
 		}
 	}
 }

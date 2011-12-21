@@ -16,6 +16,7 @@ import se.l4.dust.jaxrs.internal.routing.ServletEntry;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 @Singleton
@@ -89,9 +90,9 @@ public class ServletBinderImpl
 			return this;
 		}
 		
-		public void with(Class<? extends Filter> filter)
+		@Override
+		public void with(Filter instance)
 		{
-			Filter instance = injector.getInstance(filter);
 			FilterEntry e = new FilterEntry(
 				path, 
 				regex ? new RegexMatcher(path) : new NormalMatcher(path), 
@@ -111,6 +112,17 @@ public class ServletBinderImpl
 			{
 				lock.unlock();
 			}
+		}
+		
+		@Override
+		public void with(Provider<? extends Filter> provider)
+		{
+			with(provider.get());
+		}
+		
+		public void with(Class<? extends Filter> filter)
+		{
+			with(injector.getInstance(filter));
 		}
 		
 		public FilterBuilder param(String key, String value)
@@ -150,9 +162,15 @@ public class ServletBinderImpl
 			return this;
 		}
 		
-		public void with(Class<? extends Servlet> filter)
+		@Override
+		public void with(Provider<? extends Servlet> provider)
 		{
-			Servlet instance = injector.getInstance(filter);
+			with(provider.get());
+		}
+		
+		@Override
+		public void with(Servlet instance)
+		{
 			ServletEntry e = new ServletEntry(
 				path, 
 				regex ? new RegexMatcher(path) : new NormalMatcher(path), 
@@ -172,6 +190,11 @@ public class ServletBinderImpl
 			{
 				lock.unlock();
 			}
+		}
+		
+		public void with(Class<? extends Servlet> servlet)
+		{
+			with(injector.getInstance(servlet));
 		}
 		
 		public ServletBuilder param(String key, String value)

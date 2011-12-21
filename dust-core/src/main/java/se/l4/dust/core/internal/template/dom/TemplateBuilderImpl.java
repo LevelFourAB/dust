@@ -510,5 +510,18 @@ public class TemplateBuilderImpl
 			Expression expr = expressions.compile(boundNamespaces, expression, context);
 			return new ExpressionContent(expr);
 		}
+		
+		@Override
+		public Content parseExpression(String expression, Object context)
+		{
+			Expression expr = expressions.compile(boundNamespaces, expression, expressions.resolveType(context));
+			return new ExpressionContentWithContext(expr, context);
+		}
+		
+		@Override
+		public void setAttribute(String attribute, Content content)
+		{
+			current.setAttribute(attribute, content);
+		}
 	}
 }

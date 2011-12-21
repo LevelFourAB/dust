@@ -8,8 +8,11 @@ import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.expression.ExpressionSource;
 import se.l4.dust.api.expression.Expressions;
+import se.l4.dust.api.template.dom.Content;
+import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.core.internal.expression.ast.Node;
 import se.l4.dust.core.internal.expression.invoke.Invoker;
+import se.l4.dust.core.internal.template.dom.ExpressionContent;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -47,6 +50,48 @@ public class ExpressionsImpl
 	{
 		return sources.get(namespace);
 	}
+	
+	/**
+	 * Attempt to resolve a suitable type for the given object.
+	 * 
+	 * @param context
+	 * @return
+	 */
+	@Override
+	public Class<?> resolveType(Object context)
+	{
+		if(context instanceof Class)
+		{
+			return (Class) context;
+		}
+		else if(context instanceof Attribute)
+		{
+			Attribute attr = (Attribute) context;
+			Content[] value = attr.getValue();
+			if(value.length != 1)
+			{
+				// Can't really do anything with it
+				return Object.class;
+			}
+			
+			Content content = value[0];
+			return resolveType(content);
+		}
+		else if(context instanceof ExpressionContent)
+		{
+			return resolveType(((ExpressionContent) context).getExpression());
+		}
+		else if(context instanceof Expression)
+		{
+			Expression expr = (Expression) context;
+			return expr.getReturnClass();
+		}
+		else
+		{
+			// Fallback to Object
+			return context.getClass();
+		}
+	}
 
 	@Override
 	public Expression compile(Map<String, String> namespaces, String expression, Class<?> localContext)
@@ -63,7 +108,7 @@ public class ExpressionsImpl
 				node
 			).resolve(localContext);
 			
-			ExpressionCompiler compiler = new ExpressionCompiler(errors, localContext, invoker);
+			ExpressionCompiler compiler = new ExpressionCompiler(errors, expression, localContext, invoker);
 			return compiler.compile();
 		}
 		else

@@ -25,6 +25,11 @@ public class SignNode
 		return negative;
 	}
 	
+	public Node getNode()
+	{
+		return node;
+	}
+	
 	@Override
 	public String toString()
 	{

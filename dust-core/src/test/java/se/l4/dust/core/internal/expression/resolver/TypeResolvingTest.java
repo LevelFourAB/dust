@@ -3,16 +3,15 @@ package se.l4.dust.core.internal.expression.resolver;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
+import se.l4.dust.core.internal.expression.invoke.TypeResolving;
+
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
-
-import se.l4.dust.core.internal.expression.invoke.TypeResolving;
 
 /**
  * Tests for type resolving.
@@ -27,24 +26,6 @@ public class TypeResolvingTest
 	public TypeResolvingTest()
 	{
 		resolver = new TypeResolver();
-	}
-	
-	@Test
-	public void testSingle()
-	{
-		testCommon(
-			new Class[] { Integer.class },
-			new Class[] { Integer.class, Number.class, Comparable.class, Serializable.class }
-		);
-	}
-	
-	@Test
-	public void testIntegerAndLong()
-	{
-		testCommon(
-			new Class[] { Integer.class, Long.class },
-			new Class[] { Number.class, Serializable.class }
-		);
 	}
 	
 	@Test
@@ -83,10 +64,20 @@ public class TypeResolvingTest
 		);
 	}
 	
+	@Test
+	public void testInterfaceBubbling()
+	{
+		testCommon(
+			new Class[] { E.class, E.class },
+			new Class[] { E.class, I2.class }
+		);
+	}
+	
 	private static class A {}
 	private static class B extends A {}
 	private static class C extends A {}
 	private static class D extends B implements I1 {}
+	private static class E implements I2 {}
 	
 	private static interface I1 {}
 	private static interface I2 {}
