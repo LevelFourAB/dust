@@ -14,6 +14,7 @@ import se.l4.dust.core.internal.asset.AssetModule;
 import se.l4.dust.core.internal.conversion.ConversionModule;
 import se.l4.dust.core.internal.discovery.DiscoveryModule;
 import se.l4.dust.core.internal.expression.ExpressionModule;
+import se.l4.dust.core.internal.messages.MessagesModule;
 import se.l4.dust.core.internal.resource.ResourceModule;
 import se.l4.dust.core.internal.template.TemplateModule;
 
@@ -38,6 +39,7 @@ public class CoreModule
 		install(new ConversionModule());
 		install(new DiscoveryModule());
 		install(new ExpressionModule());
+		install(new MessagesModule());
 		
 		bind(NamespaceManager.class).to(NamespaceManagerImpl.class);
 		bindContributions(NamespaceBinding.class);

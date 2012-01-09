@@ -1,16 +1,9 @@
 package se.l4.dust.core.internal.template;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicReference;
-
 import se.l4.dust.api.Context;
-import se.l4.dust.api.TemplateException;
+import se.l4.dust.api.messages.MessageManager;
+import se.l4.dust.api.messages.Messages;
 import se.l4.dust.api.resource.variant.ResourceVariant;
-import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.DynamicContent;
 import se.l4.dust.api.template.dom.Text;
@@ -26,15 +19,12 @@ public class MessagePropertySource
 {
 	private static final String VARIANT_KEY = "__variant__";
 	
-	private static final Charset ISO88591 = Charset.forName("ISO-8859-1");
-	private static final Charset UTF8 = Charset.forName("UTF-8");
-	
-	private final ResourceVariantManager variants;
+	private final MessageManager messageManager;
 	
 	@Inject
-	public MessagePropertySource(ResourceVariantManager variants)
+	public MessagePropertySource(MessageManager messages)
 	{
-		this.variants = variants;
+		this.messageManager = messages;
 	}
 	
 	public DynamicContent getPropertyContent(TemplateInfo namespaces,
@@ -42,48 +32,6 @@ public class MessagePropertySource
 			String propertyExpression)
 	{
 		return new Content(namespaces.getURL(), propertyExpression);
-	}
-	
-	private Properties load(Context ctx, String url)
-		throws IOException
-	{
-		int idx = url.lastIndexOf('.');
-		String firstPart = idx > 0 ? url.substring(0, idx) : url;
-		
-		final AtomicReference<ResourceVariant> v = new AtomicReference<ResourceVariant>();
-		
-		url = firstPart + ".properties";
-		url = variants.resolve(ctx, new ResourceVariantManager.ResourceCallback()
-		{
-			public boolean exists(ResourceVariant variant, String url)
-				throws IOException
-			{
-				try
-				{
-					InputStream stream = new URL(url).openStream();
-					stream.close();
-					v.set(variant);
-					return true;
-				}
-				catch(IOException e)
-				{
-					return false;
-				}
-			}
-		}, url);
-		
-		Properties props = new Properties();
-		InputStream stream = new URL(url).openStream();
-		props.load(stream);
-		
-		if(v.get() != null)
-		{
-			props.put(VARIANT_KEY, v.get());
-		}
-		
-		stream.close();
-		
-		return props;
 	}
 	
 	private class Content
@@ -99,45 +47,27 @@ public class MessagePropertySource
 			this.property = property;
 		}
 		
-		private String getValue(Properties props)
-		{
-			String value = props.getProperty(property);
-			if(value == null)
-			{
-				throw new TemplateException("The property " + property + " does not exist in the file " + url);
-			}
-			
-			return new String(value.getBytes(ISO88591), UTF8);
-		}
-		
 		@Override
 		public Object getValue(RenderingContext ctx, Object root)
 		{
-			Properties props = getProperties(ctx);
-			
-			return getValue(props);
+			Messages messages = getMessages(ctx);
+			return messages.get(property);
 		}
 
-		private Properties getProperties(Context ctx)
+		private Messages getMessages(Context ctx)
 		{
-			Properties props;
+			Messages messages;
 			if(ctx.getValue(url) != null)
 			{
-				props = ctx.getValue(url);
+				messages = ctx.getValue(url);
 			}
 			else
 			{
-				try
-				{
-					props = load(ctx, url);
-				}
-				catch(IOException e)
-				{
-					throw new TemplateException("Unable to load " + url);
-				}
-				ctx.putValue(url, props);
+				messages = messageManager.getMessages(ctx, url);
+				ctx.putValue(url, messages);
 			}
-			return props;
+			
+			return messages;
 		}
 
 		@Override
@@ -153,9 +83,9 @@ public class MessagePropertySource
 
 		public void transform(TemplateVariant variant)
 		{
-			Properties props = getProperties(variant.getContext());
-			Text text = new Text(getValue(props));
-			ResourceVariant rv = (ResourceVariant) props.get(VARIANT_KEY);
+			Messages messages = getMessages(variant.getContext());
+			Text text = new Text(messages.get(property));
+			ResourceVariant rv = messages.getVariant();
 			variant.replaceWith(text, rv);
 		}
 	}
