@@ -1,6 +1,7 @@
 package se.l4.dust.core.internal.template;
 
 import se.l4.dust.api.Context;
+import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.messages.MessageManager;
 import se.l4.dust.api.messages.Messages;
 import se.l4.dust.api.resource.variant.ResourceVariant;
@@ -51,7 +52,13 @@ public class MessagePropertySource
 		public Object getValue(RenderingContext ctx, Object root)
 		{
 			Messages messages = getMessages(ctx);
-			return messages.get(property);
+			String value = messages.get(property);
+			if(value == null)
+			{
+				throw new TemplateException("The property " + property + " does not exist in the file " + url);
+			}
+			
+			return value;
 		}
 
 		private Messages getMessages(Context ctx)
