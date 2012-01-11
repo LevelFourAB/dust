@@ -101,6 +101,8 @@ public class PageDiscovery
 		// Skip namespaces without packages
 		if(pkg == null) return;
 		
+		logger.debug("Scanning " + ns.getUri() + " in package " + ns.getPackage());
+		
 		ClassDiscovery cd = discovery.get(ns.getPackage());
 		if(index)
 		{

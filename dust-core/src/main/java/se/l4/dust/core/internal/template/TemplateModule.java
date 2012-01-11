@@ -1,10 +1,14 @@
 package se.l4.dust.core.internal.template;
 
+import se.l4.crayon.Contributions;
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
+import se.l4.crayon.annotation.Order;
 import se.l4.dust.api.TemplateManager;
+import se.l4.dust.api.annotation.TemplateContribution;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateRenderer;
+import se.l4.dust.core.internal.InternalContributions;
 import se.l4.dust.core.internal.TemplateManagerImpl;
 import se.l4.dust.core.internal.template.components.BodyComponent;
 import se.l4.dust.core.internal.template.components.HolderComponent;
@@ -33,9 +37,11 @@ public class TemplateModule
 		bind(TemplateCache.class).to(TemplateCacheImpl.class);
 		
 		bind(TemplateRenderer.class).to(TemplateRendererImpl.class);
+		
+		bindContributions(TemplateContribution.class);
 	}
 	
-	@Contribution
+	@TemplateContribution
 	public void contributeCommonComponents(TemplateManager manager)
 	{
 		manager.getNamespace(COMMON)
@@ -47,7 +53,7 @@ public class TemplateModule
 			.addComponent(RawComponent.class, "raw");
 	}
 	
-	@Contribution
+	@TemplateContribution
 	public void contributePropertySources(TemplateManager manager,
 			CyclePropertySource s1,
 			VarPropertySource s2,
@@ -57,5 +63,14 @@ public class TemplateModule
 		manager.addPropertySource("var", s2);
 		manager.addPropertySource("message", s4);
 		manager.addPropertySource("m", s4);
+	}
+	
+	@Contribution(name="dust-templates")
+	@Order("after:dust-namespaces")
+	public void bindNamespaces(@TemplateContribution Contributions contributions)
+	{
+		InternalContributions.add(contributions);
+		
+		contributions.run();
 	}
 }
