@@ -41,7 +41,7 @@ public class BodyComponent
 				{
 					for(Content c : param.getRawContents())
 					{
-						emitter.emit(out, lastData, this, data, c);
+						emitter.emit(out, lastData, lastComponent, data, c);
 					}
 				}
 			}
@@ -53,7 +53,7 @@ public class BodyComponent
 					 * lastData and data are swapped so that expressions run
 					 * on the correct object.
 					 */
-					emitter.emit(out, lastData, this, data, c);
+					emitter.emit(out, lastData, lastComponent, data, c);
 				}
 			}
 		}

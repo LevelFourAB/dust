@@ -99,7 +99,7 @@ public class LoopComponent
 			
 			for(Object o : items)
 			{
-				emitLoopContents(emitter, ctx, out, data, lastData, value, o);
+				emitLoopContents(emitter, ctx, out, data, lastComponent, lastData, value, o);
 			}
 		}
 		else if(sourceData instanceof Iterator)
@@ -110,7 +110,7 @@ public class LoopComponent
 			{
 				Object o = it.next();
 				
-				emitLoopContents(emitter, ctx, out, data, lastData, value, o);
+				emitLoopContents(emitter, ctx, out, data, lastComponent, lastData, value, o);
 			}
 		}
 		else
@@ -119,13 +119,14 @@ public class LoopComponent
 			for(int i=0, n=Array.getLength(sourceData); i<n; i++)
 			{
 				Object o = Array.get(sourceData, i);
-				emitLoopContents(emitter, ctx, out, data, lastData, value, o);
+				emitLoopContents(emitter, ctx, out, data, lastComponent, lastData, value, o);
 			}
 		}
 	}
 
 	private void emitLoopContents(Emitter emitter, RenderingContext ctx,
-			TemplateOutputStream out, Object data, Object lastData,
+			TemplateOutputStream out, Object data, 
+			EmittableComponent lastComponent, Object lastData,
 			Attribute value, Object o)
 		throws IOException
 	{
@@ -133,7 +134,7 @@ public class LoopComponent
 		
 		for(Content c : getRawContents())
 		{
-			emitter.emit(out, data, this, lastData, c);
+			emitter.emit(out, data, lastComponent, lastData, c);
 		}
 	}
 	

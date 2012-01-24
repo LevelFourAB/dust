@@ -21,4 +21,10 @@ public class Component
 	{
 		return component;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "Component[name=" + getName() + ", component=" + component + "]";
+	}
 }
