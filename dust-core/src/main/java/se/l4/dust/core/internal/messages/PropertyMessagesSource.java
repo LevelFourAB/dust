@@ -117,7 +117,7 @@ public class PropertyMessagesSource
 		public String get(String property)
 		{
 			String v = props.getProperty(property);
-			return new String(v.getBytes(ISO88591), UTF8);
+			return v == null ? null : new String(v.getBytes(ISO88591), UTF8);
 		}
 	}
 }
