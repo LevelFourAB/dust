@@ -26,6 +26,7 @@ import se.l4.dust.core.internal.template.components.EmittableComponent;
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.Stage;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -41,7 +42,9 @@ public class ClassTemplateComponent
 	private final Class<?> type;
 	private final Injector injector;
 	private final TemplateCache cache;
-	private final MethodInvocation[] methods;
+	private final boolean development;
+	private final MethodInvocation[] prepareRender;
+	private final MethodInvocation[] setMethods;
 	
 	public ClassTemplateComponent(
 			String name,
@@ -50,18 +53,22 @@ public class ClassTemplateComponent
 			TypeConverter converter,
 			Class<?> type)
 	{
-		this(name, injector, cache, converter, type, null);
+		this(name, injector.getInstance(Stage.class) == Stage.DEVELOPMENT, injector, cache, converter, type, null, null);
 	}
 	
-	public ClassTemplateComponent(
+	private ClassTemplateComponent(
 			String name,
+			boolean development,
 			Injector injector, 
 			TemplateCache cache,
 			TypeConverter converter,
 			Class<?> type,
-			MethodInvocation[] methods)
+			MethodInvocation[] prepareRender,
+			MethodInvocation[] setMethods)
 	{
 		super(name, type);
+		
+		this.development = development;
 		
 		this.converter = converter;
 		
@@ -69,15 +76,19 @@ public class ClassTemplateComponent
 		this.type = type;
 		this.injector = injector;
 		
-		this.methods = methods == null 
+		this.prepareRender = prepareRender == null && ! development 
 			? createMethodInvocations(type) 
-			: methods;
+			: prepareRender;
+			
+		this.setMethods = setMethods == null && ! development
+			? createSetMethodInvocations(type)
+			: setMethods;
 	}
 	
 	@Override
 	public Content copy()
 	{
-		return new ClassTemplateComponent(getName(), injector, cache, converter, type, methods)
+		return new ClassTemplateComponent(getName(), development, injector, cache, converter, type, prepareRender, setMethods)
 			.copyAttributes(this);
 	}
 	
@@ -100,6 +111,40 @@ public class ClassTemplateComponent
 		return invocations.toArray(new MethodInvocation[invocations.size()]);
 	}
 	
+	private MethodInvocation[] createSetMethodInvocations(Class<?> type)
+	{
+		List<MethodInvocation> invocations = new ArrayList<MethodInvocation>();
+		while(type != Object.class && type != null)
+		{
+			for(Method m : type.getDeclaredMethods())
+			{
+				if(m.isAnnotationPresent(PrepareRender.class))
+				{
+					// Skip rendering methods
+					continue;
+				}
+				
+				Annotation[][] annotations = m.getParameterAnnotations();
+				_annotations:
+				for(int i=0, n=annotations.length; i<n; i++)
+				{
+					for(Annotation a : annotations[i])
+					{
+						if(a instanceof TemplateParam)
+						{
+							invocations.add(new MethodInvocation(m));
+							break _annotations;
+						}
+					}
+				}
+			}
+			
+			type = type.getSuperclass();
+		}
+		
+		return invocations.toArray(new MethodInvocation[invocations.size()]);
+	}
+	
 	@Override
 	public void emit(Emitter emitter, 
 			RenderingContext ctx,
@@ -113,6 +158,18 @@ public class ClassTemplateComponent
 		
 		Object root;
 		
+		// Run all set methods
+		MethodInvocation[] setMethods = development ? createSetMethodInvocations(type) : this.setMethods;
+		for(MethodInvocation m : setMethods)
+		{
+			if(m.valid())
+			{
+				m.invoke(ctx, data, o);
+			}
+		}
+		
+		// Run all methods for prepare render
+		MethodInvocation[] methods = development ? createMethodInvocations(type) : this.prepareRender;
 		if(methods.length == 0)
 		{
 			// No processing needed
@@ -203,6 +260,21 @@ public class ClassTemplateComponent
 			}
 			
 			return score;
+		}
+		
+		public boolean valid()
+		{
+			if(arguments.length == 0) return true;
+			
+			for(Argument arg : arguments)
+			{
+				if(! arg.canBeInjected())
+				{
+					return false;
+				}
+			}
+			
+			return true;
 		}
 		
 		public Object invoke(RenderingContext ctx, Object root, Object self)

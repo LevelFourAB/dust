@@ -39,15 +39,22 @@ public class MessageMangerImpl
 	@Override
 	public Messages getMessages(Context context, String url)
 	{
+		String key = url;
+		Messages msgs = context.getValue(key);
+		if(msgs != null)
+		{
+			return msgs;
+		}
+		
 		List<Messages> messages = new ArrayList<Messages>();
 		for(MessageSource s : sources)
 		{
 			try
 			{
-				Messages msgs = s.load(context, url);
-				if(msgs != null)
+				Messages m = s.load(context, url);
+				if(m != null)
 				{
-					messages.add(msgs);
+					messages.add(m);
 				}
 			}
 			catch(IOException e)
@@ -58,12 +65,15 @@ public class MessageMangerImpl
 		
 		if(messages.size() == 1)
 		{
-			return messages.get(0);
+			msgs = messages.get(0);
 		}
 		else
 		{
-			return new DelegatingMessages(messages);
+			msgs = new DelegatingMessages(messages);
 		}
+		
+		context.putValue(key, msgs);
+		return msgs;
 	}
 
 
