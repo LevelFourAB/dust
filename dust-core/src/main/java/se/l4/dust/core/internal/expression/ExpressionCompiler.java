@@ -180,7 +180,7 @@ public class ExpressionCompiler
 	 */
 	public String cast(Class<?> result)
 	{
-		return "(" + castNoParens(result) + ")";
+		return result == void.class ? "" : "(" + castNoParens(result) + ")";
 	}
 	
 	/**
