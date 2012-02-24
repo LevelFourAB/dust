@@ -51,6 +51,13 @@ public class LessProcessor
 	public void process(AssetEncounter encounter)
 		throws IOException
 	{
+		Resource cached = encounter.getCached("lesscss");
+		if(cached != null)
+		{
+			encounter.replaceWith(cached);
+			return;
+		}
+		
 		String path = encounter.getPath();
 		if(path.endsWith(".less"))
 		{
@@ -92,7 +99,7 @@ public class LessProcessor
 				.evaluate("compileResource(css);");
 			
 			MemoryResource res = new MemoryResource("text/css", "UTF-8", ((String) result).getBytes("UTF-8"));
-			encounter.replaceWith(res).rename(path);
+			encounter.cache("lesscss", res).replaceWith(res).rename(path);
 		}
 		catch(JavaScriptException e)
 		{

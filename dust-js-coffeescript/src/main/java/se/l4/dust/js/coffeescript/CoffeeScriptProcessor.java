@@ -33,6 +33,13 @@ public class CoffeeScriptProcessor
 			path = path.substring(0, path.length() - EXTENSION.length()) + ".js";
 		}
 		
+		Resource cached = encounter.getCached("coffeescript");
+		if(cached != null)
+		{
+			encounter.replaceWith(cached);
+			return;
+		}
+		
 		Resource resource = encounter.getResource();
 		InputStream stream = resource.openStream();
 		ByteArrayOutputStream out = new ByteArrayOutputStream(resource.getContentLength());
@@ -61,7 +68,10 @@ public class CoffeeScriptProcessor
 				.evaluate("compileResource(code);");
 			
 			MemoryResource res = new MemoryResource("text/javascript", "UTF-8", ((String) result).getBytes("UTF-8"));
-			encounter.replaceWith(res).rename(path);
+			encounter
+				.cache("coffeescript", res)
+				.replaceWith(res)
+				.rename(path);
 		}
 		catch(JavaScriptException e)
 		{

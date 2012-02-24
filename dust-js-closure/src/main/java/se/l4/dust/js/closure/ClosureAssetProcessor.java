@@ -4,16 +4,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
 
+import se.l4.dust.api.asset.AssetEncounter;
+import se.l4.dust.api.asset.AssetProcessor;
+import se.l4.dust.api.resource.MemoryResource;
+import se.l4.dust.api.resource.Resource;
+
 import com.google.javascript.jscomp.CompilationLevel;
 import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.JSSourceFile;
 import com.google.javascript.jscomp.Result;
-
-import se.l4.dust.api.asset.AssetEncounter;
-import se.l4.dust.api.asset.AssetProcessor;
-import se.l4.dust.api.resource.MemoryResource;
-import se.l4.dust.api.resource.Resource;
 
 /**
  * The actual processor used for Closure compilation, do not use directly,
@@ -45,6 +45,13 @@ public class ClosureAssetProcessor
 		if(! encounter.isProduction() && ! activeInDevelopment)
 		{
 			// Not running in production and not set to active
+			return;
+		}
+		
+		Resource cached = encounter.getCached("closure");
+		if(cached != null)
+		{
+			encounter.replaceWith(cached);
 			return;
 		}
 		
@@ -80,7 +87,9 @@ public class ClosureAssetProcessor
 		streams[0].close();
 		
 		MemoryResource mr = new MemoryResource("text/javascript", "UTF-8", source.getBytes("UTF-8"));
-		encounter.replaceWith(mr);
+		encounter
+			.cache("closure", mr)
+			.replaceWith(mr);
 	}
 
 }
