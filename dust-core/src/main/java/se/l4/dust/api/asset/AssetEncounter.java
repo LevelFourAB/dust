@@ -48,6 +48,24 @@ public interface AssetEncounter
 	boolean isProduction();
 	
 	/**
+	 * Get the original resource as a cached instance. The identifier should
+	 * be an identifier unique to the processor.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	Resource getCached(String id);
+	
+	/**
+	 * Cache the given resource for usage later. The identifier should be
+	 * an identifier unique to the processor and not the resource.
+	 * 
+	 * @param resource
+	 * @return
+	 */
+	AssetEncounter cache(String id, Resource resource);
+	
+	/**
 	 * Replace the resource with a new one.
 	 * 
 	 * @param resource

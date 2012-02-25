@@ -12,18 +12,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Pattern;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ComputationException;
-import com.google.common.collect.MapMaker;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
-import com.google.inject.Stage;
+import javax.annotation.Nullable;
 
 import se.l4.dust.api.Context;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
+import se.l4.dust.api.asset.AssetCache;
 import se.l4.dust.api.asset.AssetException;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.asset.AssetProcessor;
@@ -34,6 +28,15 @@ import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.api.resource.variant.ResourceVariantManager.ResourceCallback;
 import se.l4.dust.core.internal.resource.MergedResourceVariant;
+
+import com.google.common.base.Function;
+import com.google.common.collect.ComputationException;
+import com.google.common.collect.MapMaker;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
+import com.google.inject.Stage;
 
 @Singleton
 public class AssetManagerImpl
@@ -52,16 +55,20 @@ public class AssetManagerImpl
 	private final Map<String, AssetProcessor> extensionProcessors;
 	
 	private final Injector injector;
+
+	private final AssetCache assetCache;
 	
 	@Inject
 	public AssetManagerImpl(NamespaceManager manager,
 			ResourceVariantManager variants,
 			Injector injector,
+			@Nullable AssetCache assetCache,
 			Stage stage)
 	{
 		this.manager = manager;
 		this.variants = variants;
 		this.injector = injector;
+		this.assetCache = assetCache;
 		sources = new CopyOnWriteArrayList<Object>();
 		extensionProcessors = new ConcurrentHashMap<String, AssetProcessor>();
 		
@@ -428,7 +435,7 @@ public class AssetManagerImpl
 				AssetProcessor ext = extensionProcessors.get(extension);
 				if(ext != null)
 				{
-					AssetEncounterImpl encounter = new AssetEncounterImpl(manager, production, current, namespace, lastName);
+					AssetEncounterImpl encounter = new AssetEncounterImpl(manager, production, current, namespace, lastName, assetCache);
 					
 					ext.process(encounter);
 					
@@ -467,7 +474,7 @@ public class AssetManagerImpl
 							processed = true;
 						}
 						
-						AssetEncounterImpl encounter = new AssetEncounterImpl(manager, production, current, namespace, lastName);
+						AssetEncounterImpl encounter = new AssetEncounterImpl(manager, production, current, namespace, lastName, assetCache);
 						
 						def.getProcessor().process(encounter);
 						applied.add(def);
@@ -622,6 +629,11 @@ public class AssetManagerImpl
 			try
 			{
 				Resource resource = ns.locate(orignalPath);
+				if(resource == null)
+				{
+					throw new AssetException("Could not locate " + orignalPath);
+				}
+				
 				if(resource.getLastModified() > asset.getResource().getLastModified())
 				{
 					// Recreation needed so we replace the old asset

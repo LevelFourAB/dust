@@ -6,10 +6,6 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Stage;
-
 import se.l4.crayon.Crayon;
 import se.l4.crayon.CrayonModule;
 import se.l4.dust.api.NamespaceManager;
@@ -18,6 +14,10 @@ import se.l4.dust.api.annotation.NamespaceBinding;
 import se.l4.dust.api.asset.AssetEncounter;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.UrlResource;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Stage;
 
 public class CoffeeScriptTest
 {
@@ -73,6 +73,18 @@ public class CoffeeScriptTest
 			public String getNamepace()
 			{
 				return "dust:test";
+			}
+			
+			@Override
+			public AssetEncounter cache(String id, Resource resource)
+			{
+				return this;
+			}
+			
+			@Override
+			public Resource getCached(String id)
+			{
+				return null;
 			}
 		});
 	}

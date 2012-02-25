@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.asset.AssetException;
 
 import com.google.inject.Singleton;
 
@@ -228,7 +227,8 @@ public class NamespaceManagerImpl
 		@Override
 		public URL locateResource(String path)
 		{
-			throw new AssetException("The namespace " + uri + " does not have any assets. Did you tie it to a package or class?");
+			return null;
+//			throw new AssetException("The namespace " + uri + " does not have any assets. Did you tie it to a package or class?");
 		}
 	}
 }

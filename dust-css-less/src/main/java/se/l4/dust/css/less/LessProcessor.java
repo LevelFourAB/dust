@@ -1,19 +1,15 @@
 package se.l4.dust.css.less;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-
-import com.google.common.base.Charsets;
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Closeables;
-import com.google.inject.Inject;
-import com.google.inject.Stage;
 
 import se.l4.dust.api.DefaultContext;
 import se.l4.dust.api.asset.Asset;
@@ -24,6 +20,12 @@ import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.resource.MemoryResource;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.js.env.JavascriptEnvironment;
+
+import com.google.common.base.Charsets;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Closeables;
+import com.google.inject.Inject;
+import com.google.inject.Stage;
 
 /**
  * Processor of LESS style sheets. This processor will convert LESS files into
@@ -49,6 +51,13 @@ public class LessProcessor
 	public void process(AssetEncounter encounter)
 		throws IOException
 	{
+		Resource cached = encounter.getCached("lesscss");
+		if(cached != null)
+		{
+			encounter.replaceWith(cached);
+			return;
+		}
+		
 		String path = encounter.getPath();
 		if(path.endsWith(".less"))
 		{
@@ -90,22 +99,23 @@ public class LessProcessor
 				.evaluate("compileResource(css);");
 			
 			MemoryResource res = new MemoryResource("text/css", "UTF-8", ((String) result).getBytes("UTF-8"));
-			encounter.replaceWith(res).rename(path);
+			encounter.cache("lesscss", res).replaceWith(res).rename(path);
 		}
 		catch(JavaScriptException e)
 		{
-			throw processError(e);
+			throw processError(value, e);
 		}
 	}
 	
 	/**
 	 * Attempt to get a bit better output from the processor when a syntax
 	 * error occurs for the LESS file.
+	 * @param value2 
 	 * 
 	 * @param e
 	 * @return
 	 */
-	private IOException processError(JavaScriptException e)
+	private IOException processError(String lessValue, JavaScriptException e)
 	{
 		Scriptable value = (Scriptable) e.getValue();
 
@@ -136,8 +146,26 @@ public class LessProcessor
 		String message = hasProperty(value, "message")
 			? (String) ScriptableObject.getProperty(value, "message")
 			: "Error during LESS processing";
-			
-		return new IOException(name + ": " + message + " on line " + line + ", column " + column);
+		
+		// Extract the line
+		int current = 0;
+		String text = null;
+		try
+		{
+			BufferedReader reader = new BufferedReader(new StringReader(lessValue));
+			while((text = reader.readLine()) != null)
+			{
+				if(++current == line)
+				{
+					break;
+				}
+			}
+		}
+		catch(IOException e0)
+		{
+		}
+		
+		return new IOException(name + ": " + message + " (line " + line + ", column " + column + ")\n\n\t" + text);
 	}
 	
 	private boolean hasProperty(Scriptable obj, String prop)

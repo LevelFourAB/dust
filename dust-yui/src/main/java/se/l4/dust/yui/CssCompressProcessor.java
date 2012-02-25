@@ -6,14 +6,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Closeables;
-import com.yahoo.platform.yui.compressor.CssCompressor;
-
 import se.l4.dust.api.asset.AssetEncounter;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.resource.MemoryResource;
 import se.l4.dust.api.resource.Resource;
+
+import com.google.common.base.Charsets;
+import com.google.common.io.Closeables;
 
 /**
  * Processor that will compress CSS resources.

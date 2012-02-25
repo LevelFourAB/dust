@@ -106,6 +106,11 @@ public class TemplateWriter
 		// FIXME: Should we really do this?
 		httpHeaders.putSingle("Content-Type", "text/html; charset=utf-8");
 		
+		if(! httpHeaders.containsKey("Expires"))
+		{
+			httpHeaders.putSingle("Expires", -1);
+		}
+		
 		TemplateOutputStream out = new HtmlTemplateOutput(entityStream);
 		renderer.render(context, template, t, out);
 		out.close();
