@@ -93,7 +93,7 @@ public class LessProcessor
 				.define("development", development)
 				.define("importer", new Importer(assets, encounter.getNamepace(), folder))
 				.add(LessProcessor.class.getResource("env.js"))
-				.add(LessProcessor.class.getResource("less-1.1.4.js"))
+				.add(LessProcessor.class.getResource("less-1.2.2.js"))
 				.add(LessProcessor.class.getResource("processor.js"))
 				.define("css", value)
 				.evaluate("compileResource(css);");
