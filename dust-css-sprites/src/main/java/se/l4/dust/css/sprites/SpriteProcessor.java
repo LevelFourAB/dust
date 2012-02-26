@@ -25,10 +25,6 @@ import org.carrot2.labs.smartsprites.resource.ResourceHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
-
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetEncounter;
 import se.l4.dust.api.asset.AssetManager;
@@ -36,6 +32,10 @@ import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.resource.MemoryResource;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.template.DefaultRenderingContext;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
 /**
  * Processor that uses SmartSprites to create automatic sprite images from
@@ -72,7 +72,7 @@ public class SpriteProcessor
 		
 		SmartSpritesParameters params = new SmartSpritesParameters(
 			"/",
-			cssFiles,
+			null,
 			"/",
 			"",
 			MessageLevel.INFO,
@@ -120,7 +120,7 @@ public class SpriteProcessor
 			encounter.getResource()
 		);
 		SpriteBuilder builder = new SpriteBuilder(params, log, handler);
-		builder.buildSprites();
+		builder.buildSprites(cssFiles);
 		
 		// Register any newly generated assets
 		Resource resource = null;
@@ -199,7 +199,7 @@ public class SpriteProcessor
 		public InputStream getResourceAsInputStream(String path)
 				throws IOException
 		{
-			Asset asset = manager.locate(context, ns, path);
+			Asset asset = manager.locate(context, ns, path.startsWith("/") ? path.substring(1) : path);
 			if(asset == null)
 			{
 				return null;

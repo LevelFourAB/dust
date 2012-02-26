@@ -12,14 +12,6 @@
 	<packaging>jar</packaging>
 	<name>${project.artifactId}</name>
 	
-	<repositories>
-		<repository>
-			<id>smartsprites</id>
-			<name>SmartSprites</name>
-			<url>http://download.csssprites.org/maven2/</url>
-		</repository>
-	</repositories>
-
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -35,9 +27,23 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.carrot2</groupId>
+			<groupId>com.carrotsearch</groupId>
 			<artifactId>smartsprites</artifactId>
-			<version>0.2.5-dev</version>
+			<version>0.2.9-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>commons-logging</artifactId>
+					<groupId>commons-logging</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>args4j</artifactId>
+					<groupId>args4j</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>google-collections</artifactId>
+					<groupId>com.google.collections</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 </project>
