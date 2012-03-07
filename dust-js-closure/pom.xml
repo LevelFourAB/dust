@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>com.google.javascript</groupId>
 			<artifactId>closure-compiler</artifactId>
-			<version>r1459</version>
+			<version>r1741</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>ant</artifactId>
