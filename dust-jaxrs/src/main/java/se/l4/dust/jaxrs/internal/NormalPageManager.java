@@ -15,6 +15,7 @@ import se.l4.dust.jaxrs.spi.Configuration;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
 
@@ -56,25 +57,26 @@ public class NormalPageManager
 	{
 		if(pages.add(page))
 		{
-			config.addPage(new PageProvider()
-			{
-				public Object get()
-				{
-					return injector.getInstance(page);
-				}
-				
-				public Class<?> getType()
-				{
-					return page;
-				}
-				
-				public void release(Object o)
-				{
-				}
-			});
-			
 			if(stage == Stage.PRODUCTION) 
 			{
+				final Provider<?> provider = injector.getProvider(page);
+				config.addPage(new PageProvider()
+				{
+					public Object get()
+					{
+						return provider.get();
+					}
+					
+					public Class<?> getType()
+					{
+						return page;
+					}
+					
+					public void release(Object o)
+					{
+					}
+				});
+				
 				try
 				{
 					cache(page);
@@ -83,6 +85,25 @@ public class NormalPageManager
 				{
 					throw new Error("Unable to cache template for " + page, e);
 				}
+			}
+			else
+			{
+				config.addPage(new PageProvider()
+				{
+					public Object get()
+					{
+						return injector.getInstance(page);
+					}
+					
+					public Class<?> getType()
+					{
+						return page;
+					}
+					
+					public void release(Object o)
+					{
+					}
+				});
 			}
 		}
 		
