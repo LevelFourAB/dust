@@ -26,6 +26,7 @@ import se.l4.dust.core.internal.template.components.EmittableComponent;
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.Provider;
 import com.google.inject.Stage;
 import com.google.inject.TypeLiteral;
 
@@ -45,6 +46,7 @@ public class ClassTemplateComponent
 	private final boolean development;
 	private final MethodInvocation[] prepareRender;
 	private final MethodInvocation[] setMethods;
+	private final Provider<Object> instance;
 	
 	public ClassTemplateComponent(
 			String name,
@@ -70,6 +72,8 @@ public class ClassTemplateComponent
 		
 		this.development = development;
 		
+		instance = createInstance(development, injector, type);
+		
 		this.converter = converter;
 		
 		this.cache = cache;
@@ -85,6 +89,35 @@ public class ClassTemplateComponent
 			: setMethods;
 	}
 	
+	/**
+	 * Create a provider for use either in production or development. The
+	 * development injector will always call {@link Injector#getInstance(Class)}
+	 * to make sure that any class changes are applied.
+	 * 
+	 * @param development
+	 * @param injector
+	 * @param type
+	 * @return
+	 */
+	private static Provider<Object> createInstance(boolean development, final Injector injector, final Class<?> type)
+	{
+		if(development)
+		{
+			return new Provider<Object>()
+			{
+				@Override
+				public Object get()
+				{
+					return injector.getInstance(type);
+				}
+			};
+		}
+		else
+		{
+			return (Provider) injector.getProvider(type);
+		}
+	}
+
 	@Override
 	public Content copy()
 	{
@@ -154,7 +187,7 @@ public class ClassTemplateComponent
 			Object lastData)
 		throws IOException
 	{
-		Object o = injector.getInstance(type);
+		Object o = instance.get();
 		
 		Object root;
 		

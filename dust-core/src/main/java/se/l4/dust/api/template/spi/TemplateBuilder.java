@@ -187,4 +187,20 @@ public interface TemplateBuilder
 	 * @return
 	 */
 	boolean hasCurrent();
+	
+	/**
+	 * Get a value that has been previously set on the builder.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	<T> T getValue(String id);
+	
+	/**
+	 * Store a temporary value in this builder.
+	 * 
+	 * @param id
+	 * @param value
+	 */
+	void putValue(String id, Object value);
 }

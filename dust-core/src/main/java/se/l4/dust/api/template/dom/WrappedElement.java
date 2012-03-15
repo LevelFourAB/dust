@@ -38,6 +38,12 @@ public class WrappedElement
 	{
 		return new WrappedElement(element, wrapper);
 	}
+	
+	@Override
+	public Content deepCopy()
+	{
+		return copy();
+	}
 
 	public Element getElement()
 	{

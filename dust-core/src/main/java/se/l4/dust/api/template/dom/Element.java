@@ -55,6 +55,22 @@ public class Element
 		return new Element(name, attributes);
 	}
 	
+	@Override
+	public Content deepCopy()
+	{
+		Element result = (Element) copy();
+		Content[] copyContent = new Content[contents.length];
+		for(int i=0, n=copyContent.length; i<n; i++)
+		{
+			copyContent[i] = contents[i].deepCopy();
+			copyContent[i].setParent(result);
+		}
+		
+		result.contents = copyContent;
+		
+		return result;
+	}
+	
 	public Element copyAttributes(Element other)
 	{
 		this.attributes = other.attributes;

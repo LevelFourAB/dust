@@ -22,6 +22,12 @@ public abstract class DynamicContent
 	{
 		this.parent = element;
 	}
+	
+	@Override
+	public Content deepCopy()
+	{
+		return copy();
+	}
 
 	/**
 	 * Get the value of this content determined via the current context.

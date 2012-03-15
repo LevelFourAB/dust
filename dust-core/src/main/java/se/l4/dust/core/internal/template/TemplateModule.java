@@ -4,6 +4,7 @@ import se.l4.crayon.Contributions;
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Order;
+import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.TemplateContribution;
 import se.l4.dust.api.template.TemplateCache;
@@ -11,6 +12,8 @@ import se.l4.dust.api.template.TemplateRenderer;
 import se.l4.dust.core.internal.InternalContributions;
 import se.l4.dust.core.internal.TemplateManagerImpl;
 import se.l4.dust.core.internal.template.components.BodyComponent;
+import se.l4.dust.core.internal.template.components.FragmentDefinition;
+import se.l4.dust.core.internal.template.components.FragmentUse;
 import se.l4.dust.core.internal.template.components.HolderComponent;
 import se.l4.dust.core.internal.template.components.IfComponent;
 import se.l4.dust.core.internal.template.components.LoopComponent;
@@ -51,6 +54,15 @@ public class TemplateModule
 			.addComponent(LoopComponent.class, "loop")
 			.addComponent(HolderComponent.class, "holder")
 			.addComponent(RawComponent.class, "raw");
+	}
+	
+	@TemplateContribution
+	public void contributeFragmentComponents(NamespaceManager namespaces, TemplateManager manager)
+	{
+		namespaces.bind("dust:fragments").add();
+		manager.getNamespace("dust:fragments")
+			.addComponent(FragmentDefinition.class, "define")
+			.addComponent(FragmentUse.class, "use");
 	}
 	
 	@TemplateContribution

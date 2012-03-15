@@ -28,8 +28,10 @@ import se.l4.dust.api.template.dom.WrappedElement;
 import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.mixin.MixinEncounter;
 import se.l4.dust.api.template.mixin.TemplateMixin;
+import se.l4.dust.api.template.spi.FragmentEncounter;
 import se.l4.dust.api.template.spi.PropertySource;
 import se.l4.dust.api.template.spi.TemplateBuilder;
+import se.l4.dust.api.template.spi.TemplateFragment;
 import se.l4.dust.api.template.spi.TemplateInfo;
 import se.l4.dust.core.internal.template.components.EmittableComponent;
 import se.l4.dust.core.internal.template.components.HolderComponent;
@@ -59,6 +61,8 @@ public class TemplateBuilderImpl
 	
 	private final LinkedList<Map<String, Element.Attribute>> mixinAttributes;
 	
+	private final Map<String, Object> values;
+	
 	private Class<?> context;
 	
 	private DocType docType;
@@ -81,6 +85,7 @@ public class TemplateBuilderImpl
 		this.converter = converter;
 		this.expressions = expressions;
 		
+		values = new HashMap<String, Object>();
 		boundNamespaces = new HashMap<String, String>();
 		mixinAttributes = new LinkedList<Map<String, Element.Attribute>>();
 		namespaces = createNamespaces();
@@ -144,7 +149,7 @@ public class TemplateBuilderImpl
 	
 	private boolean isComponent()
 	{
-		return current instanceof Component;
+		return current instanceof Component || current instanceof FragmentElement;
 	}
 	
 	public TemplateBuilder startElement(String name, String... attributes)
@@ -238,21 +243,31 @@ public class TemplateBuilderImpl
 		// Add mixin attributes to the stack
 		mixinAttributes.add(new LinkedHashMap<String, Element.Attribute>());
 		
-		EmittableComponent emittable;
+		Element emittable;
+		boolean fragment;
 		if(EmittableComponent.class.isAssignableFrom(component))
 		{
 			emittable = (EmittableComponent) injector.getInstance(component);
+			fragment = false;
+		}
+		else if(TemplateFragment.class.isAssignableFrom(component))
+		{
+			TemplateFragment f = (TemplateFragment) injector.getInstance(component);
+			emittable = new FragmentElement(f);
+			emittable.setParent(current);
+			fragment = true;
 		}
 		else
 		{
 			emittable = new ClassTemplateComponent("", injector, templateCache, converter, component);
+			fragment = false;
 		}
 		
 		if(current == null)
 		{
 			root = emittable;
 		}
-		else
+		else if(! fragment)
 		{
 			current.addContent(emittable);
 		}
@@ -278,7 +293,18 @@ public class TemplateBuilderImpl
 		
 		mixinAttributes.removeLast();
 		
-		current = current.getParent();
+		if(current instanceof FragmentElement)
+		{
+			FragmentElement self = (FragmentElement) current;
+			
+			current = current.getParent();
+			
+			self.apply(this);
+		}
+		else
+		{
+			current = current.getParent();
+		}
 		
 		return this;
 	}
@@ -290,11 +316,14 @@ public class TemplateBuilderImpl
 			throw new IllegalStateException("No current element or component");
 		}
 		
-		applyMixins();
-		
-		current = current.getParent();
-		
-		mixinAttributes.removeLast();
+		if(isComponent())
+		{
+			endComponent();
+		}
+		else
+		{
+			endElement();
+		}
 		
 		return this;
 	}
@@ -433,6 +462,18 @@ public class TemplateBuilderImpl
 		}
 	}
 	
+	@Override
+	public <T> T getValue(String id)
+	{
+		return (T) values.get(id);
+	}
+	
+	@Override
+	public void putValue(String id, Object value)
+	{
+		values.put(id, value);
+	}
+	
 	private class MixinEncounterImpl
 		implements MixinEncounter
 	{
@@ -522,6 +563,52 @@ public class TemplateBuilderImpl
 		public void setAttribute(String attribute, Content content)
 		{
 			current.setAttribute(attribute, content);
+		}
+	}
+	
+	private static class FragmentElement
+		extends Element
+	{
+		private final TemplateFragment fragment;
+
+		public FragmentElement(TemplateFragment fragment)
+		{
+			super("fragment");
+			
+			this.fragment = fragment;
+		}
+
+		public void apply(final TemplateBuilder builder)
+		{
+			final Element self = this;
+			fragment.build(new FragmentEncounter()
+			{
+				@Override
+				public Element.Attribute getAttribute(String namespace, String name)
+				{
+					// TODO
+//					return self.getAttribute(namespace, name);
+					return null;
+				}
+
+				@Override
+				public Element.Attribute getAttribute(String name)
+				{
+					return self.getAttribute(name);
+				}
+				
+				@Override
+				public Content[] getBody()
+				{
+					return getRawContents();
+				}
+				
+				@Override
+				public TemplateBuilder builder()
+				{
+					return builder;
+				}
+			});
 		}
 	}
 }

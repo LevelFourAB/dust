@@ -12,8 +12,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Pattern;
 
-import javax.annotation.Nullable;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.asset.Asset;
@@ -56,19 +54,17 @@ public class AssetManagerImpl
 	
 	private final Injector injector;
 
-	private final AssetCache assetCache;
+	private volatile AssetCache assetCache;
 	
 	@Inject
 	public AssetManagerImpl(NamespaceManager manager,
 			ResourceVariantManager variants,
 			Injector injector,
-			@Nullable AssetCache assetCache,
 			Stage stage)
 	{
 		this.manager = manager;
 		this.variants = variants;
 		this.injector = injector;
-		this.assetCache = assetCache;
 		sources = new CopyOnWriteArrayList<Object>();
 		extensionProcessors = new ConcurrentHashMap<String, AssetProcessor>();
 		
@@ -101,6 +97,12 @@ public class AssetManagerImpl
 		cache = new MapMaker().makeComputingMap(f);
 		
 		protectedExtensions = new CopyOnWriteArraySet<String>();
+	}
+	
+	@Inject(optional=true)
+	public void setAssetCache(AssetCache cache)
+	{
+		this.assetCache = cache;
 	}
 	
 	public void addSource(AssetSource source)

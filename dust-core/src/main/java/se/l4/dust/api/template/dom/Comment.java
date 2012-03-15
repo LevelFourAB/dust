@@ -25,6 +25,21 @@ public class Comment
 	{
 		return new Comment();
 	}
+	
+	@Override
+	public Content deepCopy()
+	{
+		Content result = copy();
+		Content[] copyContent = new Content[contents.length];
+		for(int i=0, n=copyContent.length; i<n; i++)
+		{
+			copyContent[i] = contents[i].deepCopy();
+		}
+		
+		((Comment) result).contents = copyContent;
+		
+		return result;
+	}
 
 	public Element getParent()
 	{

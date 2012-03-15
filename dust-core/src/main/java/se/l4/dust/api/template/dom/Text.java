@@ -39,6 +39,12 @@ public class Text
 	}
 	
 	@Override
+	public Content deepCopy()
+	{
+		return copy();
+	}
+	
+	@Override
 	public String toString()
 	{
 		return "Text[" + text + "]";

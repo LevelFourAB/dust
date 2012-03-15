@@ -20,4 +20,11 @@ public interface Content
 	 * @return
 	 */
 	Content copy();
+	
+	/**
+	 * Copy everything, including children and attributes.
+	 * 
+	 * @return
+	 */
+	Content deepCopy();
 }
