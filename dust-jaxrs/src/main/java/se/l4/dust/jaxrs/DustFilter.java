@@ -11,6 +11,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 import se.l4.dust.api.Scopes;
 import se.l4.dust.api.template.RenderingContext;
@@ -21,6 +22,7 @@ import se.l4.dust.jaxrs.internal.routing.ServletChain;
 import se.l4.dust.jaxrs.internal.routing.ServletEntry;
 import se.l4.dust.jaxrs.spi.Configuration;
 import se.l4.dust.jaxrs.spi.RequestContext;
+import se.l4.dust.jaxrs.spi.WebRenderingContext;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -111,7 +113,12 @@ public class DustFilter
 			
 			try
 			{
-				Scopes.setActiveContext(contexts.get());
+				RenderingContext context = contexts.get();
+				Scopes.setActiveContext(context);
+				if(context instanceof WebRenderingContext)
+				{
+					((WebRenderingContext) context).setup((HttpServletRequest) request);
+				}
 				
 				innerChain.doFilter(request, response);
 			}
