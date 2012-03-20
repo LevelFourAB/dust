@@ -99,7 +99,12 @@ public class LessProcessor
 				.evaluate("compileResource(css);");
 			
 			MemoryResource res = new MemoryResource("text/css", "UTF-8", ((String) result).getBytes("UTF-8"));
-			encounter.cache("lesscss", res).replaceWith(res).rename(path);
+			if(! development)
+			{
+				encounter.cache("lesscss", res);
+			}
+			
+			encounter.replaceWith(res).rename(path);
 		}
 		catch(JavaScriptException e)
 		{
