@@ -360,7 +360,7 @@ public class ClassTemplateComponent
 			typeClass = m.getParameterTypes()[index];
 			
 			attribute = findAttribute(m, annotations);
-			binding = findBinding();
+			binding = attribute == null ? findBinding() : null;
 		}
 		
 		private Binding findBinding()
