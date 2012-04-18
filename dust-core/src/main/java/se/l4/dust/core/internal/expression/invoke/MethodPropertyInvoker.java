@@ -3,13 +3,13 @@ package se.l4.dust.core.internal.expression.invoke;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import com.fasterxml.classmate.ResolvedType;
-import com.google.common.primitives.Primitives;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
+import com.google.common.primitives.Primitives;
 
 /**
  * Invoker for a property method.
@@ -64,7 +64,7 @@ public class MethodPropertyInvoker
 		}
 		catch(Exception e)
 		{
-			throw errors.error(node, e);
+			throw errors.error(node, e + "; Object is: " + instance);
 		}
 	}
 	
@@ -99,7 +99,17 @@ public class MethodPropertyInvoker
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
-		return context + "." + getter.getName() + "()";
+		StringBuilder builder = new StringBuilder();
+		builder
+			.append("(")
+			.append(compiler.cast(getReturnClass()))
+			.append(" ")
+			.append(context)
+			.append(".")
+			.append(getter.getName())
+			.append("())");
+		
+		return builder.toString();
 	}
 	
 	@Override
