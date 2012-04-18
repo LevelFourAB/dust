@@ -1,7 +1,5 @@
 package se.l4.dust.core.internal.conversion;
 
-import com.google.inject.Scopes;
-
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
 import se.l4.dust.api.conversion.TypeConverter;
@@ -19,6 +17,8 @@ import se.l4.dust.core.internal.conversion.standard.LongDoubleConversion;
 import se.l4.dust.core.internal.conversion.standard.LongIntegerConversion;
 import se.l4.dust.core.internal.conversion.standard.LongShortConversion;
 import se.l4.dust.core.internal.conversion.standard.LongStringConversion;
+import se.l4.dust.core.internal.conversion.standard.NumberIntegerConversion;
+import se.l4.dust.core.internal.conversion.standard.NumberLongConversion;
 import se.l4.dust.core.internal.conversion.standard.ShortLongConversion;
 import se.l4.dust.core.internal.conversion.standard.StringBooleanConversion;
 import se.l4.dust.core.internal.conversion.standard.StringDoubleConversion;
@@ -27,6 +27,8 @@ import se.l4.dust.core.internal.conversion.standard.VoidBooleanConversion;
 import se.l4.dust.core.internal.conversion.standard.VoidDoubleConversion;
 import se.l4.dust.core.internal.conversion.standard.VoidLongConversion;
 import se.l4.dust.core.internal.conversion.standard.VoidStringConversion;
+
+import com.google.inject.Scopes;
 
 /**
  * Module for type converter, contributes implementation and default
@@ -86,5 +88,8 @@ public class ConversionModule
 		converter.add(new VoidBooleanConversion());
 		converter.add(new VoidLongConversion());
 		converter.add(new VoidStringConversion());
+		
+		converter.add(new NumberLongConversion());
+		converter.add(new NumberIntegerConversion());
 	}
 }

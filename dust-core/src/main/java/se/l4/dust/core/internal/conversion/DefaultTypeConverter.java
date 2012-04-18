@@ -76,7 +76,7 @@ public class DefaultTypeConverter
 	{
 		NonGenericConversion<?, ?> nonGeneric = toNonGeneric(conversion);
 		List<Conversion<?, ?>> list = conversions.get(nonGeneric.getInput());
-		list.add(conversion);
+		list.add(nonGeneric);
 	}
 	
 	private <I, O> NonGenericConversion<I, O> toNonGeneric(Conversion<I, O> conversion)
