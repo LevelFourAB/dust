@@ -1,5 +1,8 @@
 package se.l4.dust.jaxrs.resteasy;
 
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.UriInfo;
+
 import org.jboss.resteasy.core.Dispatcher;
 import org.jboss.resteasy.plugins.providers.ByteArrayProvider;
 import org.jboss.resteasy.plugins.providers.DataSourceProvider;
@@ -62,6 +65,18 @@ public class ResteasyModule
 	public Registry provideRegistry(Dispatcher dispatcher)
 	{
 		return dispatcher.getRegistry();
+	}
+	
+	@Provides
+	public UriInfo provideUriInfo()
+	{
+		return ResteasyProviderFactory.getContextData(UriInfo.class);
+	}
+	
+	@Provides
+	public Request provideRequest()
+	{
+		return ResteasyProviderFactory.getContextData(Request.class);
 	}
 	
 	@Contribution(name="jax-rs-providers")
