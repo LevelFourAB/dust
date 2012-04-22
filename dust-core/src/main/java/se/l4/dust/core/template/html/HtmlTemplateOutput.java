@@ -5,11 +5,11 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Set;
 
-import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableSet;
-
 import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
+
+import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Template output that will output its contents as HTML.
@@ -65,7 +65,7 @@ public class HtmlTemplateOutput
 				writer.write("&amp;");
 				break;
 			default:
-				if(c > 0x7F)
+				if(c > 0x7F || c == '"')
 				{
 					escapeForce(c);
 				}
