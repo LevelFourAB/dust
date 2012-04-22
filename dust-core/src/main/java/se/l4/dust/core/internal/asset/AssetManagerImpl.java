@@ -626,7 +626,7 @@ public class AssetManagerImpl
 			return asset.getNamespace();
 		}
 		
-		public Resource getResource()
+		public synchronized Resource getResource()
 		{
 			try
 			{
