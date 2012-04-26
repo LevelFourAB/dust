@@ -9,15 +9,6 @@ import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ComputationException;
-import com.google.common.collect.MapMaker;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
-import com.google.inject.Stage;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateException;
@@ -32,6 +23,15 @@ import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.spi.internal.XmlTemplateParser;
 import se.l4.dust.core.internal.template.dom.TemplateBuilderImpl;
+
+import com.google.common.base.Function;
+import com.google.common.base.Throwables;
+import com.google.common.collect.ComputationException;
+import com.google.common.collect.MapMaker;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
+import com.google.inject.Stage;
 
 /**
  * Implementation of {@link TemplateCache}.
@@ -379,7 +379,7 @@ public class TemplateCacheImpl
 
 		public DevParsedTemplate(ParsedTemplate tpl, Resource resource)
 		{
-			super(tpl.getDocType(), tpl.getRoot());
+			super(tpl.getDocType(), tpl.getRoot(), tpl.getRawId());
 			
 			this.resource = resource;
 		}

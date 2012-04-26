@@ -74,7 +74,7 @@ public class TemplateVariantImpl
 		
 		if(found.isEmpty())
 		{
-			transformed = new ParsedTemplate(template.getDocType(), (Element) root);
+			transformed = new ParsedTemplate(template.getDocType(), (Element) root, template.getRawId());
 			transformedUrl = url;
 			return;
 		}
@@ -98,7 +98,7 @@ public class TemplateVariantImpl
 				}
 			}, url);
 			
-			transformed = new ParsedTemplate(template.getDocType(), (Element) root);
+			transformed = new ParsedTemplate(template.getDocType(), (Element) root, template.getRawId());
 			transformedUrl = name;
 		}
 		catch(IOException e)

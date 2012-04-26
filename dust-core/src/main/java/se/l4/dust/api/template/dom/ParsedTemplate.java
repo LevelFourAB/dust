@@ -12,11 +12,13 @@ public class ParsedTemplate
 {
 	private final DocType doctype;
 	private final Element root;
+	private final Integer id;
 
-	public ParsedTemplate(DocType doctype, Element root)
+	public ParsedTemplate(DocType doctype, Element root, Integer id)
 	{
 		this.doctype = doctype;
 		this.root = root;
+		this.id = id;
 	}
 	
 	/**
@@ -37,5 +39,10 @@ public class ParsedTemplate
 	public Element getRoot()
 	{
 		return root;
+	}
+	
+	public Integer getRawId()
+	{
+		return id;
 	}
 }

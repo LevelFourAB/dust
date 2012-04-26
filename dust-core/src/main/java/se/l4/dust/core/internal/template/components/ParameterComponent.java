@@ -53,11 +53,15 @@ public class ParameterComponent
 	public void emit(
 			Emitter emitter,
 			RenderingContext ctx, 
-			TemplateOutputStream out,
-			Object data,
-			EmittableComponent lastComponent,
-			Object lastData)
+			TemplateOutputStream out)
 		throws IOException
 	{
+	}
+	
+	@Override
+	public String toString()
+	{
+		Attribute attr = getAttribute("name");
+		return "ParameterComponent[parameterName=" + (attr == null ? "" : attr.getStringValue()) + "]";
 	}
 }

@@ -57,10 +57,7 @@ public class LoopComponent
 	public void emit(
 			Emitter emitter,
 			RenderingContext ctx, 
-			TemplateOutputStream out,
-			Object data,
-			EmittableComponent lastComponent,
-			Object lastData)
+			TemplateOutputStream out)
 		throws IOException
 	{
 		Attribute source = getAttribute("source");
@@ -69,6 +66,7 @@ public class LoopComponent
 		Attribute value = getAttribute("value");
 		if(value == null) throw new TemplateException("Attribute value is required");
 		
+		Object data = emitter.getObject();
 		Object sourceData = source.getValue(ctx, data);
 		if(sourceData == null)
 		{
@@ -99,7 +97,7 @@ public class LoopComponent
 			
 			for(Object o : items)
 			{
-				emitLoopContents(emitter, ctx, out, data, lastComponent, lastData, value, o);
+				emitLoopContents(emitter, ctx, out, data, value, o);
 			}
 		}
 		else if(sourceData instanceof Iterator)
@@ -110,7 +108,7 @@ public class LoopComponent
 			{
 				Object o = it.next();
 				
-				emitLoopContents(emitter, ctx, out, data, lastComponent, lastData, value, o);
+				emitLoopContents(emitter, ctx, out, data, value, o);
 			}
 		}
 		else
@@ -119,14 +117,13 @@ public class LoopComponent
 			for(int i=0, n=Array.getLength(sourceData); i<n; i++)
 			{
 				Object o = Array.get(sourceData, i);
-				emitLoopContents(emitter, ctx, out, data, lastComponent, lastData, value, o);
+				emitLoopContents(emitter, ctx, out, data, value, o);
 			}
 		}
 	}
 
 	private void emitLoopContents(Emitter emitter, RenderingContext ctx,
 			TemplateOutputStream out, Object data, 
-			EmittableComponent lastComponent, Object lastData,
 			Attribute value, Object o)
 		throws IOException
 	{
@@ -134,7 +131,7 @@ public class LoopComponent
 		
 		for(Content c : getRawContents())
 		{
-			emitter.emit(out, data, lastComponent, lastData, c);
+			emitter.emit(out, c);
 		}
 	}
 	

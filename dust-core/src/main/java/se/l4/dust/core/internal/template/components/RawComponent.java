@@ -25,14 +25,11 @@ public class RawComponent
 	public void emit(
 			Emitter emitter,
 			RenderingContext ctx, 
-			TemplateOutputStream out,
-			Object data,
-			EmittableComponent lastComponent,
-			Object lastData)
+			TemplateOutputStream out)
 		throws IOException
 	{
 		Attribute attribute = getAttribute("value");
-		String output = attribute.getStringValue(ctx, data);
+		String output = attribute.getStringValue(ctx, emitter.getObject());
 
 		out.raw(output);
 	}

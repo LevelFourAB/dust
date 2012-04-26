@@ -25,15 +25,12 @@ public class HolderComponent
 	public void emit(
 			Emitter emitter,
 			RenderingContext ctx, 
-			TemplateOutputStream out,
-			Object data,
-			EmittableComponent lastComponent,
-			Object lastData)
+			TemplateOutputStream out)
 		throws IOException
 	{
 		for(Content c : getRawContents())
 		{
-			emitter.emit(out, data, lastComponent, lastData, c);
+			emitter.emit(out, c);
 		}
 	}
 

@@ -1,6 +1,7 @@
 package se.l4.dust.core.internal.template.dom;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.Comment;
@@ -29,15 +30,30 @@ public class Emitter
 {
 	private final ParsedTemplate template;
 	private final RenderingContext ctx;
-	private final Object data;
 
 	private Object current;
+	private Integer currentId;
+	private HashMap<Integer, Object> dataMap;
+	
+	private Element currentComponent;
+	private Integer currentComponentId;
+	private HashMap<Integer, Element> componentMap;
+	
+	private int level;
 	
 	public Emitter(ParsedTemplate template, RenderingContext ctx, Object data)
 	{
 		this.template = template;
 		this.ctx = ctx;
-		this.data = data;
+		
+		dataMap = new HashMap<Integer, Object>(32);
+		componentMap = new HashMap<Integer, Element>(32);
+		
+		current = data;
+		currentId = template.getRawId();
+		dataMap.put(currentId, current);
+		
+		componentMap.put(currentId, template.getRoot());
 	}
 	
 	public void process(TemplateOutputStream out)
@@ -50,7 +66,7 @@ public class Emitter
 			out.docType(docType.getName(), docType.getPublicId(), docType.getSystemId());
 		}
 		
-		emit(out, data, null, null, template.getRoot());
+		emit(out, template.getRoot());
 	}
 
 	private String[] createAttributes(Element element, Object data)
@@ -66,21 +82,16 @@ public class Emitter
 		return attrs;
 	}
 
-	public void emit(
-			TemplateOutputStream out, 
-			Object data, 
-			EmittableComponent lastComponent, 
-			Object lastData, 
-			Content c)
+	public void emit(TemplateOutputStream out, Content c)
 		throws IOException
 	{
 		if(c instanceof EmittableComponent)
 		{
-			((EmittableComponent) c).emit(this, ctx, out, data, lastComponent, lastData);
+			((EmittableComponent) c).emit(this, ctx, out);
 		}
 		else if(c instanceof DynamicContent)
 		{
-			Object value = ctx.getDynamicValue((DynamicContent) c, data);
+			Object value = ctx.getDynamicValue((DynamicContent) c, current);
 			out.text(ctx.getStringValue(value));
 		}
 		else if(c instanceof Text)
@@ -93,7 +104,7 @@ public class Emitter
 			
 			for(Content sc : ((Comment) c).getRawContents())
 			{
-				emit(out, data, lastComponent, lastData, sc);
+				emit(out, sc);
 			}
 			
 			out.endComment();
@@ -102,28 +113,25 @@ public class Emitter
 		{
 			Element element = (Element) c;
 			Content[] content = element.getRawContents();
-			String[] attrs = createAttributes(element, data);
+			String[] attrs = createAttributes(element, current);
 			
 			out.startElement(element.getName(), attrs, false);
 			
 			for(Content subContent : content)
 			{
-				emit(out, data, lastComponent, lastData, subContent);
+				emit(out, subContent);
 			}
 			
 			out.endElement(element.getName());
 		}
 		else if(c instanceof WrappedElement)
 		{
-			this.current = data;
-			
 			WrappedElement we = (WrappedElement) c;
 			ElementWrapper wrapper = we.getWrapper();
 			wrapper.beforeElement(this);
 			
-			emit(out, data, lastComponent, lastData, we.getElement());
+			emit(out, we.getElement());
 			
-			this.current = data;
 			wrapper.afterElement(this);
 		}
 		else
@@ -142,5 +150,48 @@ public class Emitter
 	public Object getObject()
 	{
 		return current;
+	}
+	
+	public Element getCurrentComponent()
+	{
+		return currentComponent;
+	}
+	
+	public Integer switchData(Integer id)
+	{
+		Integer old = currentId;
+		current = dataMap.get(id);
+		currentId = id;
+		
+		return old;
+	}
+
+	public Integer switchData(Integer id, Object data)
+	{
+		Integer old = currentId;
+		dataMap.put(id, data);
+		current = data;
+		currentId = id;
+		
+		return old;
+	}
+
+	public Integer switchComponent(Integer id)
+	{
+		Integer old = currentId;
+		currentComponent = componentMap.get(id);
+		currentComponentId = id;;
+		
+		return old;
+	}
+
+	public Integer switchComponent(Integer id, Element data)
+	{
+		Integer old = currentComponentId;
+		componentMap.put(id, data);
+		currentComponent = data;
+		currentComponentId = id;
+		
+		return old;
 	}
 }

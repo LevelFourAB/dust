@@ -156,6 +156,11 @@ public class Element
 		throw new IllegalArgumentException("No such content");
 	}
 	
+	public void setContents(Content[] newContent)
+	{
+		this.contents = newContent;
+	}
+	
 	public Element setAttribute(String name, Content... args)
 	{
 		// Check for existing attribute
@@ -233,6 +238,11 @@ public class Element
 		}
 		
 		return null;
+	}
+	
+	public void setAttributes(Attribute[] attributes)
+	{
+		this.attributes = attributes;
 	}
 	
 	public String findNamespace(String prefix)
@@ -357,5 +367,7 @@ public class Element
 			}
 		}
 	}
+
+	
 
 }

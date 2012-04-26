@@ -35,6 +35,7 @@ import se.l4.dust.api.template.spi.TemplateFragment;
 import se.l4.dust.api.template.spi.TemplateInfo;
 import se.l4.dust.core.internal.template.components.EmittableComponent;
 import se.l4.dust.core.internal.template.components.HolderComponent;
+import se.l4.dust.core.internal.template.components.ParameterComponent;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -63,6 +64,8 @@ public class TemplateBuilderImpl
 	
 	private final Map<String, Object> values;
 	
+	private final Integer id;
+	
 	private Class<?> context;
 	
 	private DocType docType;
@@ -84,6 +87,7 @@ public class TemplateBuilderImpl
 		this.templateCache = templateCache;
 		this.converter = converter;
 		this.expressions = expressions;
+		this.id = templates.fetchTemplateId();
 		
 		values = new HashMap<String, Object>();
 		boundNamespaces = new HashMap<String, String>();
@@ -263,15 +267,37 @@ public class TemplateBuilderImpl
 			fragment = false;
 		}
 		
+		if(emittable instanceof ClassTemplateComponent || emittable instanceof ParameterComponent)
+		{
+			// Insert a context switcher
+			Element switcher = new DataContextSwitcher(id);
+			emittable.addContent(switcher);
+			
+			if(current == null)
+			{
+				root = emittable;
+				current = switcher;
+			}
+			else
+			{
+				current.addContent(emittable);
+				current = switcher;
+			}
+			
+			return this;
+		}
+		
 		if(current == null)
 		{
+			// No current item, set as root
 			root = emittable;
 		}
 		else if(! fragment)
 		{
+			// Non fragment, check if we need to wrap it
 			current.addContent(emittable);
 		}
-		
+
 		current = emittable;
 		
 		return this;
@@ -303,6 +329,35 @@ public class TemplateBuilderImpl
 		}
 		else
 		{
+			if(current instanceof DataContextSwitcher)
+			{
+				// First copy all attributes
+				current.getParent().setAttributes(current.getAttributes());
+				current.setAttributes(null);
+				
+				// Really looking for parent of parent
+				current = current.getParent();
+			}
+			
+			if(current instanceof ParameterComponent)
+			{
+				// Seek upwards to find a suitable ClassTemplateComponent
+				Element parent = current.getParent();
+				while(parent != null)
+				{
+					if(parent instanceof DataContextSwitcher)
+					{
+						Element cs = new ComponentContextSwitcher(id);
+						cs.setContents(current.getRawContents());
+						current.setContents(new Content[] { cs });
+						cs.setParent(current);
+						break;
+					}
+					
+					parent = parent.getParent();
+				}
+			}
+			
 			current = current.getParent();
 		}
 		
@@ -436,7 +491,7 @@ public class TemplateBuilderImpl
 
 	public ParsedTemplate getTemplate()
 	{
-		return new ParsedTemplate(docType, root);
+		return new ParsedTemplate(docType, root, id);
 	}
 	
 	public boolean hasCurrent()

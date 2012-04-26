@@ -22,15 +22,11 @@ public class IfComponent
 	}
 
 	@Override
-	public void emit(
-			Emitter emitter,
-			RenderingContext ctx, 
-			TemplateOutputStream out,
-			Object data,
-			EmittableComponent lastComponent,
-			Object lastData)
+	public void emit(Emitter emitter, RenderingContext ctx, TemplateOutputStream out)
 		throws IOException
 	{
+		Object data = emitter.getObject();
+		
 		Attribute test = getAttribute("test");
 		Object value = test == null ? true : test.getValue(ctx, data);
 		ParameterComponent elseElement = getParameter("else", false);
@@ -41,7 +37,7 @@ public class IfComponent
 			{
 				if(c == elseElement) continue;
 			
-				emitter.emit(out, data, lastComponent, lastData, c);
+				emitter.emit(out,  c);
 			}
 		}
 		else if(elseElement != null)
@@ -49,7 +45,7 @@ public class IfComponent
 			// Render the else
 			for(Content c : elseElement.getRawContents())
 			{
-				emitter.emit(out, data, lastComponent, lastData, c);
+				emitter.emit(out, c);
 			}
 		}
 	}

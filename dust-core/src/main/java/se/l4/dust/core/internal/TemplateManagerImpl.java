@@ -3,6 +3,7 @@ package se.l4.dust.core.internal;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,11 +39,14 @@ public class TemplateManagerImpl
 	private final Injector injector;
 	private final ConcurrentMap<String, Object> propertySources;
 	private final ConcurrentMap<String, NamespacedTemplateImpl> namespaces;
+	private final AtomicInteger counter;
 	
 	@Inject
 	public TemplateManagerImpl(Injector injector, final Stage stage, final DiscoveryFactory discovery, final NamespaceManager nsManager)
 	{
 		this.injector = injector;
+		
+		counter = new AtomicInteger();
 		
 		propertySources = new ConcurrentHashMap<String, Object>();
 		namespaces = new MapMaker()
@@ -87,6 +91,12 @@ public class TemplateManagerImpl
 		}
 		
 		return null;
+	}
+	
+	@Override
+	public int fetchTemplateId()
+	{
+		return counter.incrementAndGet();
 	}
 	
 	private static class NamespacedTemplateImpl

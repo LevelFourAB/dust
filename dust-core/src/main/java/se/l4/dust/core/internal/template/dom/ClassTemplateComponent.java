@@ -181,14 +181,12 @@ public class ClassTemplateComponent
 	@Override
 	public void emit(Emitter emitter, 
 			RenderingContext ctx,
-			TemplateOutputStream out,
-			Object data,
-			EmittableComponent lastComponent,
-			Object lastData)
+			TemplateOutputStream out)
 		throws IOException
 	{
 		Object o = instance.get();
 		
+		Object data = emitter.getObject();
 		Object root;
 		
 		// Run all set methods
@@ -240,12 +238,17 @@ public class ClassTemplateComponent
 
 		if(root instanceof Element)
 		{
-			emitter.emit(out, o, this, data, (Element) root);
+			emitter.emit(out, (Element) root);
 		}
 		else
 		{
 			// Process the template of the component 
 			ParsedTemplate template = cache.getTemplate(ctx, root.getClass(), (Template) null);
+			
+			// Switch to new context
+			Integer old = emitter.switchData(template.getRawId(), root);
+			Integer oldComponent = emitter.switchComponent(template.getRawId(), (Element) getRawContents()[0]);
+			
 			DocType docType = template.getDocType();
 			if(docType != null)
 			{
@@ -254,7 +257,11 @@ public class ClassTemplateComponent
 			
 			Element templateRoot = template.getRoot();
 			
-			emitter.emit(out, root, this, data, templateRoot);
+			emitter.emit(out, templateRoot);
+			
+			// Switch context back
+			emitter.switchData(old);
+			emitter.switchComponent(oldComponent);
 		}
 	}
 	

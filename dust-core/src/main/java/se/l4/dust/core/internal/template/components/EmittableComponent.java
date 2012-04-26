@@ -24,15 +24,17 @@ public abstract class EmittableComponent
 	public abstract void emit(
 			Emitter emitter,
 			RenderingContext ctx, 
-			TemplateOutputStream out,
-			Object data,
-			EmittableComponent lastComponent,
-			Object lastData)
+			TemplateOutputStream out)
 		throws IOException;
 	
 	public ParameterComponent getParameter(String name, boolean required)
 	{
-		for(Content c : getRawContents())
+		return getParameter(this, name, required);
+	}
+	
+	public static ParameterComponent getParameter(Element element, String name, boolean required)
+	{
+		for(Content c : element.getRawContents())
 		{
 			if(c instanceof ParameterComponent)
 			{
@@ -48,7 +50,7 @@ public abstract class EmittableComponent
 		if(required)
 		{
 			List<String> path = new ArrayList<String>();
-			Element e = this;
+			Element e = element;
 			while(e != null)
 			{
 				path.add(e.getName());

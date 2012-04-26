@@ -137,4 +137,11 @@ public interface TemplateManager
 	 * 		the class of the source
 	 */
 	void addPropertySource(String prefix, Class<? extends PropertySource> type);
+	
+	/**
+	 * Get a template identifier for identifying a template uniquely.
+	 * 
+	 * @return
+	 */
+	int fetchTemplateId();
 }
