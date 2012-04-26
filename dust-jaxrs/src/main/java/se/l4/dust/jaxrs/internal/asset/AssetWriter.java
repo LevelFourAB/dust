@@ -135,7 +135,7 @@ public class AssetWriter
 		}
 		else
 		{
-			return null;
+			return "application/octet-stream";
 		}
 	}
 }
