@@ -14,8 +14,14 @@ public class ComponentContextSwitcher
 
 	public ComponentContextSwitcher(Integer id)
 	{
-		super("switcher", null);
+		super("ContextSwitch", null);
 		this.id = id;
+	}
+	
+	@Override
+	public String getName()
+	{
+		return super.getName() + "[" + id + "]";
 	}
 	
 	@Override

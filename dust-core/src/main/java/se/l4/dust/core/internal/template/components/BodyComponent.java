@@ -36,15 +36,10 @@ public class BodyComponent
 			Attribute attr = getAttribute("parameter");
 			if(attr != null)
 			{
-				Element e = getParent();
-				while(e != null)
-				{
-					e = e.getParent();
-				}
-				
 				Object data = emitter.getObject();
 				
-				ParameterComponent param = getParameter(lastComponent, attr.getStringValue(ctx, data), false);
+				String paramName = attr.getStringValue(ctx, data);
+				ParameterComponent param = getParameter(lastComponent, paramName, false);
 				if(param != null)
 				{
 					for(Content c : param.getRawContents())

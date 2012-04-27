@@ -263,7 +263,7 @@ public class TemplateBuilderImpl
 		}
 		else
 		{
-			emittable = new ClassTemplateComponent("", injector, templateCache, converter, component);
+			emittable = new ClassTemplateComponent(component.getSimpleName(), injector, templateCache, converter, component);
 			fragment = false;
 		}
 		

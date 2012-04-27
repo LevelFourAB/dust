@@ -14,8 +14,14 @@ public class DataContextSwitcher
 
 	public DataContextSwitcher(Integer id)
 	{
-		super("switch", null);
+		super("dataSwitch", null);
 		this.id = id;
+	}
+	
+	@Override
+	public String getName()
+	{
+		return super.getName() + "[" + id + "]";
 	}
 
 	@Override
@@ -41,6 +47,6 @@ public class DataContextSwitcher
 	@Override
 	public String toString()
 	{
-		return "DataSwitch[id=" + id + ", identity=" + System.identityHashCode(this) + "]";
+		return "DataSwitch[id=" + id + ", identity=" + System.identityHashCode(this) + ", path=" + getPath() + "]";
 	}
 }

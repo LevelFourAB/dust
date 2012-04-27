@@ -1,6 +1,8 @@
 package se.l4.dust.api.template.dom;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.template.RenderingContext;
@@ -211,7 +213,25 @@ public class Element
 	@Override
 	public String toString()
 	{
-		return "Element[" + name + "]";
+		return "Element[" + name + ", path=" + getPath() + "]";
+	}
+	
+	public String getPath()
+	{
+		List<String> path = new ArrayList<String>();
+		Element o = this;
+		while(o != null)
+		{
+			path.add(o.getName());
+			o = o.getParent();
+		}
+		
+		StringBuilder result = new StringBuilder();
+		for(int i=path.size()-1; i>=0; i--)
+		{
+			result.append("/").append(path.get(i));
+		}
+		return result.toString();
 	}
 	
 	public Content[] getAttributeValue(String name)
