@@ -33,13 +33,11 @@ public class Emitter
 
 	private Object current;
 	private Integer currentId;
-	private HashMap<Integer, Object> dataMap;
+	private final HashMap<Integer, Object> dataMap;
 	
 	private Element currentComponent;
 	private Integer currentComponentId;
-	private HashMap<Integer, Element> componentMap;
-	
-	private int level;
+	private final HashMap<Integer, Element> componentMap;
 	
 	public Emitter(ParsedTemplate template, RenderingContext ctx, Object data)
 	{
@@ -178,7 +176,7 @@ public class Emitter
 
 	public Integer switchComponent(Integer id)
 	{
-		Integer old = currentId;
+		Integer old = currentComponentId;
 		currentComponent = componentMap.get(id);
 		currentComponentId = id;;
 		
