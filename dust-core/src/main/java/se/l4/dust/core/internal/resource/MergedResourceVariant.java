@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 import se.l4.dust.api.resource.variant.ResourceVariant;
 
+import com.google.common.base.Objects;
+
 /**
  * Merged resource variant.
  * 
@@ -99,5 +101,14 @@ public class MergedResourceVariant
 		}
 		
 		return false;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return Objects.toStringHelper(this)
+			.add("id", id)
+			.add("variants", Arrays.toString(variants))
+			.toString();
 	}
 }

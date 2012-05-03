@@ -9,6 +9,8 @@ import se.l4.dust.api.Context;
 import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.resource.variant.ResourceVariantSource;
 
+import com.google.common.base.Objects;
+
 /**
  * Source of variants based on locale. This will produce variants that may be
  * tried with decreasing importance.
@@ -122,6 +124,15 @@ public class LocaleVariantSource
 			else if(!locale.equals(other.locale))
 				return false;
 			return true;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return Objects.toStringHelper(this)
+				.add("id", identifier)
+				.add("locale", locale)
+				.toString();
 		}
 	}
 

@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +26,11 @@ import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.spi.internal.XmlTemplateParser;
 import se.l4.dust.core.internal.template.dom.TemplateBuilderImpl;
 
-import com.google.common.base.Function;
 import com.google.common.base.Throwables;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ComputationException;
-import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
@@ -218,65 +221,61 @@ public class TemplateCacheImpl
 	private class ProductionCache
 		implements InnerCache
 	{
-		protected final ConcurrentMap<Key, ParsedTemplate> templates;
-		private final ConcurrentMap<Class<?>, ContextKey> urlCache;
+		private final LoadingCache<Key, ParsedTemplate> templates;
+		private final LoadingCache<Key, ParsedTemplate> transformed;
+		private final ConcurrentMap<String, ParsedTemplate> transformedCopy;
+		private final LoadingCache<Class<?>, ContextKey> urlCache;
 		
 		public ProductionCache()
 		{
-			templates = new MapMaker()
-				.makeComputingMap(new Function<Key, ParsedTemplate>()
+			templates = CacheBuilder.newBuilder()
+				.build(new CacheLoader<Key, ParsedTemplate>()
 				{
-					public ParsedTemplate apply(Key key)
+					@Override
+					public ParsedTemplate load(Key key)
 					{
 						return loadTemplate(key.context, key.url);
 					}
 				});
-		
+			
 
-			urlCache = new MapMaker()
-				.makeComputingMap(new Function<Class<?>, ContextKey>()
+			urlCache = CacheBuilder.newBuilder()
+				.build(new CacheLoader<Class<?>, ContextKey>()
 				{
 					@Override
-					public ContextKey apply(Class<?> input)
+					public ContextKey load(Class<?> input)
 					{
 						return findTemplateUrl(input);
 					}
 				});
-		}
-		
-		private ParsedTemplate toContextSpecific(Context context, Class<?> ctx, URL url, ParsedTemplate template)
-			throws IOException
-		{
-			Object[] cache = variants.getCacheObject(context);
-			Key key = new Key(ctx, url, cache);
-			if(templates.containsKey(key))
-			{
-				return templates.get(key);
-			}
 			
-			// Transform the template
-			TemplateVariantImpl impl = new TemplateVariantImpl(variants, context, template, url.toExternalForm());
-			impl.transform();
-			
-			// Check if this transformation has already been cached
-			URL transformedUrl = new URL(impl.getTransformedUrl());
-			Key secondKey = new Key(ctx, transformedUrl, new Object[0]);
-			
-			ParsedTemplate cacheTemplate;
-			if(! templates.containsKey(secondKey))
-			{
-				cacheTemplate = impl.getTransformedTemplate();
-				
-				templates.put(secondKey, cacheTemplate);
-			}
-			else
-			{
-				cacheTemplate = templates.get(secondKey);
-			}
-			
-			templates.put(key, cacheTemplate);
-			
-			return cacheTemplate;
+			transformedCopy = new ConcurrentHashMap<String, ParsedTemplate>();
+			transformed = CacheBuilder.newBuilder()
+				.build(new CacheLoader<Key, ParsedTemplate>()
+				{
+					@Override
+					public ParsedTemplate load(Key key)
+						throws Exception
+					{
+						ParsedTemplate tpl = templates.get(key);
+						
+						TemplateVariantImpl impl = new TemplateVariantImpl(variants, key.extraContext, tpl, key.url.toExternalForm());
+						impl.transform();
+						
+						key.clearExtraContext();
+						
+						/*
+						 * Make sure that we keep the used memory down by
+						 * storing templates based on their URL containing
+						 * the variants.
+						 */
+						String s = impl.getTransformedUrl();
+						ParsedTemplate template = impl.getTransformedTemplate();
+						ParsedTemplate actualTemplate = transformedCopy.putIfAbsent(s, template);
+						
+						return actualTemplate == null ? template : actualTemplate;
+					}
+				});
 		}
 		
 		public ParsedTemplate getTemplate(Context context, Class<?> ctx, URL url)
@@ -284,16 +283,16 @@ public class TemplateCacheImpl
 			String raw = url.toExternalForm();
 			try
 			{
-				raw = variants.resolve(context, resourceCallback, raw);
-				ParsedTemplate template = templates.get(new Key(ctx, new URL(raw)));
-				
-				return toContextSpecific(context, ctx, url, template);
+				ResourceVariantManager.Result result = variants.resolve(context, resourceCallback, raw);
+				Object[] cache = variants.getCacheObject(context);
+				Key key = new Key(ctx, new URL(result.getUrl()), context, cache);
+				return transformed.get(key);
 			}
 			catch(IOException e)
 			{
 				throw new TemplateException("Unable to load " + raw + "; " + e.getMessage(), e);
 			}
-			catch(ComputationException e)
+			catch(ExecutionException e)
 			{
 				throw new TemplateException("Unable to load " + raw + "; " + e.getCause().getMessage(), e.getCause());
 			}
@@ -302,21 +301,31 @@ public class TemplateCacheImpl
 		@Override
 		public ContextKey getTemplateUrl(Class<?> ctx)
 		{
-			return urlCache.get(ctx);
+			try
+			{
+				return urlCache.get(ctx);
+			}
+			catch(Exception e)
+			{
+				Throwables.propagateIfInstanceOf(e, TemplateException.class);
+				Throwables.propagateIfInstanceOf(e.getCause(), TemplateException.class);
+				throw new TemplateException("Unable to get url for " + ctx + "; " + e.getCause().getMessage(), e.getCause());
+			}
 		}
 	}
 	
 	private class DevelopmentCache
 		implements InnerCache
 	{
-		protected final ConcurrentMap<Key, DevParsedTemplate> templates;
+		protected final LoadingCache<Key, DevParsedTemplate> templates;
 		
 		public DevelopmentCache()
 		{
-			templates = new MapMaker()
-				.makeComputingMap(new Function<Key, DevParsedTemplate>()
+			templates = CacheBuilder.newBuilder()
+				.build(new CacheLoader<Key, DevParsedTemplate>()
 				{
-					public DevParsedTemplate apply(Key key)
+					@Override
+					public DevParsedTemplate load(Key key)
 					{
 						return new DevParsedTemplate(loadTemplate(key.context, key.url), getResource(key.url));
 					}
@@ -328,8 +337,8 @@ public class TemplateCacheImpl
 			String raw = url.toExternalForm();
 			try
 			{
-				raw = variants.resolve(context, resourceCallback, raw);
-				url = new URL(raw);
+				ResourceVariantManager.Result result = variants.resolve(context, resourceCallback, raw);
+				url = new URL(result.getUrl());
 			
 				DevParsedTemplate template = templates.get(new Key(ctx, url));
 				Resource resource = template.resource;
@@ -347,7 +356,7 @@ public class TemplateCacheImpl
 			{
 				throw new TemplateException("Unable to load " + raw + "; " + e.getMessage(), e);
 			}
-			catch(ComputationException e)
+			catch(ExecutionException e)
 			{
 				throw new TemplateException("Unable to load " + raw + "; " + e.getCause().getMessage(), e.getCause());
 			}
@@ -390,17 +399,24 @@ public class TemplateCacheImpl
 		private final Class<?> context;
 		private final URL url;
 		private final Object[] extra;
+		private Context extraContext;
 
 		public Key(Class<?> context, URL url)
 		{
-			this(context, url, null);
+			this(context, url, null, null);
 		}
 		
-		public Key(Class<?> context, URL url, Object[] extra)
+		public Key(Class<?> context, URL url, Context extraContext, Object[] extra)
 		{
 			this.context = context;
 			this.url = url;
+			this.extraContext = extraContext;
 			this.extra = extra;
+		}
+		
+		public void clearExtraContext()
+		{
+			this.extraContext = null;
 		}
 
 		@Override

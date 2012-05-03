@@ -11,12 +11,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.google.inject.Singleton;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.api.resource.variant.ResourceVariantSource;
+
+import com.google.inject.Singleton;
 
 /**
  * Implementation of {@link ResourceVariantManager}.
@@ -121,7 +121,7 @@ public class ResourceVariantManagerImpl
 		return values;
 	}
 	
-	public String resolveNoCache(Context context, ResourceCallback callback,
+	public Result resolveNoCache(Context context, ResourceCallback callback,
 			String original)
 		throws IOException
 	{
@@ -137,14 +137,14 @@ public class ResourceVariantManagerImpl
 			if(callback.exists(v, variant))
 			{
 				// This URL exists, use it
-				return variant;
+				return new Value(variant, v);
 			}
 		}
 		
-		return original;
+		return new Value(original, null);
 	}
 
-	public String resolve(Context context, ResourceCallback callback, String original)
+	public Value resolve(Context context, ResourceCallback callback, String original)
 		throws IOException
 	{
 		ResourceVariantSource[] sources = this.sources;
@@ -158,7 +158,7 @@ public class ResourceVariantManagerImpl
 		
 		// Check if this is cached
 		Value cached = cache.get(key);
-		if(cached != null) return cached.getPath();
+		if(cached != null) return cached;
 		
 		// Try different variants for the URL
 		int idx = original.lastIndexOf('.');
@@ -172,14 +172,16 @@ public class ResourceVariantManagerImpl
 			if(callback.exists(v, variant))
 			{
 				// This URL exists, use it
-				cache.put(key, new Value(variant, v));
-				return variant;
+				Value result = new Value(variant, v);
+				cache.put(key, result);
+				return result;
 			}
 		}
 		
 		// No variant found, use original
-		cache.put(key, new Value(original, null));
-		return original;
+		Value result = new Value(original, null);
+		cache.put(key, result);
+		return result;
 	}
 	
 	public String resolve(ResourceVariant v, ResourceCallback callback, String original)
@@ -232,6 +234,7 @@ public class ResourceVariantManagerImpl
 	}
 	
 	private static class Value
+		implements Result
 	{
 		private final String path;
 		private final ResourceVariant finalVariant;
@@ -242,12 +245,14 @@ public class ResourceVariantManagerImpl
 			this.finalVariant = finalVariant;
 		}
 		
-		public String getPath()
+		@Override
+		public String getUrl()
 		{
 			return path;
 		}
 
-		public ResourceVariant getFinalVariant()
+		@Override
+		public ResourceVariant getVariant()
 		{
 			return finalVariant;
 		}

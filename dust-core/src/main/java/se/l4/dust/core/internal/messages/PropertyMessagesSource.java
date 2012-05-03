@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicReference;
 
 import se.l4.dust.api.Context;
 import se.l4.dust.api.messages.AbstractMessages;
@@ -63,17 +62,14 @@ public class PropertyMessagesSource
 		int idx = url.lastIndexOf('.');
 		String firstPart = idx > 0 ? url.substring(0, idx) : url;
 		
-		final AtomicReference<ResourceVariant> v = new AtomicReference<ResourceVariant>();
-		
 		url = firstPart + ".properties";
-		String newUrl = variants.resolve(context, new ResourceVariantManager.ResourceCallback()
+		ResourceVariantManager.Result result = variants.resolve(context, new ResourceVariantManager.ResourceCallback()
 		{
 			public boolean exists(ResourceVariant variant, String url)
 				throws IOException
 			{
 				if(checkIfUrlExists(url))
 				{
-					v.set(variant);
 					return true;
 				}
 				else
@@ -83,18 +79,18 @@ public class PropertyMessagesSource
 			}
 		}, url);
 		
-		if(newUrl.equals(url) && ! checkIfUrlExists(url))
+		if(result.getUrl().equals(url) && ! checkIfUrlExists(url))
 		{
 			// No messages
 			return null;
 		}
 		
-		InputStream stream = new URL(newUrl).openStream();
+		InputStream stream = new URL(result.getUrl()).openStream();
 		try
 		{
 			Properties props = new Properties();
 			props.load(stream);
-			return new PropertyMessages(v.get(), props);
+			return new PropertyMessages(result.getVariant(), props);
 		}
 		finally
 		{

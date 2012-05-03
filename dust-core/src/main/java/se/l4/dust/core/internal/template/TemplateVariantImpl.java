@@ -15,6 +15,7 @@ import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.dom.ParsedTemplate;
+import se.l4.dust.api.template.dom.Text;
 import se.l4.dust.api.template.dom.VariantContent;
 import se.l4.dust.api.template.spi.TemplateVariant;
 import se.l4.dust.core.internal.resource.MergedResourceVariant;
@@ -81,7 +82,7 @@ public class TemplateVariantImpl
 		
 		try
 		{
-			String name = variants.resolveNoCache(context, new ResourceCallback()
+			ResourceVariantManager.Result result = variants.resolveNoCache(context, new ResourceCallback()
 			{
 				public boolean exists(ResourceVariant variant, String url)
 					throws IOException
@@ -99,7 +100,7 @@ public class TemplateVariantImpl
 			}, url);
 			
 			transformed = new ParsedTemplate(template.getDocType(), (Element) root, template.getRawId());
-			transformedUrl = name;
+			transformedUrl = result.getUrl();
 		}
 		catch(IOException e)
 		{
@@ -154,6 +155,10 @@ public class TemplateVariantImpl
 			{
 				return content.copy();
 			}
+		}
+		else if(content instanceof Text)
+		{
+			return content.copy();
 		}
 		else
 		{

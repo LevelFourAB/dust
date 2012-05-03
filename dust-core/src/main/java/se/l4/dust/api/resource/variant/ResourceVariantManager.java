@@ -19,6 +19,23 @@ public interface ResourceVariantManager
 			throws IOException;
 	}
 	
+	interface Result
+	{
+		/**
+		 * Get the URL of the variant.
+		 * 
+		 * @return
+		 */
+		String getUrl();
+		
+		/**
+		 * Get the {@link ResourceVariant} that is active.
+		 * 
+		 * @return
+		 */
+		ResourceVariant getVariant();
+	}
+	
 	/**
 	 * Add a new source of variants.
 	 * 
@@ -60,7 +77,7 @@ public interface ResourceVariantManager
 	 * @return
 	 * @throws IOException 
 	 */
-	String resolve(Context context, ResourceCallback callback, String original)
+	Result resolve(Context context, ResourceCallback callback, String original)
 		throws IOException;
 	
 	/**
@@ -73,7 +90,7 @@ public interface ResourceVariantManager
 	 * @return
 	 * @throws IOException 
 	 */
-	String resolveNoCache(Context context, ResourceCallback callback, String original)
+	Result resolveNoCache(Context context, ResourceCallback callback, String original)
 		throws IOException;
 	
 	/**

@@ -340,9 +340,9 @@ public class AssetManagerImpl
 				}
 
 				// Attempt to resolve the correct variant of the asset
-				path = variants.resolve(context, resourceCallback, path);
+				ResourceVariantManager.Result result = variants.resolve(context, resourceCallback, path);
 				
-				Asset asset = cache.get(path);
+				Asset asset = cache.get(result.getUrl());
 				return asset == NULL_ASSET ? null : asset;
 			}
 			catch(IOException e)
@@ -363,7 +363,7 @@ public class AssetManagerImpl
 			 * a new name for the merged asset.
 			 */
 			final List<AssetDef> defs = builtAssets.get(path);
-			String name = variants.resolve(context, new ResourceCallback()
+			ResourceVariantManager.Result result = variants.resolve(context, new ResourceCallback()
 			{
 				public boolean exists(ResourceVariant variant, String url)
 					throws IOException
@@ -381,6 +381,7 @@ public class AssetManagerImpl
 				}
 			}, path);
 			
+			String name = result.getUrl();
 			if(false == cache.containsKey(name))
 			{
 				// If it has not been cached create a suitable resource for it
