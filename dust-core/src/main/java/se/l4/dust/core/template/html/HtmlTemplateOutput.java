@@ -52,7 +52,6 @@ public class HtmlTemplateOutput
 	private void escape(char c)
 		throws IOException
 	{
-		// TODO: Escaping of named characters
 		switch(c)
 		{
 			case '<':
@@ -64,15 +63,11 @@ public class HtmlTemplateOutput
 			case '&':
 				writer.write("&amp;");
 				break;
+			case '"':
+				writer.write("&quot;");
+				break;
 			default:
-				if(c > 0x7F || c == '"')
-				{
-					escapeForce(c);
-				}
-				else
-				{
-					writer.write(c);
-				}
+				writer.write(c);
 		}
 	}
 
