@@ -28,6 +28,8 @@ public class HtmlTemplateOutput
 			.add("br")
 			.add("hr")
 			.add("img")
+			.add("link")
+			.add("meta")
 			.build();
 	}
 	
