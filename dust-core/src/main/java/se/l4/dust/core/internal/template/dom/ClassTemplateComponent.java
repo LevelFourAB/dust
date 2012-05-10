@@ -217,13 +217,15 @@ public class ClassTemplateComponent
 			else
 			{
 				int bestScore = 0;
+				boolean hasExact = false;
 				for(MethodInvocation i : methods)
 				{
 					int score = i.score();
-					if(score > bestScore)
+					if(score > bestScore || (! hasExact && score == i.maxScore()))
 					{
 						bestMethod = i;
 						bestScore = score;
+						hasExact = score == i.maxScore();
 					}
 				}
 			}
@@ -300,6 +302,11 @@ public class ClassTemplateComponent
 			}
 			
 			return score;
+		}
+		
+		public int maxScore()
+		{
+			return arguments.length;
 		}
 		
 		public boolean valid()
