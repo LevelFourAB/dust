@@ -54,6 +54,18 @@ public class PropertyMessagesSource
 			Closeables.closeQuietly(stream);
 		}
 	}
+	
+	@Override
+	public Messages load(Context context, Class<?> resource) throws IOException
+	{
+		URL url = resource.getResource(resource.getSimpleName() + ".properties");
+		if(url == null)
+		{
+			return null;
+		}
+		
+		return load(context, url.toString());
+	}
 
 	@Override
 	public Messages load(Context context, String url)

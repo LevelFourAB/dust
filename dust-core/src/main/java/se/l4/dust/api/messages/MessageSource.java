@@ -24,4 +24,16 @@ public interface MessageSource
 	 */
 	Messages load(Context context, String resource)
 		throws IOException;
+	
+	/**
+	 * Attempt to load any message besides the given resource.
+	 * 
+	 * @param context
+	 * 		the current context
+	 * @param resource
+	 * 		the resource type
+	 * @return
+	 */
+	Messages load(Context context, Class<?> resource)
+		throws IOException;
 }

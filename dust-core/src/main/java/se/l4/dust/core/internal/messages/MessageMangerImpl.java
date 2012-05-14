@@ -75,6 +75,44 @@ public class MessageMangerImpl
 		context.putValue(key, msgs);
 		return msgs;
 	}
-
-
+	
+	@Override
+	public Messages getMessages(Context context, Class<?> resource)
+	{
+		String key = resource.getName();
+		Messages msgs = context.getValue(key);
+		if(msgs != null)
+		{
+			return msgs;
+		}
+		
+		List<Messages> messages = new ArrayList<Messages>();
+		for(MessageSource s : sources)
+		{
+			try
+			{
+				Messages m = s.load(context, resource);
+				if(m != null)
+				{
+					messages.add(m);
+				}
+			}
+			catch(IOException e)
+			{
+				throw new TemplateException("Unable to load messages; " + e.getMessage(), e);
+			}
+		}
+		
+		if(messages.size() == 1)
+		{
+			msgs = messages.get(0);
+		}
+		else
+		{
+			msgs = new DelegatingMessages(messages);
+		}
+		
+		context.putValue(key, msgs);
+		return msgs;
+	}
 }

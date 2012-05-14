@@ -20,6 +20,15 @@ public interface MessageManager
 	Messages getMessages(Context context, String url);
 	
 	/**
+	 * Get messages for the given type and context.
+	 * 
+	 * @param context
+	 * @param type
+	 * @return
+	 */
+	Messages getMessages(Context context, Class<?> type);
+	
+	/**
 	 * Add a new source to the manager.
 	 * 
 	 * @param source
