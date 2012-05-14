@@ -3,6 +3,7 @@ package se.l4.dust.core.template.html;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Set;
 
 import se.l4.dust.api.template.dom.Element.Attribute;
@@ -33,13 +34,18 @@ public class HtmlTemplateOutput
 			.build();
 	}
 	
-	private final OutputStreamWriter writer;
+	private final Writer writer;
 	private boolean inComment;
 	private boolean written;
 
 	public HtmlTemplateOutput(OutputStream stream)
 	{
 		writer = new OutputStreamWriter(stream, Charsets.UTF_8);
+	}
+	
+	public HtmlTemplateOutput(Writer writer)
+	{
+		this.writer = writer;
 	}
 	
 	private void escape(String in)
