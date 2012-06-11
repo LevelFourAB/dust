@@ -326,16 +326,17 @@ public class ClassTemplateComponent
 		
 		public Object invoke(RenderingContext ctx, Object root, Object self)
 		{
-			Object[] data = new Object[arguments.length];
-			for(int i=0, n=arguments.length; i<n; i++)
-			{
-				Object value = arguments[i].getValue(ctx, root);
-				value = converter.convert(value, arguments[i].typeClass);
-				data[i] = value;
-			}
-			
+			Object[] data = null;
 			try
 			{
+				data = new Object[arguments.length];
+				for(int i=0, n=arguments.length; i<n; i++)
+				{
+					Object value = arguments[i].getValue(ctx, root);
+					value = converter.convert(value, arguments[i].typeClass);
+					data[i] = value;
+				}
+				
 				return method.invoke(self, data);
 			}
 			catch(InvocationTargetException e)

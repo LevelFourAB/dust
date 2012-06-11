@@ -296,6 +296,10 @@ public class TemplateCacheImpl
 			{
 				throw new TemplateException("Unable to load " + raw + "; " + e.getCause().getMessage(), e.getCause());
 			}
+//			catch(Exception e)
+//			{
+//				throw new TemplateException("Unable to load " + raw + "; " + e.getCause().getMessage(), e.getCause());
+//			}
 		}
 		
 		@Override
