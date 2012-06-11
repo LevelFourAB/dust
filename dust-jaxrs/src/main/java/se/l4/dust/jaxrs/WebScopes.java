@@ -46,7 +46,7 @@ public class WebScopes
 					
 					if(req == null)
 					{
-						throw new OutOfScopeException("Request scoped objects can only be used within HTTP requests");
+						throw new OutOfScopeException("Request scoped objects can only be used within HTTP requests; For " + key);
 					}
 					
 					String localKey = KEY + key.toString();
