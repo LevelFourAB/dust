@@ -10,8 +10,10 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -50,14 +52,23 @@ public class XmlTemplateParser
 	{
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		factory.setNamespaceAware(true);
+		factory.setValidating(false);
 		
 		ErrorCollector errors = new ErrorCollector(name);
 		try
 		{
 			SAXParser parser = factory.newSAXParser();
+		    
 			Handler handler = new Handler(namespaces, templates, builder, errors);
 			parser.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
-			parser.parse(stream, handler);
+//			parser.parse(stream, handler);
+			
+			XMLReader xml = parser.getXMLReader();
+			xml.setContentHandler(handler);
+			xml.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+			xml.setFeature("http://xml.org/sax/features/validation", false);
+			
+			xml.parse(new InputSource(stream));
 			
 			if(errors.hasErrors())
 			{
