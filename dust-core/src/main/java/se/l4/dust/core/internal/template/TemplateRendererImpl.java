@@ -3,6 +3,8 @@ package se.l4.dust.core.internal.template;
 import java.io.IOException;
 import java.net.URL;
 
+import se.l4.dust.api.Context;
+import se.l4.dust.api.Scopes;
 import se.l4.dust.api.annotation.Template;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateCache;
@@ -35,8 +37,17 @@ public class TemplateRendererImpl
 	public void render(RenderingContext ctx, ParsedTemplate template, Object data, TemplateOutputStream out)
 		throws IOException
 	{
-		Emitter emitter = new Emitter(template, ctx, data);
-		emitter.process(out);
+		Context previous = Scopes.getActiveContext();
+		Scopes.setActiveContext(ctx);
+		try
+		{
+			Emitter emitter = new Emitter(template, ctx, data);
+			emitter.process(out);
+		}
+		finally
+		{
+			Scopes.setActiveContext(previous);
+		}
 	}
 	
 	public void render(RenderingContext ctx, Object data, TemplateOutputStream out)
