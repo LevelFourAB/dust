@@ -37,6 +37,7 @@ public class HtmlTemplateOutput
 	private final Writer writer;
 	private boolean inComment;
 	private boolean written;
+	private boolean textarea;
 
 	public HtmlTemplateOutput(OutputStream stream)
 	{
@@ -119,6 +120,7 @@ public class HtmlTemplateOutput
 			}
 		}
 		
+		textarea = "textarea".equals(name);
 		if(close) writer.write('/');
 		
 		writer.write('>');
@@ -135,6 +137,8 @@ public class HtmlTemplateOutput
 		writer.write("</");
 		writer.write(name);
 		writer.write('>');
+		
+		textarea = false;
 	}
 
 	public void startComment()
@@ -175,6 +179,13 @@ public class HtmlTemplateOutput
 				{
 					writer.write(text.charAt(i));
 				}
+			}
+		}
+		else if(textarea)
+		{
+			for(int i=0, n=text.length(); i<n; i++)
+			{
+				escape(text.charAt(i));
 			}
 		}
 		else
