@@ -53,7 +53,8 @@ public class TemplateModule
 			.addComponent(IfComponent.class, "if")
 			.addComponent(LoopComponent.class, "loop")
 			.addComponent(HolderComponent.class, "holder")
-			.addComponent(RawComponent.class, "raw");
+			.addComponent(RawComponent.class, "raw")
+			.addMixin("if", new IfMixin());
 	}
 	
 	@TemplateContribution

@@ -38,6 +38,7 @@ public class Emitter
 	private Element currentComponent;
 	private Integer currentComponentId;
 	private final HashMap<Integer, Element> componentMap;
+	private boolean skip;
 	
 	public Emitter(ParsedTemplate template, RenderingContext ctx, Object data)
 	{
@@ -126,9 +127,13 @@ public class Emitter
 		{
 			WrappedElement we = (WrappedElement) c;
 			ElementWrapper wrapper = we.getWrapper();
+			skip = false;
 			wrapper.beforeElement(this);
 			
-			emit(out, we.getElement());
+			if(! skip)
+			{
+				emit(out, we.getElement());
+			}
 			
 			wrapper.afterElement(this);
 		}
@@ -148,6 +153,12 @@ public class Emitter
 	public Object getObject()
 	{
 		return current;
+	}
+	
+	@Override
+	public void skip()
+	{
+		this.skip = true;
 	}
 	
 	public Element getCurrentComponent()

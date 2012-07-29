@@ -23,4 +23,11 @@ public interface ElementEncounter
 	 * @return
 	 */
 	Object getObject();
+	
+	/**
+	 * Skip the current element.
+	 * 
+	 * @return
+	 */
+	void skip();
 }
