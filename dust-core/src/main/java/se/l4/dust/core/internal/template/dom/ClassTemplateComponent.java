@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import se.l4.dust.api.TemplateException;
+import se.l4.dust.api.annotation.AfterRender;
 import se.l4.dust.api.annotation.PrepareRender;
 import se.l4.dust.api.annotation.Template;
 import se.l4.dust.api.annotation.TemplateParam;
@@ -46,6 +47,7 @@ public class ClassTemplateComponent
 	private final boolean development;
 	private final MethodInvocation[] prepareRender;
 	private final MethodInvocation[] setMethods;
+	private final MethodInvocation[] afterRender;
 	private final Provider<Object> instance;
 	
 	public ClassTemplateComponent(
@@ -55,7 +57,7 @@ public class ClassTemplateComponent
 			TypeConverter converter,
 			Class<?> type)
 	{
-		this(name, injector.getInstance(Stage.class) == Stage.DEVELOPMENT, injector, cache, converter, type, null, null);
+		this(name, injector.getInstance(Stage.class) == Stage.DEVELOPMENT, injector, cache, converter, type, null, null, null);
 	}
 	
 	private ClassTemplateComponent(
@@ -66,7 +68,8 @@ public class ClassTemplateComponent
 			TypeConverter converter,
 			Class<?> type,
 			MethodInvocation[] prepareRender,
-			MethodInvocation[] setMethods)
+			MethodInvocation[] setMethods,
+			MethodInvocation[] afterRender)
 	{
 		super(name, type);
 		
@@ -87,6 +90,10 @@ public class ClassTemplateComponent
 		this.setMethods = setMethods == null && ! development
 			? createSetMethodInvocations(type)
 			: setMethods;
+			
+		this.afterRender = afterRender == null && ! development
+			? createAfterRenderInvocations(type)
+			: afterRender;
 	}
 	
 	/**
@@ -121,7 +128,8 @@ public class ClassTemplateComponent
 	@Override
 	public Content copy()
 	{
-		return new ClassTemplateComponent(getName(), development, injector, cache, converter, type, prepareRender, setMethods)
+		return new ClassTemplateComponent(getName(), development, injector, 
+				cache, converter, type, prepareRender, setMethods, afterRender)
 			.copyAttributes(this);
 	}
 	
@@ -133,6 +141,25 @@ public class ClassTemplateComponent
 			for(Method m : type.getDeclaredMethods())
 			{
 				if(m.isAnnotationPresent(PrepareRender.class))
+				{
+					invocations.add(new MethodInvocation(m));
+				}
+			}
+			
+			type = type.getSuperclass();
+		}
+		
+		return invocations.toArray(new MethodInvocation[invocations.size()]);
+	}
+	
+	private MethodInvocation[] createAfterRenderInvocations(Class<?> type)
+	{
+		List<MethodInvocation> invocations = new ArrayList<MethodInvocation>();
+		while(type != Object.class && type != null)
+		{
+			for(Method m : type.getDeclaredMethods())
+			{
+				if(m.isAnnotationPresent(AfterRender.class))
 				{
 					invocations.add(new MethodInvocation(m));
 				}
@@ -264,6 +291,22 @@ public class ClassTemplateComponent
 			// Switch context back
 			emitter.switchData(old);
 			emitter.switchComponent(oldComponent);
+		}
+		
+		// Run all methods for after render
+		methods = development ? createAfterRenderInvocations(type) : this.afterRender;
+		if(methods.length > 0)
+		{
+			// Find the best method to invoke
+			for(MethodInvocation i : methods)
+			{
+				if(development && ! i.valid())
+				{
+					throw new IllegalArgumentException("Invalid @" + AfterRender.class.getSimpleName() + ", can't invoke method:" + i.method);
+				}
+				
+				i.invoke(ctx, data, o);
+			}
 		}
 	}
 	
