@@ -213,6 +213,10 @@ public class ExpressionCompiler
 			// The expr type should be compatible
 			return "(" + unwrap(exprType, casted) + ")";
 		}
+		else if(exprType.isPrimitive() && ! outputType.isPrimitive())
+		{
+			return "(" + wrap(exprType, casted) + ")";
+		}
 		else
 		{
 			return casted;
