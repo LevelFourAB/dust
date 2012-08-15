@@ -155,7 +155,7 @@ public class JavascriptEnvironment
 		if(hasEvaluated) return;
 		
 		Context cx = Context.enter();
-		cx.setOptimizationLevel(-1);
+		cx.setOptimizationLevel(4);
 		cx.setLanguageVersion(Context.VERSION_1_8);
 		try
 		{
