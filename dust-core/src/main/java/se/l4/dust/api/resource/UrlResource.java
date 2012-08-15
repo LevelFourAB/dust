@@ -61,6 +61,14 @@ public class UrlResource
 			{
 				return "image/svg+xml";
 			}
+			else if("eot".equals(ext))
+			{
+				return "application/vnd.ms-fontobject";
+			}
+			else if("woff".equals(ext))
+			{
+				return "application/octet-stream";
+			}
 		}
 		
 		return contentType;
