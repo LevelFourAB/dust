@@ -148,8 +148,8 @@ public class LessProcessor
 			? ((Double) ScriptableObject.getProperty(value, "column")).intValue()
 			: -1;
 			
-		String message = hasProperty(value, "message")
-			? (String) ScriptableObject.getProperty(value, "message")
+		CharSequence message = hasProperty(value, "message")
+			? (CharSequence) ScriptableObject.getProperty(value, "message")
 			: "Error during LESS processing";
 		
 		// Extract the line
