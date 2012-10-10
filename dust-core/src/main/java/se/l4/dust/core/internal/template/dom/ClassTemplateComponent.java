@@ -21,6 +21,7 @@ import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.DocType;
 import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.dom.ParsedTemplate;
+import se.l4.dust.api.template.dom.WrappedElement;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
 import se.l4.dust.core.internal.template.components.EmittableComponent;
 
@@ -276,7 +277,11 @@ public class ClassTemplateComponent
 			
 			// Switch to new context
 			Integer old = emitter.switchData(template.getRawId(), root);
-			Integer oldComponent = emitter.switchComponent(template.getRawId(), (Element) getRawContents()[0]);
+			Content content = getRawContents()[0];
+			Element element = content instanceof Element
+				? (Element) content
+				: (content instanceof WrappedElement ? ((WrappedElement) content).getElement() : null); 
+			Integer oldComponent = emitter.switchComponent(template.getRawId(), element);
 			
 			DocType docType = template.getDocType();
 			if(docType != null)
