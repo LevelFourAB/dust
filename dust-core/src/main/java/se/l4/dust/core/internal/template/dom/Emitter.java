@@ -166,6 +166,16 @@ public class Emitter
 		return currentComponent;
 	}
 	
+	public Integer getCurrentDataId()
+	{
+		return currentId;
+	}
+	
+	public Object getCurrentData()
+	{
+		return current;
+	}
+	
 	public Integer switchData(Integer id)
 	{
 		Integer old = currentId;

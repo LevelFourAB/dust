@@ -276,7 +276,9 @@ public class ClassTemplateComponent
 			ParsedTemplate template = cache.getTemplate(ctx, root.getClass(), (Template) null);
 			
 			// Switch to new context
+			Object current = emitter.getCurrentData();
 			Integer old = emitter.switchData(template.getRawId(), root);
+			
 			Content content = getRawContents()[0];
 			Element element = content instanceof Element
 				? (Element) content
@@ -294,7 +296,14 @@ public class ClassTemplateComponent
 			emitter.emit(out, templateRoot);
 			
 			// Switch context back
-			emitter.switchData(old);
+			if(template.getRawId().equals(old))
+			{
+				emitter.switchData(old, current);
+			}
+			else
+			{
+				emitter.switchData(old);
+			}
 			emitter.switchComponent(oldComponent);
 		}
 		
