@@ -146,7 +146,7 @@ public class ExpressionCompiler
 			Constructor<? extends Expression> ct = c.getConstructor(typed);
 			return ct.newInstance(values);
 		}
-		catch(Exception e)
+		catch(Throwable e)
 		{
 			if(expressionBeingCompiled != null)
 			{

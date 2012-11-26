@@ -39,7 +39,7 @@ public class EqualsInvoker
 	{
 		if(left.getReturnClass().isPrimitive() && right.getReturnClass().isPrimitive())
 		{
-			return left.toJavaGetter(errors, compiler, context) + " == " + right.toJavaGetter(errors, compiler, context);
+			return "(" + left.toJavaGetter(errors, compiler, context) + " == " + right.toJavaGetter(errors, compiler, context) + ")";
 		}
 		
 		String l = InvokerMethods.class.getName() + ".equals(" 

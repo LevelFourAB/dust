@@ -140,7 +140,7 @@ public class ExpressionExtractor
 						{
 							content.add(builder.createDynamicContent(namespace, buffer.toString()));
 						}
-						catch(Exception e)
+						catch(Throwable e)
 						{
 							errors.newError(currentExpressionStartLine, currentExpressionStart, "%s", e);
 						}
