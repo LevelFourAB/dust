@@ -296,14 +296,7 @@ public class ClassTemplateComponent
 			emitter.emit(out, templateRoot);
 			
 			// Switch context back
-			if(template.getRawId().equals(old))
-			{
-				emitter.switchData(old, current);
-			}
-			else
-			{
-				emitter.switchData(old);
-			}
+			emitter.switchData(old, current);
 			emitter.switchComponent(oldComponent);
 		}
 		
