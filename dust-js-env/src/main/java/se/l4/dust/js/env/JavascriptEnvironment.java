@@ -103,6 +103,26 @@ public class JavascriptEnvironment
 	}
 	
 	/**
+	 * Add a JavaScript string fragment that should be evaluated.
+	 * 
+	 * @param fragment
+	 * @return
+	 */
+	public JavascriptEnvironment add(final String fragment, final String id)
+	{
+		fragments.add(new Fragment()
+		{
+			public void evaluate(Context context, Scriptable scope)
+				throws IOException
+			{
+				context.evaluateString(scope, fragment, id, 1, null);
+			}
+		});
+		
+		return this;
+	}
+	
+	/**
 	 * Define a variable that can be accessed in the scripts.
 	 * 
 	 * @param variable
