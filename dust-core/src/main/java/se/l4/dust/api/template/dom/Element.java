@@ -344,14 +344,21 @@ public class Element
 
 		public String getStringValue(RenderingContext ctx, Object root)
 		{
-			Object o = getValue(ctx, root);
-			if(o == null)
+			if(value.length == 1)
 			{
-				return "null";
+				Content c = value[0];
+				return ctx.getStringValue(getValueOf(ctx, root, c));
 			}
 			else
 			{
-				return o.toString();
+				StringBuilder result = new StringBuilder();
+				for(Content c : value)
+				{
+					Object value = getValueOf(ctx, root, c);
+					result.append(ctx.getStringValue(value));
+				}
+				
+				return result.toString();
 			}
 		}
 
