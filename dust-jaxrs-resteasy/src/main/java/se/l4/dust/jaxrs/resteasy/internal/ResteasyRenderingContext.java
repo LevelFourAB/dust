@@ -40,17 +40,6 @@ public class ResteasyRenderingContext
 	public Object resolveObject(AccessibleObject parameter, Type type, 
 			Annotation[] annotations, Object instance)
 	{
-		ValueInjector valueInjector = injectorFactory.createParameterExtractor(
-			instance.getClass(),
-			parameter,
-			Types.getRawType(type),
-			type,
-			annotations
-		);
-		
-		return valueInjector.inject(
-			ResteasyProviderFactory.getContextData(HttpRequest.class),
-			ResteasyProviderFactory.getContextData(HttpResponse.class)
-		);
+		return null;
 	}
 }

@@ -1,11 +1,12 @@
 package se.l4.dust.jaxrs.resteasy.internal;
 
+import javax.ws.rs.NotFoundException;
+
 import org.jboss.resteasy.core.Dispatcher;
 import org.jboss.resteasy.core.ResourceInvoker;
 import org.jboss.resteasy.core.SynchronousDispatcher;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.jboss.resteasy.spi.HttpResponse;
-import org.jboss.resteasy.spi.NotFoundException;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,10 +51,12 @@ public class ReloadingDispatcher
 	}
 	
 	public void invoke(HttpRequest request, HttpResponse response, boolean first)
-			throws NotFoundException
+		throws NotFoundException
 	{
 		try
 		{
+			pushContextObjects(request, response);
+			if (!preprocess(request, response)) return;
 			ResourceInvoker invoker = getInvoker(request);
 			invoke(request, response, invoker);
 		}
@@ -84,8 +87,12 @@ public class ReloadingDispatcher
 		}
 		catch(Exception e)
 		{
-			handleException(request, response, e);
+			writeException(request, response, e);
 			return;
+		}
+		finally
+		{
+			clearContextData();
 		}
 	}
 }

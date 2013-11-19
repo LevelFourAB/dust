@@ -92,32 +92,15 @@ public class ResteasyModule
 			DataSourceProvider p9,
 			TemplateWriter p10)
 	{
-		factory.addMessageBodyReader(p1);
-		factory.addMessageBodyWriter(p1);
-		
-		factory.addMessageBodyReader(p3);
-		factory.addMessageBodyWriter(p3);
-		
-		factory.addMessageBodyReader(p4);
-		factory.addMessageBodyWriter(p4);
-		
-		factory.addMessageBodyReader(p5);
-		factory.addMessageBodyWriter(p5);
-		
-		factory.addMessageBodyWriter(p6);
-		
-		factory.addMessageBodyReader(p7);
-		factory.addMessageBodyWriter(p7);
-		
-		factory.addMessageBodyReader(p8);
-		factory.addMessageBodyWriter(p8);
-		
-		factory.addMessageBodyReader(p9);
-		factory.addMessageBodyWriter(p9);
-		
-		factory.addMessageBodyReader(p2);
-		factory.addMessageBodyWriter(p2);
-		
-		factory.addMessageBodyWriter(p10);
+		factory.registerProviderInstance(p1);
+		factory.registerProviderInstance(p3);
+		factory.registerProviderInstance(p4);
+		factory.registerProviderInstance(p5);
+		factory.registerProviderInstance(p6);
+		factory.registerProviderInstance(p7);
+		factory.registerProviderInstance(p8);
+		factory.registerProviderInstance(p9);
+		factory.registerProviderInstance(p2);
+		factory.registerProviderInstance(p10);
 	}
 }

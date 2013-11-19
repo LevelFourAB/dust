@@ -53,17 +53,17 @@ public class ResteasyConfiguration
 
 	public void addMessageBodyReader(MessageBodyReader<?> reader)
 	{
-		factory.addMessageBodyReader(reader);
+		factory.register(reader);
 	}
 	
 	public void addMessageBodyWriter(MessageBodyWriter<?> writer)
 	{
-		factory.addMessageBodyWriter(writer);
+		factory.register(writer);
 	}
 	
 	public void addExceptionMapper(ExceptionMapper<?> mapper)
 	{
-		factory.addExceptionMapper(mapper);
+		factory.register(mapper);
 	}
 	
 	public void setupContext(ServletContext ctx, Injector injector)

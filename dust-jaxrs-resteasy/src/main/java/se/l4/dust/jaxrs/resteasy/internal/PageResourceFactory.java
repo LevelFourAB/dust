@@ -5,6 +5,7 @@ import org.jboss.resteasy.spi.HttpResponse;
 import org.jboss.resteasy.spi.InjectorFactory;
 import org.jboss.resteasy.spi.PropertyInjector;
 import org.jboss.resteasy.spi.ResourceFactory;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 import se.l4.dust.jaxrs.PageProvider;
 
@@ -28,7 +29,7 @@ public class PageResourceFactory
 	}
 	
 	public Object createResource(HttpRequest request, HttpResponse response,
-		InjectorFactory factory)
+			ResteasyProviderFactory factory)
 	{
 		Object o = provider.get();
 		
@@ -43,9 +44,9 @@ public class PageResourceFactory
 		return provider.getType();
 	}
 
-	public void registered(InjectorFactory factory)
+	public void registered(ResteasyProviderFactory factory)
 	{
-		this.propertyInjector = factory.createPropertyInjector(provider.getType());
+		this.propertyInjector = factory.getInjectorFactory().createPropertyInjector(provider.getType(), factory);
 	}
 
 	public void requestFinished(HttpRequest request, HttpResponse response, Object resource)
