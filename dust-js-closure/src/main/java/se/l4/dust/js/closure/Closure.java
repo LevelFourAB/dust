@@ -1,6 +1,7 @@
 package se.l4.dust.js.closure;
 
 import com.google.javascript.jscomp.CompilationLevel;
+import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
 
 import se.l4.dust.api.asset.AssetProcessor;
 
@@ -16,6 +17,7 @@ public class Closure
 	private CompilationLevel level;
 	private boolean multiThreaded;
 	private boolean activeInDevelopment;
+	private LanguageMode languageMode;
 	
 	public Closure()
 	{
@@ -73,6 +75,13 @@ public class Closure
 		return this;
 	}
 	
+	public Closure setLanguageMode(LanguageMode mode)
+	{
+		languageMode = mode;
+		
+		return this;
+	}
+	
 	/**
 	 * Build the asset processor.
 	 * 
@@ -80,6 +89,6 @@ public class Closure
 	 */
 	public AssetProcessor build()
 	{
-		return new ClosureAssetProcessor(level, multiThreaded, activeInDevelopment);
+		return new ClosureAssetProcessor(level, multiThreaded, activeInDevelopment, languageMode);
 	}
 }

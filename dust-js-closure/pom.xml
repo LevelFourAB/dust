@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>com.google.javascript</groupId>
 			<artifactId>closure-compiler</artifactId>
-			<version>r1741</version>
+			<version>v20131014</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>ant</artifactId>
@@ -43,10 +43,6 @@
 				<exclusion>
 					<artifactId>jsr305</artifactId>
 					<groupId>com.google.code.findbugs</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>json</artifactId>
-					<groupId>org.json</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
