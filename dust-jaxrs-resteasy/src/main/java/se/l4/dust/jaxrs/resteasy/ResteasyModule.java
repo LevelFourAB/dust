@@ -11,6 +11,7 @@ import org.jboss.resteasy.plugins.providers.FileProvider;
 import org.jboss.resteasy.plugins.providers.FormUrlEncodedProvider;
 import org.jboss.resteasy.plugins.providers.IIOImageProvider;
 import org.jboss.resteasy.plugins.providers.InputStreamProvider;
+import org.jboss.resteasy.plugins.providers.ServerFormUrlEncodedProvider;
 import org.jboss.resteasy.plugins.providers.StreamingOutputProvider;
 import org.jboss.resteasy.plugins.providers.StringTextStar;
 import org.jboss.resteasy.spi.Registry;
@@ -102,5 +103,6 @@ public class ResteasyModule
 		factory.registerProviderInstance(p9);
 		factory.registerProviderInstance(p2);
 		factory.registerProviderInstance(p10);
+		factory.registerProviderInstance(new ServerFormUrlEncodedProvider(false));
 	}
 }
