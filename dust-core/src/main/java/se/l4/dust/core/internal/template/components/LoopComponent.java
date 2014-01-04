@@ -3,6 +3,8 @@ package se.l4.dust.core.internal.template.components;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Iterator;
+import java.util.List;
+import java.util.RandomAccess;
 
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.conversion.TypeConverter;
@@ -91,7 +93,15 @@ public class LoopComponent
 			}
 		}
 		
-		if(sourceData instanceof Iterable)
+		if(sourceData instanceof RandomAccess && sourceData instanceof List)
+		{
+			List<Object> list = (List) sourceData;
+			for(int i=0, n=list.size(); i<n; i++)
+			{
+				emitLoopContents(emitter, ctx, out, data, value, list.get(i));
+			}
+		}
+		else if(sourceData instanceof Iterable)
 		{
 			Iterable<Object> items = (Iterable) sourceData;
 			
