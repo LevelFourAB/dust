@@ -6,6 +6,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.ParamConverterProvider;
 import javax.ws.rs.ext.Provider;
 
 import org.slf4j.Logger;
@@ -186,6 +187,13 @@ public class PageDiscovery
 			{
 				if(instance == null) instance = injector.getInstance(type);
 				configuration.addExceptionMapper((ExceptionMapper<?>) instance);
+				count++;
+			}
+			
+			if(ParamConverterProvider.class.isAssignableFrom(type))
+			{
+				if(instance == null) instance = injector.getInstance(type);
+				configuration.addParamConverterProvider((ParamConverterProvider) instance);
 				count++;
 			}
 		}

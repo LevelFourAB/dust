@@ -4,6 +4,7 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.ParamConverterProvider;
 
 import se.l4.dust.jaxrs.PageProvider;
 import se.l4.dust.jaxrs.ServletBinder;
@@ -38,6 +39,14 @@ public interface Configuration
 	 * @param mapper
 	 */
 	void addExceptionMapper(ExceptionMapper<?> mapper);
+	
+	/**
+	 * Add a {@link ParamConverterProvider} to the current JAX-RS
+	 * configuration.
+	 * 
+	 * @param provider
+	 */
+	void addParamConverterProvider(ParamConverterProvider provider);
 	
 	/**
 	 * Add a page to to the configuration.

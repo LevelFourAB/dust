@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServlet;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.ParamConverterProvider;
 
 import org.jboss.resteasy.core.Dispatcher;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
@@ -64,6 +65,12 @@ public class ResteasyConfiguration
 	public void addExceptionMapper(ExceptionMapper<?> mapper)
 	{
 		factory.register(mapper);
+	}
+	
+	@Override
+	public void addParamConverterProvider(ParamConverterProvider provider)
+	{
+		factory.register(provider);
 	}
 	
 	public void setupContext(ServletContext ctx, Injector injector)
