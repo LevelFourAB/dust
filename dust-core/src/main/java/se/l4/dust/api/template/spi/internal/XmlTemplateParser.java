@@ -3,6 +3,7 @@ package se.l4.dust.api.template.spi.internal;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,6 +22,7 @@ import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.template.dom.Content;
+import se.l4.dust.api.template.dom.Text;
 import se.l4.dust.api.template.spi.ErrorCollector;
 import se.l4.dust.api.template.spi.ExpressionExtractor;
 import se.l4.dust.api.template.spi.TemplateBuilder;
@@ -109,6 +111,9 @@ public class XmlTemplateParser
 		
 		private final List<NsDeclaration> declaredNamespaces;
 		
+		private final List<Boolean> ignoreWhitespace;
+		private Boolean currentIgnoreWhitespace;
+		
 		private StringBuilder text;
 		
 		private final ExpressionExtractor extractor;
@@ -129,6 +134,9 @@ public class XmlTemplateParser
 			
 			declaredNamespaces = new ArrayList<NsDeclaration>();
 			text = new StringBuilder();
+			
+			ignoreWhitespace = new ArrayList<Boolean>();
+			currentIgnoreWhitespace = Boolean.FALSE;
 			
 			extractor = new ExpressionExtractor("${", "}", builder, errors);
 		}
@@ -196,9 +204,27 @@ public class XmlTemplateParser
 			// Setup all namespaces
 			bindNamespaces();
 			
-			// Setup all attributes
+			int wsIdx = attributes.getIndex("dust:common", "whitespace");
+			if(wsIdx >= 0)
+			{
+				String value = attributes.getValue(wsIdx);
+				if("ignore".equals(value))
+				{
+					currentIgnoreWhitespace = Boolean.TRUE; 
+				}
+				else
+				{
+					currentIgnoreWhitespace = Boolean.FALSE;
+				}
+			}
+			
+			ignoreWhitespace.add(currentIgnoreWhitespace);
+			
+			// Copy all attributes
 			for(int i=0, n=attributes.getLength(); i<n; i++)
 			{
+				if(i == wsIdx) continue;
+				
 				String name = attributes.getQName(i);
 				String value = attributes.getValue(i);
 				
@@ -217,6 +243,13 @@ public class XmlTemplateParser
 			throws SAXException
 		{
 			flushCharacters();
+		
+			// Reset whitespace
+			ignoreWhitespace.remove(ignoreWhitespace.size() - 1);
+			if(! ignoreWhitespace.isEmpty())
+			{
+				currentIgnoreWhitespace = ignoreWhitespace.get(ignoreWhitespace.size() - 1);
+			}
 			
 			builder.endCurrent();
 		}
@@ -251,6 +284,14 @@ public class XmlTemplateParser
 		{
 			if(text.length() == 0) return;
 			
+			String text = this.text.toString();
+			this.text.setLength(0);
+			
+			if(currentIgnoreWhitespace == Boolean.TRUE && text.trim().isEmpty())
+			{
+				return;
+			}
+			
 			if(false == builder.hasCurrent())
 			{
 				// TODO: What should we do?
@@ -258,10 +299,21 @@ public class XmlTemplateParser
 			else
 			{
 				List<Content> content = extractor.parse(textLine, textColumn, text);
+				if(currentIgnoreWhitespace)
+				{
+					Iterator<Content> it = content.iterator();
+					while(it.hasNext())
+					{
+						Content c = it.next();
+						if(c instanceof Text && ((Text) c).getText().trim().isEmpty())
+						{
+							it.remove();
+						}
+					}
+				}
+				
 				builder.addContent(content);
 			}
-			
-			text.setLength(0);
 		}
 		
 		public void comment(char[] ch, int start, int length)

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import se.l4.dust.api.template.dom.Element.Attribute;
@@ -37,16 +39,19 @@ public class HtmlTemplateOutput
 	private final Writer writer;
 	private boolean inComment;
 	private boolean written;
-	private boolean textarea;
+	
+	private final List<Boolean> preserveWhitespace;
+	private boolean currentPreserveWhitespace;
 
 	public HtmlTemplateOutput(OutputStream stream)
 	{
-		writer = new OutputStreamWriter(stream, Charsets.UTF_8);
+		this(new OutputStreamWriter(stream, Charsets.UTF_8));
 	}
 	
 	public HtmlTemplateOutput(Writer writer)
 	{
 		this.writer = writer;
+		preserveWhitespace = new ArrayList<Boolean>(20);
 	}
 	
 	private void escape(String in)
@@ -120,7 +125,12 @@ public class HtmlTemplateOutput
 			}
 		}
 		
-		textarea = "textarea".equals(name);
+		if("textarea".equals(name) || "pre".equals(name))
+		{
+			currentPreserveWhitespace = Boolean.TRUE;
+		}
+		preserveWhitespace.add(currentPreserveWhitespace);
+		
 		if(close) writer.write('/');
 		
 		writer.write('>');
@@ -138,7 +148,11 @@ public class HtmlTemplateOutput
 		writer.write(name);
 		writer.write('>');
 		
-		textarea = false;
+		preserveWhitespace.remove(preserveWhitespace.size() - 1);
+		if(! preserveWhitespace.isEmpty())
+		{
+			currentPreserveWhitespace = preserveWhitespace.get(preserveWhitespace.size() - 1);
+		}
 	}
 
 	public void startComment()
@@ -181,7 +195,7 @@ public class HtmlTemplateOutput
 				}
 			}
 		}
-		else if(textarea)
+		else if(currentPreserveWhitespace)
 		{
 			for(int i=0, n=text.length(); i<n; i++)
 			{
