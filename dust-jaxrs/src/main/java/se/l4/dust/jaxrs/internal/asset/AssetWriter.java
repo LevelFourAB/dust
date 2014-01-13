@@ -11,6 +11,7 @@ import java.util.Date;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
@@ -32,7 +33,6 @@ import com.google.inject.Stage;
 public class AssetWriter
 	implements MessageBodyWriter<Asset>
 {
-	private final String date;
 	private final boolean development;
 	private final long maxAge;
 	
@@ -46,7 +46,6 @@ public class AssetWriter
 		c.add(Calendar.YEAR, 1);
 		c.add(Calendar.DAY_OF_MONTH, -1);
 		
-		date = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").format(c.getTime());
 		maxAge = c.getTimeInMillis() - time;
 	}
 	
@@ -74,20 +73,16 @@ public class AssetWriter
 		if(false == development)
 		{
 			httpHeaders.putSingle("Cache-Control", "public, max-age=" + maxAge);
-			httpHeaders.putSingle("Expires", date);
+			httpHeaders.putSingle("Date", new Date());
+			httpHeaders.putSingle("Expires", new Date(System.currentTimeMillis() + maxAge));
 		}
 		
 		String contentType = getMimeType(t);
-		httpHeaders.putSingle("Last-Modified", new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").format(new Date(resource.getLastModified())));
+		httpHeaders.putSingle("Last-Modified", new Date(resource.getLastModified()));
 		
 		if(contentType != null)
 		{
 			httpHeaders.putSingle("Content-Type", contentType);
-			
-			if(contentType.startsWith("text/"))
-			{
-				httpHeaders.putSingle("Vary", "Accept-Encoding");
-			}
 		}
 		
 		InputStream stream = null;
