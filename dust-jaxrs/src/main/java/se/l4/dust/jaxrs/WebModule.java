@@ -5,11 +5,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import se.l4.crayon.Contributions;
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Order;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.core.CoreModule;
+import se.l4.dust.jaxrs.annotation.Filter;
 import se.l4.dust.jaxrs.annotation.RequestScoped;
 import se.l4.dust.jaxrs.annotation.SessionScoped;
 import se.l4.dust.jaxrs.internal.NormalPageManager;
@@ -21,6 +23,7 @@ import se.l4.dust.jaxrs.internal.template.TemplateWriter;
 import se.l4.dust.jaxrs.spi.Configuration;
 import se.l4.dust.jaxrs.spi.RequestContext;
 
+import com.google.inject.Provides;
 import com.google.inject.Provides;
 
 /**
@@ -44,6 +47,9 @@ public class WebModule
 		// Bind own services
 		bind(PageManager.class).to(NormalPageManager.class);
 		bind(ServletBinder.class).to(ServletBinderImpl.class);
+		
+		// Bind up the filter annotations
+		bindContributions(Filter.class);
 	}
 	
 	@Contribution(name="dust-asset-page")
@@ -66,6 +72,12 @@ public class WebModule
 	{
 		config.addMessageBodyWriter(w1);
 		config.addMessageBodyWriter(w2);
+	}
+	
+	@Contribution(name="dust-filter-contributions")
+	public void contributeFilters(@Filter Contributions contributions)
+	{
+		contributions.run();
 	}
 	
 	@Provides
