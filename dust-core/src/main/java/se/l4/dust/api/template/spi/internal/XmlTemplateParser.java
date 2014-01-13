@@ -179,6 +179,22 @@ public class XmlTemplateParser
 		{
 			flushCharacters();
 			
+			int wsIdx = attributes.getIndex("dust:common", "whitespace");
+			if(wsIdx >= 0)
+			{
+				String value = attributes.getValue(wsIdx);
+				if("ignore".equals(value))
+				{
+					currentIgnoreWhitespace = Boolean.TRUE; 
+				}
+				else
+				{
+					currentIgnoreWhitespace = Boolean.FALSE;
+				}
+			}
+			
+			ignoreWhitespace.add(currentIgnoreWhitespace);
+			
 			if(namespaces.isBound(uri))
 			{
 				// This namespace is managed by us, treat as component
@@ -203,22 +219,6 @@ public class XmlTemplateParser
 
 			// Setup all namespaces
 			bindNamespaces();
-			
-			int wsIdx = attributes.getIndex("dust:common", "whitespace");
-			if(wsIdx >= 0)
-			{
-				String value = attributes.getValue(wsIdx);
-				if("ignore".equals(value))
-				{
-					currentIgnoreWhitespace = Boolean.TRUE; 
-				}
-				else
-				{
-					currentIgnoreWhitespace = Boolean.FALSE;
-				}
-			}
-			
-			ignoreWhitespace.add(currentIgnoreWhitespace);
 			
 			// Copy all attributes
 			for(int i=0, n=attributes.getLength(); i<n; i++)
