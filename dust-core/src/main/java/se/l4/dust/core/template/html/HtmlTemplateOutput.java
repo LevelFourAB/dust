@@ -104,21 +104,27 @@ public class HtmlTemplateOutput
 		{
 			for(int i=0, n=attributes.length; i<n; i+=2)
 			{
+				String k = attributes[i];
 				String v = attributes[i+1];
+				if(k == null)
+				{
+					break;
+				}
+				
 				if(v == Attribute.ATTR_EMIT)
 				{
 					writer.write(' ');
-					writer.write(attributes[i]);
+					writer.write(k);
 				}
 				else if(v != Attribute.ATTR_SKIP)
 				{
 					writer.write(' ');
-					writer.write(attributes[i]);
+					writer.write(k);
 					
 					if(v != null)
 					{
 						writer.write("=\"");
-						escape(attributes[i+1]);
+						escape(v);
 						writer.write("\"");
 					}
 				}
@@ -257,7 +263,7 @@ public class HtmlTemplateOutput
 	public void close()
 		throws IOException
 	{
-		writer.flush();
+		//writer.flush();
 		writer.close();
 	}
 }

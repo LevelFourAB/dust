@@ -28,9 +28,13 @@ import se.l4.dust.core.internal.template.components.EmittableComponent;
 public class Emitter
 	implements ElementEncounter
 {
+	private static final String[] attrsCacheEmpty = new String[10*2];
+	
 	private final ParsedTemplate template;
 	private final RenderingContext ctx;
 
+	private final String[] attrsCache;
+	
 	private Object current;
 	private Integer currentId;
 	private final HashMap<Integer, Object> dataMap;
@@ -39,6 +43,7 @@ public class Emitter
 	private Integer currentComponentId;
 	private final HashMap<Integer, Element> componentMap;
 	private boolean skip;
+	
 	
 	public Emitter(ParsedTemplate template, RenderingContext ctx, Object data)
 	{
@@ -53,6 +58,7 @@ public class Emitter
 		dataMap.put(currentId, current);
 		
 		componentMap.put(currentId, template.getRoot());
+		attrsCache = new String[10*2];
 	}
 	
 	public void process(TemplateOutputStream out)
@@ -71,8 +77,18 @@ public class Emitter
 	private String[] createAttributes(Element element, Object data)
 	{
 		Attribute[] rawAttrs = element.getAttributes();
-		String[] attrs = new String[rawAttrs.length * 2];
-		for(int i=0, n=attrs.length; i<n; i+=2)
+		String[] attrs;
+		if(rawAttrs.length > 10)
+		{
+			attrs = new String[rawAttrs.length * 2];
+		}
+		else
+		{
+			attrs = attrsCache;
+			attrs[rawAttrs.length * 2] = null;
+		}
+		
+		for(int i=0, n=rawAttrs.length*2; i<n; i+=2)
 		{
 			Attribute attr = rawAttrs[i/2];
 			attrs[i] = attr.getName();
