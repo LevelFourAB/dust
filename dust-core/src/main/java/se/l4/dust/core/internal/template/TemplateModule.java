@@ -19,6 +19,7 @@ import se.l4.dust.core.internal.template.components.IfComponent;
 import se.l4.dust.core.internal.template.components.LoopComponent;
 import se.l4.dust.core.internal.template.components.ParameterComponent;
 import se.l4.dust.core.internal.template.components.RawComponent;
+import se.l4.dust.core.internal.template.components.RenderComponent;
 
 /**
  * Module that activates template functions. Binds they default implementations
@@ -54,6 +55,7 @@ public class TemplateModule
 			.addComponent(LoopComponent.class, "loop")
 			.addComponent(HolderComponent.class, "holder")
 			.addComponent(RawComponent.class, "raw")
+			.addComponent(RenderComponent.class, "render")
 			.addMixin("if", new IfMixin());
 	}
 	
