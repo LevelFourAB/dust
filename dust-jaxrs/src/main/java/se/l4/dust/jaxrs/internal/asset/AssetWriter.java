@@ -128,6 +128,10 @@ public class AssetWriter
 		{
 			return "text/javascript";
 		}
+		else if(name.endsWith(".woff"))
+		{
+			return "application/x-font-woff";
+		}
 		else
 		{
 			return "application/octet-stream";
