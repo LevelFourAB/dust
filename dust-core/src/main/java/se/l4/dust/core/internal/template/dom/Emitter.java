@@ -78,7 +78,7 @@ public class Emitter
 	{
 		Attribute[] rawAttrs = element.getAttributes();
 		String[] attrs;
-		if(rawAttrs.length > 10)
+		if(rawAttrs.length >= 10)
 		{
 			attrs = new String[rawAttrs.length * 2];
 		}
