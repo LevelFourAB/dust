@@ -5,18 +5,36 @@
 	<parent>
 		<groupId>se.l4.dust</groupId>
 		<artifactId>dust-base</artifactId>
-		<version>0.4-SNAPSHOT</version>
+		<version>0.3-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>dust-css-sprites</artifactId>
+	<artifactId>dust-jaxrs-jersey</artifactId>
 	<packaging>jar</packaging>
 	<name>${project.artifactId}</name>
 	
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>dust-core</artifactId>
+			<artifactId>dust-jaxrs</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-server</artifactId>
+			<version>${jersey-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.glassfish.jersey.containers</groupId>
+			<artifactId>jersey-container-servlet-core</artifactId>
+			<version>${jersey-version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.glassfish.hk2</groupId>
+			<artifactId>guice-bridge</artifactId>
+			<version>2.2.0-b21</version>
 		</dependency>
 		
 		<dependency>
@@ -24,26 +42,6 @@
 			<artifactId>servlet-api</artifactId>
 			<version>2.5</version>
 			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>com.carrotsearch</groupId>
-			<artifactId>smartsprites</artifactId>
-			<version>0.2.8</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>commons-logging</artifactId>
-					<groupId>commons-logging</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>args4j</artifactId>
-					<groupId>args4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>google-collections</artifactId>
-					<groupId>com.google.collections</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 	</dependencies>
 </project>
