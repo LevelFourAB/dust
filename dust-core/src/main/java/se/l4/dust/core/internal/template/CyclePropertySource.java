@@ -63,7 +63,7 @@ public class CyclePropertySource
 			throw new UnsupportedOperationException("setValue can not be done on cycle bindings");
 		}
 		
-		public se.l4.dust.api.template.dom.Content copy()
+		public se.l4.dust.api.template.dom.Content doCopy()
 		{
 			return new Content(parts);
 		}

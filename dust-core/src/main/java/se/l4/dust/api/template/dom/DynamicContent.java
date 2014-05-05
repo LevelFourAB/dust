@@ -9,9 +9,13 @@ import se.l4.dust.api.template.RenderingContext;
  *
  */
 public abstract class DynamicContent
-	implements Content
+	extends AbstractContent
 {
 	private Element parent;
+	
+	public DynamicContent()
+	{
+	}
 
 	public Element getParent()
 	{
@@ -46,4 +50,16 @@ public abstract class DynamicContent
 	 * @param data
 	 */
 	public abstract void setValue(RenderingContext ctx, Object root, Object data);
+	
+	@Override
+	public int getLine()
+	{
+		return line;
+	}
+	
+	@Override
+	public int getColumn()
+	{
+		return column;
+	}
 }

@@ -83,7 +83,7 @@ public class MessagePropertySource
 			
 		}
 		
-		public se.l4.dust.api.template.dom.Content copy()
+		public se.l4.dust.api.template.dom.Content doCopy()
 		{
 			return new Content(url, property);
 		}

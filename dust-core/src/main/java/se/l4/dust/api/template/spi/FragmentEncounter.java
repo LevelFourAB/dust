@@ -29,6 +29,14 @@ public interface FragmentEncounter
 	Element.Attribute getAttribute(String name);
 	
 	/**
+	 * Find a parameter with the given name.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	Element findParameter(String name);
+	
+	/**
 	 * Get content in the body of the fragment.
 	 * 
 	 * @return
@@ -41,4 +49,11 @@ public interface FragmentEncounter
 	 * @return
 	 */
 	TemplateBuilder builder();
+	
+	/**
+	 * Replace this fragment with a component.
+	 * 
+	 * @param component
+	 */
+	void replaceWith(Object component);
 }

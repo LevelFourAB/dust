@@ -22,7 +22,7 @@ public class ExpressionContent
 	}
 
 	@Override
-	public Content copy()
+	public Content doCopy()
 	{
 		return new ExpressionContent(expr);
 	}

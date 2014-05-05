@@ -15,12 +15,13 @@ import se.l4.dust.api.template.RenderingContext;
  *
  */
 public class Element
-	implements Content
+	extends AbstractContent
 {
 	private static final Content[] EMPTY_OBJECTS = new Content[0];
 	private static final Attribute[] EMPTY_ATTRS = new Attribute[0];
 	
 	private final String name;
+	
 	private Attribute[] attributes;
 	private Content[] contents;
 	private Element parent;
@@ -52,7 +53,8 @@ public class Element
 		contents = EMPTY_OBJECTS;
 	}
 	
-	public Content copy()
+	@Override
+	public Content doCopy()
 	{
 		return new Element(name, attributes);
 	}
@@ -280,6 +282,18 @@ public class Element
 		}
 		
 		return null;
+	}
+	
+	@Override
+	public int getLine()
+	{
+		return line;
+	}
+	
+	@Override
+	public int getColumn()
+	{
+		return column;
 	}
 	
 	public static class Attribute

@@ -179,6 +179,8 @@ public class XmlTemplateParser
 		{
 			flushCharacters();
 			
+			builder.addDebugHint(locator.getLineNumber(), locator.getColumnNumber());
+			
 			int wsIdx = attributes.getIndex("dust:common", "whitespace");
 			if(wsIdx >= 0)
 			{
@@ -229,6 +231,7 @@ public class XmlTemplateParser
 				String value = attributes.getValue(i);
 				
 				List<Content> contents = extractor.parse(
+					errors.getName(),
 					locator.getLineNumber(), 
 					locator.getLineNumber(), 
 					value
@@ -251,6 +254,7 @@ public class XmlTemplateParser
 				currentIgnoreWhitespace = ignoreWhitespace.get(ignoreWhitespace.size() - 1);
 			}
 			
+			builder.addDebugHint(locator.getLineNumber(), locator.getColumnNumber());
 			builder.endCurrent();
 		}
 		
@@ -298,7 +302,7 @@ public class XmlTemplateParser
 			}
 			else
 			{
-				List<Content> content = extractor.parse(textLine, textColumn, text);
+				List<Content> content = extractor.parse(errors.getName(), textLine, textColumn, text);
 				if(currentIgnoreWhitespace)
 				{
 					Iterator<Content> it = content.iterator();
@@ -323,6 +327,7 @@ public class XmlTemplateParser
 
 			String commentText = new String(ch, start, length);
 			List<Content> content = extractor.parse(
+				errors.getName(),
 				locator.getLineNumber(), 
 				locator.getColumnNumber(), 
 				commentText

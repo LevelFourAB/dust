@@ -10,15 +10,22 @@ package se.l4.dust.api.template.dom;
  */
 public class ParsedTemplate
 {
+	private final String name;
 	private final DocType doctype;
 	private final Element root;
 	private final Integer id;
 
-	public ParsedTemplate(DocType doctype, Element root, Integer id)
+	public ParsedTemplate(String name, DocType doctype, Element root, Integer id)
 	{
+		this.name = name;
 		this.doctype = doctype;
 		this.root = root;
 		this.id = id;
+	}
+	
+	public String getName()
+	{
+		return name;
 	}
 	
 	/**

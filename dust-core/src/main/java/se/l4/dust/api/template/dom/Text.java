@@ -7,7 +7,7 @@ package se.l4.dust.api.template.dom;
  *
  */
 public class Text
-	implements Content
+	extends AbstractContent
 {
 	private final String text;
 	
@@ -33,7 +33,7 @@ public class Text
 		return text;
 	}
 	
-	public Content copy()
+	public Content doCopy()
 	{
 		return new Text(text);
 	}

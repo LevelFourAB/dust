@@ -25,7 +25,7 @@ public class ExpressionContentWithContext
 	}
 
 	@Override
-	public Content copy()
+	public Content doCopy()
 	{
 		return new ExpressionContentWithContext(expr, context);
 	}

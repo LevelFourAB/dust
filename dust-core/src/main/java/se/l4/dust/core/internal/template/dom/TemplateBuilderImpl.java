@@ -72,6 +72,8 @@ public class TemplateBuilderImpl
 	private Element current;
 	private Element root;
 	private URL url;
+	private int line;
+	private int column;
 
 	@Inject
 	public TemplateBuilderImpl(Injector injector, 
@@ -167,6 +169,8 @@ public class TemplateBuilderImpl
 		mixinAttributes.add(new LinkedHashMap<String, Element.Attribute>());
 		
 		Element e = new Element(name, attributes);
+		applyDebugHints(e);
+		
 		if(current == null)
 		{
 			root = e;
@@ -266,6 +270,8 @@ public class TemplateBuilderImpl
 			emittable = new ClassTemplateComponent(component.getSimpleName(), injector, templateCache, converter, component);
 			fragment = false;
 		}
+		
+		applyDebugHints(emittable);
 		
 		if(emittable instanceof ClassTemplateComponent || emittable instanceof ParameterComponent)
 		{
@@ -465,7 +471,7 @@ public class TemplateBuilderImpl
 		}
 		
 		Expression expr = expressions.compile(boundNamespaces, expression, context);
-		return new ExpressionContent(expr);
+		return applyDebugHints(new ExpressionContent(expr));
 	}
 	
 	public TemplateBuilder comment(List<Content> content)
@@ -473,6 +479,8 @@ public class TemplateBuilderImpl
 		Comment comment = new Comment();
 		comment.setParent(current);
 		comment.addContent(content);
+		
+		applyDebugHints(comment);
 		
 		current.addContent(comment);
 		
@@ -483,6 +491,14 @@ public class TemplateBuilderImpl
 	{
 		return comment(Collections.<Content>singletonList(new Text(comment)));
 	}
+	
+	private <T extends Content> T applyDebugHints(T object)
+	{
+		object.withDebugInfo(url.getPath(), line, column);
+		line = 0;
+		column = 0;
+		return object;
+	}
 
 	public Element getRootElement()
 	{
@@ -491,7 +507,7 @@ public class TemplateBuilderImpl
 
 	public ParsedTemplate getTemplate()
 	{
-		return new ParsedTemplate(docType, root, id);
+		return new ParsedTemplate(url.getPath(), docType, root, id);
 	}
 	
 	public boolean hasCurrent()
@@ -527,6 +543,14 @@ public class TemplateBuilderImpl
 	public void putValue(String id, Object value)
 	{
 		values.put(id, value);
+	}
+	
+	@Override
+	public TemplateBuilder addDebugHint(int line, int column)
+	{
+		this.line = line;
+		this.column = column;
+		return this;
 	}
 	
 	private class MixinEncounterImpl
@@ -628,12 +652,12 @@ public class TemplateBuilderImpl
 
 		public FragmentElement(TemplateFragment fragment)
 		{
-			super("fragment");
+			super("internal:fragment:" + fragment.getClass().getSimpleName());
 			
 			this.fragment = fragment;
 		}
 
-		public void apply(final TemplateBuilder builder)
+		public void apply(final TemplateBuilderImpl builder)
 		{
 			final Element self = this;
 			fragment.build(new FragmentEncounter()
@@ -653,6 +677,25 @@ public class TemplateBuilderImpl
 				}
 				
 				@Override
+				public Element findParameter(String name)
+				{
+					for(Content c : self.getRawContents())
+					{
+						if(c instanceof ParameterComponent)
+						{
+							ParameterComponent pc = (ParameterComponent) c;
+							Attribute attr = pc.getAttribute("name");
+							if(attr != null && attr.getStringValue().equals(name))
+							{
+								return pc;
+							}
+						}
+					}
+					
+					return null;
+				}
+				
+				@Override
 				public Content[] getBody()
 				{
 					return getRawContents();
@@ -662,6 +705,50 @@ public class TemplateBuilderImpl
 				public TemplateBuilder builder()
 				{
 					return builder;
+				}
+				
+				@Override
+				public void replaceWith(Object component)
+				{
+					EmittableComponent emittable;
+					if(component instanceof EmittableComponent)
+					{
+						emittable = (EmittableComponent) component;
+					}
+					else
+					{
+						emittable = new ClassTemplateComponent(
+							component.getClass().getSimpleName(),
+							builder.injector,
+							builder.templateCache,
+							builder.converter,
+							component
+						);
+					}
+					
+					if(emittable instanceof ClassTemplateComponent || emittable instanceof ParameterComponent)
+					{
+						// Insert a context switcher
+						Element switcher = new DataContextSwitcher(builder.id);
+						emittable.addContent(switcher);
+						
+						if(builder.current == null)
+						{
+							builder.root = emittable;
+						}
+						else
+						{
+							builder.current.addContent(emittable);
+						}
+					}
+					else
+					{
+						(builder.current == null ? builder.root : builder.current).addContent(emittable);
+						if(builder.current == null)
+						{
+							builder.root = emittable;
+						}
+					}
 				}
 			});
 		}

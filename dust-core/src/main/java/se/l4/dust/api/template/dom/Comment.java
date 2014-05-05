@@ -9,19 +9,20 @@ import java.util.Collection;
  *
  */
 public class Comment
-	implements Content
+	extends AbstractContent
 {
 	private static final Content[] EMTPY_CONTENT = new Content[0];
 	
 	private Element parent;
 	private Content[] contents;
-	
+
 	public Comment()
 	{
 		contents = EMTPY_CONTENT;
 	}
 	
-	public Content copy()
+	@Override
+	public Content doCopy()
 	{
 		return new Comment();
 	}
@@ -77,5 +78,4 @@ public class Comment
 	{
 		return contents;
 	}
-	
 }

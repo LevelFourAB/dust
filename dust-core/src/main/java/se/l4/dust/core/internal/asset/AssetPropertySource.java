@@ -107,7 +107,7 @@ public class AssetPropertySource
 			throw new UnsupportedOperationException();
 		}
 		
-		public se.l4.dust.api.template.dom.Content copy()
+		public se.l4.dust.api.template.dom.Content doCopy()
 		{
 			return new Content(manager, production, namespace, path);
 		}
@@ -141,7 +141,7 @@ public class AssetPropertySource
 		}
 
 		@Override
-		public se.l4.dust.api.template.dom.Content copy()
+		public se.l4.dust.api.template.dom.Content doCopy()
 		{
 			return new FixedContent(asset);
 		}

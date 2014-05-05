@@ -36,7 +36,7 @@ public class LoopComponent
 	}
 	
 	@Override
-	public Content copy()
+	public Content doCopy()
 	{
 		return new LoopComponent(converter).copyAttributes(this);
 	}

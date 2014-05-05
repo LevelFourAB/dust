@@ -25,7 +25,7 @@ public class ComponentContextSwitcher
 	}
 	
 	@Override
-	public Content copy()
+	public Content doCopy()
 	{
 		return new ComponentContextSwitcher(id);
 	}

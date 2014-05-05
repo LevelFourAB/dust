@@ -16,7 +16,7 @@ public class HolderComponent
 	}
 	
 	@Override
-	public Content copy()
+	public Content doCopy()
 	{
 		return new HolderComponent().copyAttributes(this);
 	}

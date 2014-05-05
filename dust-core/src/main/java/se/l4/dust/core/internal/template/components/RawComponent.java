@@ -16,7 +16,7 @@ public class RawComponent
 	}
 	
 	@Override
-	public Content copy()
+	public Content doCopy()
 	{
 		return new RawComponent().copyAttributes(this);
 	}

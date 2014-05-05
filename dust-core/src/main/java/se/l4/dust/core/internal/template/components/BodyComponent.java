@@ -17,7 +17,7 @@ public class BodyComponent
 	}
 	
 	@Override
-	public Content copy()
+	public Content doCopy()
 	{
 		return new BodyComponent().copyAttributes(this);
 	}

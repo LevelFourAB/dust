@@ -23,6 +23,11 @@ public class ErrorCollector
 		errors = new ArrayList<String>();
 	}
 	
+	public String getName()
+	{
+		return name;
+	}
+	
 	public void newError(int line, int column, String error, Object... params)
 	{
 		errors.add("Error at line " + line + ", column " + column + ": " + format(error, params));

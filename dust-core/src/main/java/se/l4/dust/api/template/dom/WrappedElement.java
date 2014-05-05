@@ -54,4 +54,27 @@ public class WrappedElement
 	{
 		return wrapper;
 	}
+	
+	@Override
+	public String getDebugSource()
+	{
+		return element.getDebugSource();
+	}
+	
+	@Override
+	public int getLine()
+	{
+		return element.getLine();
+	}
+	
+	@Override
+	public int getColumn()
+	{
+		return element.getColumn();
+	}
+	
+	@Override
+	public void withDebugInfo(String source, int line, int column)
+	{
+	}
 }

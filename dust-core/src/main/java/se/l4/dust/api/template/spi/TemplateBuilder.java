@@ -203,4 +203,13 @@ public interface TemplateBuilder
 	 * @param value
 	 */
 	void putValue(String id, Object value);
+	
+	/**
+	 * Add a debug hint to this builder.
+	 * 
+	 * @param line
+	 * @param column
+	 * @return
+	 */
+	TemplateBuilder addDebugHint(int line, int column);
 }

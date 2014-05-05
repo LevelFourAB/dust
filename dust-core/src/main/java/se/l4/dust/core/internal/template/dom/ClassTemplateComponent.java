@@ -31,6 +31,7 @@ import com.google.inject.Key;
 import com.google.inject.Provider;
 import com.google.inject.Stage;
 import com.google.inject.TypeLiteral;
+import com.google.inject.util.Providers;
 
 /**
  * Component based on a class. 
@@ -58,7 +59,17 @@ public class ClassTemplateComponent
 			TypeConverter converter,
 			Class<?> type)
 	{
-		this(name, injector.getInstance(Stage.class) == Stage.DEVELOPMENT, injector, cache, converter, type, null, null, null);
+		this(name, injector.getInstance(Stage.class) == Stage.DEVELOPMENT, injector, cache, converter, type, createInstance(injector.getInstance(Stage.class) == Stage.DEVELOPMENT, injector, type), null, null, null);
+	}
+	
+	public ClassTemplateComponent(
+			String name,
+			Injector injector, 
+			TemplateCache cache,
+			TypeConverter converter,
+			Object instance)
+	{
+		this(name, injector.getInstance(Stage.class) == Stage.DEVELOPMENT, injector, cache, converter, instance.getClass(), Providers.of(instance), null, null, null);
 	}
 	
 	private ClassTemplateComponent(
@@ -68,6 +79,7 @@ public class ClassTemplateComponent
 			TemplateCache cache,
 			TypeConverter converter,
 			Class<?> type,
+			Provider instance,
 			MethodInvocation[] prepareRender,
 			MethodInvocation[] setMethods,
 			MethodInvocation[] afterRender)
@@ -75,9 +87,8 @@ public class ClassTemplateComponent
 		super(name, type);
 		
 		this.development = development;
-		
-		instance = createInstance(development, injector, type);
-		
+
+		this.instance = instance;
 		this.converter = converter;
 		
 		this.cache = cache;
@@ -127,10 +138,10 @@ public class ClassTemplateComponent
 	}
 
 	@Override
-	public Content copy()
+	public Content doCopy()
 	{
 		return new ClassTemplateComponent(getName(), development, injector, 
-				cache, converter, type, prepareRender, setMethods, afterRender)
+				cache, converter, type, instance, prepareRender, setMethods, afterRender)
 			.copyAttributes(this);
 	}
 	

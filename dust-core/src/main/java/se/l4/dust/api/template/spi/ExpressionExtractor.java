@@ -38,7 +38,7 @@ public class ExpressionExtractor
 	 * @param value
 	 * @return
 	 */
-	public List<Content> parse(int line, int column, CharSequence value)
+	public List<Content> parse(String source, int line, int column, CharSequence value)
 	{
 		List<Content> content = new ArrayList<Content>();
 		
@@ -78,7 +78,9 @@ public class ExpressionExtractor
 								
 						if(buffer.length() > 0)
 						{
-							content.add(new Text(buffer.toString()));
+							Text text = new Text(buffer.toString());
+							text.withDebugInfo(source, line, column);
+							content.add(text);
 						}
 								
 						buffer.setLength(0);
@@ -99,7 +101,9 @@ public class ExpressionExtractor
 						// Namespace was actually the entire expression
 						try
 						{
-							content.add(builder.createDynamicContent(namespace, buffer.toString()));
+							Content dynamicContent = builder.createDynamicContent(namespace, buffer.toString());
+							dynamicContent.withDebugInfo(source, currentExpressionStartLine, currentExpressionStart);
+							content.add(dynamicContent);
 						}
 						catch(Exception e)
 						{
@@ -138,7 +142,9 @@ public class ExpressionExtractor
 						
 						try
 						{
-							content.add(builder.createDynamicContent(namespace, buffer.toString()));
+							Content dynamicContent = builder.createDynamicContent(namespace, buffer.toString());
+							dynamicContent.withDebugInfo(source, currentExpressionStartLine, currentExpressionStart);
+							content.add(dynamicContent);
 						}
 						catch(Throwable e)
 						{
@@ -163,7 +169,9 @@ public class ExpressionExtractor
 		{
 			if(buffer.length() > 0)
 			{
-				content.add(new Text(buffer.toString()));
+				Text text = new Text(buffer.toString());
+				text.withDebugInfo(source, line, column);
+				content.add(text);
 			}
 		}
 		

@@ -52,7 +52,7 @@ public class VarPropertySource
 			ctx.putValue(compoundKey, data);
 		}
 		
-		public se.l4.dust.api.template.dom.Content copy()
+		public se.l4.dust.api.template.dom.Content doCopy()
 		{
 			return new Content(key);
 		}

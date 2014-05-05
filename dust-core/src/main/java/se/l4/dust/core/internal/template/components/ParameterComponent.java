@@ -16,7 +16,7 @@ public class ParameterComponent
 	}
 	
 	@Override
-	public Content copy()
+	public Content doCopy()
 	{
 		return new ParameterComponent().copyAttributes(this);
 	}
