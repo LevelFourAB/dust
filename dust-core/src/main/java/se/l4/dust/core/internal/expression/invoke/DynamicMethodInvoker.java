@@ -1,5 +1,7 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import java.util.Arrays;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.api.expression.DynamicMethod;
 import se.l4.dust.core.internal.expression.ErrorHandler;
@@ -26,6 +28,11 @@ public class DynamicMethodInvoker
 		this.node = node;
 		this.method = method;
 		this.params = params;
+	}
+	
+	public DynamicMethod getMethod()
+	{
+		return method;
 	}
 
 	@Override
@@ -121,5 +128,42 @@ public class DynamicMethodInvoker
 	{
 		return node;
 	}
+	
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((method == null) ? 0 : method.hashCode());
+		result = prime * result + Arrays.hashCode(params);
+		return result;
+	}
 
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(this == obj)
+			return true;
+		if(obj == null)
+			return false;
+		if(getClass() != obj.getClass())
+			return false;
+		DynamicMethodInvoker other = (DynamicMethodInvoker) obj;
+		if(method == null)
+		{
+			if(other.method != null)
+				return false;
+		}
+		else if(!method.equals(other.method))
+			return false;
+		if(!Arrays.equals(params, other.params))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "DynamicMethodInvoker{method=" + method + ", params=" + Arrays.toString(params) + "}";
+	}
 }

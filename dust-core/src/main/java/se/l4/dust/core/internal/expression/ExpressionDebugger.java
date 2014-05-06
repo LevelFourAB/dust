@@ -1,5 +1,6 @@
 package se.l4.dust.core.internal.expression;
 
+import java.net.URL;
 import java.util.Map;
 
 import se.l4.dust.api.Context;
@@ -25,6 +26,7 @@ public class ExpressionDebugger
 
 	public ExpressionDebugger(TypeConverter converter, 
 			ExpressionsImpl expressions,
+			URL source,
 			Map<String, String> namespaces,
 			String expression, 
 			Class<?> context)
@@ -33,7 +35,7 @@ public class ExpressionDebugger
 		Node root = ExpressionParser.parse(expression);
 		
 		this.errors = new ErrorHandlerImpl(expression);
-		this.invoker = new ExpressionResolver(converter, expressions, namespaces, errors, root)
+		this.invoker = new ExpressionResolver(converter, expressions, source, namespaces, errors, root)
 			.resolve(context);
 	}
 	

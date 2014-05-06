@@ -392,7 +392,7 @@ public class TemplateCacheImpl
 
 		public DevParsedTemplate(ParsedTemplate tpl, Resource resource)
 		{
-			super(tpl.getName(), tpl.getDocType(), tpl.getRoot(), tpl.getRawId());
+			super(tpl.getUrl(), tpl.getName(), tpl.getDocType(), tpl.getRoot(), tpl.getRawId());
 			
 			this.resource = resource;
 		}

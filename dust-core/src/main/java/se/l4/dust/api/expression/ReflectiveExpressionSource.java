@@ -344,7 +344,7 @@ public abstract class ReflectiveExpressionSource
 		};
 	
 	private class PropertyImpl
-		implements DynamicProperty
+		extends AbstractDynamicProperty
 	{
 		private final java.lang.reflect.Method method;
 		private final Provider[] params;
@@ -448,6 +448,12 @@ public abstract class ReflectiveExpressionSource
 		public Class<?> getType()
 		{
 			return method.getReturnType();
+		}
+		
+		@Override
+		public boolean needsContext()
+		{
+			return true;
 		}
 	}
 }

@@ -1,5 +1,6 @@
 package se.l4.dust.api.expression;
 
+import java.net.URL;
 import java.util.Map;
 
 
@@ -21,12 +22,13 @@ public interface Expressions
 	
 	/**
 	 * Compile an expression.
+	 * @param url 
 	 * 
 	 * @param expression
 	 * @param context
 	 * @return
 	 */
-	Expression compile(Map<String, String> namespaces, String expression, Class<?> localContext);
+	Expression compile(URL sourceUrl, Map<String, String> namespaces, String expression, Class<?> localContext);
 
 	/**
 	 * Resolve a suitable type for the given object.

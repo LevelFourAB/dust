@@ -29,4 +29,16 @@ public interface DynamicMethod
 	 * @return
 	 */
 	Class<?> getType();
+	
+	/**
+	 * Get if this property needs any context. If this method returns
+	 * {@code false} the argument {@code instance} in {@link #invoke(Context, Object, Object...)}
+	 * may be null.
+	 * 
+	 * <p>
+	 * When this is false it allows us to optimize chained calls.
+	 * 
+	 * @return
+	 */
+	boolean needsContext();
 }

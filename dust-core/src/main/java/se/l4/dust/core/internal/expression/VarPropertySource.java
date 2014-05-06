@@ -1,6 +1,7 @@
 package se.l4.dust.core.internal.expression;
 
 import se.l4.dust.api.Context;
+import se.l4.dust.api.expression.AbstractDynamicProperty;
 import se.l4.dust.api.expression.DynamicMethod;
 import se.l4.dust.api.expression.DynamicProperty;
 import se.l4.dust.api.expression.ExpressionEncounter;
@@ -29,7 +30,7 @@ public class VarPropertySource
 	}
 
 	public static class Content
-		implements DynamicProperty
+		extends AbstractDynamicProperty
 	{
 		private final String key;
 		private final String compoundKey;

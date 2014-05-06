@@ -3,6 +3,7 @@ package se.l4.dust.core.internal.expression;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -89,18 +90,22 @@ public class ExpressionResolver
 	
 	private final ExpressionsImpl expressions;
 	private final Map<String, String> namespaces;
+	private final URL url;
+	
 	private TypeResolver typeResolver;
 	private MemberResolver memberResolver;
 
 	public ExpressionResolver(
 			TypeConverter converter, 
 			ExpressionsImpl expressions,
+			URL url,
 			Map<String, String> namespaces,
 			ErrorHandler errors, 
 			Node root)
 	{
 		this.converter = converter;
 		this.expressions = expressions;
+		this.url = url;
 		this.namespaces = namespaces;
 		this.errors = errors;
 		this.root = root;
@@ -130,12 +135,12 @@ public class ExpressionResolver
 	 * @param context
 	 * @return
 	 */
-	private Invoker resolve(EncounterImpl encounter, Node node, Class<?> root, Class<?> context, ResolvedType typeContext)
+	private Invoker resolve(EncounterImpl encounter, Node node, Class<?> root, Class<?> context, ResolvedType typeContext, Invoker left)
 	{
 		encounter.setContext(node, context);
 		encounter.increaseLevel();
 		
-		Invoker invoker = resolve0(encounter, node, root, context, typeContext);
+		Invoker invoker = resolve0(encounter, node, root, context, typeContext, left);
 		
 		encounter.decreaseLevel();
 		return invoker;
@@ -147,25 +152,33 @@ public class ExpressionResolver
 		int level = encounter.getLevel();
 		encounter.setLevel(0);
 		
-		Invoker invoker = resolve0(encounter, node, root, root, null);
+		Invoker invoker = resolve0(encounter, node, root, root, null, null);
 		
 		encounter.setLevel(level);
 		return invoker;
 	}
 	
-	private Invoker resolve0(EncounterImpl encounter, Node node, Class<?> root, Class<?> context, ResolvedType typeContext)
+	private Invoker resolve0(EncounterImpl encounter, Node node, Class<?> root, Class<?> context, ResolvedType typeContext, Invoker left)
 	{
 		if(node instanceof IdentifierNode)
 		{
-			return resolveIdentifier(encounter, (IdentifierNode) node, context, typeContext);
+			return resolveIdentifier(encounter, (IdentifierNode) node, context, typeContext, left);
 		}
 		else if(node instanceof ChainNode)
 		{
 			// Resolve a chain of other nodes
 			ChainNode chain = (ChainNode) node;
 			
-			Invoker leftInvoker = resolve0(encounter, chain.getLeft(), root, context, typeContext);
-			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, leftInvoker.getReturnClass(), leftInvoker.getReturnType());
+			Invoker leftInvoker = resolve0(encounter, chain.getLeft(), root, context, typeContext, null);
+			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, leftInvoker.getReturnClass(), leftInvoker.getReturnType(), leftInvoker);
+			if(rightInvoker instanceof DynamicPropertyInvoker && ! ((DynamicPropertyInvoker) rightInvoker).getProperty().needsContext())
+			{
+				return rightInvoker;
+			}
+			else if(rightInvoker instanceof DynamicMethodInvoker && ! ((DynamicMethodInvoker) rightInvoker).getMethod().needsContext())
+			{
+				return rightInvoker;
+			}
 			
 			return new ChainInvoker(node, leftInvoker, rightInvoker);
 		}
@@ -307,15 +320,15 @@ public class ExpressionResolver
 		{
 			TernaryNode tn = (TernaryNode) node;
 			Invoker test = resolveFromRoot(encounter, tn.getTest(), root);
-			Invoker left = resolveFromRoot(encounter, tn.getLeft(), root);
-			Invoker right = tn.getRight() == null ? null : resolveFromRoot(encounter, tn.getRight(), root);
+			Invoker ternaryLeft = resolveFromRoot(encounter, tn.getLeft(), root);
+			Invoker ternaryRight = tn.getRight() == null ? null : resolveFromRoot(encounter, tn.getRight(), root);
 			
 			if(! isBoolean(test.getReturnClass()))
 			{
 				test = toConverting(test, boolean.class);
 			}
 			
-			return new TernaryInvoker(node, test, left, right);
+			return new TernaryInvoker(node, test, ternaryLeft, ternaryRight);
 		}
 		else if(node instanceof InvokeNode)
 		{
@@ -363,53 +376,69 @@ public class ExpressionResolver
 			}
 			else
 			{
+				DynamicProperty leftProperty = findProperty(left);
+				if(leftProperty != null)
+				{
+					Class[] actualParamTypes = new Class[actualParams.length];
+					for(int j=0, n=actualParams.length; j<n; j++)
+					{
+						actualParamTypes[j] = actualParams[j].getReturnClass();
+					}
+					
+					DynamicMethod method = leftProperty.getMethod(encounter, id.getIdentifier(), actualParamTypes);
+					if(method != null)
+					{
+						return new DynamicMethodInvoker(node, method, actualParams);
+					}
+				}
+				
 				return resolveMethod(node, id, actualParams, context, typeContext);
 			}
 		}
 		else if(node instanceof AddNode)
 		{
 			AddNode an = (AddNode) node;
-			Invoker left = resolveFromRoot(encounter, an.getLeft(), root);
-			Invoker right= resolveFromRoot(encounter, an.getRight(), root);
+			Invoker addLeft = resolveFromRoot(encounter, an.getLeft(), root);
+			Invoker addRight = resolveFromRoot(encounter, an.getRight(), root);
 			
-			if(isNumber(left.getReturnClass()) && isNumber(right.getReturnClass()))
+			if(isNumber(addLeft.getReturnClass()) && isNumber(addRight.getReturnClass()))
 			{
-				boolean floatingPoint = isFloatingPoint(left.getReturnClass()) 
-					|| isFloatingPoint(right.getReturnClass());
+				boolean floatingPoint = isFloatingPoint(addLeft.getReturnClass()) 
+					|| isFloatingPoint(addRight.getReturnClass());
 				
-				return new NumericOperationInvoker(node, left, right, floatingPoint);
+				return new NumericOperationInvoker(node, addLeft, addRight, floatingPoint);
 			}
 			
-			return new StringConcatInvoker(node, left, right);
+			return new StringConcatInvoker(node, addLeft, addRight);
 		}
 		else if(node instanceof SubtractNode || node instanceof DivideNode 
 				|| node instanceof MultiplyNode || node instanceof ModuloNode)
 		{
 			LeftRightNode an = (LeftRightNode) node;
-			Invoker left = resolveFromRoot(encounter, an.getLeft(), root);
-			Invoker right = resolveFromRoot(encounter, an.getRight(), root);
+			Invoker nodeLeft = resolveFromRoot(encounter, an.getLeft(), root);
+			Invoker nodeRight = resolveFromRoot(encounter, an.getRight(), root);
 			
-			if(! isNumber(left.getReturnClass()))
+			if(! isNumber(nodeLeft.getReturnClass()))
 			{
-				left = toConverting(left, Number.class);
+				nodeLeft = toConverting(nodeLeft, Number.class);
 			}
 			
-			if(! isNumber(right.getReturnClass()))
+			if(! isNumber(nodeRight.getReturnClass()))
 			{
-				right = toConverting(left, Number.class);
+				nodeRight = toConverting(nodeRight, Number.class);
 			}
 			
-			boolean floatingPoint = isFloatingPoint(left.getReturnClass()) 
-				|| isFloatingPoint(right.getReturnClass()); 
+			boolean floatingPoint = isFloatingPoint(nodeLeft.getReturnClass()) 
+				|| isFloatingPoint(nodeRight.getReturnClass()); 
 				
-			return new NumericOperationInvoker(node, left, right, floatingPoint);
+			return new NumericOperationInvoker(node, nodeLeft, nodeRight, floatingPoint);
 		}
 		else if(node instanceof IndexNode)
 		{
 			IndexNode index = (IndexNode) node;
 			
 			// Resolve the left node (will become part of the chain)
-			Invoker left = resolve(encounter, index.getLeft(), root, context, typeContext);
+			Invoker indexLeft = resolve(encounter, index.getLeft(), root, context, typeContext, null);
 			
 			Node[] indexes = index.getIndexes();
 			for(int i=0, n=indexes.length; i<n; i++)
@@ -417,20 +446,20 @@ public class ExpressionResolver
 				Node ni = indexes[i];
 				Invoker ii = resolveFromRoot(encounter, ni, root);
 				
-				if(Map.class.isAssignableFrom(left.getReturnClass()))
+				if(Map.class.isAssignableFrom(indexLeft.getReturnClass()))
 				{
 					// Left is currently a map, create a method invocation
 					Invoker invoker = resolveMethod(
 						ni, 
 						new IdentifierNode(0, 0, null, "get"), 
 						new Invoker[] { ii }, 
-						left.getReturnClass(),
-						left.getReturnType()
+						indexLeft.getReturnClass(),
+						indexLeft.getReturnType()
 					);
 					
-					left = new ChainInvoker(index, left, invoker);
+					indexLeft = new ChainInvoker(index, indexLeft, invoker);
 				}
-				else if(List.class.isAssignableFrom(left.getReturnClass()))
+				else if(List.class.isAssignableFrom(indexLeft.getReturnClass()))
 				{
 					Invoker invoker = resolveMethod(
 						ni, 
@@ -440,22 +469,22 @@ public class ExpressionResolver
 						left.getReturnType()
 					);
 					
-					left = new ChainInvoker(index, left, invoker);
+					indexLeft = new ChainInvoker(index, indexLeft, invoker);
 				}
-				else if(left.getReturnClass().isArray())
+				else if(indexLeft.getReturnClass().isArray())
 				{
 					if(ii.getReturnClass() != int.class)
 					{
 						ii = toConverting(ii, int.class);
 					}
 					
-					left = new ChainInvoker(index, left, 
-						new ArrayIndexInvoker(node, left.getReturnClass().getComponentType(), ii)
+					indexLeft = new ChainInvoker(index, indexLeft, 
+						new ArrayIndexInvoker(node, indexLeft.getReturnClass().getComponentType(), ii)
 					);
 				}
 				else
 				{
-					throw errors.error(ni, "Return type is not a map, list or an array. Type is " + left.getReturnClass());
+					throw errors.error(ni, "Return type is not a map, list or an array. Type is " + indexLeft.getReturnClass());
 				}
 			}
 			
@@ -539,7 +568,7 @@ public class ExpressionResolver
 	 * @param classContext
 	 * @return
 	 */
-	private Invoker resolveIdentifier(EncounterImpl encounter, IdentifierNode node, Class<?> classContext, ResolvedType typeContext)
+	private Invoker resolveIdentifier(EncounterImpl encounter, IdentifierNode node, Class<?> classContext, ResolvedType typeContext, Invoker left)
 	{
 		if(node.getNamespace() != null)
 		{
@@ -565,6 +594,18 @@ public class ExpressionResolver
 			return new DynamicPropertyInvoker(node, property);
 		}
 		
+		// First try resolving this as a custom property
+		DynamicProperty leftProperty = findProperty(left);
+		if(leftProperty != null)
+		{
+			DynamicProperty property = leftProperty.getProperty(encounter, node.getIdentifier());
+			if(property != null)
+			{
+				return new DynamicPropertyInvoker(node, property);
+			}
+		}
+		
+		// Then go through properties
 		ResolvedType type = typeContext == null ? typeResolver.resolve(classContext) : typeContext;
 		ResolvedTypeWithMembers members = memberResolver.resolve(type, null, null);
 		for(ResolvedMethod rm : members.getMemberMethods())
@@ -637,6 +678,20 @@ public class ExpressionResolver
 		throw errors.error(node, "Unable to find a suitable getter or field for '" + node.toHumanReadable()  + "' in " + classContext);
 	}
 	
+	private DynamicProperty findProperty(Invoker left)
+	{
+		if(left instanceof ChainInvoker)
+		{
+			return findProperty(((ChainInvoker) left).getRight());
+		}
+		else if(left instanceof DynamicPropertyInvoker)
+		{
+			return ((DynamicPropertyInvoker) left).getProperty();
+		}
+		
+		return null;
+	}
+
 	private Invoker resolveMethod(Node node, IdentifierNode id, Invoker[] actualParams, Class<?> context, ResolvedType typeContext)
 	{
 		// First pass: Look for exact matches
@@ -782,6 +837,7 @@ public class ExpressionResolver
 		implements ExpressionEncounter
 	{
 		private final Class<?> root;
+		
 		private Class<?> context;
 		private Node node;
 		private int level;
@@ -791,6 +847,12 @@ public class ExpressionResolver
 			this.root = root;
 			this.context = root;
 			node = start;
+		}
+		
+		@Override
+		public URL getSource()
+		{
+			return url;
 		}
 		
 		public int getLevel()

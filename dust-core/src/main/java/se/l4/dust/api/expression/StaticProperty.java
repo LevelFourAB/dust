@@ -9,7 +9,7 @@ import se.l4.dust.api.Context;
  *
  */
 public class StaticProperty
-	implements DynamicProperty
+	extends AbstractDynamicProperty
 {
 	private final Object value;
 
@@ -35,5 +35,4 @@ public class StaticProperty
 	{
 		return value == null ? void.class : value.getClass();
 	}
-
 }

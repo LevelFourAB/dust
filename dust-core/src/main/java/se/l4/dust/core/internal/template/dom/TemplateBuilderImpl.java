@@ -470,7 +470,7 @@ public class TemplateBuilderImpl
 			expression = prefix + ":" + expression;
 		}
 		
-		Expression expr = expressions.compile(boundNamespaces, expression, context);
+		Expression expr = expressions.compile(url, boundNamespaces, expression, context);
 		return applyDebugHints(new ExpressionContent(expr));
 	}
 	
@@ -507,7 +507,7 @@ public class TemplateBuilderImpl
 
 	public ParsedTemplate getTemplate()
 	{
-		return new ParsedTemplate(url.getPath(), docType, root, id);
+		return new ParsedTemplate(url.toString(), context.getSimpleName(), docType, root, id);
 	}
 	
 	public boolean hasCurrent()
@@ -627,14 +627,14 @@ public class TemplateBuilderImpl
 		@Override
 		public Content parseExpression(String expression)
 		{
-			Expression expr = expressions.compile(boundNamespaces, expression, context);
+			Expression expr = expressions.compile(url, boundNamespaces, expression, context);
 			return new ExpressionContent(expr);
 		}
 		
 		@Override
 		public Content parseExpression(String expression, Object context)
 		{
-			Expression expr = expressions.compile(boundNamespaces, expression, expressions.resolveType(context));
+			Expression expr = expressions.compile(url, boundNamespaces, expression, expressions.resolveType(context));
 			return new ExpressionContentWithContext(expr, context);
 		}
 		

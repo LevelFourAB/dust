@@ -118,4 +118,15 @@ public class DynamicPropertyInvoker
 			return false;
 		return true;
 	}
+	
+	public DynamicProperty getProperty()
+	{
+		return property;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "DynamicPropertyInvoker{property=" + property + "}";
+	}
 }

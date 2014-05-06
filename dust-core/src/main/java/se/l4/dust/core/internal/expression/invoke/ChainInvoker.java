@@ -123,4 +123,20 @@ public class ChainInvoker
 			return false;
 		return true;
 	}
+	
+	public Invoker getLeft()
+	{
+		return left;
+	}
+	
+	public Invoker getRight()
+	{
+		return right;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "ChainInvoker{left=" + left + ", right=" + right + "}";
+	}
 }

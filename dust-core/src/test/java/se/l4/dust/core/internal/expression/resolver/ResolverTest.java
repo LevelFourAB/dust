@@ -10,10 +10,6 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Stage;
-
 import se.l4.crayon.Crayon;
 import se.l4.dust.api.Context;
 import se.l4.dust.api.conversion.TypeConverter;
@@ -24,6 +20,7 @@ import se.l4.dust.api.expression.ExpressionSource;
 import se.l4.dust.core.internal.conversion.ConversionModule;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ErrorHandlerImpl;
+import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ExpressionParser;
 import se.l4.dust.core.internal.expression.ExpressionResolver;
 import se.l4.dust.core.internal.expression.ExpressionsImpl;
@@ -31,6 +28,7 @@ import se.l4.dust.core.internal.expression.ast.Node;
 import se.l4.dust.core.internal.expression.invoke.ArrayInvoker;
 import se.l4.dust.core.internal.expression.invoke.ChainInvoker;
 import se.l4.dust.core.internal.expression.invoke.ConstantInvoker;
+import se.l4.dust.core.internal.expression.invoke.DynamicMethodInvoker;
 import se.l4.dust.core.internal.expression.invoke.DynamicPropertyInvoker;
 import se.l4.dust.core.internal.expression.invoke.FieldPropertyInvoker;
 import se.l4.dust.core.internal.expression.invoke.Invoker;
@@ -38,6 +36,10 @@ import se.l4.dust.core.internal.expression.invoke.MethodInvoker;
 import se.l4.dust.core.internal.expression.invoke.MethodPropertyInvoker;
 import se.l4.dust.core.internal.expression.invoke.ThisInvoker;
 import se.l4.dust.core.internal.expression.model.Person;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Stage;
 
 /**
  * Expression resolution tests. Tests that the resolver will handle expressions
@@ -149,6 +151,30 @@ public class ResolverTest
 		throws Exception
 	{
 		test("t:emit", Person.class, new DynamicPropertyInvoker(null, new Property("emit")));
+	}
+	
+	@Test
+	public void testCommonPropertyWithSubResoultion()
+		throws Exception
+	{
+		test("t:emit.sub", Person.class, new ChainInvoker(
+			null,
+			new DynamicPropertyInvoker(null, new Property("emit")),
+			new DynamicPropertyInvoker(null, new Property("sub"))
+		));
+	}
+	
+	@Test
+	public void testCommonPropertyWithMethodResoultion()
+		throws Exception
+	{
+		test("t:emit.format('kaka')", Person.class, new ChainInvoker(
+			null,
+			new DynamicPropertyInvoker(null, new Property("emit")),
+			new DynamicMethodInvoker(null, new TestMethod("format"), new Invoker[] {
+				new ConstantInvoker(null, "kaka")
+			})
+		));
 	}
 	
 	@Test
@@ -270,10 +296,8 @@ public class ResolverTest
 		}
 
 		@Override
-		public DynamicMethod getMethod(ExpressionEncounter encounter,
-				String name, Class... parameters)
+		public DynamicMethod getMethod(ExpressionEncounter encounter, String name, Class... parameters)
 		{
-			// TODO Auto-generated method stub
 			return null;
 		}
 		
@@ -305,6 +329,34 @@ public class ResolverTest
 		{
 			return Integer.class;
 		}
+		
+		@Override
+		public boolean needsContext()
+		{
+			return true;
+		}
+		
+		@Override
+		public DynamicProperty getProperty(ExpressionEncounter encounter, String name)
+		{
+			if("sub".equals(name))
+			{
+				return new Property(name);
+			}
+			
+			return null;
+		}
+		
+		@Override
+		public DynamicMethod getMethod(ExpressionEncounter encounter, String name, Class... parameters)
+		{
+			if("format".equals(name))
+			{
+				return new TestMethod(name);
+			}
+			
+			return null;
+		}
 
 		@Override
 		public int hashCode()
@@ -333,6 +385,76 @@ public class ResolverTest
 			else if(!name.equals(other.name))
 				return false;
 			return true;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return "TestProperty{name=" + name + "}";
+		}
+	}
+	
+	private static class TestMethod
+		implements DynamicMethod
+	{
+		private final String name;
+
+		public TestMethod(String name)
+		{
+			this.name = name;
+		}
+
+		@Override
+		public Object invoke(Context context, Object instance, Object... parameters)
+		{
+			return null;
+		}
+
+		@Override
+		public Class<?> getType()
+		{
+			return String.class;
+		}
+		
+		@Override
+		public boolean needsContext()
+		{
+			return true;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((name == null) ? 0 : name.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if(this == obj)
+				return true;
+			if(obj == null)
+				return false;
+			if(getClass() != obj.getClass())
+				return false;
+			TestMethod other = (TestMethod) obj;
+			if(name == null)
+			{
+				if(other.name != null)
+					return false;
+			}
+			else if(!name.equals(other.name))
+				return false;
+			return true;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return "TestMethod{name=" + name + "}";
 		}
 	}
 }

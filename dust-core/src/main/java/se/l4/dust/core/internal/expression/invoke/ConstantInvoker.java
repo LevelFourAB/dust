@@ -119,4 +119,10 @@ public class ConstantInvoker
 			return false;
 		return true;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "ConstantInvoker{value=" + value + "}";
+	}
 }

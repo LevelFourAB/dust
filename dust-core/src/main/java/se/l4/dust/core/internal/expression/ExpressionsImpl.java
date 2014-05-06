@@ -1,5 +1,6 @@
 package se.l4.dust.core.internal.expression;
 
+import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -94,7 +95,7 @@ public class ExpressionsImpl
 	}
 
 	@Override
-	public Expression compile(Map<String, String> namespaces, String expression, Class<?> localContext)
+	public Expression compile(URL source, Map<String, String> namespaces, String expression, Class<?> localContext)
 	{
 		if(production)
 		{
@@ -103,6 +104,7 @@ public class ExpressionsImpl
 			Invoker invoker = new ExpressionResolver(
 				converter, 
 				this,
+				source,
 				namespaces,
 				errors, 
 				node
@@ -113,7 +115,7 @@ public class ExpressionsImpl
 		}
 		else
 		{
-			return new ExpressionDebugger(converter, this, namespaces, expression, localContext);
+			return new ExpressionDebugger(converter, this, source, namespaces, expression, localContext);
 		}
 	}
 }

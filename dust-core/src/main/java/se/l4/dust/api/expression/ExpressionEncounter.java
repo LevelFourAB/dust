@@ -1,5 +1,7 @@
 package se.l4.dust.api.expression;
 
+import java.net.URL;
+
 
 /**
  * Encounter information for an expression encounter.
@@ -9,6 +11,8 @@ package se.l4.dust.api.expression;
  */
 public interface ExpressionEncounter
 {
+	URL getSource();
+	
 	/**
 	 * Get if this is the root context.
 	 * 
