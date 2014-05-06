@@ -1,6 +1,7 @@
 package se.l4.dust.core.internal.messages;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import se.l4.dust.api.messages.Messages;
@@ -56,5 +57,11 @@ public class DelegatingMessages
 	public ResourceVariant getVariant()
 	{
 		return variant;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "DelegatingMessages{other=" + Arrays.toString(other) + ", variant=" + variant + "}";
 	}
 }

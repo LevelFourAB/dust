@@ -68,18 +68,6 @@ public class TemplateModule
 			.addComponent(FragmentUse.class, "use");
 	}
 	
-	@TemplateContribution
-	public void contributePropertySources(TemplateManager manager,
-			CyclePropertySource s1,
-			VarPropertySource s2,
-			MessagePropertySource s4)
-	{
-		manager.addPropertySource("cycle", s1);
-		manager.addPropertySource("var", s2);
-		manager.addPropertySource("message", s4);
-		manager.addPropertySource("m", s4);
-	}
-	
 	@Contribution(name="dust-templates")
 	@Order("after:dust-namespaces")
 	public void bindNamespaces(@TemplateContribution Contributions contributions)
