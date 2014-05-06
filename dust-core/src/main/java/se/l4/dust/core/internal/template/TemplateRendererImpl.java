@@ -5,6 +5,7 @@ import java.net.URL;
 
 import se.l4.dust.api.Context;
 import se.l4.dust.api.Scopes;
+import se.l4.dust.api.annotation.Component;
 import se.l4.dust.api.annotation.Template;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateCache;
@@ -54,7 +55,7 @@ public class TemplateRendererImpl
 		throws IOException
 	{
 		Class<?> c = data.getClass();
-		if(false == c.isAnnotationPresent(Template.class))
+		if(false == c.isAnnotationPresent(Template.class) && false == c.isAnnotationPresent(Component.class))
 		{
 			throw new IllegalArgumentException("Object of type " + c + " does not have a @" + Template.class.getSimpleName() + " annotation");
 		}

@@ -14,6 +14,7 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
 import se.l4.dust.api.Context;
+import se.l4.dust.api.annotation.Component;
 import se.l4.dust.api.annotation.Template;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateCache;
@@ -71,8 +72,7 @@ public class TemplateWriter
 		
 		while(type != Object.class)
 		{
-			Template t = type.getAnnotation(Template.class);
-			if(t != null)
+			if(type.getAnnotation(Template.class) != null || type.getAnnotation(Component.class) != null)
 			{
 				return true;
 			}
