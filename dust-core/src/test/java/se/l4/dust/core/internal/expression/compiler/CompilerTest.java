@@ -472,6 +472,7 @@ public class CompilerTest
 		Invoker invoker = new ExpressionResolver(
 				tc, 
 				expressions,
+				null,
 				namespaces,
 				errors, 
 				node

@@ -465,8 +465,8 @@ public class ExpressionResolver
 						ni, 
 						new IdentifierNode(0, 0, null, "get"), 
 						new Invoker[] { ii }, 
-						left.getReturnClass(),
-						left.getReturnType()
+						indexLeft.getReturnClass(),
+						indexLeft.getReturnType()
 					);
 					
 					indexLeft = new ChainInvoker(index, indexLeft, invoker);
@@ -488,7 +488,7 @@ public class ExpressionResolver
 				}
 			}
 			
-			return left;
+			return indexLeft;
 		}
 		else if(node instanceof ArrayNode)
 		{

@@ -365,8 +365,9 @@ public class DebuggerTest
 	private Object debug(String expr, Class<?> context, Object in)
 	{
 		ExpressionDebugger debugger = new ExpressionDebugger(
-			tc, 
+			tc,
 			expressions,
+			null,
 			Collections.<String, String>emptyMap(),
 			expr, 
 			context

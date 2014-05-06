@@ -67,6 +67,7 @@ public abstract class AbstractSourceTest
 		Invoker invoker = new ExpressionResolver(
 				tc, 
 				expressions,
+				null,
 				namespaces,
 				errors, 
 				node
