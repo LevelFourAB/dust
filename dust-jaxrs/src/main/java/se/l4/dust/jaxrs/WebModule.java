@@ -14,6 +14,7 @@ import se.l4.dust.core.CoreModule;
 import se.l4.dust.jaxrs.annotation.Filter;
 import se.l4.dust.jaxrs.annotation.RequestScoped;
 import se.l4.dust.jaxrs.annotation.SessionScoped;
+import se.l4.dust.jaxrs.internal.ConversionParamProvider;
 import se.l4.dust.jaxrs.internal.NormalPageManager;
 import se.l4.dust.jaxrs.internal.ServletBinderImpl;
 import se.l4.dust.jaxrs.internal.asset.AssetProvider;
@@ -72,6 +73,13 @@ public class WebModule
 	{
 		config.addMessageBodyWriter(w1);
 		config.addMessageBodyWriter(w2);
+	}
+	
+	@Contribution(name="dust-default-param-converter")
+	@Order("after:dust-default-message-providers")
+	public void contributeDefaultParamConverter(Configuration config, ConversionParamProvider provider)
+	{
+		config.addParamConverterProvider(provider);
 	}
 	
 	@Contribution(name="dust-filter-contributions")
