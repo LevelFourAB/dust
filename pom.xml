@@ -32,15 +32,12 @@
 		<module>dust-js-env</module>
 		<module>dust-js-uglify</module>
 		<module>dust-js-closure</module>
-		<module>dust-js-templates</module>
 		<module>dust-js-coffeescript</module>
 
 		<module>dust-css-sprites</module>
 		<module>dust-css-less</module>
 
 		<module>dust-yui</module>
-
-		<module>dust-jrebel</module>
 	</modules>
 	
 	<build>
