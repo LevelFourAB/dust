@@ -44,6 +44,12 @@ public class ExpressionsImpl
 	@Override
 	public void addSource(String namespace, ExpressionSource source)
 	{
+		ExpressionSource existing = sources.get(namespace);
+		if(existing != null)
+		{
+			source = new ExpressionSourceChain(existing, source);
+		}
+		
 		sources.put(namespace, source);
 	}
 	

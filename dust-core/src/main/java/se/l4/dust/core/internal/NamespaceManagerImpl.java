@@ -1,13 +1,22 @@
 package se.l4.dust.core.internal;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.SecureRandom;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.NamespacePlugin;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Module;
 import com.google.inject.Singleton;
 
 @Singleton
@@ -16,12 +25,16 @@ public class NamespaceManagerImpl
 {
 	private final static SecureRandom random = new SecureRandom();
 	
+	private final Injector injector;
+	
 	private final Map<String, Namespace> packages;
 	private final Map<String, Namespace> prefixes;
 	private final Map<String, Namespace> uris;
 	
-	public NamespaceManagerImpl()
+	@Inject
+	public NamespaceManagerImpl(Injector injector)
 	{
+		this.injector = injector;
 		packages = new ConcurrentHashMap<String, Namespace>();
 		prefixes = new ConcurrentHashMap<String, Namespace>();
 		uris = new ConcurrentHashMap<String, Namespace>();
@@ -39,9 +52,15 @@ public class NamespaceManagerImpl
 		return Long.toHexString(random.nextLong());
 	}
 	
-	private void addNamespace(String uri, String prefix, String pkg, String version, ClassLoader loader)
+	private void addNamespace(String uri,
+			String prefix,
+			String pkg,
+			String version,
+			String resourceReference,
+			ClassLoader loader,
+			List<NamespacePlugin> plugins)
 	{
-		Namespace ns = new NamespaceImpl(uri, prefix, pkg, version, loader);
+		Namespace ns = new NamespaceImpl(uri, prefix, pkg, version, resourceReference, loader);
 		uris.put(uri, ns);
 		
 		if(pkg != null)
@@ -52,6 +71,11 @@ public class NamespaceManagerImpl
 		if(prefix != null)
 		{
 			prefixes.put(prefix, ns);
+		}
+		
+		for(NamespacePlugin plugin : plugins)
+		{
+			plugin.register(injector, ns);
 		}
 	}
 	
@@ -88,10 +112,13 @@ public class NamespaceManagerImpl
 		private String version;
 		private String prefix;
 		private ClassLoader loader;
+		private String resourceReference;
+		private List<NamespacePlugin> plugins;
 		
 		public NamespaceBinderImpl(String uri)
 		{
 			this.uri = uri;
+			plugins = Lists.newArrayList();
 		}
 
 		public NamespaceBinder setPackage(String pkg)
@@ -114,6 +141,7 @@ public class NamespaceManagerImpl
 		public NamespaceBinder setPackageFromClass(Class<?> type)
 		{
 			loader = type.getClassLoader();
+			resourceReference = type.getSimpleName() + ".class";
 			return setPackage(type.getPackage());
 		}
 
@@ -130,6 +158,14 @@ public class NamespaceManagerImpl
 			
 			return this;
 		}
+		
+		@Override
+		public NamespaceBinder with(NamespacePlugin plugin)
+		{
+			plugins.add(plugin);
+			
+			return this;
+		}
 
 		public void add()
 		{
@@ -138,7 +174,27 @@ public class NamespaceManagerImpl
 				version = generateVersion(uri);
 			}
 			
-			addNamespace(uri, prefix, pkg, version, loader);
+			if(pkg == null)
+			{
+				// No package set, try to autodetect
+				StackTraceElement[] trace = new Exception().getStackTrace();
+				
+				try
+				{
+					ClassLoader loader = Thread.currentThread().getContextClassLoader();
+					Class<?> type = loader.loadClass(trace[1].getClassName());
+					if(Module.class.isAssignableFrom(type))
+					{
+						// Set the package if this a module
+						setPackageFromClass(type);
+					}
+				}
+				catch(ClassNotFoundException e)
+				{
+				}
+			}
+			
+			addNamespace(uri, prefix, pkg, version, resourceReference, loader, plugins);
 		}
 		
 	}
@@ -152,7 +208,7 @@ public class NamespaceManagerImpl
 		private final String version;
 		private final Locator locator;
 
-		public NamespaceImpl(String uri, String prefix, String pkg, String version, ClassLoader loader)
+		public NamespaceImpl(String uri, String prefix, String pkg, String version, String resourceReference, ClassLoader loader)
 		{
 			this.uri = uri;
 			this.prefix = prefix;
@@ -160,7 +216,7 @@ public class NamespaceManagerImpl
 			this.version = version;
 			
 			locator = loader != null 
-				? new ClassLoaderLocator(loader, pkg)
+				? new ClassLoaderLocator(loader, pkg, resourceReference)
 				: new FailingLocator(uri);
 		}
 
@@ -184,6 +240,11 @@ public class NamespaceManagerImpl
 			return locator.locateResource(resource);
 		}
 		
+		public URI resolveResource(String resource)
+		{
+			return locator.resolveResource(resource);
+		}
+		
 		public String getPackage()
 		{
 			return pkg;
@@ -193,6 +254,8 @@ public class NamespaceManagerImpl
 	private static interface Locator
 	{
 		URL locateResource(String path);
+		
+		URI resolveResource(String path);
 	}
 	
 	private static class ClassLoaderLocator
@@ -200,12 +263,42 @@ public class NamespaceManagerImpl
 	{
 		private final String base;
 		private final ClassLoader loader;
+		private final URI reference;
 
-		public ClassLoaderLocator(ClassLoader loader, String base)
+		public ClassLoaderLocator(ClassLoader loader, String base, String resourceReference)
 		{
 			this.loader = loader;
 			this.base = base.replace('.', '/') + "/";
+			
+			if(resourceReference != null)
+			{
+				URL resource = loader.getResource(this.base + resourceReference);
+				if(resource != null)
+				{
+					try
+					{
+						this.reference = resource.toURI().resolve(".").normalize();
+					}
+					catch(URISyntaxException e)
+					{
+						throw Throwables.propagate(e);
+					}
+				}
+				else
+				{
+					this.reference = null;
+				}
+			}
+			else
+			{
+				this.reference = null;
+			}
+		}
 		
+		@Override
+		public URI resolveResource(String path)
+		{
+			return reference.resolve(path);
 		}
 		
 		public URL locateResource(String path)
@@ -222,6 +315,12 @@ public class NamespaceManagerImpl
 		public FailingLocator(String uri)
 		{
 			this.uri = uri;
+		}
+		
+		@Override
+		public URI resolveResource(String path)
+		{
+			return null;
 		}
 		
 		@Override

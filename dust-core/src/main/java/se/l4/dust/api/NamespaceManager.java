@@ -1,5 +1,6 @@
 package se.l4.dust.api;
 
+import java.net.URI;
 import java.net.URL;
 
 /**
@@ -62,6 +63,15 @@ public interface NamespaceManager
 		NamespaceBinder setPrefix(String prefix);
 		
 		/**
+		 * Add a plugin that can add things to this namespace after it has
+		 * been created.
+		 * 
+		 * @param plugin
+		 * @return
+		 */
+		NamespaceBinder with(NamespacePlugin plugin);
+		
+		/**
 		 * Bind the given namespace.
 		 */
 		void add();
@@ -105,11 +115,21 @@ public interface NamespaceManager
 		URL getResource(String resource);
 
 		/**
+		 * Resolve the URI of a certain resource. This will not check if
+		 * the resource actually exists.
+		 * 
+		 * @param resource
+		 * @return
+		 */
+		URI resolveResource(String resource);
+		
+		/**
 		 * Get the Java package of this namespace.
 		 * 
 		 * @return
 		 */
 		String getPackage();
+
 	}
 	
 	/**
