@@ -32,11 +32,13 @@ public class ConversionParamProvider
 	@Override
 	public <T> ParamConverter<T> getConverter(Class<T> rawType, Type genericType, Annotation[] annotations)
 	{
-		if(rawType.isPrimitive() || Primitives.isWrapperType(rawType) ||
+		if(rawType.isPrimitive()
+			|| Primitives.isWrapperType(rawType) ||
+			rawType == String.class ||
 			! converter.canConvertBetween(rawType, String.class) ||
 			! converter.canConvertBetween(String.class, rawType))
 		{
-			// Primitives are not handled, nor are types that we can't convert both ways
+			// Primitives and String are not handled, nor are types that we can't convert both ways
 			return null;
 		}
 		
