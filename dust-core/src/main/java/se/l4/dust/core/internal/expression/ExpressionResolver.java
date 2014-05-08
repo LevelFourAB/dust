@@ -357,7 +357,7 @@ public class ExpressionResolver
 				ExpressionSource source = expressions.getSource(ns);
 				if(source == null)
 				{
-					throw errors.error(node, "There are not properties or methods available in namespace " + ns);
+					throw errors.error(node, "There are no properties or methods available in namespace " + ns);
 				}
 				
 				Class[] actualParamTypes = new Class[actualParams.length];
@@ -369,7 +369,7 @@ public class ExpressionResolver
 				DynamicMethod method = source.getMethod(encounter, id.getIdentifier(), actualParamTypes);
 				if(method == null)
 				{
-					throw errors.error(node, "There is no method named " + id.getIdentifier() + " in namespace " + ns);
+					throw errors.error(node, "There is no method named " + id.getIdentifier() + " in namespace " + ns + "; Used " + source + " for lookup");
 				}
 				
 				return new DynamicMethodInvoker(node, method, actualParams);
@@ -582,13 +582,13 @@ public class ExpressionResolver
 			ExpressionSource source = expressions.getSource(ns);
 			if(source == null)
 			{
-				throw errors.error(node, "There are not properties or methods available in namespace " + ns);
+				throw errors.error(node, "There are no properties or methods available in namespace " + ns);
 			}
 			
 			DynamicProperty property = source.getProperty(encounter, node.getIdentifier());
 			if(property == null)
 			{
-				throw errors.error(node, "There is no property named " + node.getIdentifier() + " in namespace " + ns);
+				throw errors.error(node, "There is no property named " + node.getIdentifier() + " in namespace " + ns + "; Used " + source + " for lookup");
 			}
 			
 			return new DynamicPropertyInvoker(node, property);

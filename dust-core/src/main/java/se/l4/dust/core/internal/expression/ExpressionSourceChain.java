@@ -41,4 +41,9 @@ public class ExpressionSourceChain
 		return right.getMethod(encounter, name, parameters);
 	}
 
+	@Override
+	public String toString()
+	{
+		return "ExpressionSourceChain{" + left + " and " + right + "}";
+	}
 }
