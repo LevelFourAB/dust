@@ -1,7 +1,5 @@
 package se.l4.dust.api.messages;
 
-import se.l4.dust.api.resource.variant.ResourceVariant;
-
 /**
  * Support for messages.
  * 
@@ -17,11 +15,4 @@ public interface Messages
 	 * @return
 	 */
 	String get(String property);
-	
-	/**
-	 * Get the {@link ResourceVariant} of the messages. Used within templates.
-	 * 
-	 * @return
-	 */
-	ResourceVariant getVariant();
 }

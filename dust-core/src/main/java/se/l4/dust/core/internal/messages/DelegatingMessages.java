@@ -19,23 +19,10 @@ public class DelegatingMessages
 	implements Messages
 {
 	private final Messages[] other;
-	private final ResourceVariant variant;
 
 	public DelegatingMessages(List<Messages> others)
 	{
 		this.other = others.toArray(new Messages[others.size()]);
-		
-		List<ResourceVariant> variants = new ArrayList<ResourceVariant>();
-		for(Messages m : this.other)
-		{
-			if(m.getVariant() != null)
-			{
-				variants.add(m.getVariant());
-			}
-		}
-		
-		this.variant = variants.isEmpty() ? null : 
-			new MergedResourceVariant(variants.toArray(new ResourceVariant[variants.size()]));
 	}
 
 	@Override
@@ -54,14 +41,8 @@ public class DelegatingMessages
 	}
 	
 	@Override
-	public ResourceVariant getVariant()
-	{
-		return variant;
-	}
-	
-	@Override
 	public String toString()
 	{
-		return "DelegatingMessages{other=" + Arrays.toString(other) + ", variant=" + variant + "}";
+		return "DelegatingMessages{other=" + Arrays.toString(other) + "}";
 	}
 }

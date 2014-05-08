@@ -5,14 +5,18 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 import se.l4.dust.api.Context;
-import se.l4.dust.api.messages.AbstractMessages;
 import se.l4.dust.api.messages.MessageSource;
 import se.l4.dust.api.messages.Messages;
 import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
+import se.l4.dust.core.internal.Caches;
 
+import com.google.common.base.Optional;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.io.Closeables;
 import com.google.inject.Inject;
 
@@ -29,14 +33,22 @@ public class PropertyMessagesSource
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 	
 	private final ResourceVariantManager variants;
+	private final LoadingCache<String, Optional<Messages>> cache;
 
 	@Inject
-	public PropertyMessagesSource(ResourceVariantManager variants)
+	public PropertyMessagesSource(Caches caches, ResourceVariantManager variants)
 	{
 		this.variants = variants;
+		this.cache = caches.newLoadingCache(new CacheLoader<String, Optional<Messages>>() {
+			@Override
+			public Optional<Messages> load(String key)
+				throws Exception
+			{
+				return Optional.of(loadUrl(key));
+			}
+		});
 	}
 	
-
 	private boolean checkIfUrlExists(String url)
 	{
 		InputStream stream = null;
@@ -80,29 +92,37 @@ public class PropertyMessagesSource
 			public boolean exists(ResourceVariant variant, String url)
 				throws IOException
 			{
-				if(checkIfUrlExists(url))
-				{
-					return true;
-				}
-				else
-				{
-					return false;
-				}
+				return checkIfUrlExists(url);
 			}
 		}, url);
 		
-		if(result.getUrl().equals(url) && ! checkIfUrlExists(url))
+		try
 		{
-			// No messages
+			return cache.get(result.getUrl()).orNull();
+		}
+		catch(ExecutionException e)
+		{
+			throw new RuntimeException("Unable to load messages; " + e.getCause().getMessage(), e.getCause());
+		}
+	}
+	
+	private Messages loadUrl(String url)
+		throws IOException
+	{
+		if(! checkIfUrlExists(url))
+		{
 			return null;
 		}
 		
-		InputStream stream = new URL(result.getUrl()).openStream();
+		// Load the properties
+		InputStream stream = new URL(url).openStream();
 		try
 		{
 			Properties props = new Properties();
 			props.load(stream);
-			return new PropertyMessages(result.getVariant(), props);
+			
+			PropertyMessages messages = new PropertyMessages(props);
+			return messages;
 		}
 		finally
 		{
@@ -111,13 +131,12 @@ public class PropertyMessagesSource
 	}
 
 	private static class PropertyMessages
-		extends AbstractMessages
+		implements Messages
 	{
 		private final Properties props;
 
-		public PropertyMessages(ResourceVariant variant, Properties props)
+		public PropertyMessages(Properties props)
 		{
-			super(variant);
 			this.props = props;
 		}
 		
