@@ -145,18 +145,18 @@ public class DefaultTypeConverter
 	}
 	
 	@Override
-	public <I, O> NonGenericConversion<Object, O> getGenericConversion(Class<I> in, Class<O> out)
+	public <I, O> NonGenericConversion<Object, O> getDynamicConversion(Class<I> in, Class<O> out)
 	{
 		if(canConvertBetween(in, out))
 		{
 			return (NonGenericConversion<Object, O>) getConversion(in, out);
 		}
 		
-		return createWildcardConversionTo(out);
+		return createDynamicConversionTo(out);
 	}
 	
 	@Override
-	public <T> NonGenericConversion<Object, T> createWildcardConversionTo(final Class<T> out)
+	public <T> NonGenericConversion<Object, T> createDynamicConversionTo(final Class<T> out)
 	{
 		return new NonGenericConversion<Object, T>()
 		{

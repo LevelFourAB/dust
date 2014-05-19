@@ -35,15 +35,7 @@ public class IfComponent
 		Element elseContents = encounter.findParameter("else");
 		
 		Class<?> type = test.getValueType();
-		NonGenericConversion conversion;
-		if(converter.canConvertBetween(type, Boolean.class))
-		{
-			conversion = converter.getConversion(type, Boolean.class);
-		}
-		else
-		{
-			conversion = converter.createWildcardConversionTo(Boolean.class);
-		}
+		NonGenericConversion<Object, Boolean> conversion = converter.getDynamicConversion(test.getValueType(), Boolean.class);
 		
 		encounter.replaceWith(new Component(test, conversion, elseContents, encounter.getBody()));
 	}

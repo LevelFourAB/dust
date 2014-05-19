@@ -25,7 +25,7 @@ public class IfMixin
 	public void element(MixinEncounter encounter)
 	{
 		final Attribute attribute = encounter.getAttribute(TemplateModule.COMMON, "if");
-		final NonGenericConversion<Object, Boolean> conversion = converter.getGenericConversion(attribute.getValueType(), Boolean.class);
+		final NonGenericConversion<Object, Boolean> conversion = converter.getDynamicConversion(attribute.getValueType(), Boolean.class);
 		encounter.wrap(new ElementWrapper()
 		{
 			@Override

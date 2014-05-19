@@ -1,9 +1,11 @@
 package se.l4.dust.core.internal.expression.resolver;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.junit.Test;
@@ -89,6 +91,9 @@ public class TypeResolvingTest
 		List<Class<?>> actuallyExpected = new ArrayList<Class<?>>();
 		for(Class<?> c : expected) actuallyExpected.add(c);
 		
+		Collections.sort(resolved, COMPARATOR);
+		Collections.sort(actuallyExpected, COMPARATOR);
+		
 		assertThat(resolved, is(actuallyExpected));
 	}
 	
@@ -115,4 +120,13 @@ public class TypeResolvingTest
 		
 		return result;
 	}
+	
+	private final Comparator<Class> COMPARATOR = new Comparator<Class>()
+	{
+		@Override
+		public int compare(Class o1, Class o2)
+		{
+			return o1.getSimpleName().compareTo(o2.getSimpleName());
+		}
+	};
 }

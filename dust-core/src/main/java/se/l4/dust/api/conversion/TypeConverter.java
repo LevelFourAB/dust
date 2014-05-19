@@ -62,7 +62,15 @@ public interface TypeConverter
 	 */
 	<I, O> NonGenericConversion<I, O> getConversion(Class<I> in, Class<O> out);
 	
-	<I, O> NonGenericConversion<Object, O> getGenericConversion(Class<I> in, Class<O> out);
+	/**
+	 * Get a conversion between the given input and output if possible, or
+	 * return a dynamic converter that converts to the output.
+	 * 
+	 * @param in
+	 * @param out
+	 * @return
+	 */
+	<I, O> NonGenericConversion<Object, O> getDynamicConversion(Class<I> in, Class<O> out);
 	
 	/**
 	 * Create a conversion that converts any object to the specific type.
@@ -70,5 +78,5 @@ public interface TypeConverter
 	 * @param out
 	 * @return
 	 */
-	<T> NonGenericConversion<Object, T> createWildcardConversionTo(Class<T> out);
+	<T> NonGenericConversion<Object, T> createDynamicConversionTo(Class<T> out);
 }
