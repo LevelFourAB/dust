@@ -11,6 +11,7 @@ import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Order;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.core.CoreModule;
+import se.l4.dust.jaxrs.annotation.ContextContribution;
 import se.l4.dust.jaxrs.annotation.Filter;
 import se.l4.dust.jaxrs.annotation.RequestScoped;
 import se.l4.dust.jaxrs.annotation.SessionScoped;
@@ -51,6 +52,7 @@ public class WebModule
 		
 		// Bind up the filter annotations
 		bindContributions(Filter.class);
+		bindContributions(ContextContribution.class);
 	}
 	
 	@Contribution(name="dust-asset-page")

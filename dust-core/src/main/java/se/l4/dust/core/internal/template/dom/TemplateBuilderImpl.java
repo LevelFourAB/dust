@@ -15,9 +15,9 @@ import se.l4.dust.api.TemplateManager.TemplateNamespace;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.expression.Expressions;
+import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.dom.Comment;
-import se.l4.dust.api.template.dom.Component;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.DocType;
 import se.l4.dust.api.template.dom.Element;
@@ -33,9 +33,6 @@ import se.l4.dust.api.template.spi.PropertySource;
 import se.l4.dust.api.template.spi.TemplateBuilder;
 import se.l4.dust.api.template.spi.TemplateFragment;
 import se.l4.dust.api.template.spi.TemplateInfo;
-import se.l4.dust.core.internal.template.components.EmittableComponent;
-import se.l4.dust.core.internal.template.components.HolderComponent;
-import se.l4.dust.core.internal.template.components.ParameterComponent;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -153,9 +150,9 @@ public class TemplateBuilderImpl
 		return current;
 	}
 	
-	private boolean isComponent()
+	private boolean isFragment()
 	{
-		return current instanceof Component || current instanceof FragmentElement;
+		return current instanceof FragmentElement;
 	}
 	
 	public TemplateBuilder startElement(String name, String... attributes)
@@ -192,9 +189,9 @@ public class TemplateBuilderImpl
 			throw new IllegalStateException("No current element");
 		}
 		
-		if(isComponent())
+		if(isFragment())
 		{
-			throw new IllegalStateException("Currently building a component: " + current);
+			throw new IllegalStateException("Currently building a fragment: " + current);
 		}
 		
 		applyMixins();
@@ -206,7 +203,8 @@ public class TemplateBuilderImpl
 		return this;
 	}
 	
-	public TemplateBuilder startComponent(String name)
+	@Override
+	public TemplateBuilder startFragment(String name)
 	{
 		int idx = name.indexOf(':');
 		if(idx >= 0)
@@ -220,152 +218,74 @@ public class TemplateBuilderImpl
 			}
 			
 			TemplateManager.TemplateNamespace tpl = templates.getNamespace(ns.getUri());
-			Class<?> component = tpl.getComponent(name);
-			if(component == null)
+			TemplateFragment fragment = tpl.getFragment(name);
+			if(fragment == null)
 			{
-				throw new IllegalArgumentException("The component " + name + " could not be found in namespace " + prefix);
+				throw new IllegalArgumentException(name + " could not be found in namespace " + prefix);
 			}
 			
-			return startComponent(component);
+			return startFragment(fragment);
 		}
 		else
 		{
-			throw new IllegalArgumentException("The given component does not have a namespace, consider using startComponent(name, namespace)");
+			throw new IllegalArgumentException("The given fragment does not have a namespace, consider using startFragment(name, namespace)");
 		}
 	}
 	
-	public TemplateBuilder startComponent(String name, String namespace)
+	@Override
+	public TemplateBuilder startFragment(String name, String namespace)
 	{
 		TemplateManager.TemplateNamespace tpl = templates.getNamespace(namespace);
-		Class<?> component = tpl.getComponent(name);
-		if(component == null)
+		TemplateFragment fragment = tpl.getFragment(name);
+		if(fragment == null)
 		{
-			throw new IllegalArgumentException("The component " + name + " could not be found in namespace " + namespace);
+			throw new IllegalArgumentException(name + " could not be found in namespace " + namespace);
 		}
 		
-		return startComponent(component);
+		return startFragment(fragment);
 	}
 	
-	public TemplateBuilder startComponent(Class<?> component)
+	@Override
+	public TemplateBuilder startFragment(TemplateFragment fragment)
 	{
 		// Add mixin attributes to the stack
 		mixinAttributes.add(new LinkedHashMap<String, Element.Attribute>());
-		
-		Element emittable;
-		boolean fragment;
-		if(EmittableComponent.class.isAssignableFrom(component))
-		{
-			emittable = (EmittableComponent) injector.getInstance(component);
-			fragment = false;
-		}
-		else if(TemplateFragment.class.isAssignableFrom(component))
-		{
-			TemplateFragment f = (TemplateFragment) injector.getInstance(component);
-			emittable = new FragmentElement(f);
-			emittable.setParent(current);
-			fragment = true;
-		}
-		else
-		{
-			emittable = new ClassTemplateComponent(component.getSimpleName(), injector, templateCache, converter, component);
-			fragment = false;
-		}
+				
+		Element emittable = new FragmentElement(fragment);
+		emittable.setParent(current);
 		
 		applyDebugHints(emittable);
-		
-		if(emittable instanceof ClassTemplateComponent || emittable instanceof ParameterComponent)
-		{
-			// Insert a context switcher
-			Element switcher = new DataContextSwitcher(id);
-			emittable.addContent(switcher);
-			
-			if(current == null)
-			{
-				root = emittable;
-				current = switcher;
-			}
-			else
-			{
-				current.addContent(emittable);
-				current = switcher;
-			}
-			
-			return this;
-		}
 		
 		if(current == null)
 		{
 			// No current item, set as root
 			root = emittable;
 		}
-		else if(! fragment)
-		{
-			// Non fragment, check if we need to wrap it
-			current.addContent(emittable);
-		}
-
+		
 		current = emittable;
 		
 		return this;
 	}
 	
-	public TemplateBuilder endComponent()
+	@Override
+	public TemplateBuilder endFragment()
 	{
-		if(current == null)
-		{
-			throw new IllegalStateException("No current component");
-		}
-		
-		if(false == isComponent())
+		if(! isFragment())
 		{
 			throw new IllegalStateException("Currently building an element: " + current);
 		}
+		
+		FragmentElement self = (FragmentElement) current;
+		
+		current = current.getParent();
+		
+		self.apply(this);
 		
 		applyMixins();
 		
 		mixinAttributes.removeLast();
 		
-		if(current instanceof FragmentElement)
-		{
-			FragmentElement self = (FragmentElement) current;
-			
-			current = current.getParent();
-			
-			self.apply(this);
-		}
-		else
-		{
-			if(current instanceof DataContextSwitcher)
-			{
-				// First copy all attributes
-				current.getParent().setAttributes(current.getAttributes());
-				current.setAttributes(null);
-				
-				// Really looking for parent of parent
-				current = current.getParent();
-			}
-			
-			if(current instanceof ParameterComponent)
-			{
-				// Seek upwards to find a suitable ClassTemplateComponent
-				Element parent = current.getParent();
-				while(parent != null)
-				{
-					if(parent instanceof DataContextSwitcher)
-					{
-						Element cs = new ComponentContextSwitcher(id);
-						cs.setContents(current.getRawContents());
-						current.setContents(new Content[] { cs });
-						cs.setParent(current);
-						break;
-					}
-					
-					parent = parent.getParent();
-				}
-			}
-			
-			current = current.getParent();
-		}
+		current = current.getParent();
 		
 		return this;
 	}
@@ -377,9 +297,9 @@ public class TemplateBuilderImpl
 			throw new IllegalStateException("No current element or component");
 		}
 		
-		if(isComponent())
+		if(isFragment())
 		{
-			endComponent();
+			endFragment();
 		}
 		else
 		{
@@ -578,13 +498,14 @@ public class TemplateBuilderImpl
 		@Override
 		public void wrap(ElementWrapper wrapper)
 		{
+			System.out.println("current " + current);
 			WrappedElement wrapped = new WrappedElement(current, wrapper);
 			if(current.getParent() == null)
 			{
 				// Special case, wrapping the root element
-				HolderComponent holder = new HolderComponent();
-				holder.addContent(wrapped);
-				root = current = holder;
+				Empty empty = new Empty();
+				empty.addContent(wrapped);
+				root = current = empty;
 			}
 			else
 			{
@@ -677,22 +598,36 @@ public class TemplateBuilderImpl
 				}
 				
 				@Override
+				public Attribute getAttribute(String name, boolean required)
+				{
+					Attribute attribute = self.getAttribute(name);
+					if(attribute == null)
+					{
+						raiseError("The attribute " + name + " is required but was not found");
+					}
+					return attribute;
+				}
+				
+				@Override
 				public Element findParameter(String name)
 				{
-					for(Content c : self.getRawContents())
+					return self.getParameter(name);
+				}
+				
+				@Override
+				public void addParameter(String name, Element content)
+				{
+					if(self.getParent() != null)
 					{
-						if(c instanceof ParameterComponent)
-						{
-							ParameterComponent pc = (ParameterComponent) c;
-							Attribute attr = pc.getAttribute("name");
-							if(attr != null && attr.getStringValue().equals(name))
-							{
-								return pc;
-							}
-						}
+						self.getParent().addParameter(name, content);
 					}
+				}
+				
+				@Override
+				public void raiseError(String message)
+				{
+					// TODO Auto-generated method stub
 					
-					return null;
 				}
 				
 				@Override
@@ -702,53 +637,74 @@ public class TemplateBuilderImpl
 				}
 				
 				@Override
+				public Element getScopedBody()
+				{
+					return new EmittableContent(new DataContextSwitcher(builder.id, self.getRawContents()));
+				}
+				
+				@Override
 				public TemplateBuilder builder()
 				{
 					return builder;
 				}
 				
 				@Override
-				public void replaceWith(Object component)
+				public void replaceWith(Emittable emittable)
 				{
-					EmittableComponent emittable;
-					if(component instanceof EmittableComponent)
+					Element content = new EmittableContent(emittable);
+					
+					if(builder.current == null)
 					{
-						emittable = (EmittableComponent) component;
+						builder.root = content;
 					}
 					else
 					{
-						emittable = new ClassTemplateComponent(
-							component.getClass().getSimpleName(),
-							builder.injector,
-							builder.templateCache,
-							builder.converter,
-							component
-						);
+						builder.current.addContent(content);
 					}
 					
-					if(emittable instanceof ClassTemplateComponent || emittable instanceof ParameterComponent)
+					builder.current = content;
+				}
+				
+				@Override
+				public void replaceWith(Content[] content)
+				{
+					Element root;
+					if(builder.current == null)
 					{
-						// Insert a context switcher
-						Element switcher = new DataContextSwitcher(builder.id);
-						emittable.addContent(switcher);
-						
-						if(builder.current == null)
-						{
-							builder.root = emittable;
-						}
-						else
-						{
-							builder.current.addContent(emittable);
-						}
+						root = builder.root = new Empty();// TODO: Empty holder
 					}
 					else
 					{
-						(builder.current == null ? builder.root : builder.current).addContent(emittable);
-						if(builder.current == null)
-						{
-							builder.root = emittable;
-						}
+						root = builder.current;
 					}
+					
+					for(Content c : content)
+					{
+						root.addContent(c);
+					}
+					
+					builder.current = root;
+				}
+				
+				@Override
+				public void replaceWith(final Iterable<Content> content)
+				{
+					Element root;
+					if(builder.current == null)
+					{
+						root = builder.root = new Empty();// TODO: Empty holder
+					}
+					else
+					{
+						root = builder.current;
+					}
+					
+					for(Content c : content)
+					{
+						root.addContent(c);
+					}
+					
+					builder.current = root;
 				}
 			});
 		}

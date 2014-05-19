@@ -26,6 +26,12 @@ public class ExpressionContent
 	{
 		return new ExpressionContent(expr);
 	}
+	
+	@Override
+	public Class<?> getValueType()
+	{
+		return expr.getReturnClass();
+	}
 
 	@Override
 	public Object getValue(RenderingContext ctx, Object root)

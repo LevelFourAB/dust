@@ -3,6 +3,9 @@ package se.l4.dust.api.template.dom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.template.RenderingContext;
@@ -25,6 +28,8 @@ public class Element
 	private Attribute[] attributes;
 	private Content[] contents;
 	private Element parent;
+	
+	private Map<String, Element> parameters;
 	
 	public Element(String name, String... attributes)
 	{
@@ -296,6 +301,20 @@ public class Element
 		return column;
 	}
 	
+	public Element getParameter(String name)
+	{
+		if(parameters == null) return null;
+		
+		return parameters.get(name);
+	}
+	
+	public void addParameter(String name, Element content)
+	{
+		if(parameters == null) parameters = Maps.newHashMap();
+		
+		parameters.put(name, content);
+	}
+	
 	public static class Attribute
 	{
 		public static final String ATTR_EMIT = "##emit";
@@ -338,6 +357,16 @@ public class Element
 				
 				return result.toString();
 			}
+		}
+		
+		public Class<?> getValueType()
+		{
+			if(value.length == 1 && value[0] instanceof DynamicContent)
+			{
+				return ((DynamicContent) value[0]).getValueType();
+			}
+			
+			return String.class;
 		}
 
 		private Object getValueOf(RenderingContext ctx, Object root, Content c)

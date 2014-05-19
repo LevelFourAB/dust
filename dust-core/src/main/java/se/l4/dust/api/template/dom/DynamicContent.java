@@ -32,6 +32,13 @@ public abstract class DynamicContent
 	{
 		return copy();
 	}
+	
+	/**
+	 * Get the type that this content returns.
+	 * 
+	 * @return
+	 */
+	public abstract Class<?> getValueType();
 
 	/**
 	 * Get the value of this content determined via the current context.

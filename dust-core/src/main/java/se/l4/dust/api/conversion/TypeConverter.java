@@ -25,7 +25,7 @@ public interface TypeConverter
 	 * 		if unable to convert
 	 */
 	<T> T convert(Object in, Class<T> output);
-
+	
 	/**
 	 * Add a conversion between two types.
 	 * 
@@ -61,4 +61,14 @@ public interface TypeConverter
 	 * @return
 	 */
 	<I, O> NonGenericConversion<I, O> getConversion(Class<I> in, Class<O> out);
+	
+	<I, O> NonGenericConversion<Object, O> getGenericConversion(Class<I> in, Class<O> out);
+	
+	/**
+	 * Create a conversion that converts any object to the specific type.
+	 * 
+	 * @param out
+	 * @return
+	 */
+	<T> NonGenericConversion<Object, T> createWildcardConversionTo(Class<T> out);
 }

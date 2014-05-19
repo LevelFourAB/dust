@@ -40,30 +40,38 @@ public interface TemplateBuilder
 	 */
 	TemplateBuilder endElement();
 	
-	/**
-	 * Start creating a component of the given name. The name will be 
-	 * dynamically expanded.
-	 * 
-	 * @param name
-	 * @param namespace
-	 * @return
-	 */
-	TemplateBuilder startComponent(String name, String namespace);
+//	/**
+//	 * Start creating a component of the given name. The name will be 
+//	 * dynamically expanded.
+//	 * 
+//	 * @param name
+//	 * @param namespace
+//	 * @return
+//	 */
+//	TemplateBuilder startComponent(String name, String namespace);
+//	
+//	/**
+//	 * Start creating a component.
+//	 * 
+//	 * @param component
+//	 * @return
+//	 */
+//	TemplateBuilder startComponent(Class<?> component);
 	
-	/**
-	 * Start creating a component.
-	 * 
-	 * @param component
-	 * @return
-	 */
-	TemplateBuilder startComponent(Class<?> component);
+	TemplateBuilder startFragment(String name);
 	
-	/**
-	 * End the current component.
-	 * 
-	 * @return
-	 */
-	TemplateBuilder endComponent();
+	TemplateBuilder startFragment(String name, String namespace);
+	
+	TemplateBuilder startFragment(TemplateFragment fragment);
+	
+	TemplateBuilder endFragment();
+	
+//	/**
+//	 * End the current component.
+//	 * 
+//	 * @return
+//	 */
+//	TemplateBuilder endComponent();
 	
 	/**
 	 * End the current element or component.
@@ -112,14 +120,14 @@ public interface TemplateBuilder
 	 */
 	TemplateBuilder setAttribute(String name, List<Content> value);
 	
-	/**
-	 * Start creating a component of the given name. The name will be 
-	 * dynamically expanded using default namespace bindings.
-	 * 
-	 * @param name
-	 * @return
-	 */
-	TemplateBuilder startComponent(String name);
+//	/**
+//	 * Start creating a component of the given name. The name will be 
+//	 * dynamically expanded using default namespace bindings.
+//	 * 
+//	 * @param name
+//	 * @return
+//	 */
+//	TemplateBuilder startComponent(String name);
 	
 	/**
 	 * Add a comment to the template.

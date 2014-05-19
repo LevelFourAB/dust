@@ -41,6 +41,12 @@ public class VarPropertySource
 		}
 		
 		@Override
+		public Class<?> getValueType()
+		{
+			return Object.class;
+		}
+		
+		@Override
 		public Object getValue(RenderingContext ctx, Object root)
 		{
 			return ctx.getValue(compoundKey);

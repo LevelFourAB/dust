@@ -2,51 +2,41 @@ package se.l4.dust.core.internal.template.dom;
 
 import java.io.IOException;
 
-import se.l4.dust.api.template.RenderingContext;
+import se.l4.dust.api.template.Emittable;
+import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
-import se.l4.dust.core.internal.template.components.EmittableComponent;
 
 public class DataContextSwitcher
-	extends EmittableComponent
+	implements Emittable
 {
 	private final Integer id;
+	private final Content[] content;
 
-	public DataContextSwitcher(Integer id)
+	public DataContextSwitcher(Integer id, Content[] content)
 	{
-		super("dataSwitch", null);
 		this.id = id;
+		this.content = content;
 	}
 	
 	@Override
-	public String getName()
-	{
-		return super.getName() + "[" + id + "]";
-	}
-
-	@Override
-	public Content doCopy()
-	{
-		return new DataContextSwitcher(id);
-	}
-	
-	@Override
-	public void emit(Emitter emitter, RenderingContext ctx, TemplateOutputStream out)
+	public void emit(TemplateEmitter emitter, TemplateOutputStream out)
 		throws IOException
 	{
-		Integer old = emitter.switchData(id);
+		TemplateEmitterImpl emitterImpl = (TemplateEmitterImpl) emitter;
+		Integer old = emitterImpl.switchData(id);
 		
-		for(Content c : getRawContents())
+		for(Content c : content)
 		{
-			emitter.emit(out, c);
+			emitterImpl.emit(out, c);
 		}
 		
-		emitter.switchData(old);
+		emitterImpl.switchData(old);
 	}
 	
 	@Override
 	public String toString()
 	{
-		return "DataSwitch[id=" + id + ", identity=" + System.identityHashCode(this) + ", path=" + getPath() + "]";
+		return "DataSwitch[id=" + id + "]";
 	}
 }

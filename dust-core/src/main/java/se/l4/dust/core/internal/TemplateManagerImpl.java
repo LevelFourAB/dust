@@ -3,6 +3,7 @@ package se.l4.dust.core.internal;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -16,9 +17,13 @@ import se.l4.dust.api.discovery.ClassDiscovery;
 import se.l4.dust.api.discovery.DiscoveryFactory;
 import se.l4.dust.api.template.mixin.TemplateMixin;
 import se.l4.dust.api.template.spi.PropertySource;
+import se.l4.dust.api.template.spi.TemplateFragment;
+import se.l4.dust.core.internal.template.dom.ComponentTemplateFragment;
 
-import com.google.common.base.Function;
-import com.google.common.collect.MapMaker;
+import com.google.common.base.Throwables;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
@@ -38,33 +43,42 @@ public class TemplateManagerImpl
 {
 	private final Injector injector;
 	private final ConcurrentMap<String, Object> propertySources;
-	private final ConcurrentMap<String, NamespacedTemplateImpl> namespaces;
+	private final LoadingCache<String, NamespacedTemplateImpl> namespaces;
 	private final AtomicInteger counter;
 	
 	@Inject
-	public TemplateManagerImpl(Injector injector, final Stage stage, final DiscoveryFactory discovery, final NamespaceManager nsManager)
+	public TemplateManagerImpl(Injector injector_, final Stage stage, final DiscoveryFactory discovery, final NamespaceManager nsManager)
 	{
-		this.injector = injector;
+		this.injector = injector_;
 		
 		counter = new AtomicInteger();
 		
 		propertySources = new ConcurrentHashMap<String, Object>();
-		namespaces = new MapMaker()
-			.makeComputingMap(new Function<String, NamespacedTemplateImpl>()
+		namespaces = CacheBuilder.newBuilder()
+			.build(new CacheLoader<String, NamespacedTemplateImpl>()
 			{
-				public NamespacedTemplateImpl apply(String in)
+				@Override
+				public NamespacedTemplateImpl load(String key)
+					throws Exception
 				{
-					NamespaceManager.Namespace ns = nsManager.getNamespaceByURI(in);
+					NamespaceManager.Namespace ns = nsManager.getNamespaceByURI(key);
 					ClassDiscovery cd = ns == null ? discovery.empty() : discovery.get(ns.getPackage());
 					
-					return new NamespacedTemplateImpl(in, cd, stage == Stage.DEVELOPMENT);
+					return new NamespacedTemplateImpl(injector, key, cd, stage == Stage.DEVELOPMENT);
 				}
 			});
 	}
 	
 	public TemplateNamespace getNamespace(String nsUri)
 	{
-		return namespaces.get(nsUri);
+		try
+		{
+			return namespaces.get(nsUri);
+		}
+		catch(ExecutionException e)
+		{
+			throw Throwables.propagate(e.getCause());
+		}
 	}
 
 	
@@ -103,23 +117,26 @@ public class TemplateManagerImpl
 		implements TemplateNamespace
 	{
 		private final Logger logger;
+		private final Injector injector;
 		
 		private final String namespace;
-		private final Map<String, Class<?>> components;
+		private final Map<String, TemplateFragment> fragments;
 		private final Map<String, TemplateMixin> mixins;
 		
 		private final ClassDiscovery discovery;
 		private final boolean dev;
+
 		
-		public NamespacedTemplateImpl(String namespace, ClassDiscovery discovery, boolean dev)
+		public NamespacedTemplateImpl(Injector injector, String namespace, ClassDiscovery discovery, boolean dev)
 		{
+			this.injector = injector;
 			this.dev = dev;
 			logger = LoggerFactory.getLogger(TemplateNamespace.class.getName() + " [" + namespace + "]");
 			
 			this.namespace = namespace;
 			this.discovery = discovery;
 			
-			components = new ConcurrentHashMap<String, Class<?>>();
+			fragments = new ConcurrentHashMap<>();
 			
 			for(Class<?> c : discovery.getAnnotatedWith(Component.class))
 			{
@@ -129,6 +146,7 @@ public class TemplateManagerImpl
 			mixins = new ConcurrentHashMap<String, TemplateMixin>();
 		}
 		
+		@Override
 		public TemplateNamespace addComponent(Class<?> component)
 		{
 			String[] names = null;
@@ -152,19 +170,30 @@ public class TemplateManagerImpl
 			return this;
 		}
 
+		@Override
 		public TemplateNamespace addComponent(Class<?> component, String... names)
 		{
+			TemplateFragment fragment = new ComponentTemplateFragment(injector, component);
 			for(String name : names)
 			{
-				components.put(name.toLowerCase(), component);
+				fragments.put(name.toLowerCase(), fragment);
 			}
 			
 			return this;
 		}
-
-		public Class<?> getComponent(String name)
+		
+		@Override
+		public TemplateNamespace addFragment(String name, TemplateFragment fragment)
 		{
-			Class<?> o = components.get(name.toLowerCase());
+			fragments.put(name, fragment);
+			
+			return this;
+		}
+
+		@Override
+		public TemplateFragment getFragment(String name)
+		{
+			TemplateFragment o = fragments.get(name.toLowerCase());
 			if(o == null)
 			{
 				throw new ComponentException("Unknown component " + name + " in " + namespace);
@@ -173,9 +202,10 @@ public class TemplateManagerImpl
 			return o;
 		}
 
-		public boolean hasComponent(String name)
+		@Override
+		public boolean hasFragment(String name)
 		{
-			boolean found = components.containsKey(name.toLowerCase());
+			boolean found = fragments.containsKey(name.toLowerCase());
 			if(found)
 			{
 				return true;
@@ -194,9 +224,9 @@ public class TemplateManagerImpl
 				for(Class<?> c : discovery.getAnnotatedWith(Component.class))
 				{
 					addComponent(c);
-					
-					return components.containsKey(name);
 				}
+				
+				return fragments.containsKey(name);
 			}
 			
 			return false;

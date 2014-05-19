@@ -90,6 +90,12 @@ public class AssetPropertySource
 		}
 		
 		@Override
+		public Class<?> getValueType()
+		{
+			return String.class;
+		}
+		
+		@Override
 		public Object getValue(RenderingContext ctx, Object root)
 		{
 			Asset asset = manager.locate(ctx, namespace, path);
@@ -138,6 +144,12 @@ public class AssetPropertySource
 		public FixedContent(Asset asset)
 		{
 			this.asset = asset;
+		}
+		
+		@Override
+		public Class<?> getValueType()
+		{
+			return String.class;
 		}
 
 		@Override

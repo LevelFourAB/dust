@@ -2,72 +2,92 @@ package se.l4.dust.core.internal.template.components;
 
 import java.io.IOException;
 
-import se.l4.dust.api.template.RenderingContext;
+import se.l4.dust.api.conversion.Conversion;
+import se.l4.dust.api.conversion.NonGenericConversion;
+import se.l4.dust.api.conversion.TypeConverter;
+import se.l4.dust.api.template.Emittable;
+import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.dom.Content;
+import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.spi.FragmentEncounter;
 import se.l4.dust.api.template.spi.TemplateFragment;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
-import se.l4.dust.core.internal.template.dom.Emitter;
+
+import com.google.inject.Inject;
 
 public class IfComponent
 	implements TemplateFragment
 {
+	private TypeConverter converter;
+
+
+	@Inject
+	public IfComponent(TypeConverter converter)
+	{
+		this.converter = converter;
+	}
+	
 	@Override
 	public void build(FragmentEncounter encounter)
 	{
 		Attribute test = encounter.getAttribute("test");
+		Element elseContents = encounter.findParameter("else");
 		
-		IfComponent2 component = new IfComponent2(test, encounter.getBody());
-		encounter.replaceWith(component);
+		Class<?> type = test.getValueType();
+		NonGenericConversion conversion;
+		if(converter.canConvertBetween(type, Boolean.class))
+		{
+			conversion = converter.getConversion(type, Boolean.class);
+		}
+		else
+		{
+			conversion = converter.createWildcardConversionTo(Boolean.class);
+		}
+		
+		encounter.replaceWith(new Component(test, conversion, elseContents, encounter.getBody()));
 	}
 	
 	
-	public static class IfComponent2
-		extends EmittableComponent
+	public static class Component
+		implements Emittable
 	{
 		private final Attribute test;
-		private final ParameterComponent elseParameter;
+		private final Conversion<Object, Boolean> conversion;
+		private final Element elseContents;
+		private final Content[] content;
 
-		public IfComponent2(Attribute test, Content[] content)
+		public Component(Attribute test, Conversion<Object, Boolean> conversion, Element elseContents, Content[] content)
 		{
-			super("if", IfComponent2.class);
 			this.test = test;
-			this.setContents(content);
-			elseParameter = getParameter("else", false);
-		}
-
-		@Override
-		public void emit(Emitter emitter, RenderingContext ctx, TemplateOutputStream out)
-			throws IOException
-		{
-			Object data = emitter.getObject();
-			
-			Object value = test.getValue(ctx, data);
-			
-			if(Boolean.TRUE.equals(value))
-			{
-				for(Content c : getRawContents())
-				{
-					if(c == elseParameter) continue;
-				
-					emitter.emit(out,  c);
-				}
-			}
-			else if(elseParameter != null)
-			{
-				// Render the else
-				for(Content c : elseParameter.getRawContents())
-				{
-					emitter.emit(out, c);
-				}
-			}
+			this.conversion = conversion;
+			this.content = content;
+			this.elseContents = elseContents;
 		}
 		
 		@Override
-		public Content doCopy()
+		public void emit(TemplateEmitter emitter, TemplateOutputStream output)
+			throws IOException
 		{
-			return new IfComponent2(test, this.getRawContents());
+			Object data = emitter.getObject();
+			Object value = test.getValue(emitter.getContext(), data);
+			Boolean bool = conversion.convert(value);
+			
+			if(Boolean.TRUE.equals(bool))
+			{
+				for(Content c : content)
+				{
+					emitter.emit(output, c);
+				}
+			}
+			else if(elseContents != null)
+			{
+				// Render the else
+				for(Content c : elseContents.getRawContents())
+				{
+					emitter.emit(output, c);
+				}
+			}
 		}
 	}
 }

@@ -41,6 +41,12 @@ public class ExpressionContentWithContext
 		// TODO: Support for more types?
 		return context;
 	}
+	
+	@Override
+	public Class<?> getValueType()
+	{
+		return expr.getReturnClass();
+	}
 
 	@Override
 	public Object getValue(RenderingContext ctx, Object root)

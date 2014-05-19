@@ -3,6 +3,7 @@ package se.l4.dust.api;
 import se.l4.dust.api.annotation.Component;
 import se.l4.dust.api.template.mixin.TemplateMixin;
 import se.l4.dust.api.template.spi.PropertySource;
+import se.l4.dust.api.template.spi.TemplateFragment;
 
 /**
  * Manager of template related information such as registered filters and
@@ -40,6 +41,14 @@ public interface TemplateManager
 		 * 		names of the component
 		 */
 		TemplateNamespace addComponent(Class<?> component, String... names);
+
+		/**
+		 * Add a fragment creator in this namespace.
+		 * 
+		 * @param fragment
+		 * @return
+		 */
+		TemplateNamespace addFragment(String name, TemplateFragment fragment);
 		
 		/**
 		 * Retrieve a component in the given namespace with the specified name.
@@ -51,7 +60,7 @@ public interface TemplateManager
 		 * 		name of component
 		 * @return
 		 */
-		Class<?> getComponent(String name);
+		TemplateFragment getFragment(String name);
 		
 		/**
 		 * Check if a certain component exists.
@@ -62,7 +71,7 @@ public interface TemplateManager
 		 * 		name of component
 		 * @return
 		 */
-		boolean hasComponent(String name);
+		boolean hasFragment(String name);
 		
 		/**
 		 * Get the primary name of the given component.

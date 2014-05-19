@@ -1,5 +1,9 @@
 package se.l4.dust.core.internal.template;
 
+import com.google.inject.Inject;
+
+import se.l4.dust.api.conversion.NonGenericConversion;
+import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
@@ -9,21 +13,27 @@ import se.l4.dust.api.template.mixin.TemplateMixin;
 public class IfMixin
 	implements TemplateMixin
 {
-	public IfMixin()
+	private final TypeConverter converter;
+
+	@Inject
+	public IfMixin(TypeConverter converter)
 	{
+		this.converter = converter;
 	}
 
 	@Override
 	public void element(MixinEncounter encounter)
 	{
 		final Attribute attribute = encounter.getAttribute(TemplateModule.COMMON, "if");
+		final NonGenericConversion<Object, Boolean> conversion = converter.getGenericConversion(attribute.getValueType(), Boolean.class);
 		encounter.wrap(new ElementWrapper()
 		{
 			@Override
 			public void beforeElement(ElementEncounter encounter)
 			{
 				Object value = attribute.getValue(encounter.getContext(), encounter.getObject());
-				if(Boolean.FALSE.equals(value))
+				Boolean bool = conversion.convert(value);
+				if(! Boolean.TRUE.equals(bool))
 				{
 					encounter.skip();
 				}

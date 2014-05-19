@@ -201,11 +201,9 @@ public class XmlTemplateParser
 			{
 				// This namespace is managed by us, treat as component
 				TemplateManager.TemplateNamespace tpl = templates.getNamespace(uri);
-				if(tpl.hasComponent(localName))
+				if(tpl.hasFragment(localName))
 				{
-					Class<?> component = tpl.getComponent(localName);
-					
-					builder.startComponent(component);
+					builder.startFragment(localName, uri);
 				}
 				else
 				{

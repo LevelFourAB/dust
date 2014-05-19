@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import se.l4.dust.api.TemplateException;
+import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.RenderingContext;
+import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.dom.Comment;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.DocType;
@@ -17,7 +19,6 @@ import se.l4.dust.api.template.dom.WrappedElement;
 import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
-import se.l4.dust.core.internal.template.components.EmittableComponent;
 
 /**
  * Emitter of templates. Takes a {@link ParsedTemplate} and processes it 
@@ -26,11 +27,9 @@ import se.l4.dust.core.internal.template.components.EmittableComponent;
  * @author Andreas Holstenson
  *
  */
-public class Emitter
-	implements ElementEncounter
+public class TemplateEmitterImpl
+	implements ElementEncounter, TemplateEmitter
 {
-	private static final String[] attrsCacheEmpty = new String[10*2];
-	
 	private final ParsedTemplate template;
 	private final RenderingContext ctx;
 
@@ -46,7 +45,7 @@ public class Emitter
 	private boolean skip;
 	
 	
-	public Emitter(ParsedTemplate template, RenderingContext ctx, Object data)
+	public TemplateEmitterImpl(ParsedTemplate template, RenderingContext ctx, Object data)
 	{
 		this.template = template;
 		this.ctx = ctx;
@@ -98,14 +97,19 @@ public class Emitter
 		return attrs;
 	}
 
+	@Override
 	public void emit(TemplateOutputStream out, Content c)
 		throws IOException
 	{
 		try
 		{
-			if(c instanceof EmittableComponent)
+			if(c instanceof Emittable)
 			{
-				((EmittableComponent) c).emit(this, ctx, out);
+				((Emittable) c).emit(this, out);
+			}
+			else if(c instanceof EmittableContent)
+			{
+				((EmittableContent) c).getEmittable().emit(this, out);
 			}
 			else if(c instanceof DynamicContent)
 			{
@@ -129,18 +133,28 @@ public class Emitter
 			}
 			else if(c instanceof Element)
 			{
-				Element element = (Element) c;
-				Content[] content = element.getRawContents();
-				String[] attrs = createAttributes(element, current);
-				
-				out.startElement(element.getName(), attrs, false);
-				
-				for(Content subContent : content)
+				if(c instanceof Empty)
 				{
-					emit(out, subContent);
+					for(Content subContent : ((Element) c).getRawContents())
+					{
+						emit(out, subContent);
+					}
 				}
-				
-				out.endElement(element.getName());
+				else
+				{
+					Element element = (Element) c;
+					Content[] content = element.getRawContents();
+					String[] attrs = createAttributes(element, current);
+					
+					out.startElement(element.getName(), attrs, false);
+					
+					for(Content subContent : content)
+					{
+						emit(out, subContent);
+					}
+					
+					out.endElement(element.getName());
+				}
 			}
 			else if(c instanceof WrappedElement)
 			{

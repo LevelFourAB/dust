@@ -8,10 +8,15 @@ import java.util.RandomAccess;
 
 import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.conversion.TypeConverter;
+import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.RenderingContext;
+import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.dom.Content;
+import se.l4.dust.api.template.dom.Element.Attribute;
+import se.l4.dust.api.template.spi.FragmentEncounter;
+import se.l4.dust.api.template.spi.TemplateFragment;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
-import se.l4.dust.core.internal.template.dom.Emitter;
+import se.l4.dust.core.internal.template.dom.TemplateEmitterImpl;
 
 import com.google.inject.Inject;
 
@@ -23,127 +28,119 @@ import com.google.inject.Inject;
  *
  */
 public class LoopComponent
-	extends EmittableComponent
+	implements TemplateFragment
 {
 	private final TypeConverter converter;
 
 	@Inject
 	public LoopComponent(TypeConverter converter)
 	{
-		super("loop", LoopComponent.class);
-		
 		this.converter = converter;
 	}
 	
 	@Override
-	public Content doCopy()
+	public void build(FragmentEncounter encounter)
 	{
-		return new LoopComponent(converter).copyAttributes(this);
-	}
-	
-	public Attribute getSource()
-	{
-		Attribute source = getAttribute("source");
-		if(source == null) throw new TemplateException("Attribute source is required");
-		return source;
-	}
-	
-	public Attribute getValue()
-	{
-		Attribute value = getAttribute("value");
-		if(value == null) throw new TemplateException("Attribute value is required");
-		return value;
-	}
-	
-	@Override
-	public void emit(
-			Emitter emitter,
-			RenderingContext ctx, 
-			TemplateOutputStream out)
-		throws IOException
-	{
-		Attribute source = getAttribute("source");
-		if(source == null) throw new TemplateException("Attribute source is required");
+		final Attribute source = encounter.getAttribute("source", true);
+		final Attribute value = encounter.getAttribute("value", true);
 		
-		Attribute value = getAttribute("value");
-		if(value == null) throw new TemplateException("Attribute value is required");
-		
-		Object data = emitter.getObject();
-		Object sourceData = source.getValue(ctx, data);
-		if(sourceData == null)
+		encounter.replaceWith(new Component(source, value, encounter.getBody()));
+	}
+	
+	private class Component
+		implements Emittable
+	{
+		private final Attribute value;
+		private final Attribute source;
+		private final Content[] contents;
+
+		public Component(Attribute source, Attribute value, Content[] contents)
 		{
-			// TODO: Proper way to handle null?
-			throw new TemplateException("Can not iterate over nothing (source is null)");
+			this.source = source;
+			this.value = value;
+			this.contents = contents;
 		}
 		
-		if(! (sourceData instanceof Iterable || sourceData instanceof Iterator || sourceData.getClass().isArray()))
+		@Override
+		public void emit(TemplateEmitter emitter, TemplateOutputStream out)
+			throws IOException
 		{
-			// Try to convert to either Iterable or Iterator
-			if(converter.canConvertBetween(sourceData, Iterable.class))
+			Object data = emitter.getObject();
+			RenderingContext ctx = emitter.getContext();
+			Object sourceData = source.getValue(ctx, data);
+			if(sourceData == null)
 			{
-				sourceData = converter.convert(sourceData, Iterable.class);
+				// TODO: Proper way to handle null?
+				throw new TemplateException("Can not iterate over nothing (source is null)");
 			}
-			else if(converter.canConvertBetween(sourceData, Iterator.class))
+			
+			if(! (sourceData instanceof Iterable || sourceData instanceof Iterator || sourceData.getClass().isArray()))
 			{
-				sourceData = converter.convert(sourceData, Iterator.class);
+				// Try to convert to either Iterable or Iterator
+				if(converter.canConvertBetween(sourceData, Iterable.class))
+				{
+					sourceData = converter.convert(sourceData, Iterable.class);
+				}
+				else if(converter.canConvertBetween(sourceData, Iterator.class))
+				{
+					sourceData = converter.convert(sourceData, Iterator.class);
+				}
+				else
+				{
+					throw new TemplateException("Unable to convert value of type " + sourceData.getClass() + " to either Iterable or Iterator; Value is: " + sourceData);
+				}
+			}
+			
+			if(sourceData instanceof RandomAccess && sourceData instanceof List)
+			{
+				List<Object> list = (List) sourceData;
+				for(int i=0, n=list.size(); i<n; i++)
+				{
+					emitLoopContents(emitter, ctx, out, data, value, list.get(i));
+				}
+			}
+			else if(sourceData instanceof Iterable)
+			{
+				Iterable<Object> items = (Iterable) sourceData;
+				
+				for(Object o : items)
+				{
+					emitLoopContents(emitter, ctx, out, data, value, o);
+				}
+			}
+			else if(sourceData instanceof Iterator)
+			{
+				Iterator<Object> it = (Iterator) sourceData;
+				
+				while(it.hasNext())
+				{
+					Object o = it.next();
+					
+					emitLoopContents(emitter, ctx, out, data, value, o);
+				}
 			}
 			else
 			{
-				throw new TemplateException("Unable to convert value of type " + sourceData.getClass() + " to either Iterable or Iterator; Value is: " + sourceData);
+				// Array
+				for(int i=0, n=Array.getLength(sourceData); i<n; i++)
+				{
+					Object o = Array.get(sourceData, i);
+					emitLoopContents(emitter, ctx, out, data, value, o);
+				}
 			}
 		}
 		
-		if(sourceData instanceof RandomAccess && sourceData instanceof List)
+		private void emitLoopContents(TemplateEmitter emitter, RenderingContext ctx,
+				TemplateOutputStream out, Object data, 
+				Attribute value, Object o)
+			throws IOException
 		{
-			List<Object> list = (List) sourceData;
-			for(int i=0, n=list.size(); i<n; i++)
-			{
-				emitLoopContents(emitter, ctx, out, data, value, list.get(i));
-			}
-		}
-		else if(sourceData instanceof Iterable)
-		{
-			Iterable<Object> items = (Iterable) sourceData;
+			value.setValue(ctx, data, o);
 			
-			for(Object o : items)
+			for(Content c : contents)
 			{
-				emitLoopContents(emitter, ctx, out, data, value, o);
-			}
-		}
-		else if(sourceData instanceof Iterator)
-		{
-			Iterator<Object> it = (Iterator) sourceData;
-			
-			while(it.hasNext())
-			{
-				Object o = it.next();
-				
-				emitLoopContents(emitter, ctx, out, data, value, o);
-			}
-		}
-		else
-		{
-			// Array
-			for(int i=0, n=Array.getLength(sourceData); i<n; i++)
-			{
-				Object o = Array.get(sourceData, i);
-				emitLoopContents(emitter, ctx, out, data, value, o);
+				emitter.emit(out, c);
 			}
 		}
 	}
-
-	private void emitLoopContents(Emitter emitter, RenderingContext ctx,
-			TemplateOutputStream out, Object data, 
-			Attribute value, Object o)
-		throws IOException
-	{
-		value.setValue(ctx, data, o);
-		
-		for(Content c : getRawContents())
-		{
-			emitter.emit(out, c);
-		}
-	}
-	
-	
 }

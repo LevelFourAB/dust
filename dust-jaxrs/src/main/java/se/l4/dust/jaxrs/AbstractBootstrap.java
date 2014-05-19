@@ -4,10 +4,13 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import se.l4.crayon.Contributions;
+import se.l4.dust.jaxrs.annotation.ContextContribution;
 import se.l4.dust.jaxrs.internal.PageDiscovery;
 import se.l4.dust.jaxrs.spi.Configuration;
 
 import com.google.inject.Injector;
+import com.google.inject.Key;
 
 /**
  * Abstract bootstrap for setting up a default installation.
@@ -32,6 +35,10 @@ public abstract class AbstractBootstrap
 		Configuration config = i.getInstance(Configuration.class);
 		config.setupContext(ctx, i);
 		
+		Contributions contextContributions = i.getInstance(
+			Key.get(Contributions.class, ContextContribution.class)
+		);
+		contextContributions.run();
 		
 		try
 		{

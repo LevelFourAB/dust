@@ -144,6 +144,42 @@ public class DefaultTypeConverter
 		return (NonGenericConversion<I, O>) toNonGeneric(c);
 	}
 	
+	@Override
+	public <I, O> NonGenericConversion<Object, O> getGenericConversion(Class<I> in, Class<O> out)
+	{
+		if(canConvertBetween(in, out))
+		{
+			return (NonGenericConversion<Object, O>) getConversion(in, out);
+		}
+		
+		return createWildcardConversionTo(out);
+	}
+	
+	@Override
+	public <T> NonGenericConversion<Object, T> createWildcardConversionTo(final Class<T> out)
+	{
+		return new NonGenericConversion<Object, T>()
+		{
+			@Override
+			public Class<Object> getInput()
+			{
+				return Object.class;
+			}
+			
+			@Override
+			public Class<T> getOutput()
+			{
+				return out;
+			}
+			
+			@Override
+			public T convert(Object in)
+			{
+				return DefaultTypeConverter.this.convert(in, out);
+			}
+		};
+	}
+	
 	@SuppressWarnings("unchecked")
 	public <T> T convert(Object in, Class<T> output)
 	{

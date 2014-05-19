@@ -1,37 +1,19 @@
 package se.l4.dust.core.internal.template.components;
 
-import java.io.IOException;
-
-import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.api.template.dom.Content;
-import se.l4.dust.api.template.spi.TemplateOutputStream;
-import se.l4.dust.core.internal.template.dom.Emitter;
+import se.l4.dust.api.template.spi.FragmentEncounter;
+import se.l4.dust.api.template.spi.TemplateFragment;
 
 public class HolderComponent
-	extends EmittableComponent
+	implements TemplateFragment
 {
 	public HolderComponent()
 	{
-		super("holder", HolderComponent.class);
 	}
 	
 	@Override
-	public Content doCopy()
+	public void build(FragmentEncounter encounter)
 	{
-		return new HolderComponent().copyAttributes(this);
+		// Just skip this element
+		encounter.replaceWith(encounter.getBody());
 	}
-	
-	@Override
-	public void emit(
-			Emitter emitter,
-			RenderingContext ctx, 
-			TemplateOutputStream out)
-		throws IOException
-	{
-		for(Content c : getRawContents())
-		{
-			emitter.emit(out, c);
-		}
-	}
-
 }

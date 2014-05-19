@@ -12,13 +12,13 @@ import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateRenderer;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
-import se.l4.dust.core.internal.template.dom.Emitter;
+import se.l4.dust.core.internal.template.dom.TemplateEmitterImpl;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 /**
- * Renderer of templates, delegates most of its work to {@link Emitter}.
+ * Renderer of templates, delegates most of its work to {@link TemplateEmitterImpl}.
  * 
  * @author Andreas Holstenson
  *
@@ -42,7 +42,7 @@ public class TemplateRendererImpl
 		Scopes.setActiveContext(ctx);
 		try
 		{
-			Emitter emitter = new Emitter(template, ctx, data);
+			TemplateEmitterImpl emitter = new TemplateEmitterImpl(template, ctx, data);
 			emitter.process(out);
 		}
 		finally

@@ -1,67 +1,19 @@
 package se.l4.dust.core.internal.template.components;
 
-import java.io.IOException;
-
-import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.api.template.dom.Content;
-import se.l4.dust.api.template.spi.TemplateOutputStream;
-import se.l4.dust.core.internal.template.dom.Emitter;
+import se.l4.dust.api.template.spi.FragmentEncounter;
+import se.l4.dust.api.template.spi.TemplateFragment;
 
 public class ParameterComponent
-	extends EmittableComponent
+	implements TemplateFragment
 {
 	public ParameterComponent()
 	{
-		super("parameter", ParameterComponent.class);
 	}
 	
 	@Override
-	public Content doCopy()
+	public void build(FragmentEncounter encounter)
 	{
-		return new ParameterComponent().copyAttributes(this);
-	}
-	
-//	@Override
-//	public void preload(ExpressionParser expressionParser)
-//	{
-//		super.preload(expressionParser);
-//		
-//		if(false == getParent() instanceof TemplateComponent)
-//		{
-//			throwException("parameter can only be placed as a direct descendant of a component");
-//		}
-//		
-//		if(getAttribute("name") == null)
-//		{
-//			throwException("parameter requires attribute name");
-//		}
-//	}
-	
-//	@Override
-//	public void process(
-//			TemplateEmitter emitter, 
-//			RenderingContext ctx,
-//			Element parent, 
-//			Object root,
-//			TemplateComponent lastComponent, 
-//			Object previousRoot)
-//		throws JDOMException
-//	{
-//	}
-	
-	@Override
-	public void emit(
-			Emitter emitter,
-			RenderingContext ctx, 
-			TemplateOutputStream out)
-		throws IOException
-	{
-	}
-	
-	@Override
-	public String toString()
-	{
-		Attribute attr = getAttribute("name");
-		return "ParameterComponent[parameterName=" + (attr == null ? "" : attr.getStringValue()) + "]";
+		String name = encounter.getAttribute("name").getStringValue();
+		encounter.addParameter(name, encounter.getScopedBody());
 	}
 }

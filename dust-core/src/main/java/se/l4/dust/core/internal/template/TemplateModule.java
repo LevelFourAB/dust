@@ -46,26 +46,37 @@ public class TemplateModule
 	}
 	
 	@TemplateContribution
-	public void contributeCommonComponents(TemplateManager manager)
+	public void contributeCommonComponents(TemplateManager manager,
+			ParameterComponent parameter,
+			BodyComponent body,
+			IfComponent ifC,
+			LoopComponent loop,
+			HolderComponent holder,
+			RawComponent raw,
+			RenderComponent render,
+			IfMixin ifM)
 	{
 		manager.getNamespace(COMMON)
-			.addComponent(ParameterComponent.class, "parameter")
-			.addComponent(BodyComponent.class, "body")
-			.addComponent(IfComponent.class, "if")
-			.addComponent(LoopComponent.class, "loop")
-			.addComponent(HolderComponent.class, "holder")
-			.addComponent(RawComponent.class, "raw")
-			.addComponent(RenderComponent.class, "render")
-			.addMixin("if", new IfMixin());
+			.addFragment("parameter", parameter)
+			.addFragment("body", body)
+			.addFragment("if", ifC)
+			.addFragment("loop", loop)
+			.addFragment("holder", holder)
+			.addFragment("raw", raw)
+			.addFragment("render", render)
+			.addMixin("if", ifM);
 	}
 	
 	@TemplateContribution
-	public void contributeFragmentComponents(NamespaceManager namespaces, TemplateManager manager)
+	public void contributeFragmentComponents(NamespaceManager namespaces,
+			TemplateManager manager,
+			FragmentDefinition definition,
+			FragmentUse use)
 	{
 		namespaces.bind("dust:fragments").add();
 		manager.getNamespace("dust:fragments")
-			.addComponent(FragmentDefinition.class, "define")
-			.addComponent(FragmentUse.class, "use");
+			.addFragment("define", definition)
+			.addFragment("use", use);
 	}
 	
 	@Contribution(name="dust-templates")
