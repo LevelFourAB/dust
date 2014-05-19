@@ -222,8 +222,6 @@ public class TemplateCacheImpl
 		implements InnerCache
 	{
 		private final LoadingCache<Key, ParsedTemplate> templates;
-		private final LoadingCache<Key, ParsedTemplate> transformed;
-		private final ConcurrentMap<String, ParsedTemplate> transformedCopy;
 		private final LoadingCache<Class<?>, ContextKey> urlCache;
 		
 		public ProductionCache()
@@ -248,58 +246,19 @@ public class TemplateCacheImpl
 						return findTemplateUrl(input);
 					}
 				});
-			
-			transformedCopy = new ConcurrentHashMap<String, ParsedTemplate>();
-			transformed = CacheBuilder.newBuilder()
-				.build(new CacheLoader<Key, ParsedTemplate>()
-				{
-					@Override
-					public ParsedTemplate load(Key key)
-						throws Exception
-					{
-						ParsedTemplate tpl = templates.get(key);
-						
-						TemplateVariantImpl impl = new TemplateVariantImpl(variants, key.extraContext, tpl, key.url.toExternalForm());
-						impl.transform();
-						
-						key.clearExtraContext();
-						
-						/*
-						 * Make sure that we keep the used memory down by
-						 * storing templates based on their URL containing
-						 * the variants.
-						 */
-						String s = impl.getTransformedUrl();
-						ParsedTemplate template = impl.getTransformedTemplate();
-						ParsedTemplate actualTemplate = transformedCopy.putIfAbsent(s, template);
-						
-						return actualTemplate == null ? template : actualTemplate;
-					}
-				});
 		}
 		
 		public ParsedTemplate getTemplate(Context context, Class<?> ctx, URL url)
 		{
-			String raw = url.toExternalForm();
 			try
 			{
-				ResourceVariantManager.Result result = variants.resolve(context, resourceCallback, raw);
-				Object[] cache = variants.getCacheObject(context);
-				Key key = new Key(ctx, new URL(result.getUrl()), context, cache);
-				return transformed.get(key);
-			}
-			catch(IOException e)
-			{
-				throw new TemplateException("Unable to load " + raw + "; " + e.getMessage(), e);
+				Key key = new Key(ctx, url);
+				return templates.get(key);
 			}
 			catch(ExecutionException e)
 			{
-				throw new TemplateException("Unable to load " + raw + "; " + e.getCause().getMessage(), e.getCause());
+				throw new TemplateException("Unable to load " + url + "; " + e.getCause().getMessage(), e.getCause());
 			}
-//			catch(Exception e)
-//			{
-//				throw new TemplateException("Unable to load " + raw + "; " + e.getCause().getMessage(), e.getCause());
-//			}
 		}
 		
 		@Override

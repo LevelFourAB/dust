@@ -9,10 +9,8 @@ import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.dom.DynamicContent;
-import se.l4.dust.api.template.dom.VariantContent;
 import se.l4.dust.api.template.spi.PropertySource;
 import se.l4.dust.api.template.spi.TemplateInfo;
-import se.l4.dust.api.template.spi.TemplateVariant;
 
 import com.google.inject.Inject;
 import com.google.inject.Stage;
@@ -74,7 +72,6 @@ public class AssetPropertySource
 
 	private static class Content
 		extends DynamicContent
-		implements VariantContent
 	{
 		private final AssetManager manager;
 		private final boolean production;
@@ -116,16 +113,6 @@ public class AssetPropertySource
 		public se.l4.dust.api.template.dom.Content doCopy()
 		{
 			return new Content(manager, production, namespace, path);
-		}
-
-		@Override
-		public void transform(TemplateVariant variant)
-		{
-			if(production)
-			{
-				Asset asset = manager.locate(variant.getContext(), namespace, path);
-				variant.replaceWith(new FixedContent(asset), null);
-			}
 		}
 	}
 	
