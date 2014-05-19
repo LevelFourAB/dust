@@ -57,6 +57,7 @@ public class XmlTemplateParser
 		factory.setValidating(false);
 		
 		ErrorCollector errors = new ErrorCollector(name);
+		builder.withErrorCollector(errors);
 		try
 		{
 			SAXParser parser = factory.newSAXParser();

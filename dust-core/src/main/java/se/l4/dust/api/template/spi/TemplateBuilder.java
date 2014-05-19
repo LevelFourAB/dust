@@ -15,6 +15,14 @@ import se.l4.dust.api.template.dom.Text;
 public interface TemplateBuilder
 {
 	/**
+	 * Set the error collector to use.
+	 * 
+	 * @param collector
+	 * @return
+	 */
+	TemplateBuilder withErrorCollector(ErrorCollector collector);
+	
+	/**
 	 * 
 	 * @param name
 	 * @param publicId

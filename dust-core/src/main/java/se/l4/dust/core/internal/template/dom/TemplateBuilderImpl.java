@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.TemplateManager.TemplateNamespace;
 import se.l4.dust.api.conversion.TypeConverter;
@@ -28,6 +29,7 @@ import se.l4.dust.api.template.dom.WrappedElement;
 import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.mixin.MixinEncounter;
 import se.l4.dust.api.template.mixin.TemplateMixin;
+import se.l4.dust.api.template.spi.ErrorCollector;
 import se.l4.dust.api.template.spi.FragmentEncounter;
 import se.l4.dust.api.template.spi.PropertySource;
 import se.l4.dust.api.template.spi.TemplateBuilder;
@@ -63,6 +65,7 @@ public class TemplateBuilderImpl
 	
 	private final Integer id;
 	
+	private ErrorCollector errorCollector;
 	private Class<?> context;
 	
 	private DocType docType;
@@ -111,6 +114,19 @@ public class TemplateBuilderImpl
 			}
 		};
 	}
+	
+	private TemplateException raiseError(String message)
+	{
+		errorCollector.newError(line, column, message);
+		return errorCollector.raiseException();
+	}
+	
+	@Override
+	public TemplateBuilder withErrorCollector(ErrorCollector collector)
+	{
+		this.errorCollector = collector;
+		return this;
+	}
 
 	public void setContext(URL url, Class<?> context)
 	{
@@ -144,7 +160,7 @@ public class TemplateBuilderImpl
 	{
 		if(current == null)
 		{
-			throw new IllegalStateException("No current element");
+			throw raiseError("No current element");
 		}
 		
 		return current;
@@ -186,12 +202,12 @@ public class TemplateBuilderImpl
 	{
 		if(current == null)
 		{
-			throw new IllegalStateException("No current element");
+			throw raiseError("No current element");
 		}
 		
 		if(isFragment())
 		{
-			throw new IllegalStateException("Currently building a fragment: " + current);
+			throw raiseError("Currently building a fragment: " + current);
 		}
 		
 		applyMixins();
@@ -272,7 +288,7 @@ public class TemplateBuilderImpl
 	{
 		if(! isFragment())
 		{
-			throw new IllegalStateException("Currently building an element: " + current);
+			throw raiseError("Currently building an element: " + current);
 		}
 		
 		FragmentElement self = (FragmentElement) current;
@@ -281,11 +297,14 @@ public class TemplateBuilderImpl
 		
 		self.apply(this);
 		
-		applyMixins();
-		
-		mixinAttributes.removeLast();
-		
-		current = current.getParent();
+		if(self.wasReplaced())
+		{
+			applyMixins();
+			
+			mixinAttributes.removeLast();
+			
+			current = current.getParent();
+		}
 		
 		return this;
 	}
@@ -294,7 +313,7 @@ public class TemplateBuilderImpl
 	{
 		if(current == null)
 		{
-			throw new IllegalStateException("No current element or component");
+			throw raiseError("No current element or component");
 		}
 		
 		if(isFragment())
@@ -498,7 +517,6 @@ public class TemplateBuilderImpl
 		@Override
 		public void wrap(ElementWrapper wrapper)
 		{
-			System.out.println("current " + current);
 			WrappedElement wrapped = new WrappedElement(current, wrapper);
 			if(current.getParent() == null)
 			{
@@ -570,6 +588,7 @@ public class TemplateBuilderImpl
 		extends Element
 	{
 		private final TemplateFragment fragment;
+		private boolean replaced;
 
 		public FragmentElement(TemplateFragment fragment)
 		{
@@ -626,8 +645,7 @@ public class TemplateBuilderImpl
 				@Override
 				public void raiseError(String message)
 				{
-					// TODO Auto-generated method stub
-					
+					throw builder.raiseError(message);
 				}
 				
 				@Override
@@ -663,6 +681,8 @@ public class TemplateBuilderImpl
 					}
 					
 					builder.current = content;
+					
+					replaced = true;
 				}
 				
 				@Override
@@ -671,7 +691,7 @@ public class TemplateBuilderImpl
 					Element root;
 					if(builder.current == null)
 					{
-						root = builder.root = new Empty();// TODO: Empty holder
+						root = builder.root = new Empty();
 					}
 					else
 					{
@@ -684,6 +704,8 @@ public class TemplateBuilderImpl
 					}
 					
 					builder.current = root;
+					
+					replaced = true;
 				}
 				
 				@Override
@@ -692,7 +714,7 @@ public class TemplateBuilderImpl
 					Element root;
 					if(builder.current == null)
 					{
-						root = builder.root = new Empty();// TODO: Empty holder
+						root = builder.root = new Empty();
 					}
 					else
 					{
@@ -705,8 +727,15 @@ public class TemplateBuilderImpl
 					}
 					
 					builder.current = root;
+					
+					replaced = true;
 				}
 			});
+		}
+		
+		public boolean wasReplaced()
+		{
+			return replaced;
 		}
 	}
 }
