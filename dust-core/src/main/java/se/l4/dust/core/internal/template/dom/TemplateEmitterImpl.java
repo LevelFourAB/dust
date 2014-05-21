@@ -34,16 +34,19 @@ public class TemplateEmitterImpl
 	private final RenderingContext ctx;
 
 	private final String[] attrsCache;
+	private final HashMap<Integer, Element> componentMap;
+	private final HashMap<Integer, Object> dataMap;
 	
 	private Object current;
 	private Integer currentId;
-	private final HashMap<Integer, Object> dataMap;
+	
+	private TemplateOutputStream out;
 	
 	private Element currentComponent;
 	private Integer currentComponentId;
-	private final HashMap<Integer, Element> componentMap;
-	private boolean skip;
 	
+	private boolean skip;
+	private Element wrapped;
 	
 	public TemplateEmitterImpl(ParsedTemplate template, RenderingContext ctx, Object data)
 	{
@@ -64,6 +67,8 @@ public class TemplateEmitterImpl
 	public void process(TemplateOutputStream out)
 		throws IOException
 	{
+		this.out = out;
+		
 		DocType docType = template.getDocType();
 		if(docType != null)
 		{
@@ -160,6 +165,7 @@ public class TemplateEmitterImpl
 			{
 				WrappedElement we = (WrappedElement) c;
 				ElementWrapper wrapper = we.getWrapper();
+				this.wrapped = we.getElement();
 				skip = false;
 				wrapper.beforeElement(this);
 				
@@ -209,6 +215,14 @@ public class TemplateEmitterImpl
 	public void skip()
 	{
 		this.skip = true;
+	}
+	
+	@Override
+	public void emit()
+		throws IOException
+	{
+		this.skip = true;
+		emit(out, wrapped);
 	}
 	
 	public Element getCurrentComponent()

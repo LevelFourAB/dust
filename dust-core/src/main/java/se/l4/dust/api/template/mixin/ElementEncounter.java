@@ -1,5 +1,7 @@
 package se.l4.dust.api.template.mixin;
 
+import java.io.IOException;
+
 import se.l4.dust.api.template.RenderingContext;
 
 /**
@@ -30,4 +32,13 @@ public interface ElementEncounter
 	 * @return
 	 */
 	void skip();
+	
+	/**
+	 * Manually emit the wrapped content.
+	 * 
+	 * @throws IOException 
+	 * 
+	 */
+	void emit()
+		throws IOException;
 }
