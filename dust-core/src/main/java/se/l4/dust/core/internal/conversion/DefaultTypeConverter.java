@@ -40,6 +40,15 @@ public class DefaultTypeConverter
 		}
 	};
 	
+	private static final Conversion<?, ?> NO_CONVERSION = new Conversion<Object, Object>()
+		{
+			@Override
+			public Object convert(Object in)
+			{
+				return in;
+			}
+		};
+	
 	private final Map<Class<?>, List<Conversion<?, ?>>> conversions;
 	private final Map<CacheKey, Conversion<?, ?>> cache;
 	
@@ -114,6 +123,12 @@ public class DefaultTypeConverter
 	private Conversion<?, ?> getConversion0(Class<?> in, Class<?> output)
 	{
 		if(in == null) return NULL;
+		
+		if(in == output || output.isAssignableFrom(in))
+		{
+			// If the same type or output is assignable from input
+			return NO_CONVERSION;
+		}
 		
 		// Check cache first
 		CacheKey key = new CacheKey(in, output);
