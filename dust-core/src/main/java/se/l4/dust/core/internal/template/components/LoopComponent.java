@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.RandomAccess;
 
 import se.l4.dust.api.TemplateException;
+import se.l4.dust.api.conversion.Conversion;
+import se.l4.dust.api.conversion.NonGenericConversion;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.RenderingContext;
@@ -16,7 +18,6 @@ import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.spi.FragmentEncounter;
 import se.l4.dust.api.template.spi.TemplateFragment;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
-import se.l4.dust.core.internal.template.dom.TemplateEmitterImpl;
 
 import com.google.inject.Inject;
 
@@ -44,22 +45,45 @@ public class LoopComponent
 		final Attribute source = encounter.getAttribute("source", true);
 		final Attribute value = encounter.getAttribute("value", true);
 		
-		encounter.replaceWith(new Component(source, value, encounter.getBody()));
+		AbstractComponent component;
+		if(source.getValueType().isArray())
+		{
+			component = new ArrayComponent(source, value, encounter.getBody());
+		}
+		else if(converter.canConvertBetween(source.getValueType(), Iterable.class))
+		{
+			NonGenericConversion conversion = converter.getDynamicConversion(source.getValueType(), Iterable.class);
+			component = new IterableComponent(source, value, encounter.getBody(), conversion);
+		}
+		else if(converter.canConvertBetween(source.getValueType(), Iterator.class))
+		{
+			NonGenericConversion conversion = converter.getDynamicConversion(source.getValueType(), Iterator.class);
+			component = new IteratorComponent(source, value, encounter.getBody(), conversion);
+		}
+		else
+		{
+			component = new DynamicComponent(source, value, encounter.getBody());
+		}
+		
+		encounter.replaceWith(component);
 	}
 	
-	private class Component
+	private abstract class AbstractComponent
 		implements Emittable
 	{
 		private final Attribute value;
 		private final Attribute source;
 		private final Content[] contents;
 
-		public Component(Attribute source, Attribute value, Content[] contents)
+		public AbstractComponent(Attribute source, Attribute value, Content[] contents)
 		{
 			this.source = source;
 			this.value = value;
 			this.contents = contents;
 		}
+		
+		protected abstract void emit(TemplateEmitter emitter, TemplateOutputStream out, Object sourceData)
+			throws IOException;
 		
 		@Override
 		public void emit(TemplateEmitter emitter, TemplateOutputStream out)
@@ -74,6 +98,35 @@ public class LoopComponent
 				throw new TemplateException("Can not iterate over nothing (source is null)");
 			}
 			
+			emit(emitter, out, sourceData);
+		}
+		
+		protected void emitLoopContents(TemplateEmitter emitter,
+				TemplateOutputStream out,
+				Object o)
+			throws IOException
+		{
+			value.setValue(emitter.getContext(), emitter.getObject(), o);
+			
+			for(Content c : contents)
+			{
+				emitter.emit(out, c);
+			}
+		}
+	}
+	
+	private class DynamicComponent
+		extends AbstractComponent
+	{
+		public DynamicComponent(Attribute source, Attribute value, Content[] contents)
+		{
+			super(source, value, contents);
+		}
+		
+		@Override
+		protected void emit(TemplateEmitter emitter, TemplateOutputStream out, Object sourceData)
+			throws IOException
+		{
 			if(! (sourceData instanceof Iterable || sourceData instanceof Iterator || sourceData.getClass().isArray()))
 			{
 				// Try to convert to either Iterable or Iterator
@@ -96,7 +149,7 @@ public class LoopComponent
 				List<Object> list = (List) sourceData;
 				for(int i=0, n=list.size(); i<n; i++)
 				{
-					emitLoopContents(emitter, ctx, out, data, value, list.get(i));
+					emitLoopContents(emitter, out, list.get(i));
 				}
 			}
 			else if(sourceData instanceof Iterable)
@@ -105,7 +158,7 @@ public class LoopComponent
 				
 				for(Object o : items)
 				{
-					emitLoopContents(emitter, ctx, out, data, value, o);
+					emitLoopContents(emitter, out, o);
 				}
 			}
 			else if(sourceData instanceof Iterator)
@@ -114,9 +167,7 @@ public class LoopComponent
 				
 				while(it.hasNext())
 				{
-					Object o = it.next();
-					
-					emitLoopContents(emitter, ctx, out, data, value, o);
+					emitLoopContents(emitter, out, it.next());
 				}
 			}
 			else
@@ -125,21 +176,83 @@ public class LoopComponent
 				for(int i=0, n=Array.getLength(sourceData); i<n; i++)
 				{
 					Object o = Array.get(sourceData, i);
-					emitLoopContents(emitter, ctx, out, data, value, o);
+					emitLoopContents(emitter, out, o);
 				}
 			}
 		}
+	}
+	
+	private class IterableComponent
+		extends AbstractComponent
+	{
+		private final Conversion<Object, Iterable<Object>> conversion;
+
+		public IterableComponent(Attribute source,
+				Attribute value,
+				Content[] contents,
+				Conversion<Object, Iterable<Object>> conversion)
+		{
+			super(source, value, contents);
+			this.conversion = conversion;
+		}
 		
-		private void emitLoopContents(TemplateEmitter emitter, RenderingContext ctx,
-				TemplateOutputStream out, Object data, 
-				Attribute value, Object o)
+		@Override
+		protected void emit(TemplateEmitter emitter, TemplateOutputStream out, Object sourceData)
 			throws IOException
 		{
-			value.setValue(ctx, data, o);
-			
-			for(Content c : contents)
+			Iterable<Object> items = conversion.convert(sourceData);
+				
+			for(Object o : items)
 			{
-				emitter.emit(out, c);
+				emitLoopContents(emitter, out, o);
+			}
+		}
+	}
+	
+	private class IteratorComponent
+		extends AbstractComponent
+	{
+		private final Conversion<Object, Iterator<Object>> conversion;
+	
+		public IteratorComponent(Attribute source,
+				Attribute value,
+				Content[] contents,
+				Conversion<Object, Iterator<Object>> conversion)
+		{
+			super(source, value, contents);
+			this.conversion = conversion;
+		}
+		
+		@Override
+		protected void emit(TemplateEmitter emitter, TemplateOutputStream out, Object sourceData)
+			throws IOException
+		{
+			Iterator<Object> it = conversion.convert(sourceData);
+			while(it.hasNext())
+			{
+				emitLoopContents(emitter, out, it.next());
+			}
+		}
+	}
+	
+	private class ArrayComponent
+		extends AbstractComponent
+	{
+		public ArrayComponent(Attribute source,
+				Attribute value,
+				Content[] contents)
+		{
+			super(source, value, contents);
+		}
+		
+		@Override
+		protected void emit(TemplateEmitter emitter, TemplateOutputStream out, Object sourceData)
+			throws IOException
+		{
+			for(int i=0, n=Array.getLength(sourceData); i<n; i++)
+			{
+				Object o = Array.get(sourceData, i);
+				emitLoopContents(emitter, out, o);
 			}
 		}
 	}
