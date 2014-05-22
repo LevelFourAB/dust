@@ -8,7 +8,7 @@ The easiest way to get started with Dust is to start with one of the examples. T
 
 [https://github.com/LevelFourAB/dust-examples](https://github.com/LevelFourAB/dust-examples)
 
-These examples are built using Maven and show off certain features of Dust.
+These examples are built using Maven and show off certain features of Dust. Use jetty:run in a project to run it.
 
 dust-example-simple
 -------------------

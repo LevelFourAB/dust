@@ -1,1 +1,16 @@
 
+@media (max-width: 767px) {
+	.feature {
+		width: 100%;
+	}
+
+	.site-cover {
+		h1 {
+			font-size: 2em;
+		}
+
+		h3 {
+			font-size: 1em;
+		}
+	}
+}

@@ -9,3 +9,4 @@
 
 *.swp
 docs/_site
+docs/Gemfile.lock

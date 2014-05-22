@@ -52,7 +52,7 @@ kramdown:
 
 assets:
   dirname: assets
-  baseurl: http://dust.l4.se/assets/
+  #baseurl: http://dust.l4.se/assets/
   sources:
     - _assets/javascripts
     - _assets/stylesheets
