@@ -20,7 +20,7 @@ public class Dust
 	 * should be set in the {@code web.xml} of the application to {@code true}
 	 * before deployment.
 	 */
-	public static final String DUST_PRODUCTION = "dust.production";
+	public static final String DUST_PRODUCTION = "production";
 	
 	/**
 	 * URI of context namespace, used to refer to files in the webapp context.
