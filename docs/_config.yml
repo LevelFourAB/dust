@@ -1,0 +1,65 @@
+info:
+  title: "Dust"
+  subtitle: "Component based web development"
+
+  #cover_color: "#666"
+  #cover_image: ""
+  #logo: logo.png
+
+  github: "https://github.com/LevelFourAB/dust"
+
+baseurl: http://dust.l4.se
+
+links:
+  - title: Quick Start
+    url: /quick-start/
+  - title: Documentation
+    url: /docs/
+
+timezone: nil
+
+# Show future posts
+future: false
+highlighter: pygments
+
+relative_permalinks: true
+
+exclude: ['Gemfile','Rakefile']
+
+permalink: pretty
+paginate_path: 'page:num'
+paginate: 10
+
+markdown: kramdown
+markdown_ext: markdown,mkd,mkdn,md
+textile_ext: textile
+
+kramdown:
+  auto_ids: true
+  footnote_nr: 1
+  entity_output: as_char
+  toc_levels: 1..6
+  smart_quotes: lsquo,rsquo,ldquo,rdquo
+  use_coderay: false
+
+  coderay:
+    coderay_wrap: div
+    coderay_line_numbers: inline
+    coderay_line_numbers_start: 1
+    coderay_tab_width: 4
+    coderay_bold_every: 10
+    coderay_css: style
+
+assets:
+  dirname: assets
+  baseurl: /assets/
+  sources:
+    - _assets/javascripts
+    - _assets/stylesheets
+    - _assets/images
+  js_compressor: uglifier
+  css_compressor: sass
+  cachebust: none
+  cache: false
+  gzip: [ text/css, application/javascript ]
+  debug: false

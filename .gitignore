@@ -6,3 +6,6 @@
 .project
 .classpath
 .settings
+
+*.swp
+docs/_site

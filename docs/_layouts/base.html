@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% if page.title %}{{ page.title }} &mdash; {{ site.info.title }}{% else %}{{ site.info.title }} &mdash; {{ site.info.subtitle }}{% endif %}</title>
+	<link href="https://fonts.googleapis.com/css?family=Droid+Sans:400,700" rel="stylesheet" type="text/css">
+	{% stylesheet main %}
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+	<link rel="canonical" href="{{ site.url }}{{ page.url }}">
+	<meta property="og:title" content="{% if page.title %}{{ page.title }} {% else %}{{ site.info.title }}{% endif %}"/>
+	<meta property="og:url" content="{{ site.baseurl }}{{ page.url }}"/>
+	{% if page.cover_image %}
+	<meta property="og:image" content="{{ site.baseurl }}/images/{{ page.cover_image }}"/>
+	{% endif %}
+	{% if page.main_image %}
+	<meta property="og:image" content="{{ site.baseurl }}/images/{{ page.main_image }}"/>  
+	{% endif %}
+	{% if page.excerpt %}
+	<meta property="og:description" content="{{ page.excerpt }}"/>
+	<meta name="description" content="{{ page.excerpt }}"/>
+	{% endif %}
+	<meta property="og:site_name" content="{{ site.info.title }}">
+</head>
+<body>
+
+<nav class="navbar navbar-main" role="navigation">
+	<div class="navbar-header">
+		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#nav">
+			<span class="sr-only">Toggle navigation</span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+		</button>
+		<a class="navbar-brand" href="{{ site.baseurl }}/">
+			{% if site.info.logo %}
+			<img src="/images/{{ site.info.logo }}" alt="{{ site.info.title }}">
+			{% else %}
+			<span>{{ site.info.title }}</span>
+			{% endif %}
+		</a>
+	</div>
+
+	<div class="collapse navbar-collapse" id="nav">
+		<ul class="nav navbar-nav">
+			{% for link in site.links %}
+			{% capture link_nav %}{{ link.url | split: "/" }}{% endcapture %}
+			<li{% if link_nav == page.nav or link.url == page.url %} class="active"{% endif %}><a href="{% if link.external %}{{ link.url }}{% else %}{{ site.baseurl }}{{ link.url }}{% endif %}" {% if link.external %}target="_blank"{% endif %}>{{ link.title }}</a></li>
+			{% endfor %}
+		</ul>
+		<div class="navbar-right creator">
+			<a href="http://levelfour.se"><img src="{{ site.baseurl }}/images/levelfour.svg" class="levelfour-logo" alt="Level Four AB"></a>
+		</div>
+	</div>
+</nav>
+
+{{ content }}
+
+{% include _scripts.html %}
+
+</body>
+</html>

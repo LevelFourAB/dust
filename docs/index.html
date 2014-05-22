@@ -1,0 +1,79 @@
+---
+layout: base
+---
+<div class="site-cover site-cover-large{% if site.info.cover_color %} site-cover-colored{% endif %}{% unless site.info.cover_color or site.info.cover_image %} site-cover-default{% endunless %}"
+	{% if site.info.cover_image %}style="background-image:url(/images/{{ site.info.cover_image }})"
+	{% elsif site.info.cover_color %}style="background-color:{{ site.info.cover_color }}"
+	{% endif %}
+>
+	
+	<section>
+		<div class="container">
+			<h1>{{ site.info.title }}</h1>
+			{% if site.info.subtitle %}<h3>{{ site.info.subtitle }}</h3>{% endif %}
+
+			<div class="buttons">
+				<a href="{{ site.info.github }}" class="btn">Fork on Github</a>
+			</div>
+		</div>
+	</section>
+</div>
+
+
+<article>
+	<section class="container feature">
+		<p class="align-center">
+			Dust is Java-based web framework built around components, templates and JAX-RS.
+		</p>
+	</section>
+
+	<section class="feature">
+		<div class="row">
+			<div class="col-xs-12 col-sm-6 col-md-4">
+				<div class="feature-spot">
+					<b>Namespaced</b>
+					Components, pages and assets all live within namespaces allowing them to be reused.
+				</div>
+			</div>
+			<div class="col-xs-12 col-sm-6 col-md-4">
+				<div class="feature-spot">
+					<b>Component driven</b>
+					Common layout and functionality can be packaged as components that can be used from
+					templates.
+				</div>
+			</div>
+			<div class="col-xs-12 col-sm-6 col-md-4">
+				<div class="feature-spot">
+					<b>Developer friendly</b>
+					A special development mode makes seeing changes
+					as simple as refreshing your browser.
+				</div>
+			</div>
+		</div>
+	</section>
+	<section class="feature">
+		<div class="row">
+			<div class="col-xs-12 col-sm-6 col-md-4">
+				<div class="feature-spot">
+					<b>Awesome templates</b>
+					Templates are created via XML and get procssed into HTML at runtime.
+				</div>
+			</div>
+			<div class="col-xs-12 col-sm-6 col-md-4">
+				<div class="feature-spot">
+					<b>Based on JAX-RS</b>
+					Dust uses JAX-RS making it easy to define the web structure you need.
+				</div>
+			</div>
+			<div class="col-xs-12 col-sm-6 col-md-4">
+				<div class="feature-spot">
+					<b>Integration</b>
+					Namespaces, components and templates all help with making Dust easy to integrate with your existing solution.
+				</div>
+			</div>
+		</div>
+	</section>
+	<section class="feature align-center">
+		<a href="{{ site.baseurl }}/quick-start" class="btn btn-lg btn-outline">Get started</a>
+	</section>
+</article>

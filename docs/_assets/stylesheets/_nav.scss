@@ -1,0 +1,42 @@
+.levelfour-logo {
+	height: 30px;
+	margin-top: 10px;
+}
+
+.navbar-main {
+	margin: 0;
+
+	padding: 2rem 0;
+
+	margin: 0 auto;
+	
+	a {
+		margin: 0 0.9em;
+		color: #444;
+		border: 0;
+		font-weight: 600;
+		font-size: 15px;
+	}
+
+	a.navbar-brand {
+		font-size: 18px;
+
+		&:hover {
+			color: #444;
+		}
+	}
+
+	li.active > a {
+		color: $accent;
+	}
+
+	.navbar-toggle {
+		border-color: #ddd;
+	}
+	.navbar-toggle:hover, .navbar-toggle:focus {
+		background-color: #ddd;
+	}
+	.navbar-toggle .icon-bar {
+		background-color: #888;
+	}
+}

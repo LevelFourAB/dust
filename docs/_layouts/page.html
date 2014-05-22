@@ -1,0 +1,38 @@
+---
+layout: base
+---
+
+{% if page.nav %}
+	{% assign nav_url = page.nav | prepend: '/' | append: '/' %}
+	{% for entry in site.pages %}
+		{% if entry.url == nav_url %}
+			{% assign parent = entry %}
+		{% endif %}
+	{% endfor %}
+{% else %}
+	{% assign parent = page %}
+{% endif %}
+{% include _page-header.html page=parent %}
+<article>
+
+	<div class="container row">
+		<div class="col-xs-12 col-md-9">
+			{% if parent.url != page.url %}
+			<header>
+				<h1>{{ page.title }}</h1>
+			</header>
+			{% endif %}
+			<section>
+				{{ content }}
+			</section>
+		</div>
+		<div class="col-xs-12 col-md-3">
+			{% if page.nav %}
+			<aside class="page-nav">
+				<h2>Contents</h2>
+				{% include _nav.html context=page.nav %}
+			</aside>
+			{% endif %}
+			</div>
+		</div>
+</article>
