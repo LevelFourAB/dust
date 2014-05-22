@@ -1,2 +1,2 @@
 require 'jekyll-assets'
-require 'jekyll-html'
+require 'jekyll-minify-html'
