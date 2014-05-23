@@ -8,11 +8,12 @@ import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.Scopes;
 import se.l4.dust.api.annotation.ContextScoped;
 import se.l4.dust.api.annotation.NamespaceBinding;
+import se.l4.dust.api.discovery.NamespaceDiscovery;
 import se.l4.dust.core.internal.InternalContributions;
+import se.l4.dust.core.internal.NamespaceDiscoveryImpl;
 import se.l4.dust.core.internal.NamespaceManagerImpl;
 import se.l4.dust.core.internal.asset.AssetModule;
 import se.l4.dust.core.internal.conversion.ConversionModule;
-import se.l4.dust.core.internal.discovery.DiscoveryModule;
 import se.l4.dust.core.internal.expression.ExpressionModule;
 import se.l4.dust.core.internal.messages.MessagesModule;
 import se.l4.dust.core.internal.resource.ResourceModule;
@@ -37,12 +38,12 @@ public class CoreModule
 		install(new AssetModule());
 		install(new TemplateModule());
 		install(new ConversionModule());
-		install(new DiscoveryModule());
 		install(new ExpressionModule());
 		install(new MessagesModule());
 		
 		bind(NamespaceManager.class).to(NamespaceManagerImpl.class);
 		bindContributions(NamespaceBinding.class);
+		bind(NamespaceDiscovery.class).to(NamespaceDiscoveryImpl.class);
 		
 		bindScope(ContextScoped.class, Scopes.CONTEXT);
 		

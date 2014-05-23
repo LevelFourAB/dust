@@ -13,8 +13,7 @@ import se.l4.dust.api.ComponentException;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Component;
-import se.l4.dust.api.discovery.ClassDiscovery;
-import se.l4.dust.api.discovery.DiscoveryFactory;
+import se.l4.dust.api.discovery.NamespaceDiscovery;
 import se.l4.dust.api.template.mixin.TemplateMixin;
 import se.l4.dust.api.template.spi.PropertySource;
 import se.l4.dust.api.template.spi.TemplateFragment;
@@ -47,7 +46,10 @@ public class TemplateManagerImpl
 	private final AtomicInteger counter;
 	
 	@Inject
-	public TemplateManagerImpl(Injector injector_, final Stage stage, final DiscoveryFactory discovery, final NamespaceManager nsManager)
+	public TemplateManagerImpl(Injector injector_, 
+			final Stage stage,
+			final NamespaceManager nsManager,
+			final NamespaceDiscovery discovery)
 	{
 		this.injector = injector_;
 		
@@ -62,9 +64,8 @@ public class TemplateManagerImpl
 					throws Exception
 				{
 					NamespaceManager.Namespace ns = nsManager.getNamespaceByURI(key);
-					ClassDiscovery cd = ns == null ? discovery.empty() : discovery.get(ns.getPackage());
 					
-					return new NamespacedTemplateImpl(injector, key, cd, stage == Stage.DEVELOPMENT);
+					return new NamespacedTemplateImpl(injector, key, discovery, stage == Stage.DEVELOPMENT);
 				}
 			});
 	}
@@ -123,11 +124,10 @@ public class TemplateManagerImpl
 		private final Map<String, TemplateFragment> fragments;
 		private final Map<String, TemplateMixin> mixins;
 		
-		private final ClassDiscovery discovery;
 		private final boolean dev;
-
+		private final NamespaceDiscovery discovery;
 		
-		public NamespacedTemplateImpl(Injector injector, String namespace, ClassDiscovery discovery, boolean dev)
+		public NamespacedTemplateImpl(Injector injector, String namespace, NamespaceDiscovery discovery, boolean dev)
 		{
 			this.injector = injector;
 			this.dev = dev;
@@ -137,11 +137,6 @@ public class TemplateManagerImpl
 			this.discovery = discovery;
 			
 			fragments = new ConcurrentHashMap<>();
-			
-			for(Class<?> c : discovery.getAnnotatedWith(Component.class))
-			{
-				addComponent(c);
-			}
 			
 			mixins = new ConcurrentHashMap<String, TemplateMixin>();
 		}
@@ -211,20 +206,15 @@ public class TemplateManagerImpl
 				return true;
 			}
 			
-			if(dev && discovery != null)
+			if(dev)
 			{
-				logger.info("Attempting to discover new component named " + name);
+				logger.info("Attempting to discover new template fragment named " + name + " in " + namespace);
 				
 				/*
 				 * Reindex if we have discovery functions, we might find
 				 * the class this time.
 				 */
-				discovery.index();
-				
-				for(Class<?> c : discovery.getAnnotatedWith(Component.class))
-				{
-					addComponent(c);
-				}
+				discovery.performDiscovery();
 				
 				return fragments.containsKey(name);
 			}

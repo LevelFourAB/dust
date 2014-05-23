@@ -11,9 +11,10 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.l4.dust.jaxrs.internal.PageDiscovery;
+import se.l4.dust.api.discovery.NamespaceDiscovery;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
 
@@ -30,12 +31,12 @@ public class ReloadingDispatcher
 	private static final Logger logger = LoggerFactory.getLogger(ResteasyFilter.class);
 	
 	private final boolean development;
-	private final PageDiscovery discovery;
+	private final Provider<NamespaceDiscovery> discovery;
 
 	@Inject
 	public ReloadingDispatcher(Stage stage, 
 			ResteasyProviderFactory providerFactory,
-			PageDiscovery discovery)
+			Provider<NamespaceDiscovery> discovery)
 	{
 		super(providerFactory);
 		this.discovery = discovery;
@@ -70,7 +71,7 @@ public class ReloadingDispatcher
 				 */
 				try
 				{
-					discovery.reindexAndDiscover();
+					discovery.get().performDiscovery();;
 				}
 				catch(Exception e2)
 				{

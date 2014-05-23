@@ -6,10 +6,10 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.ParamConverterProvider;
 
-import se.l4.dust.jaxrs.PageProvider;
 import se.l4.dust.jaxrs.ServletBinder;
 
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 
 /**
  * Configuration abstraction for different JAX-RS implementations.
@@ -53,14 +53,7 @@ public interface Configuration
 	 * 
 	 * @param factory
 	 */
-	void addPage(PageProvider factory);
-	
-	/**
-	 * Remove a page from the configuration.
-	 * 
-	 * @param factory
-	 */
-	void removePage(PageProvider factory);
+	void addPage(Class<?> typeAnnotatedWithPath);
 	
 	/**
 	 * Setup the servlet context.

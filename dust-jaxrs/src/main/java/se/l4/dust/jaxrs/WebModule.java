@@ -10,13 +10,15 @@ import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Order;
 import se.l4.dust.api.asset.AssetManager;
+import se.l4.dust.api.discovery.NamespaceDiscovery;
 import se.l4.dust.core.CoreModule;
 import se.l4.dust.jaxrs.annotation.ContextContribution;
 import se.l4.dust.jaxrs.annotation.Filter;
 import se.l4.dust.jaxrs.annotation.RequestScoped;
 import se.l4.dust.jaxrs.annotation.SessionScoped;
 import se.l4.dust.jaxrs.internal.ConversionParamProvider;
-import se.l4.dust.jaxrs.internal.NormalPageManager;
+import se.l4.dust.jaxrs.internal.PageDiscoveryHandler;
+import se.l4.dust.jaxrs.internal.ProviderDiscoveryHandler;
 import se.l4.dust.jaxrs.internal.ServletBinderImpl;
 import se.l4.dust.jaxrs.internal.asset.AssetProvider;
 import se.l4.dust.jaxrs.internal.asset.AssetWriter;
@@ -25,7 +27,6 @@ import se.l4.dust.jaxrs.internal.template.TemplateWriter;
 import se.l4.dust.jaxrs.spi.Configuration;
 import se.l4.dust.jaxrs.spi.RequestContext;
 
-import com.google.inject.Provides;
 import com.google.inject.Provides;
 
 /**
@@ -47,7 +48,6 @@ public class WebModule
 		bindScope(RequestScoped.class, WebScopes.REQUEST);
 		
 		// Bind own services
-		bind(PageManager.class).to(NormalPageManager.class);
 		bind(ServletBinder.class).to(ServletBinderImpl.class);
 		
 		// Bind up the filter annotations
@@ -56,9 +56,9 @@ public class WebModule
 	}
 	
 	@Contribution(name="dust-asset-page")
-	public void contributeAssetPage(PageManager manager)
+	public void contributeAssetPage(Configuration config)
 	{
-		manager.add(AssetProvider.class);
+		config.addPage(AssetProvider.class);
 	}
 	
 	@Contribution(name="dust-context-asset-source")
@@ -112,5 +112,21 @@ public class WebModule
 	public ServletContext provideServletContext(RequestContext ctx)
 	{
 		return ctx.getServletContext();
+	}
+	
+	@Contribution(name="dust-discovery-pages")
+	@Order("after:dust-discovery-providers")
+	public void contributePageDiscovery(NamespaceDiscovery discovery,
+			PageDiscoveryHandler handler)
+	{
+		discovery.addHandler(handler);
+	}
+	
+	@Contribution(name="dust-discovery-providers")
+	@Order("after:dust-discovery-template-preloading")
+	public void contributeProviderDiscovery(NamespaceDiscovery discovery,
+			ProviderDiscoveryHandler handler)
+	{
+		discovery.addHandler(handler);
 	}
 }

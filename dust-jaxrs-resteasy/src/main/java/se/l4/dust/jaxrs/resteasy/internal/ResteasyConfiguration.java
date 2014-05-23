@@ -1,14 +1,12 @@
 package se.l4.dust.jaxrs.resteasy.internal;
 
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServlet;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.ParamConverterProvider;
 
 import org.jboss.resteasy.core.Dispatcher;
-import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.jboss.resteasy.spi.Registry;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
@@ -18,7 +16,9 @@ import se.l4.dust.jaxrs.spi.Configuration;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import com.google.inject.Stage;
 
 /**
  * Configuration for Resteasy.
@@ -30,38 +30,63 @@ import com.google.inject.Singleton;
 public class ResteasyConfiguration
 	implements Configuration
 {
+	private final Injector injector;
 	private final Registry registry;
 	private final ResteasyProviderFactory factory;
+	private final boolean dev;
+	
 	private ServletContext servletContext;
 	
 	@Inject
-	public ResteasyConfiguration(Registry registry,
+	public ResteasyConfiguration(
+			Injector injector,
+			Stage stage,
+			Registry registry,
 			ResteasyProviderFactory factory)
 	{
+		this.injector = injector;
 		this.registry = registry;
 		this.factory = factory;
-	}
-	
-	public void addPage(PageProvider factory)
-	{
-		registry.addResourceFactory(new PageResourceFactory(factory));
+		
+		dev = stage == Stage.DEVELOPMENT;
 	}
 
-	public void removePage(PageProvider factory)
+	@SuppressWarnings("unchecked")
+	@Override
+	public void addPage(final Class<?> typeAnnotatedWithPath)
 	{
-		// TODO: IMPLEMENT
+		Provider<Object> provider;
+		if(dev)
+		{
+			provider = new Provider<Object>()
+			{
+				@Override
+				public Object get()
+				{
+					return injector.getInstance(typeAnnotatedWithPath);
+				}
+			};
+		}
+		else
+		{
+			provider = (Provider<Object>) injector.getProvider(typeAnnotatedWithPath);
+		}
+		
+		registry.addResourceFactory(new PageResourceFactory(provider, typeAnnotatedWithPath));
 	}
-
+	@Override
 	public void addMessageBodyReader(MessageBodyReader<?> reader)
 	{
 		factory.register(reader);
 	}
 	
+	@Override
 	public void addMessageBodyWriter(MessageBodyWriter<?> writer)
 	{
 		factory.register(writer);
 	}
 	
+	@Override
 	public void addExceptionMapper(ExceptionMapper<?> mapper)
 	{
 		factory.register(mapper);
@@ -73,6 +98,7 @@ public class ResteasyConfiguration
 		factory.register(provider);
 	}
 	
+	@Override
 	public void setupContext(ServletContext ctx, Injector injector)
 	{
 		this.servletContext = ctx;
@@ -88,11 +114,7 @@ public class ResteasyConfiguration
 		ctx.setAttribute(Registry.class.getName(), registry);
 	}
 	
-	public Class<? extends HttpServlet> getRootServlet()
-	{
-		return HttpServletDispatcher.class;
-	}
-	
+	@Override
 	public void setupFilter(ServletContext ctx, Injector injector,
 			ServletBinder binder)
 	{

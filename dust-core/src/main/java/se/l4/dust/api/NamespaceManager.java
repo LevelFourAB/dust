@@ -11,7 +11,6 @@ import java.net.URL;
  *
  */
 public interface NamespaceManager
-	extends Iterable<NamespaceManager.Namespace>
 {
 	/**
 	 * Binder for namespaces.
@@ -178,4 +177,11 @@ public interface NamespaceManager
 	 * @return
 	 */
 	Namespace getNamespaceByURI(String uri);
+
+	/**
+	 * List all of the registered namespaces.
+	 * 
+	 * @return
+	 */
+	Iterable<Namespace> list();
 }

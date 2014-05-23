@@ -94,14 +94,16 @@ public class NamespaceManagerImpl
 		return prefixes.get(prefix);
 	}
 	
+	@Override
 	public Namespace getNamespaceByURI(String uri)
 	{
 		return uris.get(uri);
 	}
 	
-	public Iterator<Namespace> iterator()
+	@Override
+	public Iterable<Namespace> list()
 	{
-		return uris.values().iterator();
+		return uris.values();
 	}
 	
 	private class NamespaceBinderImpl

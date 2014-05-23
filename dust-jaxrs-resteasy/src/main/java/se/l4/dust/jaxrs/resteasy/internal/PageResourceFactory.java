@@ -2,12 +2,13 @@ package se.l4.dust.jaxrs.resteasy.internal;
 
 import org.jboss.resteasy.spi.HttpRequest;
 import org.jboss.resteasy.spi.HttpResponse;
-import org.jboss.resteasy.spi.InjectorFactory;
 import org.jboss.resteasy.spi.PropertyInjector;
 import org.jboss.resteasy.spi.ResourceFactory;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 import se.l4.dust.jaxrs.PageProvider;
+
+import com.google.inject.Provider;
 
 /**
  * {@link ResourceFactory} that creates resources for RESTeasy based on 
@@ -20,12 +21,15 @@ import se.l4.dust.jaxrs.PageProvider;
 public class PageResourceFactory
 	implements ResourceFactory
 {
-	private final PageProvider provider;
+	private final Provider<Object> provider;
+	private final Class<?> type;
+	
 	private PropertyInjector propertyInjector;
 	
-	public PageResourceFactory(PageProvider provider)
+	public PageResourceFactory(Provider<Object> provider, Class<?> type)
 	{
 		this.provider = provider;
+		this.type = type;
 	}
 	
 	public Object createResource(HttpRequest request, HttpResponse response,
@@ -41,21 +45,19 @@ public class PageResourceFactory
 
 	public Class<?> getScannableClass()
 	{
-		return provider.getType();
+		return type;
 	}
 
 	public void registered(ResteasyProviderFactory factory)
 	{
-		this.propertyInjector = factory.getInjectorFactory().createPropertyInjector(provider.getType(), factory);
+		this.propertyInjector = factory.getInjectorFactory().createPropertyInjector(type, factory);
 	}
 
 	public void requestFinished(HttpRequest request, HttpResponse response, Object resource)
 	{
-		provider.release(resource);
 	}
 
 	public void unregistered()
 	{
 	}
-
 }

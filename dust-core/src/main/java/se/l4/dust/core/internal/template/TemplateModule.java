@@ -7,6 +7,7 @@ import se.l4.crayon.annotation.Order;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.TemplateContribution;
+import se.l4.dust.api.discovery.NamespaceDiscovery;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateRenderer;
 import se.l4.dust.core.internal.InternalContributions;
@@ -86,5 +87,20 @@ public class TemplateModule
 		InternalContributions.add(contributions);
 		
 		contributions.run();
+	}
+	
+	@Contribution(name="dust-discovery-components")
+	public void contributeComponentsDiscovery(NamespaceDiscovery discovery,
+			ComponentDiscoveryHandler handler)
+	{
+		discovery.addHandler(handler);
+	}
+	
+	@Contribution(name="dust-discovery-template-loading")
+	@Order("after:dust-discovery-components")
+	public void contributePreloadingDiscovery(NamespaceDiscovery discovery,
+			TemplatePreloadingHandler handler)
+	{
+		discovery.addHandler(handler);
 	}
 }
