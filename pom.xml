@@ -19,7 +19,7 @@
 		with JAX-RS (via Resteasy).
 	</description>
 	
-	<url>https://github.com/LevelFourAB/dust</url>
+	<url>http://dust.l4.se</url>
 
 	<modules>
 		<module>dust-core</module>
