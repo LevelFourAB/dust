@@ -24,9 +24,12 @@ public class MessagesModule
 	}
 
 	@Contribution(name="dust-messages")
-	public void contributeDefaultMessageSources(Messages manager, PropertyMessagesSource properties)
+	public void contributeDefaultMessageSources(Messages manager,
+			PropertyMessagesSource properties,
+			CustomMessagesSource messages)
 	{
 		manager.addSource(properties);
+		manager.addSource(messages);
 	}
 	
 	@Contribution

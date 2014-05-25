@@ -50,13 +50,13 @@ public class TemplateNamespacePlugins
 	
 	/**
 	 * Register the namespace to resolve messages from the file
-	 * {@code messages(.properties)} relative to its package.
+	 * {@code namespace(.messages)} relative to its package.
 	 * 
 	 * @return
 	 */
 	public static NamespacePlugin messages()
 	{
-		return messagesIn("messages");
+		return messagesIn("namespace");
 	}
 
 	/**
