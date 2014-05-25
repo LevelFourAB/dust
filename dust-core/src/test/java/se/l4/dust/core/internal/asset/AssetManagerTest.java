@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import se.l4.dust.api.Context;
 import se.l4.dust.api.DefaultContext;
-import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.variant.ResourceVariant;
@@ -30,7 +30,7 @@ import com.google.inject.Injector;
  */
 public class AssetManagerTest
 {
-	private AssetManagerImpl instance;
+	private AssetsImpl instance;
 	
 	/**
 	 * Setup the tests. Creates an {@link Injector} containing the core
@@ -43,12 +43,12 @@ public class AssetManagerTest
 	{
 		Injector injector = Guice.createInjector(new CoreModule());
 		
-		injector.getInstance(NamespaceManager.class)
+		injector.getInstance(Namespaces.class)
 			.bind("dust:test")
 			.setPackageFromClass(getClass())
 			.add();
 		
-		instance = injector.getInstance(AssetManagerImpl.class);
+		instance = injector.getInstance(AssetsImpl.class);
 		instance.addSource(injector.getInstance(ClasspathAssetSource.class));
 		
 		injector.getInstance(ResourceVariantManager.class)

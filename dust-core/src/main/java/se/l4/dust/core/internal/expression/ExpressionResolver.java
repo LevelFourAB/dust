@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import se.l4.dust.api.annotation.Expose;
 import se.l4.dust.api.conversion.NonGenericConversion;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.DynamicMethod;
@@ -16,6 +15,7 @@ import se.l4.dust.api.expression.DynamicProperty;
 import se.l4.dust.api.expression.ExpressionEncounter;
 import se.l4.dust.api.expression.ExpressionException;
 import se.l4.dust.api.expression.ExpressionSource;
+import se.l4.dust.api.template.Expose;
 import se.l4.dust.core.internal.expression.ast.AddNode;
 import se.l4.dust.core.internal.expression.ast.AndNode;
 import se.l4.dust.core.internal.expression.ast.ArrayNode;

@@ -18,9 +18,9 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
-import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.TemplateException;
-import se.l4.dust.api.TemplateManager;
+import se.l4.dust.api.Namespaces;
+import se.l4.dust.api.template.TemplateException;
+import se.l4.dust.api.template.Templates;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Text;
 import se.l4.dust.api.template.spi.ErrorCollector;
@@ -39,11 +39,11 @@ import com.google.inject.Inject;
 public class XmlTemplateParser
 	implements TemplateParser
 {
-	private final TemplateManager templates;
-	private final NamespaceManager namespaces;
+	private final Templates templates;
+	private final Namespaces namespaces;
 
 	@Inject
-	public XmlTemplateParser(NamespaceManager namespaces, TemplateManager templates)
+	public XmlTemplateParser(Namespaces namespaces, Templates templates)
 	{
 		this.namespaces = namespaces;
 		this.templates = templates;
@@ -105,8 +105,8 @@ public class XmlTemplateParser
 		extends DefaultHandler
 		implements LexicalHandler
 	{
-		private final NamespaceManager namespaces;
-		private final TemplateManager templates;
+		private final Namespaces namespaces;
+		private final Templates templates;
 		private final TemplateBuilder builder;
 		private final ErrorCollector errors;
 		
@@ -123,8 +123,8 @@ public class XmlTemplateParser
 		private int textLine;
 		private int textColumn;
 
-		public Handler(NamespaceManager namespaces, 
-				TemplateManager templates, 
+		public Handler(Namespaces namespaces, 
+				Templates templates, 
 				TemplateBuilder builder, 
 				ErrorCollector errors)
 		{
@@ -201,7 +201,7 @@ public class XmlTemplateParser
 			if(namespaces.isBound(uri))
 			{
 				// This namespace is managed by us, treat as component
-				TemplateManager.TemplateNamespace tpl = templates.getNamespace(uri);
+				Templates.TemplateNamespace tpl = templates.getNamespace(uri);
 				if(tpl.hasFragment(localName))
 				{
 					builder.startFragment(localName, uri);

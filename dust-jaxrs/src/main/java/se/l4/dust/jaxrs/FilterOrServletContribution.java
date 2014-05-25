@@ -1,4 +1,4 @@
-package se.l4.dust.jaxrs.annotation;
+package se.l4.dust.jaxrs;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -18,7 +18,7 @@ import com.google.inject.BindingAnnotation;
 @Target({ ElementType.METHOD, ElementType.PARAMETER })
 @BindingAnnotation
 @Documented
-public @interface Filter
+public @interface FilterOrServletContribution
 {
 	String name() default "";
 }

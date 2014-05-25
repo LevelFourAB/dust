@@ -7,8 +7,8 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
-import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.template.RenderingContext;
+import se.l4.dust.api.template.TemplateException;
 
 /**
  * Element abstraction. This is used to represent tags and components in the

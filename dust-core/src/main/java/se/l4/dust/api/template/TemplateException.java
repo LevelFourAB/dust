@@ -1,4 +1,4 @@
-package se.l4.dust.api;
+package se.l4.dust.api.template;
 
 /**
  * Indicate that an error occurred while parsing or processing a template.

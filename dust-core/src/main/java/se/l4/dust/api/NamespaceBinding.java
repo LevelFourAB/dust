@@ -1,4 +1,4 @@
-package se.l4.dust.api.annotation;
+package se.l4.dust.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,16 +8,17 @@ import java.lang.annotation.Target;
 import com.google.inject.BindingAnnotation;
 
 /**
- * Annotation for binding contributions to the template engine, such as
- * mixins and property sources.
+ * Annotation for binding a namespace in {@link Namespaces}.
  * 
  * <p>
  * Example:
  * <pre>
- * {@literal @TemplateContribution}
- * public void bindNamespace(TemplateManager manager) {
- * 	manager.getNamespace("namespaceurl")
- * 		.addMixin("mixin", mixinObject);
+ * {@literal @NamespaceBinding}
+ * public void bindNamespace(NamespaceManager manager) {
+ * 	manager.bind("namespaceurl")
+ * 		.setPackage(getClass())
+ * 		.setPrefix("prefix")
+ * 		.add();
  * }
  * </pre>
  * 
@@ -27,7 +28,7 @@ import com.google.inject.BindingAnnotation;
 @BindingAnnotation
 @Target({ ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface TemplateContribution
+public @interface NamespaceBinding
 {
 	/**
 	 * Define the name of the binding, if needed for ordering.

@@ -9,7 +9,7 @@ import java.util.Map;
 
 import com.google.inject.Inject;
 
-import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.template.dom.DynamicContent;
 
@@ -23,12 +23,12 @@ import se.l4.dust.api.template.dom.DynamicContent;
 public class DefaultRenderingContext
 	implements RenderingContext
 {
-	protected final NamespaceManager namespaceManager;
+	protected final Namespaces namespaceManager;
 	protected final TypeConverter converter;
 	private final Map<Object, Object> values;
 
 	@Inject
-	public DefaultRenderingContext(NamespaceManager namespaceManager, TypeConverter converter)
+	public DefaultRenderingContext(Namespaces namespaceManager, TypeConverter converter)
 	{
 		this.namespaceManager = namespaceManager;
 		this.converter = converter;

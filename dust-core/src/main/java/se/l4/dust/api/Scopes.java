@@ -1,7 +1,5 @@
 package se.l4.dust.api;
 
-import se.l4.dust.api.annotation.ContextScoped;
-
 import com.google.inject.Key;
 import com.google.inject.OutOfScopeException;
 import com.google.inject.Provider;

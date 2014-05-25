@@ -1,6 +1,6 @@
 package se.l4.dust.api.template.spi;
 
-import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.Namespace;
 
 /**
  * Information tied to a template while it is being parsed.
@@ -23,5 +23,5 @@ public interface TemplateInfo
 	 * @param prefix
 	 * @return
 	 */
-	NamespaceManager.Namespace getNamespaceByPrefix(String prefix);
+	Namespace getNamespaceByPrefix(String prefix);
 }

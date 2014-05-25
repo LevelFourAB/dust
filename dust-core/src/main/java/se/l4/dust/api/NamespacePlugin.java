@@ -9,5 +9,5 @@ public interface NamespacePlugin
 	 * 
 	 * @param ns
 	 */
-	void register(Injector injector, NamespaceManager.Namespace ns);
+	void register(Injector injector, Namespace ns);
 }

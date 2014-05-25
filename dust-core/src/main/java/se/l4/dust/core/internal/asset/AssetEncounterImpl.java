@@ -3,8 +3,8 @@ package se.l4.dust.core.internal.asset;
 import java.io.IOException;
 import java.io.InputStream;
 
-import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.NamespaceManager.Namespace;
+import se.l4.dust.api.Namespace;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.AssetCache;
 import se.l4.dust.api.asset.AssetEncounter;
 import se.l4.dust.api.asset.AssetException;
@@ -23,7 +23,7 @@ import com.google.common.io.Closeables;
 public class AssetEncounterImpl
 	implements AssetEncounter
 {
-	private final NamespaceManager namespaces;
+	private final Namespaces namespaces;
 	private final boolean production;
 	private final Resource in;
 	private final String namespace;
@@ -36,7 +36,7 @@ public class AssetEncounterImpl
 	private String renamedTo;
 
 	public AssetEncounterImpl(
-			NamespaceManager namespaces, 
+			Namespaces namespaces, 
 			boolean production,
 			Resource in, 
 			String namespace, 

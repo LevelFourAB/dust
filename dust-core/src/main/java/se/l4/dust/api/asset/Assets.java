@@ -3,7 +3,7 @@ package se.l4.dust.api.asset;
 import javax.xml.stream.events.Namespace;
 
 import se.l4.dust.api.Context;
-import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.resource.Resource;
 
 /**
@@ -15,7 +15,7 @@ import se.l4.dust.api.resource.Resource;
  * <h2>Classpath source</h2>
  * By default an {@link AssetSource} based on the classpath is registered, this
  * source will lookup the package name for a given namespace (via 
- * {@link NamespaceManager}) and will then perform a lookup of the file
+ * {@link Namespaces}) and will then perform a lookup of the file
  * equivalent to classing {@link Package#getResource(String)} on a class located
  * in the package.
  * 
@@ -40,13 +40,13 @@ import se.l4.dust.api.resource.Resource;
  * Usually one should bind namespaces containing a prefix as it will be used 
  * when serving an asset over HTTP. The URL will normally be 
  * {@code /asset/prefix/path/to/file} where prefix was defined when binding 
- * in {@link NamespaceManager}. If no prefix has been set for namespace no 
+ * in {@link Namespaces}. If no prefix has been set for namespace no 
  * assets from that namespace can be served.
  * 
  * @author Andreas Holstenson
  *
  */
-public interface AssetManager
+public interface Assets
 {
 	/**
 	 * Builder for merged assets.

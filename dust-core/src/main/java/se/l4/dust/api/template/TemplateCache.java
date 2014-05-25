@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URL;
 
 import se.l4.dust.api.Context;
-import se.l4.dust.api.annotation.Template;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 
 /**

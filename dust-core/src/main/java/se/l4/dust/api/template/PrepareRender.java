@@ -1,13 +1,10 @@
-package se.l4.dust.api.annotation;
+package se.l4.dust.api.template;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import se.l4.dust.api.TemplateManager;
-import se.l4.dust.api.template.TemplateRenderer;
 
 /**
  * Indicate that this method on a component should be run before the component
@@ -27,7 +24,7 @@ import se.l4.dust.api.template.TemplateRenderer;
  *	</li>
  *	<li>
  *		<code>@{literal void prepare(TemplateManager linker)}</code><br>
- *		Will receive an instance of {@link TemplateManager}.
+ *		Will receive an instance of {@link Templates}.
  *	</li>
  * </ul>
  * 

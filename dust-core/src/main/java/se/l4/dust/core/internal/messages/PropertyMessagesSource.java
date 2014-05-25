@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutionException;
 
 import se.l4.dust.api.Context;
 import se.l4.dust.api.messages.MessageSource;
-import se.l4.dust.api.messages.Messages;
+import se.l4.dust.api.messages.MessageCollection;
 import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.core.internal.Caches;
@@ -36,15 +36,15 @@ public class PropertyMessagesSource
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 	
 	private final ResourceVariantManager variants;
-	private final LoadingCache<String, Optional<Messages>> cache;
+	private final LoadingCache<String, Optional<MessageCollection>> cache;
 
 	@Inject
 	public PropertyMessagesSource(Caches caches, ResourceVariantManager variants)
 	{
 		this.variants = variants;
-		this.cache = caches.newLoadingCache(new CacheLoader<String, Optional<Messages>>() {
+		this.cache = caches.newLoadingCache(new CacheLoader<String, Optional<MessageCollection>>() {
 			@Override
-			public Optional<Messages> load(String key)
+			public Optional<MessageCollection> load(String key)
 				throws Exception
 			{
 				return Optional.of(loadUrl(key));
@@ -71,7 +71,7 @@ public class PropertyMessagesSource
 	}
 	
 	@Override
-	public Messages load(Context context, Class<?> resource) throws IOException
+	public MessageCollection load(Context context, Class<?> resource) throws IOException
 	{
 		URL url = resource.getResource(resource.getSimpleName() + ".properties");
 		if(url == null)
@@ -83,7 +83,7 @@ public class PropertyMessagesSource
 	}
 
 	@Override
-	public Messages load(Context context, String url)
+	public MessageCollection load(Context context, String url)
 		throws IOException
 	{
 		int idx = url.lastIndexOf('.');
@@ -109,7 +109,7 @@ public class PropertyMessagesSource
 		}
 	}
 	
-	private Messages loadUrl(String url)
+	private MessageCollection loadUrl(String url)
 		throws IOException
 	{
 		if(! checkIfUrlExists(url))
@@ -134,7 +134,7 @@ public class PropertyMessagesSource
 	}
 
 	private static class PropertyMessages
-		implements Messages
+		implements MessageCollection
 	{
 		private final Map<String, String> messages;
 

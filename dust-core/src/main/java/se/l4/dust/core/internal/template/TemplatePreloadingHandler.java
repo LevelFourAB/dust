@@ -8,15 +8,15 @@ import org.slf4j.LoggerFactory;
 
 import se.l4.dust.api.Context;
 import se.l4.dust.api.DefaultContext;
-import se.l4.dust.api.NamespaceManager.Namespace;
-import se.l4.dust.api.TemplateException;
-import se.l4.dust.api.TemplateManager;
-import se.l4.dust.api.TemplateManager.TemplateNamespace;
-import se.l4.dust.api.annotation.Component;
-import se.l4.dust.api.annotation.Template;
+import se.l4.dust.api.Namespace;
 import se.l4.dust.api.discovery.DiscoveryEncounter;
 import se.l4.dust.api.discovery.DiscoveryHandler;
+import se.l4.dust.api.template.Component;
+import se.l4.dust.api.template.Template;
 import se.l4.dust.api.template.TemplateCache;
+import se.l4.dust.api.template.TemplateException;
+import se.l4.dust.api.template.Templates;
+import se.l4.dust.api.template.Templates.TemplateNamespace;
 
 import com.google.inject.Inject;
 
@@ -25,11 +25,11 @@ public class TemplatePreloadingHandler
 {
 	private static final Logger logger = LoggerFactory.getLogger(DiscoveryHandler.class);
 	
-	private final TemplateManager templates;
+	private final Templates templates;
 	private final TemplateCache cache;
 
 	@Inject
-	public TemplatePreloadingHandler(TemplateManager templates, TemplateCache cache)
+	public TemplatePreloadingHandler(Templates templates, TemplateCache cache)
 	{
 		this.templates = templates;
 		this.cache = cache;

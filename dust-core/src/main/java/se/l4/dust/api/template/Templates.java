@@ -1,6 +1,5 @@
-package se.l4.dust.api;
+package se.l4.dust.api.template;
 
-import se.l4.dust.api.annotation.Component;
 import se.l4.dust.api.template.mixin.TemplateMixin;
 import se.l4.dust.api.template.spi.TemplateFragment;
 
@@ -11,7 +10,7 @@ import se.l4.dust.api.template.spi.TemplateFragment;
  * @author Andreas Holstenson
  *
  */
-public interface TemplateManager
+public interface Templates
 {
 	/**
 	 * Template information scoped to work on a single namespace.

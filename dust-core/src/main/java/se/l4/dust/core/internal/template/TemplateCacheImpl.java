@@ -12,16 +12,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.l4.dust.api.Context;
-import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.TemplateException;
-import se.l4.dust.api.TemplateManager;
-import se.l4.dust.api.annotation.Template;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.UrlResource;
 import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.api.resource.variant.ResourceVariantManager.ResourceCallback;
+import se.l4.dust.api.template.Template;
 import se.l4.dust.api.template.TemplateCache;
+import se.l4.dust.api.template.TemplateException;
+import se.l4.dust.api.template.Templates;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.spi.internal.XmlTemplateParser;
 import se.l4.dust.core.internal.template.dom.TemplateBuilderImpl;
@@ -48,10 +48,10 @@ public class TemplateCacheImpl
 {
 	private static final Logger logger = LoggerFactory.getLogger(TemplateCacheImpl.class);
 	
-	private final TemplateManager manager;
+	private final Templates manager;
 	private final InnerCache inner;
 	
-	private final NamespaceManager namespaces;
+	private final Namespaces namespaces;
 	private final ResourceVariantManager variants;
 	private final Provider<TemplateBuilderImpl> templateBuilders;
 
@@ -59,8 +59,8 @@ public class TemplateCacheImpl
 	
 	@Inject
 	public TemplateCacheImpl(
-			TemplateManager manager,
-			NamespaceManager namespaces,
+			Templates manager,
+			Namespaces namespaces,
 			ResourceVariantManager variants,
 			Provider<TemplateBuilderImpl> templateBuilders,
 			Stage stage)

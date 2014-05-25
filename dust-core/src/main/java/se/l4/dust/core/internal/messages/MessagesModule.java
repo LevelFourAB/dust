@@ -2,10 +2,10 @@ package se.l4.dust.core.internal.messages;
 
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
-import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.annotation.TemplateContribution;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.expression.Expressions;
-import se.l4.dust.api.messages.MessageManager;
+import se.l4.dust.api.messages.Messages;
+import se.l4.dust.api.template.TemplateContribution;
 
 /**
  * Module for message support.
@@ -20,17 +20,17 @@ public class MessagesModule
 	@Override
 	protected void configure()
 	{
-		bind(MessageManager.class).to(MessageMangerImpl.class);
+		bind(Messages.class).to(MessagesImpl.class);
 	}
 
 	@Contribution(name="dust-messages")
-	public void contributeDefaultMessageSources(MessageManager manager, PropertyMessagesSource properties)
+	public void contributeDefaultMessageSources(Messages manager, PropertyMessagesSource properties)
 	{
 		manager.addSource(properties);
 	}
 	
 	@Contribution
-	public void bindNamespace(NamespaceManager manager)
+	public void bindNamespace(Namespaces manager)
 	{
 		manager.bind("dust:messages").add();
 	}

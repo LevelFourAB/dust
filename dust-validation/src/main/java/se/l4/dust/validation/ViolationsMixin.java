@@ -4,8 +4,8 @@ import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 
-import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.template.RenderingContext;
+import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.mixin.ElementEncounter;

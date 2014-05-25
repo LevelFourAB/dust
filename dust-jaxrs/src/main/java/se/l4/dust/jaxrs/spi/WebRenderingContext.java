@@ -7,13 +7,14 @@ import javax.ws.rs.core.UriBuilder;
 
 import com.google.inject.Inject;
 
-import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.TemplateException;
+import se.l4.dust.api.Namespace;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.template.DefaultRenderingContext;
 import se.l4.dust.api.template.RenderingContext;
+import se.l4.dust.api.template.TemplateException;
 
 /**
  * Implementation of {@link RenderingContext} that resolves assets correctly
@@ -26,7 +27,7 @@ public class WebRenderingContext
 	extends DefaultRenderingContext
 {
 	@Inject
-	public WebRenderingContext(NamespaceManager namespaceManager, TypeConverter converter)
+	public WebRenderingContext(Namespaces namespaceManager, TypeConverter converter)
 	{
 		super(namespaceManager, converter);
 	}
@@ -57,7 +58,7 @@ public class WebRenderingContext
 		String ns = asset.getNamespace();
 		if(ns != null)
 		{
-			NamespaceManager.Namespace nns = namespaceManager.getNamespaceByURI(ns);
+			Namespace nns = namespaceManager.getNamespaceByURI(ns);
 			if(nns == null)
 			{
 				throw new RuntimeException("Namespace " + ns + " is not bound to NamespaceManager");

@@ -4,14 +4,14 @@ import se.l4.crayon.Contributions;
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
 import se.l4.dust.api.Context;
-import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.ContextScoped;
+import se.l4.dust.api.NamespaceBinding;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.Scopes;
-import se.l4.dust.api.annotation.ContextScoped;
-import se.l4.dust.api.annotation.NamespaceBinding;
 import se.l4.dust.api.discovery.NamespaceDiscovery;
 import se.l4.dust.core.internal.InternalContributions;
 import se.l4.dust.core.internal.NamespaceDiscoveryImpl;
-import se.l4.dust.core.internal.NamespaceManagerImpl;
+import se.l4.dust.core.internal.NamespacesImpl;
 import se.l4.dust.core.internal.asset.AssetModule;
 import se.l4.dust.core.internal.conversion.ConversionModule;
 import se.l4.dust.core.internal.expression.ExpressionModule;
@@ -41,7 +41,7 @@ public class CoreModule
 		install(new ExpressionModule());
 		install(new MessagesModule());
 		
-		bind(NamespaceManager.class).to(NamespaceManagerImpl.class);
+		bind(Namespaces.class).to(NamespacesImpl.class);
 		bindContributions(NamespaceBinding.class);
 		bind(NamespaceDiscovery.class).to(NamespaceDiscoveryImpl.class);
 		

@@ -4,14 +4,13 @@ import se.l4.crayon.Contributions;
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Order;
-import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.TemplateManager;
-import se.l4.dust.api.annotation.TemplateContribution;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.discovery.NamespaceDiscovery;
 import se.l4.dust.api.template.TemplateCache;
+import se.l4.dust.api.template.TemplateContribution;
 import se.l4.dust.api.template.TemplateRenderer;
+import se.l4.dust.api.template.Templates;
 import se.l4.dust.core.internal.InternalContributions;
-import se.l4.dust.core.internal.TemplateManagerImpl;
 import se.l4.dust.core.internal.template.components.BodyComponent;
 import se.l4.dust.core.internal.template.components.FragmentDefinition;
 import se.l4.dust.core.internal.template.components.FragmentUse;
@@ -37,7 +36,7 @@ public class TemplateModule
 	@Override
 	public void configure()
 	{
-		bind(TemplateManager.class).to(TemplateManagerImpl.class);
+		bind(Templates.class).to(TemplatesImpl.class);
 		
 		bind(TemplateCache.class).to(TemplateCacheImpl.class);
 		
@@ -47,7 +46,7 @@ public class TemplateModule
 	}
 	
 	@TemplateContribution
-	public void contributeCommonComponents(TemplateManager manager,
+	public void contributeCommonComponents(Templates manager,
 			ParameterComponent parameter,
 			BodyComponent body,
 			IfComponent ifC,
@@ -69,8 +68,8 @@ public class TemplateModule
 	}
 	
 	@TemplateContribution
-	public void contributeFragmentComponents(NamespaceManager namespaces,
-			TemplateManager manager,
+	public void contributeFragmentComponents(Namespaces namespaces,
+			Templates manager,
 			FragmentDefinition definition,
 			FragmentUse use)
 	{

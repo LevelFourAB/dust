@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetEncounter;
-import se.l4.dust.api.asset.AssetManager;
+import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.resource.MemoryResource;
 import se.l4.dust.api.resource.Resource;
@@ -50,11 +50,11 @@ public class SpriteProcessor
 {
 	private static final Logger logger = LoggerFactory.getLogger(SpriteProcessor.class);
 	
-	private final AssetManager manager;
+	private final Assets manager;
 	private final Provider<DefaultRenderingContext> contexts;
 
 	@Inject
-	public SpriteProcessor(AssetManager manager, Provider<DefaultRenderingContext> contexts)
+	public SpriteProcessor(Assets manager, Provider<DefaultRenderingContext> contexts)
 	{
 		this.manager = manager;
 		this.contexts = contexts;
@@ -173,7 +173,7 @@ public class SpriteProcessor
 	private static class CustomResourceHandler
 		implements ResourceHandler
 	{
-		private final AssetManager manager;
+		private final Assets manager;
 		private final DefaultRenderingContext context;
 		private final Resource cssResource;
 		private final String cssPath;
@@ -181,7 +181,7 @@ public class SpriteProcessor
 
 		private final Map<String, ByteArrayOutputStream> output;
 		
-		public CustomResourceHandler(AssetManager manager, 
+		public CustomResourceHandler(Assets manager, 
 				DefaultRenderingContext context, 
 				String ns, 
 				String cssPath, 

@@ -1,4 +1,4 @@
-package se.l4.dust.api.annotation;
+package se.l4.dust.api.template;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,18 +8,16 @@ import java.lang.annotation.Target;
 import com.google.inject.BindingAnnotation;
 
 /**
- * Annotation used for adding combined assets or registering asset conversions.
+ * Annotation for binding contributions to the template engine, such as
+ * mixins and property sources.
  * 
  * <p>
  * Example:
  * <pre>
- * {@literal @Assets}
- * public void contributeStylesheet(AssetManager manager) {
- * 	manager.addAsset(NAMESPACE, "css/screen.css")
- *			.add("css/reset.css")
- *			.add("css/style.less")
- *			.process(CssCompressProcessor.class)
- *			.create();
+ * {@literal @TemplateContribution}
+ * public void bindNamespace(TemplateManager manager) {
+ * 	manager.getNamespace("namespaceurl")
+ * 		.addMixin("mixin", mixinObject);
  * }
  * </pre>
  * 
@@ -29,10 +27,10 @@ import com.google.inject.BindingAnnotation;
 @BindingAnnotation
 @Target({ ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Assets
+public @interface TemplateContribution
 {
 	/**
-	 * Name of the method, can be used if ordering is required.
+	 * Define the name of the binding, if needed for ordering.
 	 * 
 	 * @return
 	 */

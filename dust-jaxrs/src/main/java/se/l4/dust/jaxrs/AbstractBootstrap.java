@@ -6,7 +6,6 @@ import javax.servlet.ServletContextListener;
 
 import se.l4.crayon.Contributions;
 import se.l4.dust.api.discovery.NamespaceDiscovery;
-import se.l4.dust.jaxrs.annotation.ContextContribution;
 import se.l4.dust.jaxrs.spi.Configuration;
 
 import com.google.inject.Injector;

@@ -3,10 +3,10 @@ package se.l4.dust.core.internal.template.dom;
 import java.io.IOException;
 import java.util.HashMap;
 
-import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateEmitter;
+import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.dom.Comment;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.DocType;

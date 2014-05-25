@@ -9,15 +9,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.TemplateException;
-import se.l4.dust.api.TemplateManager;
-import se.l4.dust.api.TemplateManager.TemplateNamespace;
+import se.l4.dust.api.Namespace;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.expression.Expressions;
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateCache;
+import se.l4.dust.api.template.TemplateException;
+import se.l4.dust.api.template.Templates;
+import se.l4.dust.api.template.Templates.TemplateNamespace;
 import se.l4.dust.api.template.dom.Comment;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.DocType;
@@ -48,8 +49,8 @@ public class TemplateBuilderImpl
 	implements TemplateBuilder
 {
 	private final Injector injector;
-	private final TemplateManager templates;
-	private final NamespaceManager namespaceManager;
+	private final Templates templates;
+	private final Namespaces namespaceManager;
 	
 	private final TemplateCache templateCache;
 	private final TypeConverter converter;
@@ -76,8 +77,8 @@ public class TemplateBuilderImpl
 
 	@Inject
 	public TemplateBuilderImpl(Injector injector, 
-			NamespaceManager namespaceManager, 
-			TemplateManager templates,
+			Namespaces namespaceManager, 
+			Templates templates,
 			TemplateCache templateCache,
 			TypeConverter converter,
 			Expressions expressions)
@@ -105,7 +106,7 @@ public class TemplateBuilderImpl
 				return url.toExternalForm();
 			}
 			
-			public NamespaceManager.Namespace getNamespaceByPrefix(String prefix)
+			public Namespace getNamespaceByPrefix(String prefix)
 			{
 				String uri = boundNamespaces.get(prefix);
 				return uri == null ? null
@@ -226,13 +227,13 @@ public class TemplateBuilderImpl
 		{
 			String prefix = name.substring(0, idx);
 			name = name.substring(idx+1);
-			NamespaceManager.Namespace ns = namespaceManager.getNamespaceByPrefix(prefix);
+			Namespace ns = namespaceManager.getNamespaceByPrefix(prefix);
 			if(ns == null)
 			{
 				throw new IllegalArgumentException("No namespace bound to " + prefix);
 			}
 			
-			TemplateManager.TemplateNamespace tpl = templates.getNamespace(ns.getUri());
+			Templates.TemplateNamespace tpl = templates.getNamespace(ns.getUri());
 			TemplateFragment fragment = tpl.getFragment(name);
 			if(fragment == null)
 			{
@@ -250,7 +251,7 @@ public class TemplateBuilderImpl
 	@Override
 	public TemplateBuilder startFragment(String name, String namespace)
 	{
-		TemplateManager.TemplateNamespace tpl = templates.getNamespace(namespace);
+		Templates.TemplateNamespace tpl = templates.getNamespace(namespace);
 		TemplateFragment fragment = tpl.getFragment(name);
 		if(fragment == null)
 		{

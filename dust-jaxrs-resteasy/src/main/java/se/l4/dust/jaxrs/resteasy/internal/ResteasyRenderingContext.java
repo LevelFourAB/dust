@@ -13,7 +13,7 @@ import org.jboss.resteasy.util.Types;
 
 import com.google.inject.Inject;
 
-import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.jaxrs.spi.WebRenderingContext;
 
@@ -30,7 +30,7 @@ public class ResteasyRenderingContext
 	private final InjectorFactory injectorFactory;
 
 	@Inject
-	public ResteasyRenderingContext(NamespaceManager namespaceManager, TypeConverter converter, ResteasyProviderFactory factory)
+	public ResteasyRenderingContext(Namespaces namespaceManager, TypeConverter converter, ResteasyProviderFactory factory)
 	{
 		super(namespaceManager, converter);
 		injectorFactory = factory.getInjectorFactory();

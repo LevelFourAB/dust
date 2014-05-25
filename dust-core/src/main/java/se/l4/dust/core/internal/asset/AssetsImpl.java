@@ -13,11 +13,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Pattern;
 
 import se.l4.dust.api.Context;
-import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetCache;
 import se.l4.dust.api.asset.AssetException;
-import se.l4.dust.api.asset.AssetManager;
+import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.asset.AssetSource;
 import se.l4.dust.api.resource.MergedResource;
@@ -37,13 +37,13 @@ import com.google.inject.Singleton;
 import com.google.inject.Stage;
 
 @Singleton
-public class AssetManagerImpl
-	implements AssetManager
+public class AssetsImpl
+	implements Assets
 {
 	private static final Asset NULL_ASSET = new AssetImpl(null, false, null, null, null);
 	
 	private final ConcurrentMap<String, AssetNamespace> cache;
-	private final NamespaceManager manager;
+	private final Namespaces manager;
 	private final ResourceVariantManager variants;
 	
 	private final boolean production;
@@ -57,7 +57,7 @@ public class AssetManagerImpl
 	private volatile AssetCache assetCache;
 	
 	@Inject
-	public AssetManagerImpl(NamespaceManager manager,
+	public AssetsImpl(Namespaces manager,
 			ResourceVariantManager variants,
 			Injector injector,
 			Stage stage)
@@ -574,7 +574,7 @@ public class AssetManagerImpl
 		@Override
 		public Resource getResource(Context context, List<Asset> assets)
 		{
-			return new MergedAssetResource(AssetManagerImpl.this, context, assets.toArray(new Asset[assets.size()]));
+			return new MergedAssetResource(AssetsImpl.this, context, assets.toArray(new Asset[assets.size()]));
 		}
 		
 		@Override

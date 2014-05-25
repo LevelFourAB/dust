@@ -1,4 +1,4 @@
-package se.l4.dust.api.annotation;
+package se.l4.dust.api.template;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

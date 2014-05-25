@@ -5,7 +5,7 @@ import java.io.IOException;
 import se.l4.dust.api.Context;
 
 /**
- * Source of data for {@link Messages}.
+ * Source of data for {@link MessageCollection}.
  * 
  * @author Andreas Holstenson
  *
@@ -22,7 +22,7 @@ public interface MessageSource
 	 * 		the resource URL
 	 * @return
 	 */
-	Messages load(Context context, String resource)
+	MessageCollection load(Context context, String resource)
 		throws IOException;
 	
 	/**
@@ -34,6 +34,6 @@ public interface MessageSource
 	 * 		the resource type
 	 * @return
 	 */
-	Messages load(Context context, Class<?> resource)
+	MessageCollection load(Context context, Class<?> resource)
 		throws IOException;
 }

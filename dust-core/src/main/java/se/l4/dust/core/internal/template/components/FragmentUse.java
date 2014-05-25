@@ -3,7 +3,7 @@ package se.l4.dust.core.internal.template.components;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.l4.dust.api.TemplateException;
+import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.spi.FragmentEncounter;

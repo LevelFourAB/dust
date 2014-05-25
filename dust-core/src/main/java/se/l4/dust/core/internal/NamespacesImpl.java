@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.Namespace;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.NamespacePlugin;
 
 import com.google.common.base.Throwables;
@@ -20,8 +21,8 @@ import com.google.inject.Module;
 import com.google.inject.Singleton;
 
 @Singleton
-public class NamespaceManagerImpl
-	implements NamespaceManager
+public class NamespacesImpl
+	implements Namespaces
 {
 	private final static SecureRandom random = new SecureRandom();
 	
@@ -32,7 +33,7 @@ public class NamespaceManagerImpl
 	private final Map<String, Namespace> uris;
 	
 	@Inject
-	public NamespaceManagerImpl(Injector injector)
+	public NamespacesImpl(Injector injector)
 	{
 		this.injector = injector;
 		packages = new ConcurrentHashMap<String, Namespace>();

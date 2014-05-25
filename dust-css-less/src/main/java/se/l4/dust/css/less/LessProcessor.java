@@ -15,7 +15,7 @@ import se.l4.dust.api.DefaultContext;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetEncounter;
 import se.l4.dust.api.asset.AssetException;
-import se.l4.dust.api.asset.AssetManager;
+import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.resource.MemoryResource;
 import se.l4.dust.api.resource.Resource;
@@ -38,10 +38,10 @@ public class LessProcessor
 	implements AssetProcessor
 {
 	private final boolean development;
-	private final AssetManager assets;
+	private final Assets assets;
 
 	@Inject
-	public LessProcessor(Stage stage, AssetManager assets)
+	public LessProcessor(Stage stage, Assets assets)
 	{
 		this.assets = assets;
 		
@@ -181,11 +181,11 @@ public class LessProcessor
 	
 	public static class Importer
 	{
-		private final AssetManager assets;
+		private final Assets assets;
 		private final String namespace;
 		private final String folder;
 
-		public Importer(AssetManager assets, String namespace, String folder)
+		public Importer(Assets assets, String namespace, String folder)
 		{
 			this.namespace = namespace;
 			this.assets = assets;

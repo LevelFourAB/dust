@@ -9,13 +9,9 @@ import se.l4.crayon.Contributions;
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Order;
-import se.l4.dust.api.asset.AssetManager;
+import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.discovery.NamespaceDiscovery;
 import se.l4.dust.core.CoreModule;
-import se.l4.dust.jaxrs.annotation.ContextContribution;
-import se.l4.dust.jaxrs.annotation.Filter;
-import se.l4.dust.jaxrs.annotation.RequestScoped;
-import se.l4.dust.jaxrs.annotation.SessionScoped;
 import se.l4.dust.jaxrs.internal.ConversionParamProvider;
 import se.l4.dust.jaxrs.internal.PageDiscoveryHandler;
 import se.l4.dust.jaxrs.internal.ProviderDiscoveryHandler;
@@ -51,7 +47,7 @@ public class WebModule
 		bind(ServletBinder.class).to(ServletBinderImpl.class);
 		
 		// Bind up the filter annotations
-		bindContributions(Filter.class);
+		bindContributions(FilterOrServletContribution.class);
 		bindContributions(ContextContribution.class);
 	}
 	
@@ -63,7 +59,7 @@ public class WebModule
 	
 	@Contribution(name="dust-context-asset-source")
 	@Order("before:dust-assets")
-	public void contributeContextSource(AssetManager manager)
+	public void contributeContextSource(Assets manager)
 	{
 		manager.addSource(ContextAssetSource.class);
 	}
@@ -85,7 +81,7 @@ public class WebModule
 	}
 	
 	@Contribution(name="dust-filter-contributions")
-	public void contributeFilters(@Filter Contributions contributions)
+	public void contributeFilters(@FilterOrServletContribution Contributions contributions)
 	{
 		contributions.run();
 	}

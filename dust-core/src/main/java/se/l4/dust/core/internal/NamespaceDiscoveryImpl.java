@@ -12,8 +12,8 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
-import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.NamespaceManager.Namespace;
+import se.l4.dust.api.Namespace;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.discovery.DiscoveryEncounter;
 import se.l4.dust.api.discovery.DiscoveryHandler;
 import se.l4.dust.api.discovery.NamespaceDiscovery;
@@ -29,11 +29,11 @@ import com.google.inject.Singleton;
 public class NamespaceDiscoveryImpl
 	implements NamespaceDiscovery
 {
-	private final NamespaceManager namespaces;
+	private final Namespaces namespaces;
 	private final List<DiscoveryHandler> handlers;
 
 	@Inject
-	public NamespaceDiscoveryImpl(NamespaceManager namespaces)
+	public NamespaceDiscoveryImpl(Namespaces namespaces)
 	{
 		this.namespaces = namespaces;
 		handlers = Lists.newArrayList();

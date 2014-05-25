@@ -5,14 +5,14 @@ import java.io.InputStream;
 
 import se.l4.dust.api.Context;
 import se.l4.dust.api.asset.Asset;
-import se.l4.dust.api.asset.AssetManager;
+import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.resource.MergedResource;
 import se.l4.dust.api.resource.Resource;
 
 
 /**
  * Resource that will lookup merges assets together and will check with 
- * {@link AssetManager} for updates. 
+ * {@link Assets} for updates. 
  * 
  * @author Andreas Holstenson
  *
@@ -20,11 +20,11 @@ import se.l4.dust.api.resource.Resource;
 public class MergedAssetResource
 	implements Resource
 {
-	private final AssetManager manager;
+	private final Assets manager;
 	private final Asset[] assets;
 	private final Context context;
 
-	public MergedAssetResource(AssetManager manager, Context context, Asset... assets)
+	public MergedAssetResource(Assets manager, Context context, Asset... assets)
 	{
 		this.manager = manager;
 		this.context = context;

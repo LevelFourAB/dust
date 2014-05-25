@@ -6,13 +6,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.RandomAccess;
 
-import se.l4.dust.api.TemplateException;
 import se.l4.dust.api.conversion.Conversion;
 import se.l4.dust.api.conversion.NonGenericConversion;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateEmitter;
+import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.spi.FragmentEncounter;

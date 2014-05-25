@@ -9,12 +9,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
-import se.l4.dust.api.NamespaceManager.Namespace;
-import se.l4.dust.api.TemplateManager;
-import se.l4.dust.api.TemplateManager.TemplateNamespace;
-import se.l4.dust.api.annotation.Component;
+import se.l4.dust.api.Namespace;
 import se.l4.dust.api.discovery.DiscoveryEncounter;
 import se.l4.dust.api.discovery.DiscoveryHandler;
+import se.l4.dust.api.template.Component;
+import se.l4.dust.api.template.Templates;
+import se.l4.dust.api.template.Templates.TemplateNamespace;
 
 /**
  * Handler that registers components annotated with {@link Component}.
@@ -27,10 +27,10 @@ public class ComponentDiscoveryHandler
 {
 	private static final Logger logger = LoggerFactory.getLogger(DiscoveryHandler.class);
 	
-	private final TemplateManager templates;
+	private final Templates templates;
 
 	@Inject
-	public ComponentDiscoveryHandler(TemplateManager templates)
+	public ComponentDiscoveryHandler(Templates templates)
 	{
 		this.templates = templates;
 	}

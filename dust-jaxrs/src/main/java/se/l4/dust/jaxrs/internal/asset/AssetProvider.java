@@ -9,9 +9,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import se.l4.dust.api.Context;
-import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.Namespace;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.Asset;
-import se.l4.dust.api.asset.AssetManager;
+import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.resource.Resource;
 
 import com.google.inject.Inject;
@@ -28,14 +29,14 @@ import com.google.inject.Singleton;
 @Path("asset")
 public class AssetProvider
 {
-	private final AssetManager manager;
-	private final NamespaceManager namespaces;
+	private final Assets manager;
+	private final Namespaces namespaces;
 	private final Context context;
 	
 	@Inject
 	public AssetProvider(
-			NamespaceManager namespaces, 
-			AssetManager manager)
+			Namespaces namespaces, 
+			Assets manager)
 	{
 		this.namespaces = namespaces;
 		this.manager = manager;
@@ -82,7 +83,7 @@ public class AssetProvider
 			@PathParam("version") String version, 
 			@PathParam("path") String path)
 	{
-		NamespaceManager.Namespace ns = namespaces.getNamespaceByPrefix(prefix);
+		Namespace ns = namespaces.getNamespaceByPrefix(prefix);
 		if(ns == null)
 		{
 			return Response.status(404).build();

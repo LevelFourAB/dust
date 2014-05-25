@@ -6,26 +6,26 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import se.l4.dust.api.Context;
-import se.l4.dust.api.TemplateException;
-import se.l4.dust.api.messages.MessageManager;
-import se.l4.dust.api.messages.MessageSource;
 import se.l4.dust.api.messages.Messages;
+import se.l4.dust.api.messages.MessageSource;
+import se.l4.dust.api.messages.MessageCollection;
+import se.l4.dust.api.template.TemplateException;
 
 import com.google.inject.Singleton;
 
 /**
- * Implementation of {@link MessageManager}.
+ * Implementation of {@link Messages}.
  * 
  * @author Andreas Holstenson
  *
  */
 @Singleton
-public class MessageMangerImpl
-	implements MessageManager
+public class MessagesImpl
+	implements Messages
 {
 	private final List<MessageSource> sources;
 	
-	public MessageMangerImpl()
+	public MessagesImpl()
 	{
 		sources = new CopyOnWriteArrayList<MessageSource>();
 	}
@@ -37,21 +37,21 @@ public class MessageMangerImpl
 	}
 
 	@Override
-	public Messages getMessages(Context context, String url)
+	public MessageCollection getMessages(Context context, String url)
 	{
 		String key = url;
-		Messages msgs = context.getValue(key);
+		MessageCollection msgs = context.getValue(key);
 		if(msgs != null)
 		{
 			return msgs;
 		}
 		
-		List<Messages> messages = new ArrayList<Messages>();
+		List<MessageCollection> messages = new ArrayList<MessageCollection>();
 		for(MessageSource s : sources)
 		{
 			try
 			{
-				Messages m = s.load(context, url);
+				MessageCollection m = s.load(context, url);
 				if(m != null)
 				{
 					messages.add(m);
@@ -77,21 +77,21 @@ public class MessageMangerImpl
 	}
 	
 	@Override
-	public Messages getMessages(Context context, Class<?> resource)
+	public MessageCollection getMessages(Context context, Class<?> resource)
 	{
 		String key = resource.getName();
-		Messages msgs = context.getValue(key);
+		MessageCollection msgs = context.getValue(key);
 		if(msgs != null)
 		{
 			return msgs;
 		}
 		
-		List<Messages> messages = new ArrayList<Messages>();
+		List<MessageCollection> messages = new ArrayList<MessageCollection>();
 		for(MessageSource s : sources)
 		{
 			try
 			{
-				Messages m = s.load(context, resource);
+				MessageCollection m = s.load(context, resource);
 				if(m != null)
 				{
 					messages.add(m);

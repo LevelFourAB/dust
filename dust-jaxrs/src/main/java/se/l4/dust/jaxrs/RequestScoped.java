@@ -1,4 +1,4 @@
-package se.l4.dust.jaxrs.annotation;
+package se.l4.dust.jaxrs;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 import com.google.inject.ScopeAnnotation;
 
 /**
- * Indicate that a class is tied to a HTTP session and that only one instance
- * may exist for any one session.
+ * Indicate that a class is tied to a request and only one instance may exist
+ * for any one request.
  * 
  * @author Andreas Holstenson
  *
@@ -19,7 +19,6 @@ import com.google.inject.ScopeAnnotation;
 @Target(ElementType.TYPE)
 @ScopeAnnotation
 @Documented
-public @interface SessionScoped
+public @interface RequestScoped
 {
-
 }

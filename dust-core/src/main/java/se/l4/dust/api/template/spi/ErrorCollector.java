@@ -3,7 +3,7 @@ package se.l4.dust.api.template.spi;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.l4.dust.api.TemplateException;
+import se.l4.dust.api.template.TemplateException;
 
 /**
  * Collector for template errors. This can be used during template parsing

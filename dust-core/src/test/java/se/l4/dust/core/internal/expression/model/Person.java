@@ -1,6 +1,6 @@
 package se.l4.dust.core.internal.expression.model;
 
-import se.l4.dust.api.annotation.Expose;
+import se.l4.dust.api.template.Expose;
 
 /**
  * Person representation for tests.

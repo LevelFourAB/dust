@@ -1,4 +1,4 @@
-package se.l4.dust.core.internal;
+package se.l4.dust.core.internal.template;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,11 +8,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.l4.dust.api.ComponentException;
-import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.TemplateManager;
-import se.l4.dust.api.annotation.Component;
+import se.l4.dust.api.Namespace;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.discovery.NamespaceDiscovery;
+import se.l4.dust.api.template.Component;
+import se.l4.dust.api.template.ComponentException;
+import se.l4.dust.api.template.Templates;
 import se.l4.dust.api.template.mixin.TemplateMixin;
 import se.l4.dust.api.template.spi.TemplateFragment;
 import se.l4.dust.core.internal.template.dom.ComponentTemplateFragment;
@@ -27,7 +28,7 @@ import com.google.inject.Singleton;
 import com.google.inject.Stage;
 
 /**
- * Implementation of {@link TemplateManager}. The implementation keeps track
+ * Implementation of {@link Templates}. The implementation keeps track
  * of registered component classes, namespaces, property sources and filters.
  * Namespaces are automatically registered based on calls to addComponent. 
  * 
@@ -35,17 +36,17 @@ import com.google.inject.Stage;
  *
  */
 @Singleton
-public class TemplateManagerImpl
-	implements TemplateManager
+public class TemplatesImpl
+	implements Templates
 {
 	private final Injector injector;
 	private final LoadingCache<String, NamespacedTemplateImpl> namespaces;
 	private final AtomicInteger counter;
 	
 	@Inject
-	public TemplateManagerImpl(Injector injector_, 
+	public TemplatesImpl(Injector injector_, 
 			final Stage stage,
-			final NamespaceManager nsManager,
+			final Namespaces nsManager,
 			final NamespaceDiscovery discovery)
 	{
 		this.injector = injector_;
@@ -59,7 +60,7 @@ public class TemplateManagerImpl
 				public NamespacedTemplateImpl load(String key)
 					throws Exception
 				{
-					NamespaceManager.Namespace ns = nsManager.getNamespaceByURI(key);
+					Namespace ns = nsManager.getNamespaceByURI(key);
 					
 					return new NamespacedTemplateImpl(injector, key, discovery, stage == Stage.DEVELOPMENT);
 				}

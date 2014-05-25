@@ -7,11 +7,11 @@ import java.net.URL;
 import javax.servlet.ServletContext;
 
 import se.l4.dust.Dust;
-import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.TemplateException;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.AssetSource;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.UrlResource;
+import se.l4.dust.api.template.TemplateException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -29,10 +29,10 @@ public class ContextAssetSource
 {
 	private final Provider<ServletContext> ctx;
 
-	private final NamespaceManager namespaces;
+	private final Namespaces namespaces;
 
 	@Inject
-	public ContextAssetSource(Provider<ServletContext> ctx, NamespaceManager namespaces)
+	public ContextAssetSource(Provider<ServletContext> ctx, Namespaces namespaces)
 	{
 		this.ctx = ctx;
 		this.namespaces = namespaces;

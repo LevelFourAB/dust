@@ -1,4 +1,4 @@
-package se.l4.dust.jaxrs.annotation;
+package se.l4.dust.jaxrs;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

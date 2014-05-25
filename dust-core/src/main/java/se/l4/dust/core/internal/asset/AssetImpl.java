@@ -6,7 +6,7 @@ import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.resource.Resource;
 
@@ -25,7 +25,7 @@ public class AssetImpl
 	private final String checksum;
 	private final boolean protect;
 	
-	public AssetImpl(NamespaceManager manager, boolean protect, String ns, String name, Resource resource)
+	public AssetImpl(Namespaces manager, boolean protect, String ns, String name, Resource resource)
 	{
 		this.protect = protect;
 		if(manager != null && resource == null)

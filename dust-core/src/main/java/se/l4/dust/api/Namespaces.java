@@ -1,7 +1,5 @@
 package se.l4.dust.api;
 
-import java.net.URI;
-import java.net.URL;
 
 /**
  * The namespace manager is used to bind namespaces to packages to enable
@@ -10,7 +8,7 @@ import java.net.URL;
  * @author Andreas Holstenson
  *
  */
-public interface NamespaceManager
+public interface Namespaces
 {
 	/**
 	 * Binder for namespaces.
@@ -82,61 +80,6 @@ public interface NamespaceManager
 		 * Bind the given namespace.
 		 */
 		void add();
-	}
-	
-	/**
-	 * Information about a namespace.
-	 * 
-	 * @author Andreas Holstenson
-	 *
-	 */
-	interface Namespace
-	{
-		/**
-		 * Get the prefix of the namespace.
-		 * 
-		 * @return
-		 */
-		String getPrefix();
-		
-		/**
-		 * Get the URI of the namespace.
-		 * 
-		 * @return
-		 */
-		String getUri();
-		
-		/**
-		 * Get the version of the namespace.
-		 * 
-		 * @return
-		 */
-		String getVersion();
-		
-		/**
-		 * Attempt to locate a resource within the given namespace.
-		 * 
-		 * @param resource
-		 * @return
-		 */
-		URL getResource(String resource);
-
-		/**
-		 * Resolve the URI of a certain resource. This will not check if
-		 * the resource actually exists.
-		 * 
-		 * @param resource
-		 * @return
-		 */
-		URI resolveResource(String resource);
-		
-		/**
-		 * Get the Java package of this namespace.
-		 * 
-		 * @return
-		 */
-		String getPackage();
-
 	}
 	
 	/**

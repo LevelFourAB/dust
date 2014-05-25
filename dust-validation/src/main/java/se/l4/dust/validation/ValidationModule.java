@@ -12,10 +12,10 @@ import org.apache.bval.jsr303.DefaultMessageInterpolator;
 import org.apache.bval.jsr303.resolver.DefaultTraversableResolver;
 
 import se.l4.crayon.CrayonModule;
-import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.TemplateManager;
-import se.l4.dust.api.annotation.NamespaceBinding;
+import se.l4.dust.api.NamespaceBinding;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.expression.Expressions;
+import se.l4.dust.api.template.Templates;
 
 import com.google.inject.Injector;
 import com.google.inject.Provides;
@@ -82,8 +82,8 @@ public class ValidationModule
 	}
 	
 	@NamespaceBinding
-	public void bindNamespace(NamespaceManager manager, 
-			TemplateManager templates,
+	public void bindNamespace(Namespaces manager, 
+			Templates templates,
 			ViolationsMixin mixin1,
 			FieldMixin mixin2,
 			Expressions exprs,

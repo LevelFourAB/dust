@@ -1,6 +1,6 @@
 package se.l4.dust.api.asset;
 
-import se.l4.dust.api.NamespaceManager;
+import se.l4.dust.api.Namespace;
 import se.l4.dust.api.resource.Resource;
 
 /**
@@ -31,7 +31,7 @@ public interface AssetEncounter
 	 * 
 	 * @return
 	 */
-	NamespaceManager.Namespace getNamespaceObject();
+	Namespace getNamespaceObject();
 	
 	/**
 	 * Get the path of the asset.

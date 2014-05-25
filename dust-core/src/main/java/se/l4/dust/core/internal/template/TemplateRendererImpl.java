@@ -5,9 +5,9 @@ import java.net.URL;
 
 import se.l4.dust.api.Context;
 import se.l4.dust.api.Scopes;
-import se.l4.dust.api.annotation.Component;
-import se.l4.dust.api.annotation.Template;
+import se.l4.dust.api.template.Component;
 import se.l4.dust.api.template.RenderingContext;
+import se.l4.dust.api.template.Template;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateRenderer;
 import se.l4.dust.api.template.dom.ParsedTemplate;

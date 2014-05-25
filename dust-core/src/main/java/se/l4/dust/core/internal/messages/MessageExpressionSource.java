@@ -10,8 +10,8 @@ import se.l4.dust.api.expression.DynamicProperty;
 import se.l4.dust.api.expression.ExpressionEncounter;
 import se.l4.dust.api.expression.ExpressionException;
 import se.l4.dust.api.expression.ExpressionSource;
-import se.l4.dust.api.messages.MessageManager;
 import se.l4.dust.api.messages.Messages;
+import se.l4.dust.api.messages.MessageCollection;
 import se.l4.dust.api.resource.variant.ResourceVariant;
 
 import com.google.inject.Inject;
@@ -20,11 +20,11 @@ import com.google.inject.Stage;
 public class MessageExpressionSource
 	implements ExpressionSource
 {
-	private final MessageManager messageManager;
+	private final Messages messageManager;
 	private final boolean debug;
 
 	@Inject
-	public MessageExpressionSource(Stage stage, MessageManager messageManager)
+	public MessageExpressionSource(Stage stage, Messages messageManager)
 	{
 		this.messageManager = messageManager;
 		debug = stage == Stage.DEVELOPMENT;
@@ -56,7 +56,7 @@ public class MessageExpressionSource
 		return null;
 	}
 	
-	private static Messages getMessages(MessageManager manager, Context context, String url)
+	private static MessageCollection getMessages(Messages manager, Context context, String url)
 	{
 		return manager.getMessages(context, url);
 	}
@@ -64,11 +64,11 @@ public class MessageExpressionSource
 	private static class MessageProperty
 		extends AbstractDynamicProperty
 	{
-		protected final MessageManager manager;
+		protected final Messages manager;
 		protected final String url;
 		protected final String propertyName;
 
-		public MessageProperty(MessageManager manager, String url, String propertyName)
+		public MessageProperty(Messages manager, String url, String propertyName)
 		{
 			this.manager = manager;
 			this.url = url;
@@ -84,7 +84,7 @@ public class MessageExpressionSource
 		@Override
 		public Object getValue(Context context, Object root)
 		{
-			Messages messages = getMessages(manager, context, url);
+			MessageCollection messages = getMessages(manager, context, url);
 			return messages.get(propertyName);
 		}
 		
@@ -123,7 +123,7 @@ public class MessageExpressionSource
 	private static class DebuggingMessageProperty
 		extends MessageProperty
 	{
-		public DebuggingMessageProperty(MessageManager manager, String url, String propertyName)
+		public DebuggingMessageProperty(Messages manager, String url, String propertyName)
 		{
 			super(manager, url, propertyName);
 		}
@@ -144,11 +144,11 @@ public class MessageExpressionSource
 	private static class MessageFormatMethod
 		implements DynamicMethod
 	{
-		private final MessageManager manager;
+		private final Messages manager;
 		private final String url;
 		private final String propertyName;
 
-		public MessageFormatMethod(MessageManager manager, String url, String propertyName)
+		public MessageFormatMethod(Messages manager, String url, String propertyName)
 		{
 			this.manager = manager;
 			this.url = url;
@@ -158,7 +158,7 @@ public class MessageExpressionSource
 		@Override
 		public Object invoke(Context context, Object instance, Object... parameters)
 		{
-			Messages messages = getMessages(manager, context, url);
+			MessageCollection messages = getMessages(manager, context, url);
 			String message = messages.get(propertyName);
 			MessageFormat format = context.getValue(message);
 			if(format == null)
@@ -187,10 +187,10 @@ public class MessageExpressionSource
 	private static class MessageGetMethod
 		implements DynamicMethod
 	{
-		private final MessageManager manager;
+		private final Messages manager;
 		private final String url;
 	
-		public MessageGetMethod(MessageManager manager, String url)
+		public MessageGetMethod(Messages manager, String url)
 		{
 			this.manager = manager;
 			this.url = url;
@@ -199,7 +199,7 @@ public class MessageExpressionSource
 		@Override
 		public Object invoke(Context context, Object instance, Object... parameters)
 		{
-			Messages messages = getMessages(manager, context, url);
+			MessageCollection messages = getMessages(manager, context, url);
 			return messages.get(parameters[0].toString());
 		}
 	

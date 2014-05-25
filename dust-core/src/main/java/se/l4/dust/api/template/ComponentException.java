@@ -1,4 +1,4 @@
-package se.l4.dust.api;
+package se.l4.dust.api.template;
 
 /**
  * Exception related to components, thrown when components are missing or

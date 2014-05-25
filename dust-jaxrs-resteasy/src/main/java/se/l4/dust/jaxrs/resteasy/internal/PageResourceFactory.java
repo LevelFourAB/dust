@@ -6,8 +6,6 @@ import org.jboss.resteasy.spi.PropertyInjector;
 import org.jboss.resteasy.spi.ResourceFactory;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
-import se.l4.dust.jaxrs.PageProvider;
-
 import com.google.inject.Provider;
 
 /**

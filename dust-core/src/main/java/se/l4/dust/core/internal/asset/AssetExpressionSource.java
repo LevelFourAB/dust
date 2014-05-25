@@ -2,7 +2,7 @@ package se.l4.dust.core.internal.asset;
 
 import se.l4.dust.api.Context;
 import se.l4.dust.api.asset.Asset;
-import se.l4.dust.api.asset.AssetManager;
+import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.expression.DynamicMethod;
 import se.l4.dust.api.expression.DynamicProperty;
 import se.l4.dust.api.expression.ExpressionEncounter;
@@ -23,7 +23,7 @@ public class AssetExpressionSource
 	private final AssetMethod assetMethod;
 	
 	@Inject
-	public AssetExpressionSource(AssetManager assets, String namespace)
+	public AssetExpressionSource(Assets assets, String namespace)
 	{
 		assetMethod = new AssetMethod(assets, namespace);
 	}
@@ -53,10 +53,10 @@ public class AssetExpressionSource
 	private class AssetMethod
 		implements DynamicMethod
 	{
-		private final AssetManager assets;
+		private final Assets assets;
 		private final String namespace;
 
-		public AssetMethod(AssetManager assets, String namespace)
+		public AssetMethod(Assets assets, String namespace)
 		{
 			this.assets = assets;
 			this.namespace = namespace;

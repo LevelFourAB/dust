@@ -1,26 +1,25 @@
-package se.l4.dust.api.annotation;
+package se.l4.dust.api.asset;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import se.l4.dust.api.NamespaceManager;
-
 import com.google.inject.BindingAnnotation;
 
 /**
- * Annotation for binding a namespace in {@link NamespaceManager}.
+ * Annotation used for adding combined assets or registering asset conversions.
  * 
  * <p>
  * Example:
  * <pre>
- * {@literal @NamespaceBinding}
- * public void bindNamespace(NamespaceManager manager) {
- * 	manager.bind("namespaceurl")
- * 		.setPackage(getClass())
- * 		.setPrefix("prefix")
- * 		.add();
+ * {@literal @Assets}
+ * public void contributeStylesheet(AssetManager manager) {
+ * 	manager.addAsset(NAMESPACE, "css/screen.css")
+ *			.add("css/reset.css")
+ *			.add("css/style.less")
+ *			.process(CssCompressProcessor.class)
+ *			.create();
  * }
  * </pre>
  * 
@@ -30,10 +29,10 @@ import com.google.inject.BindingAnnotation;
 @BindingAnnotation
 @Target({ ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface NamespaceBinding
+public @interface AssetContribution
 {
 	/**
-	 * Define the name of the binding, if needed for ordering.
+	 * Name of the method, can be used if ordering is required.
 	 * 
 	 * @return
 	 */

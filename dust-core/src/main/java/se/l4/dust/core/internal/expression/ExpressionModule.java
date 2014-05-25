@@ -2,8 +2,8 @@ package se.l4.dust.core.internal.expression;
 
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
-import se.l4.dust.api.annotation.TemplateContribution;
 import se.l4.dust.api.expression.Expressions;
+import se.l4.dust.api.template.TemplateContribution;
 import se.l4.dust.core.internal.conversion.ConversionModule;
 
 /**

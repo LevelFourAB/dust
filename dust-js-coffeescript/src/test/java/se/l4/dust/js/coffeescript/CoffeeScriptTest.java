@@ -8,9 +8,9 @@ import org.junit.Test;
 
 import se.l4.crayon.Crayon;
 import se.l4.crayon.CrayonModule;
-import se.l4.dust.api.NamespaceManager;
-import se.l4.dust.api.NamespaceManager.Namespace;
-import se.l4.dust.api.annotation.NamespaceBinding;
+import se.l4.dust.api.Namespace;
+import se.l4.dust.api.NamespaceBinding;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.AssetEncounter;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.UrlResource;
@@ -98,7 +98,7 @@ public class CoffeeScriptTest
 		}
 		
 		@NamespaceBinding
-		public void bindNamespace(NamespaceManager manager)
+		public void bindNamespace(Namespaces manager)
 		{
 			manager.bind("dust:test")
 				.setPackageFromClass(getClass())
