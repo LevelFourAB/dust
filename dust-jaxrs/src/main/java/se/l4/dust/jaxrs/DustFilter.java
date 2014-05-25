@@ -14,6 +14,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import se.l4.dust.api.Scopes;
+import se.l4.dust.api.discovery.NamespaceDiscovery;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.jaxrs.internal.ServletBinderImpl;
 import se.l4.dust.jaxrs.internal.routing.FilterChainImpl;
@@ -98,11 +99,9 @@ public class DustFilter
 			this.contexts = contexts;
 		}
 		
-		public void doFilter(ServletRequest request, ServletResponse response,
-				FilterChain chain)
+		public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException
 		{
-			// Perform filtering
 			FilterChainImpl innerChain = new FilterChainImpl(
 				binder.getFilters(),
 				new ServletChain(
@@ -111,6 +110,12 @@ public class DustFilter
 				)
 			);
 			
+			runChain(innerChain, request, response);
+		}
+		
+		protected void runChain(FilterChain chain, ServletRequest request, ServletResponse response)
+			throws IOException, ServletException
+		{
 			try
 			{
 				RenderingContext context = contexts.get();
@@ -120,7 +125,7 @@ public class DustFilter
 					((WebRenderingContext) context).setup((HttpServletRequest) request);
 				}
 				
-				innerChain.doFilter(request, response);
+				chain.doFilter(request, response);
 			}
 			finally
 			{
@@ -175,11 +180,73 @@ public class DustFilter
 	private static class Development
 		extends Production
 	{
+		private final NamespaceDiscovery discovery;
+
 		@Inject
 		public Development(ServletBinderImpl binder, ServletContext ctx,
-				Provider<RenderingContext> contexts)
+				Provider<RenderingContext> contexts,
+				NamespaceDiscovery discovery)
 		{
 			super(binder, ctx, contexts);
+			this.discovery = discovery;
+		}
+		
+		@Override
+		public void doFilter(final ServletRequest request, final ServletResponse response, FilterChain chain)
+			throws IOException, ServletException
+		{
+			DevelopmentReloadChain reload = new DevelopmentReloadChain(discovery, chain);
+			
+			final FilterChainImpl innerChain = new FilterChainImpl(
+				binder.getFilters(),
+				new ServletChain(
+					binder.getServlets(),
+					reload
+				)
+			);
+			
+			reload.self = innerChain;
+			
+			runChain(innerChain, request, response);
+		}
+	}
+	
+	private static class DevelopmentReloadChain
+		implements FilterChain
+	{
+		private final NamespaceDiscovery discovery;
+		private final FilterChain chain;
+		
+		private FilterChain self;
+		private boolean first;
+		
+		public DevelopmentReloadChain(NamespaceDiscovery discovery, FilterChain chain)
+		{
+			this.discovery = discovery;
+			this.chain = chain;
+			first = true;
+		}
+		
+		@Override
+		public void doFilter(ServletRequest request, ServletResponse response)
+			throws IOException, ServletException
+		{
+			if(first)
+			{
+				first = false;
+				
+				/*
+				 * If we are the first attempt and nothing can be found
+				 * try to reindex all namespaces. 
+				 */
+				discovery.performDiscovery();
+				
+				self.doFilter(request, response);
+			}
+			else
+			{
+				chain.doFilter(request, response);
+			}
 		}
 	}
 	

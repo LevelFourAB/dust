@@ -4,6 +4,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
 import org.jboss.resteasy.core.Dispatcher;
+import org.jboss.resteasy.core.SynchronousDispatcher;
 import org.jboss.resteasy.plugins.providers.ByteArrayProvider;
 import org.jboss.resteasy.plugins.providers.DataSourceProvider;
 import org.jboss.resteasy.plugins.providers.DefaultTextPlain;
@@ -22,7 +23,6 @@ import se.l4.crayon.annotation.Contribution;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.jaxrs.WebModule;
 import se.l4.dust.jaxrs.internal.template.TemplateWriter;
-import se.l4.dust.jaxrs.resteasy.internal.ReloadingDispatcher;
 import se.l4.dust.jaxrs.resteasy.internal.ResteasyConfiguration;
 import se.l4.dust.jaxrs.resteasy.internal.ResteasyContext;
 import se.l4.dust.jaxrs.resteasy.internal.ResteasyRenderingContext;
@@ -52,8 +52,8 @@ public class ResteasyModule
 		bind(ResteasyProviderFactory.class).toInstance(factory);
 		ResteasyProviderFactory.setInstance(factory);
 		
-		// Bind a dispatcher
-		bind(Dispatcher.class).to(ReloadingDispatcher.class);
+		// Bind the dispatcher
+		bind(Dispatcher.class).toInstance(new SynchronousDispatcher(factory));
 		
 		// Bind SPI interfaces 
 		bind(Configuration.class).to(ResteasyConfiguration.class);
