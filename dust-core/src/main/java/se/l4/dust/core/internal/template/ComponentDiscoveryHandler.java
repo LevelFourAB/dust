@@ -13,6 +13,7 @@ import se.l4.dust.api.Namespace;
 import se.l4.dust.api.discovery.DiscoveryEncounter;
 import se.l4.dust.api.discovery.DiscoveryHandler;
 import se.l4.dust.api.template.Component;
+import se.l4.dust.api.template.ComponentOverride;
 import se.l4.dust.api.template.Templates;
 import se.l4.dust.api.template.Templates.TemplateNamespace;
 
@@ -47,6 +48,19 @@ public class ComponentDiscoveryHandler
 		}
 		
 		logger.debug("{}: Found {} components", ns.getUri(), components.size());
+		
+		components = encounter.getAnnotatedWith(ComponentOverride.class);
+		for(Class<?> c : components)
+		{
+			System.out.println(c);
+			ComponentOverride co = c.getAnnotation(ComponentOverride.class);
+			ts.addComponentOverride(co.namespace(), co.component(), c);
+		}
+		
+		if(! components.isEmpty())
+		{
+			logger.debug("{}: {} components were overridden", ns.getUri(), components.size());
+		}
 	}
 
 }

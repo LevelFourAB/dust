@@ -4,14 +4,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.SecureRandom;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import se.l4.dust.api.Namespace;
-import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.NamespacePlugin;
+import se.l4.dust.api.Namespaces;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -32,6 +31,8 @@ public class NamespacesImpl
 	private final Map<String, Namespace> prefixes;
 	private final Map<String, Namespace> uris;
 	
+	private final List<Namespace> namespaces;
+	
 	@Inject
 	public NamespacesImpl(Injector injector)
 	{
@@ -39,6 +40,8 @@ public class NamespacesImpl
 		packages = new ConcurrentHashMap<String, Namespace>();
 		prefixes = new ConcurrentHashMap<String, Namespace>();
 		uris = new ConcurrentHashMap<String, Namespace>();
+		
+		namespaces = Lists.newArrayList();
 		
 		bind("dust:common").add();
 	}
@@ -62,6 +65,7 @@ public class NamespacesImpl
 			List<NamespacePlugin> plugins)
 	{
 		Namespace ns = new NamespaceImpl(uri, prefix, pkg, version, resourceReference, loader);
+		namespaces.add(ns);
 		uris.put(uri, ns);
 		
 		if(pkg != null)
@@ -104,7 +108,7 @@ public class NamespacesImpl
 	@Override
 	public Iterable<Namespace> list()
 	{
-		return uris.values();
+		return namespaces;
 	}
 	
 	private class NamespaceBinderImpl

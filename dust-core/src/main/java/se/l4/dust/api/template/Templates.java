@@ -80,6 +80,17 @@ public interface Templates
 		String getComponentName(Class<?> component);
 		
 		/**
+		 * Add a component override to this namespace. See {@link ComponentOverride}
+		 * for details.
+		 * 
+		 * @param namespace
+		 * @param originalComponent
+		 * @param newComponent
+		 * @return
+		 */
+		TemplateNamespace addComponentOverride(String namespace, Class<?> originalComponent, Class<?> newComponent);
+		
+		/**
 		 * Add a mixin to this namespace. This mixin will be triggered when
 		 * the given attribute is found on an element.
 		 * 

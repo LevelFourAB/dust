@@ -62,7 +62,7 @@ public class TemplatesImpl
 				{
 					Namespace ns = nsManager.getNamespaceByURI(key);
 					
-					return new NamespacedTemplateImpl(injector, key, discovery, stage == Stage.DEVELOPMENT);
+					return new NamespacedTemplateImpl(TemplatesImpl.this, injector, key, discovery, stage == Stage.DEVELOPMENT);
 				}
 			});
 	}
@@ -88,6 +88,8 @@ public class TemplatesImpl
 	private static class NamespacedTemplateImpl
 		implements TemplateNamespace
 	{
+		private final TemplatesImpl templates;
+		
 		private final Logger logger;
 		private final Injector injector;
 		
@@ -98,8 +100,9 @@ public class TemplatesImpl
 		private final boolean dev;
 		private final NamespaceDiscovery discovery;
 		
-		public NamespacedTemplateImpl(Injector injector, String namespace, NamespaceDiscovery discovery, boolean dev)
+		public NamespacedTemplateImpl(TemplatesImpl templates, Injector injector, String namespace, NamespaceDiscovery discovery, boolean dev)
 		{
+			this.templates = templates;
 			this.injector = injector;
 			this.dev = dev;
 			logger = LoggerFactory.getLogger(TemplateNamespace.class.getName() + " [" + namespace + "]");
@@ -206,6 +209,46 @@ public class TemplatesImpl
 			}
 			
 			return component.getSimpleName().toLowerCase();
+		}
+		
+		@Override
+		public TemplateNamespace addComponentOverride(String namespace, Class<?> originalComponent, Class<?> newComponent)
+		{
+			Component annotation = originalComponent.getAnnotation(Component.class);
+			if(annotation == null)
+			{
+				throw new ComponentException("Unable to override " + 
+					originalComponent.getSimpleName() + " in " +
+					namespace + "; It is not annotated with @" + 
+					Component.class.getSimpleName());
+			}
+			
+			String[] names = annotation.value();
+			if(names == null || names.length == 0)
+			{
+				names = new String[] { originalComponent.getSimpleName() };
+			}
+			
+			// TODO: Verify that no extra methods exist
+			
+			if(! originalComponent.isAssignableFrom(newComponent))
+			{
+				throw new ComponentException("Unable to override " + 
+					originalComponent.getSimpleName() + " in " +
+					namespace + "; New component does not overide old one");
+			}
+			
+			TemplateNamespace other = templates.getNamespace(namespace);
+			if(! other.hasFragment(names[0]))
+			{
+				throw new ComponentException("Unable to override " + 
+					originalComponent.getSimpleName() + " in " +
+					namespace + "; Old component does not seem to be registered");
+			}
+			
+			other.addComponent(newComponent, names);
+			
+			return this;
 		}
 		
 		@Override
