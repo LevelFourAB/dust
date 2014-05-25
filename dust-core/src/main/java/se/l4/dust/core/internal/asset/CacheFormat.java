@@ -154,7 +154,7 @@ public class CacheFormat
 		}
 		finally
 		{
-			Closeables.closeQuietly(out);
+			out.close();
 			Closeables.closeQuietly(in);
 		}
 	}

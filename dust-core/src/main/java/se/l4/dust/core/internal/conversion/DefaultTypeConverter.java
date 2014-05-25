@@ -17,8 +17,9 @@ import se.l4.dust.api.conversion.ConversionException;
 import se.l4.dust.api.conversion.NonGenericConversion;
 import se.l4.dust.api.conversion.TypeConverter;
 
-import com.google.common.base.Function;
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.primitives.Primitives;
 
 /**
@@ -49,15 +50,17 @@ public class DefaultTypeConverter
 			}
 		};
 	
-	private final Map<Class<?>, List<Conversion<?, ?>>> conversions;
+	private final LoadingCache<Class<?>, List<Conversion<?, ?>>> conversions;
 	private final Map<CacheKey, Conversion<?, ?>> cache;
 	
 	public DefaultTypeConverter()
 	{
-		conversions = new MapMaker()
-			.makeComputingMap(new Function<Class<?>, List<Conversion<?, ?>>>()
+		conversions = CacheBuilder.newBuilder()
+			.build(new CacheLoader<Class<?>, List<Conversion<?, ?>>>()
 			{
-				public List<Conversion<?, ?>> apply(Class<?> from)
+				@Override
+				public List<Conversion<?, ?>> load(Class<?> key)
+					throws Exception
 				{
 					return new CopyOnWriteArrayList<Conversion<?,?>>();
 				}
@@ -70,7 +73,7 @@ public class DefaultTypeConverter
 	{
 		synchronized(conversions)
 		{
-			List<Conversion<?, ?>> list = conversions.get(c);
+			List<Conversion<?, ?>> list = conversions.getUnchecked(c);
 			if(list == null)
 			{
 				list = new LinkedList<Conversion<?,?>>();
@@ -84,7 +87,7 @@ public class DefaultTypeConverter
 	public void add(Conversion<?, ?> conversion)
 	{
 		NonGenericConversion<?, ?> nonGeneric = toNonGeneric(conversion);
-		List<Conversion<?, ?>> list = conversions.get(nonGeneric.getInput());
+		List<Conversion<?, ?>> list = conversions.getUnchecked(nonGeneric.getInput());
 		list.add(nonGeneric);
 	}
 	

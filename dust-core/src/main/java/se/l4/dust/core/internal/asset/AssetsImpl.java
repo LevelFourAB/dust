@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 import se.l4.dust.api.Context;
@@ -17,9 +18,9 @@ import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetCache;
 import se.l4.dust.api.asset.AssetException;
-import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.asset.AssetSource;
+import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.resource.MergedResource;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.variant.ResourceVariant;
@@ -27,9 +28,11 @@ import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.api.resource.variant.ResourceVariantManager.ResourceCallback;
 import se.l4.dust.core.internal.resource.MergedResourceVariant;
 
-import com.google.common.base.Function;
+import com.google.common.base.Throwables;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ComputationException;
-import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
@@ -42,7 +45,7 @@ public class AssetsImpl
 {
 	private static final Asset NULL_ASSET = new AssetImpl(null, false, null, null, null);
 	
-	private final ConcurrentMap<String, AssetNamespace> cache;
+	private final LoadingCache<String, AssetNamespace> cache;
 	private final Namespaces manager;
 	private final ResourceVariantManager variants;
 	
@@ -68,33 +71,37 @@ public class AssetsImpl
 		sources = new CopyOnWriteArrayList<Object>();
 		extensionProcessors = new ConcurrentHashMap<String, AssetProcessor>();
 		
-		Function<String, AssetNamespace> f;
+		CacheLoader<String, AssetNamespace> f;
 		if(stage == Stage.DEVELOPMENT)
 		{
-			f = new Function<String, AssetNamespace>()
+			f = new CacheLoader<String, AssetNamespace>()
+			{
+				@Override
+				public AssetNamespace load(String from)
 				{
-					public AssetNamespace apply(String from)
-					{
-						return new DevAssetNamespace(from);
-					}
-				};
-				
+					return new DevAssetNamespace(from);
+				}
+			};
+			
 			production = false;
 		}
 		else
 		{
-			f = new Function<String, AssetNamespace>()
+			f = new CacheLoader<String, AssetNamespace>()
+			{
+				@Override
+				public AssetNamespace load(String from)
 				{
-					public AssetNamespace apply(String from)
-					{
-						return new AssetNamespace(from);
-					}
-				};
+					return new AssetNamespace(from);
+				}
+			};
 				
 			production = true;
 		}
 		
-		cache = new MapMaker().makeComputingMap(f);
+		cache = CacheBuilder
+			.newBuilder()
+			.build(f);
 		
 		protectedExtensions = new CopyOnWriteArraySet<String>();
 	}
@@ -115,9 +122,21 @@ public class AssetsImpl
 		sources.add(source);
 	}
 	
+	private AssetNamespace get(String ns)
+	{
+		try
+		{
+			return cache.get(ns);
+		}
+		catch(ExecutionException e)
+		{
+			throw Throwables.propagate(e.getCause());
+		}
+	}
+	
 	public Asset locate(Context context, String ns, String file)
 	{
-		AssetNamespace ans = cache.get(ns);
+		AssetNamespace ans = get(ns);
 		Asset a = ans.get(context, file);
 		
 		return a == NULL_ASSET ? null: a;
@@ -142,25 +161,25 @@ public class AssetsImpl
 //				+ " already exists in " + ns + ", can't add temporary resource");
 //		}
 		
-		AssetNamespace ans = cache.get(ns);
+		AssetNamespace ans = get(ns);
 		ans.set(path, resource);
 	}
 	
 	public void processAssets(String namespace, String filter, Class<? extends AssetProcessor> processor)
 	{
-		AssetNamespace ans = cache.get(namespace);
+		AssetNamespace ans = get(namespace);
 		ans.addProcessor(filter, processor);
 	}
 	
 	public void processAssets(String namespace, String filter, AssetProcessor processor)
 	{
-		AssetNamespace ans = cache.get(namespace);
+		AssetNamespace ans = get(namespace);
 		ans.addProcessor(filter, processor);
 	}
 	
 	public AssetBuilder addAsset(String namespace, String pathToFile)
 	{
-		AssetNamespace parent = cache.get(namespace);
+		AssetNamespace parent = get(namespace);
 		return new AssetBuilderImpl(parent, namespace, pathToFile);
 	}
 	
@@ -203,7 +222,7 @@ public class AssetsImpl
 
 		public AssetBuilder add(String ns, String pathToFile)
 		{
-			AssetNamespace assetNs = cache.get(ns);
+			AssetNamespace assetNs = get(ns);
 			assets.add(new AssetDef(assetNs, pathToFile));
 			
 			return this;
@@ -263,7 +282,7 @@ public class AssetsImpl
 	 */
 	private class AssetNamespace
 	{
-		private final ConcurrentMap<String, Asset> cache;
+		private final LoadingCache<String, Asset> cache;
 		protected final List<ProcessorDef> processors;
 		protected final ConcurrentMap<String, List<AssetDef>> builtAssets;
 		protected final ConcurrentMap<String, Resource> definedResources;
@@ -276,7 +295,7 @@ public class AssetsImpl
 		{
 			this.namespace = namespace;
 			
-			cache = new MapMaker().makeComputingMap(new AssetLocator(this));
+			cache = CacheBuilder.newBuilder().build(new AssetLocator(this));
 			processors = new CopyOnWriteArrayList<ProcessorDef>();
 			builtAssets = new ConcurrentHashMap<String, List<AssetDef>>();
 			definedResources = new ConcurrentHashMap<String, Resource>();
@@ -324,6 +343,18 @@ public class AssetsImpl
 			processors.add(new ProcessorDef(filter, new InstanceProvider<AssetProcessor>(processor)));
 		}
 		
+		private Asset load(String url)
+		{
+			try
+			{
+				return cache.get(url);
+			}
+			catch(ExecutionException e)
+			{
+				throw Throwables.propagate(e.getCause());
+			}
+		}
+		
 		public Asset get(Context context, String path)
 		{
 			if(path == null)
@@ -342,7 +373,7 @@ public class AssetsImpl
 				// Attempt to resolve the correct variant of the asset
 				ResourceVariantManager.Result result = variants.resolve(context, resourceCallback, path);
 				
-				Asset asset = cache.get(result.getUrl());
+				Asset asset = load(result.getUrl());
 				return asset == NULL_ASSET ? null : asset;
 			}
 			catch(IOException e)
@@ -382,7 +413,8 @@ public class AssetsImpl
 			}, path);
 			
 			String name = result.getUrl();
-			if(false == cache.containsKey(name))
+			Asset existing = cache.getIfPresent(name);
+			if(existing == null)
 			{
 				// If it has not been cached create a suitable resource for it
 				List<Asset> assets = new ArrayList<Asset>();
@@ -394,9 +426,11 @@ public class AssetsImpl
 				
 				Resource r = getResource(context, assets);
 				definedResources.put(name, r);
+				
+				existing = load(name);
 			}
 			
-			return cache.get(name);
+			return existing;
 		}
 		
 		public void set(String path, Resource resource)
@@ -697,7 +731,7 @@ public class AssetsImpl
 	 *
 	 */
 	private class AssetLocator
-		implements Function<String, Asset>
+		extends CacheLoader<String, Asset>
 	{
 		private final AssetNamespace namespace;
 
@@ -706,7 +740,8 @@ public class AssetsImpl
 			this.namespace = namespace;
 		}
 		
-		public Asset apply(String from)
+		@Override
+		public Asset load(String from)
 		{
 			Asset asset;
 			try

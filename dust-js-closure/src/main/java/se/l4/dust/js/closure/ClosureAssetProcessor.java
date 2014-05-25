@@ -18,14 +18,12 @@ import se.l4.dust.api.resource.Resource;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.LimitInputStream;
 import com.google.javascript.jscomp.CommandLineRunner;
 import com.google.javascript.jscomp.CompilationLevel;
 import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
 import com.google.javascript.jscomp.JSModule;
-import com.google.javascript.jscomp.JSSourceFile;
 import com.google.javascript.jscomp.Result;
 import com.google.javascript.jscomp.SourceFile;
 
@@ -112,7 +110,7 @@ public class ClosureAssetProcessor
 		Map<String, SourceFile> externsMap = Maps.newHashMap();
 		for(ZipEntry entry = null; (entry = zip.getNextEntry()) != null;)
 		{
-			BufferedInputStream entryStream = new BufferedInputStream(new LimitInputStream(zip, entry.getSize()));
+			BufferedInputStream entryStream = new BufferedInputStream(ByteStreams.limit(zip, entry.getSize()));
 			externsMap.put(entry.getName(), SourceFile.fromInputStream("externs.zip//" + entry.getName(), entryStream));
 		}
 		
