@@ -15,7 +15,7 @@ import com.google.inject.Inject;
 
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.conversion.TypeConverter;
-import se.l4.dust.jaxrs.spi.WebRenderingContext;
+import se.l4.dust.servlet.WebRenderingContext;
 
 /**
  * Extension to {@link WebRenderingContext} for Resteasy specific 

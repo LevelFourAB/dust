@@ -1,4 +1,4 @@
-package se.l4.dust.jaxrs;
+package se.l4.dust.servlet;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -6,7 +6,6 @@ import javax.servlet.ServletContextListener;
 
 import se.l4.crayon.Contributions;
 import se.l4.dust.api.discovery.NamespaceDiscovery;
-import se.l4.dust.jaxrs.spi.Configuration;
 
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -30,10 +29,10 @@ public abstract class AbstractBootstrap
 		Injector i = getInjector(ctx); 
 		ctx.setAttribute(Injector.class.getName(), i);
 
-		// Setup the rest of the context
-		Configuration config = i.getInstance(Configuration.class);
-		config.setupContext(ctx, i);
+		// Pass the context along
+		WebScopes.setContext(ctx);
 		
+		// Setup the rest of the context
 		Contributions contextContributions = i.getInstance(
 			Key.get(Contributions.class, ContextContribution.class)
 		);

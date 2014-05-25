@@ -1,11 +1,11 @@
-package se.l4.dust.jaxrs;
+package se.l4.dust.servlet;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import se.l4.dust.jaxrs.spi.RequestContext;
 
 import com.google.inject.Key;
 import com.google.inject.OutOfScopeException;
@@ -21,16 +21,32 @@ import com.google.inject.Scope;
 public class WebScopes
 {
 	private static String KEY = "dust.";
-	private static final AtomicReference<RequestContext> context;
+	private static final AtomicReference<ServletContext> context;
+	private static final ThreadLocal<HttpServletRequest> request;
+	private static final ThreadLocal<HttpServletResponse> response;
 	
 	static
 	{
-		context = new AtomicReference<RequestContext>();
+		context = new AtomicReference<>();
+		request = new ThreadLocal<>();
+		response = new ThreadLocal<>();
 	}
 	
-	public static void setContext(RequestContext ctx)
+	public static void setContext(ServletContext ctx)
 	{
 		context.set(ctx);
+	}
+	
+	public static void init(HttpServletRequest req, HttpServletResponse resp)
+	{
+		request.set(req);
+		response.set(resp);
+	}
+	
+	public static void clear()
+	{
+		request.remove();
+		response.remove();
 	}
 	
 	public static final Scope REQUEST = new Scope()
@@ -42,7 +58,7 @@ public class WebScopes
 				@SuppressWarnings("unchecked")
 				public T get()
 				{
-					HttpServletRequest req = context.get().getHttpServletRequest();
+					HttpServletRequest req = request.get();
 					
 					if(req == null)
 					{
@@ -82,7 +98,7 @@ public class WebScopes
 				@SuppressWarnings("unchecked")
 				public T get()
 				{
-					HttpSession session = context.get().getHttpSession();
+					HttpSession session = request.get().getSession();
 					
 					if(session == null)
 					{
@@ -115,5 +131,20 @@ public class WebScopes
 	
 	private WebScopes()
 	{
+	}
+	
+	public static HttpServletRequest getRequest()
+	{
+		return request.get();
+	}
+	
+	public static HttpServletResponse getResponse()
+	{
+		return response.get();
+	}
+
+	public static ServletContext getContext()
+	{
+		return context.get();
 	}
 }

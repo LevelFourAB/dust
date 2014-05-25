@@ -1,11 +1,8 @@
-package se.l4.dust.jaxrs.spi;
+package se.l4.dust.servlet;
 
 import java.net.URI;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.UriBuilder;
-
-import com.google.inject.Inject;
 
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.Namespaces;
@@ -15,6 +12,8 @@ import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.template.DefaultRenderingContext;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateException;
+
+import com.google.inject.Inject;
 
 /**
  * Implementation of {@link RenderingContext} that resolves assets correctly
@@ -77,10 +76,7 @@ public class WebRenderingContext
 			
 			String version = nns.getVersion();
 			
-			UriBuilder builder = UriBuilder.fromPath("/asset/{ns}/{version}")
-				.path(name);
-			
-			return builder.build(prefix, version);
+			return URI.create("/asset/" + prefix + "/" + version + "/" + name);
 		}
 		
 		throw new TemplateException("Unable to resolve " + asset);

@@ -1,4 +1,4 @@
-package se.l4.dust.jaxrs;
+package se.l4.dust.servlet;
 
 import java.util.Map;
 

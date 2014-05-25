@@ -24,6 +24,7 @@
 	<modules>
 		<module>dust-core</module>
 
+		<module>dust-servlet</module>
 		<module>dust-jaxrs</module>
 		<module>dust-jaxrs-resteasy</module>
 

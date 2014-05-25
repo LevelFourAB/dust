@@ -1,4 +1,4 @@
-package se.l4.dust.jaxrs.internal.routing;
+package se.l4.dust.servlet.internal.routing;
 
 /**
  * Matcher that matches against the syntax used in web.xml.

@@ -1,4 +1,4 @@
-package se.l4.dust.jaxrs.internal;
+package se.l4.dust.servlet.internal.routing;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,11 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
-import se.l4.dust.jaxrs.ServletBinder;
-import se.l4.dust.jaxrs.internal.routing.FilterEntry;
-import se.l4.dust.jaxrs.internal.routing.NormalMatcher;
-import se.l4.dust.jaxrs.internal.routing.RegexMatcher;
-import se.l4.dust.jaxrs.internal.routing.ServletEntry;
+import se.l4.dust.servlet.ServletBinder;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;

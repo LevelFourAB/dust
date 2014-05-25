@@ -1,4 +1,4 @@
-package se.l4.dust.jaxrs.internal.routing;
+package se.l4.dust.servlet.internal.routing;
 
 import java.io.IOException;
 

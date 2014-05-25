@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.discovery.DiscoveryEncounter;
 import se.l4.dust.api.discovery.DiscoveryHandler;
-import se.l4.dust.jaxrs.spi.Configuration;
+import se.l4.dust.jaxrs.JaxrsConfiguration;
 
 import com.google.inject.Inject;
 
@@ -19,10 +19,10 @@ public class PageDiscoveryHandler
 {
 	private static final Logger logger = LoggerFactory.getLogger(PageDiscoveryHandler.class);
 	
-	private final Configuration config;
+	private final JaxrsConfiguration config;
 
 	@Inject
-	public PageDiscoveryHandler(Configuration config)
+	public PageDiscoveryHandler(JaxrsConfiguration config)
 	{
 		this.config = config;
 	}

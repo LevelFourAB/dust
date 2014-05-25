@@ -1,5 +1,6 @@
 package se.l4.dust.jaxrs.resteasy;
 
+import javax.servlet.ServletContext;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
@@ -20,14 +21,16 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
+import se.l4.crayon.annotation.Order;
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.jaxrs.WebModule;
+import se.l4.dust.jaxrs.JaxrsConfiguration;
+import se.l4.dust.jaxrs.JaxrsModule;
 import se.l4.dust.jaxrs.internal.template.TemplateWriter;
 import se.l4.dust.jaxrs.resteasy.internal.ResteasyConfiguration;
-import se.l4.dust.jaxrs.resteasy.internal.ResteasyContext;
+import se.l4.dust.jaxrs.resteasy.internal.ResteasyFilter;
 import se.l4.dust.jaxrs.resteasy.internal.ResteasyRenderingContext;
-import se.l4.dust.jaxrs.spi.Configuration;
-import se.l4.dust.jaxrs.spi.RequestContext;
+import se.l4.dust.servlet.ContextContribution;
+import se.l4.dust.servlet.ServletBinder;
 
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -45,7 +48,7 @@ public class ResteasyModule
 	@Override
 	protected void configure()
 	{
-		install(new WebModule());
+		install(new JaxrsModule());
 		
 		// Bind a Resteasy factory
 		ResteasyProviderFactory factory = new ResteasyProviderFactory();
@@ -56,8 +59,7 @@ public class ResteasyModule
 		bind(Dispatcher.class).toInstance(new SynchronousDispatcher(factory));
 		
 		// Bind SPI interfaces 
-		bind(Configuration.class).to(ResteasyConfiguration.class);
-		bind(RequestContext.class).to(ResteasyContext.class);
+		bind(JaxrsConfiguration.class).to(ResteasyConfiguration.class);
 		bind(RenderingContext.class).to(ResteasyRenderingContext.class);
 	}
 	
@@ -104,5 +106,22 @@ public class ResteasyModule
 		factory.registerProviderInstance(p2);
 		factory.registerProviderInstance(p10);
 		factory.registerProviderInstance(new ServerFormUrlEncodedProvider(false));
+	}
+	
+	@ContextContribution
+	@Order("last")
+	public void setupResteasy(ServletContext ctx, 
+			ResteasyProviderFactory factory,
+			Dispatcher dispatcher,
+			Registry registry,
+			ServletBinder binder)
+	{
+		// Register the services in the context
+		ctx.setAttribute(ResteasyProviderFactory.class.getName(), factory);
+		ctx.setAttribute(Dispatcher.class.getName(), dispatcher);
+		ctx.setAttribute(Registry.class.getName(), registry);
+
+		// And bind a new filter
+		binder.filter("/*").with(ResteasyFilter.class);
 	}
 }

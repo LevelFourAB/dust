@@ -1,12 +1,11 @@
-package se.l4.dust.jaxrs.internal.routing;
+package se.l4.dust.servlet.internal.routing;
 
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Map;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
+import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -15,39 +14,36 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.collect.Iterators;
 
-/**
- * Filter that should be applied to requests. Matches against a certain
- * pattern which the path of the request must match for this filter to be
- * applied.
- * 
- * @author Andreas Holstenson
- *
- */
-public class FilterEntry
+public class ServletEntry
 {
 	private final String path;
 	private final Matcher matcher;
-	private final Filter filter;
+	private final Servlet servlet;
 	private final Map<String, String> params;
 
-	public FilterEntry(String path, Matcher matcher, Filter filter, Map<String, String> params)
+	public ServletEntry(String path, Matcher matcher, Servlet servlet, Map<String, String> params)
 	{
 		this.path = path;
 		this.matcher = matcher;
-		this.filter = filter;
+		this.servlet = servlet;
 		this.params = params;
 	}
 	
-	public Filter getFilter()
+	public Servlet getServlet()
 	{
-		return filter;
+		return servlet;
 	}
 	
 	public void init(final ServletContext ctx)
 		throws ServletException
 	{
-		filter.init(new FilterConfig()
+		servlet.init(new ServletConfig()
 		{
+			public String getServletName()
+			{
+				return path;
+			}
+			
 			public ServletContext getServletContext()
 			{
 				return ctx;
@@ -62,17 +58,12 @@ public class FilterEntry
 			{
 				return params.get(name);
 			}
-			
-			public String getFilterName()
-			{
-				return path;
-			}
 		});
 	}
 	
 	public void destroy()
 	{
-		filter.destroy();
+		servlet.destroy();
 	}
 	
 	public boolean matches(String path)
@@ -80,8 +71,7 @@ public class FilterEntry
 		return matcher.matches(path);
 	}
 	
-	public void doFilter(ServletRequest request, ServletResponse response, 
-			FilterChain chain)
+	public void service(ServletRequest request, ServletResponse response, ServletChain chain)
 		throws IOException, ServletException
 	{
 		String path = ((HttpServletRequest) request).getPathInfo();
@@ -92,11 +82,11 @@ public class FilterEntry
 		
 		if(matches(path))
 		{
-			filter.doFilter(request, response, chain);
+			servlet.service(request, response);
 		}
 		else
 		{
-			chain.doFilter(request, response);
+			chain.service(request, response);
 		}
 	}
 }

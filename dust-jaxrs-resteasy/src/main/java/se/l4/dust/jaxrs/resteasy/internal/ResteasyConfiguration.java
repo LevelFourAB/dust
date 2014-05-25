@@ -10,8 +10,8 @@ import org.jboss.resteasy.core.Dispatcher;
 import org.jboss.resteasy.spi.Registry;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
-import se.l4.dust.jaxrs.ServletBinder;
-import se.l4.dust.jaxrs.spi.Configuration;
+import se.l4.dust.jaxrs.JaxrsConfiguration;
+import se.l4.dust.servlet.ServletBinder;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -27,7 +27,7 @@ import com.google.inject.Stage;
  */
 @Singleton
 public class ResteasyConfiguration
-	implements Configuration
+	implements JaxrsConfiguration
 {
 	private final Injector injector;
 	private final Registry registry;
@@ -97,29 +97,6 @@ public class ResteasyConfiguration
 		factory.register(provider);
 	}
 	
-	@Override
-	public void setupContext(ServletContext ctx, Injector injector)
-	{
-		this.servletContext = ctx;
-		
-		// Setup Resteasy
-		ResteasyProviderFactory factory = injector.getInstance(ResteasyProviderFactory.class);
-		Dispatcher dispatcher = injector.getInstance(Dispatcher.class);
-		Registry registry = injector.getInstance(Registry.class);
-		
-		// Register the services in the context
-		ctx.setAttribute(ResteasyProviderFactory.class.getName(), factory);
-		ctx.setAttribute(Dispatcher.class.getName(), dispatcher);
-		ctx.setAttribute(Registry.class.getName(), registry);
-	}
-	
-	@Override
-	public void setupFilter(ServletContext ctx, Injector injector,
-			ServletBinder binder)
-	{
-		binder.filter("/*").with(ResteasyFilter.class);
-	}
-
 	public ServletContext getServletContext()
 	{
 		return servletContext;

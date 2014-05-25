@@ -1,23 +1,17 @@
-package se.l4.dust.jaxrs.spi;
+package se.l4.dust.jaxrs;
 
-import javax.servlet.ServletContext;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.ParamConverterProvider;
 
-import se.l4.dust.jaxrs.ServletBinder;
-
-import com.google.inject.Injector;
-import com.google.inject.Provider;
-
 /**
- * Configuration abstraction for different JAX-RS implementations.
+ * JAX-RS configuration, to allow for manual adding of pages and providers.
  * 
- * @author andreas
+ * @author Andreas Holstenson
  *
  */
-public interface Configuration
+public interface JaxrsConfiguration
 {
 	/**
 	 * Add a {@link MessageBodyWriter} to the current JAX-RS configuration.
@@ -54,22 +48,4 @@ public interface Configuration
 	 * @param factory
 	 */
 	void addPage(Class<?> typeAnnotatedWithPath);
-	
-	/**
-	 * Setup the servlet context.
-	 * 
-	 * @param ctx
-	 * @param injector
-	 */
-	void setupContext(ServletContext ctx, Injector injector);
-	
-	/**
-	 * Perform setup and bind any servlets and filters required for normal
-	 * operation.
-	 * 
-	 * @param ctx
-	 * @param injector
-	 * @param binder
-	 */
-	void setupFilter(ServletContext ctx, Injector injector, ServletBinder binder);
 }

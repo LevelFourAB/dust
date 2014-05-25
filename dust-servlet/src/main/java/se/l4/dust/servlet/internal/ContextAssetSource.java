@@ -1,4 +1,4 @@
-package se.l4.dust.jaxrs.internal.asset;
+package se.l4.dust.servlet.internal;
 
 import java.io.IOException;
 import java.net.MalformedURLException;

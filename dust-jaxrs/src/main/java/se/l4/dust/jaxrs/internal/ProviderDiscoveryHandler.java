@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.discovery.DiscoveryEncounter;
 import se.l4.dust.api.discovery.DiscoveryHandler;
-import se.l4.dust.jaxrs.spi.Configuration;
+import se.l4.dust.jaxrs.JaxrsConfiguration;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -25,10 +25,10 @@ public class ProviderDiscoveryHandler
 	private static final Logger logger = LoggerFactory.getLogger(ProviderDiscoveryHandler.class);
 	
 	private final Injector injector;
-	private final Configuration config;
+	private final JaxrsConfiguration config;
 
 	@Inject
-	public ProviderDiscoveryHandler(Injector injector, Configuration config)
+	public ProviderDiscoveryHandler(Injector injector, JaxrsConfiguration config)
 	{
 		this.injector = injector;
 		this.config = config;

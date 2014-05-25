@@ -1,4 +1,4 @@
-package se.l4.dust.jaxrs;
+package se.l4.dust.servlet;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -12,18 +12,16 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import se.l4.dust.api.Scopes;
 import se.l4.dust.api.discovery.NamespaceDiscovery;
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.jaxrs.internal.ServletBinderImpl;
-import se.l4.dust.jaxrs.internal.routing.FilterChainImpl;
-import se.l4.dust.jaxrs.internal.routing.FilterEntry;
-import se.l4.dust.jaxrs.internal.routing.ServletChain;
-import se.l4.dust.jaxrs.internal.routing.ServletEntry;
-import se.l4.dust.jaxrs.spi.Configuration;
-import se.l4.dust.jaxrs.spi.RequestContext;
-import se.l4.dust.jaxrs.spi.WebRenderingContext;
+import se.l4.dust.servlet.internal.routing.FilterChainImpl;
+import se.l4.dust.servlet.internal.routing.FilterEntry;
+import se.l4.dust.servlet.internal.routing.ServletBinderImpl;
+import se.l4.dust.servlet.internal.routing.ServletChain;
+import se.l4.dust.servlet.internal.routing.ServletEntry;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -62,14 +60,6 @@ public class DustFilter
 		// Get our needed services
 		ServletContext ctx = filterConfig.getServletContext();
 		Injector injector = (Injector) ctx.getAttribute(Injector.class.getName());
-		
-		// Setup context for scoping
-		WebScopes.setContext(injector.getInstance(RequestContext.class));
-		
-		// Setup the configuration filter
-		Configuration config = injector.getInstance(Configuration.class);
-		ServletBinder binder = injector.getInstance(ServletBinderImpl.class);
-		config.setupFilter(ctx, injector, binder);
 		
 		// Create the real implementation
 		Stage stage = injector.getInstance(Stage.class);
@@ -125,10 +115,14 @@ public class DustFilter
 					((WebRenderingContext) context).setup((HttpServletRequest) request);
 				}
 				
+				WebScopes.init((HttpServletRequest) request, (HttpServletResponse) response);
+				
 				chain.doFilter(request, response);
 			}
 			finally
 			{
+				WebScopes.clear();
+				
 				Scopes.clearActiveContext();
 			}
 		}

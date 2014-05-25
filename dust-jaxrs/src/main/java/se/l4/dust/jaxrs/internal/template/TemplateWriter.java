@@ -22,7 +22,7 @@ import se.l4.dust.api.template.TemplateRenderer;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.spi.TemplateOutputStream;
 import se.l4.dust.core.template.html.HtmlTemplateOutput;
-import se.l4.dust.jaxrs.spi.WebRenderingContext;
+import se.l4.dust.servlet.WebRenderingContext;
 
 import com.google.inject.Inject;
 
