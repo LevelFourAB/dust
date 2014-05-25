@@ -1,8 +1,6 @@
-package se.l4.dust.api.asset;
+package se.l4.dust.api.resource;
 
 import java.io.IOException;
-
-import se.l4.dust.api.resource.Resource;
 
 /**
  * Source of assets, used to support pluggable asset implementations.
@@ -10,7 +8,7 @@ import se.l4.dust.api.resource.Resource;
  * @author Andreas Holstenson
  *
  */
-public interface AssetSource
+public interface ResourceLocator
 {
 	/**
 	 * Attempt to locate a file within a given namespace, returning {@code null}
@@ -25,4 +23,6 @@ public interface AssetSource
 	 */
 	Resource locate(String ns, String pathToFile)
 		throws IOException;
+	
+	
 }

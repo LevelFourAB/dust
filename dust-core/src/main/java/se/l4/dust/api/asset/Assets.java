@@ -5,19 +5,13 @@ import javax.xml.stream.events.Namespace;
 import se.l4.dust.api.Context;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.ResourceLocator;
+import se.l4.dust.api.resource.Resources;
 
 /**
  * Asset management, helps with locating and registering assets. Assets are
- * files that are usually located within the classpath of a project. Assets
- * are always bound to a namespace, given a namespace and a file name the
- * manager looks through registered {@link AssetSource}s for the given resource.
- * 
- * <h2>Classpath source</h2>
- * By default an {@link AssetSource} based on the classpath is registered, this
- * source will lookup the package name for a given namespace (via 
- * {@link Namespaces}) and will then perform a lookup of the file
- * equivalent to classing {@link Package#getResource(String)} on a class located
- * in the package.
+ * files that are usually located within the classpath of a project. See
+ * {@link Resources} for details.
  * 
  * <h2>Usage in templates</h2>
  * If assets are used in a template the template must define their namespace
@@ -108,20 +102,6 @@ public interface Assets
 	 * @return
 	 */
 	Asset locate(Context context, String namespace, String file);
-	
-	/**
-	 * Add a source of assets to the manager.
-	 * 
-	 * @param source
-	 */
-	void addSource(AssetSource source);
-
-	/**
-	 * Add a source of assets to the manager.
-	 * 
-	 * @param source
-	 */
-	void addSource(Class<? extends AssetSource> source);
 	
 	/**
 	 * Get if the extension is protected and requires a checksum in the URL.

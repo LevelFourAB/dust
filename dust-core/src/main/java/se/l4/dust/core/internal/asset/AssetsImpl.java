@@ -19,10 +19,11 @@ import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetCache;
 import se.l4.dust.api.asset.AssetException;
 import se.l4.dust.api.asset.AssetProcessor;
-import se.l4.dust.api.asset.AssetSource;
 import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.resource.MergedResource;
 import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.ResourceLocator;
+import se.l4.dust.api.resource.Resources;
 import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.api.resource.variant.ResourceVariantManager.ResourceCallback;
@@ -47,11 +48,11 @@ public class AssetsImpl
 	
 	private final LoadingCache<String, AssetNamespace> cache;
 	private final Namespaces manager;
+	private final Resources resources;
 	private final ResourceVariantManager variants;
 	
 	private final boolean production;
 	
-	private final List<Object> sources;
 	private final Set<String> protectedExtensions;
 	private final Map<String, AssetProcessor> extensionProcessors;
 	
@@ -61,14 +62,15 @@ public class AssetsImpl
 	
 	@Inject
 	public AssetsImpl(Namespaces manager,
+			Resources resources,
 			ResourceVariantManager variants,
 			Injector injector,
 			Stage stage)
 	{
 		this.manager = manager;
+		this.resources = resources;
 		this.variants = variants;
 		this.injector = injector;
-		sources = new CopyOnWriteArrayList<Object>();
 		extensionProcessors = new ConcurrentHashMap<String, AssetProcessor>();
 		
 		CacheLoader<String, AssetNamespace> f;
@@ -110,16 +112,6 @@ public class AssetsImpl
 	public void setAssetCache(AssetCache cache)
 	{
 		this.assetCache = cache;
-	}
-	
-	public void addSource(AssetSource source)
-	{
-		sources.add(source);
-	}
-	
-	public void addSource(Class<? extends AssetSource> source)
-	{
-		sources.add(source);
 	}
 	
 	private AssetNamespace get(String ns)
@@ -573,20 +565,7 @@ public class AssetsImpl
 				return definedResources.get(path);
 			}
 
-			// Check with all asset sources
-			for(Object source : sources)
-			{
-				AssetSource s = source instanceof AssetSource
-					? (AssetSource) source
-					: (AssetSource) injector.getInstance((Class<?>) source);
-				Resource resource = s.locate(namespace, path);
-				if(resource != null)
-				{
-					return resource;
-				}
-			}
-			
-			return null;
+			return resources.locate(namespace, path);
 		}
 	}
 	

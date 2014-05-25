@@ -8,8 +8,8 @@ import javax.servlet.ServletContext;
 
 import se.l4.dust.Dust;
 import se.l4.dust.api.Namespaces;
-import se.l4.dust.api.asset.AssetSource;
 import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.ResourceLocator;
 import se.l4.dust.api.resource.UrlResource;
 import se.l4.dust.api.template.TemplateException;
 
@@ -23,16 +23,15 @@ import com.google.inject.Singleton;
  * @author andreas
  *
  */
-@Singleton
-public class ContextAssetSource
-	implements AssetSource
+public class ContextResourceLocator
+	implements ResourceLocator
 {
 	private final Provider<ServletContext> ctx;
 
 	private final Namespaces namespaces;
 
 	@Inject
-	public ContextAssetSource(Provider<ServletContext> ctx, Namespaces namespaces)
+	public ContextResourceLocator(Provider<ServletContext> ctx, Namespaces namespaces)
 	{
 		this.ctx = ctx;
 		this.namespaces = namespaces;

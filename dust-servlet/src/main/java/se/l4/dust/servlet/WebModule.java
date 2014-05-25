@@ -9,9 +9,9 @@ import se.l4.crayon.Contributions;
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Order;
-import se.l4.dust.api.asset.Assets;
+import se.l4.dust.api.resource.Resources;
 import se.l4.dust.core.CoreModule;
-import se.l4.dust.servlet.internal.ContextAssetSource;
+import se.l4.dust.servlet.internal.ContextResourceLocator;
 import se.l4.dust.servlet.internal.routing.ServletBinderImpl;
 
 import com.google.inject.Provides;
@@ -42,11 +42,11 @@ public class WebModule
 		bindContributions(ContextContribution.class);
 	}
 	
-	@Contribution(name="dust-context-asset-source")
+	@Contribution(name="dust-context-resource-locator")
 	@Order("before:dust-assets")
-	public void contributeContextSource(Assets manager)
+	public void contributeContextLocator(Resources resources, ContextResourceLocator locator)
 	{
-		manager.addSource(ContextAssetSource.class);
+		resources.addLocator(locator);
 	}
 	
 	@Contribution(name="dust-filter-contributions")

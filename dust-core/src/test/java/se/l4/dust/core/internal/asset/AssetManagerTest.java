@@ -13,9 +13,11 @@ import se.l4.dust.api.DefaultContext;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.Resources;
 import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.core.CoreModule;
+import se.l4.dust.core.internal.resource.ClasspathResourceLocator;
 import se.l4.dust.core.internal.resource.LocaleVariantSource;
 
 import com.google.common.io.ByteStreams;
@@ -49,7 +51,7 @@ public class AssetManagerTest
 			.add();
 		
 		instance = injector.getInstance(AssetsImpl.class);
-		instance.addSource(injector.getInstance(ClasspathAssetSource.class));
+		injector.getInstance(Resources.class).addLocator(injector.getInstance(ClasspathResourceLocator.class));
 		
 		injector.getInstance(ResourceVariantManager.class)
 			.addSource(new LocaleVariantSource());

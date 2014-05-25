@@ -1,4 +1,4 @@
-package se.l4.dust.core.internal.asset;
+package se.l4.dust.core.internal.resource;
 
 import java.io.IOException;
 import java.net.URL;
@@ -8,8 +8,8 @@ import com.google.inject.Singleton;
 
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.Namespaces;
-import se.l4.dust.api.asset.AssetSource;
 import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.ResourceLocator;
 import se.l4.dust.api.resource.UrlResource;
 
 /**
@@ -20,13 +20,13 @@ import se.l4.dust.api.resource.UrlResource;
  *
  */
 @Singleton
-public class ClasspathAssetSource
-	implements AssetSource
+public class ClasspathResourceLocator
+	implements ResourceLocator
 {
 	private final Namespaces manager;
 
 	@Inject
-	public ClasspathAssetSource(Namespaces manager)
+	public ClasspathResourceLocator(Namespaces manager)
 	{
 		this.manager = manager;
 	}

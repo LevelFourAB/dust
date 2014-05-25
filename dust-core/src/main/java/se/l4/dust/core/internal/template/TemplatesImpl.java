@@ -40,7 +40,7 @@ public class TemplatesImpl
 	implements Templates
 {
 	private final Injector injector;
-	private final LoadingCache<String, NamespacedTemplateImpl> namespaces;
+	private final LoadingCache<String, TemplateNamespaceImpl> namespaces;
 	private final AtomicInteger counter;
 	
 	@Inject
@@ -54,15 +54,15 @@ public class TemplatesImpl
 		counter = new AtomicInteger();
 		
 		namespaces = CacheBuilder.newBuilder()
-			.build(new CacheLoader<String, NamespacedTemplateImpl>()
+			.build(new CacheLoader<String, TemplateNamespaceImpl>()
 			{
 				@Override
-				public NamespacedTemplateImpl load(String key)
+				public TemplateNamespaceImpl load(String key)
 					throws Exception
 				{
 					Namespace ns = nsManager.getNamespaceByURI(key);
 					
-					return new NamespacedTemplateImpl(TemplatesImpl.this, injector, key, discovery, stage == Stage.DEVELOPMENT);
+					return new TemplateNamespaceImpl(TemplatesImpl.this, injector, key, discovery, stage == Stage.DEVELOPMENT);
 				}
 			});
 	}
@@ -85,7 +85,7 @@ public class TemplatesImpl
 		return counter.incrementAndGet();
 	}
 	
-	private static class NamespacedTemplateImpl
+	private static class TemplateNamespaceImpl
 		implements TemplateNamespace
 	{
 		private final TemplatesImpl templates;
@@ -100,7 +100,7 @@ public class TemplatesImpl
 		private final boolean dev;
 		private final NamespaceDiscovery discovery;
 		
-		public NamespacedTemplateImpl(TemplatesImpl templates, Injector injector, String namespace, NamespaceDiscovery discovery, boolean dev)
+		public TemplateNamespaceImpl(TemplatesImpl templates, Injector injector, String namespace, NamespaceDiscovery discovery, boolean dev)
 		{
 			this.templates = templates;
 			this.injector = injector;
@@ -238,8 +238,8 @@ public class TemplatesImpl
 					namespace + "; New component does not overide old one");
 			}
 			
-			TemplateNamespace other = templates.getNamespace(namespace);
-			if(! other.hasFragment(names[0]))
+			TemplateNamespaceImpl other = (TemplateNamespaceImpl) templates.getNamespace(namespace);
+			if(! other.fragments.containsKey(names[0]))
 			{
 				throw new ComponentException("Unable to override " + 
 					originalComponent.getSimpleName() + " in " +
