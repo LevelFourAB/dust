@@ -2,7 +2,6 @@ package se.l4.dust.api;
 
 import se.l4.dust.api.annotation.Component;
 import se.l4.dust.api.template.mixin.TemplateMixin;
-import se.l4.dust.api.template.spi.PropertySource;
 import se.l4.dust.api.template.spi.TemplateFragment;
 
 /**
@@ -115,37 +114,6 @@ public interface TemplateManager
 	 * @return
 	 */
 	TemplateNamespace getNamespace(String nsUri);
-	
-	/**
-	 * Add a property source that can be used within {@literal ${}} expansions
-	 * in templates.
-	 * 
-	 * @param prefix
-	 * 		prefix of the source (used in expansions, examples: var, asset)
-	 * @param source
-	 * 		the source to register
-	 */
-	void addPropertySource(String prefix, PropertySource source);
-	
-	/**
-	 * Get the property source associated with given prefix.
-	 * 
-	 * @param prefix
-	 * 		the prefix to lookup
-	 * @return
-	 */
-	PropertySource getPropertySource(String prefix);
-
-	/**
-	 * Add a property source that can be used within {@literal ${}} expansions
-	 * in templates.
-	 * 
-	 * @param prefix
-	 * 		prefix of the soruce (used in expansions, examples: var, asset)
-	 * @param type
-	 * 		the class of the source
-	 */
-	void addPropertySource(String prefix, Class<? extends PropertySource> type);
 	
 	/**
 	 * Get a template identifier for identifying a template uniquely.

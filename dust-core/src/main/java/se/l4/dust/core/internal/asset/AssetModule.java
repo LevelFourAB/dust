@@ -26,13 +26,6 @@ public class AssetModule
 		manager.addProtectedExtension("class");
 	}
 	
-	@Contribution(name="internal-asset-property-source")
-	public void contributeAssetPropertySource(TemplateManager manager)
-	{
-		manager.addPropertySource("asset", AssetPropertySource.class);
-		manager.addPropertySource("a", AssetPropertySource.class);
-	}
-	
 	@Contribution(name="internal-asset-sources")
 	public void contributeClasspathSource(AssetManager manager)
 	{

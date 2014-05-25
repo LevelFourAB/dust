@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
@@ -17,6 +19,7 @@ import se.l4.dust.core.internal.Caches;
 import com.google.common.base.Optional;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import com.google.inject.Inject;
 
@@ -133,18 +136,22 @@ public class PropertyMessagesSource
 	private static class PropertyMessages
 		implements Messages
 	{
-		private final Properties props;
+		private final Map<String, String> messages;
 
 		public PropertyMessages(Properties props)
 		{
-			this.props = props;
+			Map<String, String> messages = Maps.newHashMap();
+			for(Entry<Object, Object> o : props.entrySet())
+			{
+				messages.put((String) o.getKey(), new String(((String) o.getValue()).getBytes(ISO88591), UTF8));
+			}
+			this.messages = messages;
 		}
 		
 		@Override
 		public String get(String property)
 		{
-			String v = props.getProperty(property);
-			return v == null ? null : new String(v.getBytes(ISO88591), UTF8);
+			return messages.get(property);
 		}
 	}
 }

@@ -180,17 +180,7 @@ public interface TemplateBuilder
 	TemplateBuilder unbindNamespace(String prefix);
 	
 	/**
-	 * Create a piece of dynamic content based on the prefix and given 
-	 * expression.
-	 * 
-	 * @param prefix
-	 * @param expression
-	 * @return
-	 */
-	Content createDynamicContent(String prefix, String expression);
-	
-	/**
-	 * Create a peice of dynamic content based on the given expression.
+	 * Create a piece of dynamic content based on the given expression.
 	 * 
 	 * @param expression
 	 * @return

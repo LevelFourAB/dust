@@ -71,6 +71,14 @@ public interface NamespaceManager
 		NamespaceBinder with(NamespacePlugin plugin);
 		
 		/**
+		 * Indicate that the package of this namespace needs to be
+		 * manually set.
+		 * 
+		 * @return
+		 */
+		NamespaceBinder manual();
+		
+		/**
 		 * Bind the given namespace.
 		 */
 		void add();

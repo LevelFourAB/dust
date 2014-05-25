@@ -116,6 +116,7 @@ public class NamespaceManagerImpl
 		private ClassLoader loader;
 		private String resourceReference;
 		private List<NamespacePlugin> plugins;
+		private boolean manual;
 		
 		public NamespaceBinderImpl(String uri)
 		{
@@ -162,6 +163,14 @@ public class NamespaceManagerImpl
 		}
 		
 		@Override
+		public NamespaceBinder manual()
+		{
+			this.manual = true;
+			
+			return this;
+		}
+		
+		@Override
 		public NamespaceBinder with(NamespacePlugin plugin)
 		{
 			plugins.add(plugin);
@@ -176,7 +185,7 @@ public class NamespaceManagerImpl
 				version = generateVersion(uri);
 			}
 			
-			if(pkg == null)
+			if(pkg == null && ! manual)
 			{
 				// No package set, try to autodetect
 				StackTraceElement[] trace = new Exception().getStackTrace();

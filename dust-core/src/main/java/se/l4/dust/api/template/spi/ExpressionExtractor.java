@@ -45,7 +45,6 @@ public class ExpressionExtractor
 		ParserState state = ParserState.WAITING;
 		
 		StringBuilder buffer = new StringBuilder();
-		String namespace = null;
 
 		int currentExpressionStart = column;
 		int currentExpressionStartLine = line;
@@ -73,8 +72,7 @@ public class ExpressionExtractor
 						i += jump;
 						column += jump;
 						
-						namespace = null;
-						state = ParserState.NAMESPACE;
+						state = ParserState.MAIN;
 								
 						if(buffer.length() > 0)
 						{
@@ -91,49 +89,7 @@ public class ExpressionExtractor
 					}
 					break;
 					
-				case NAMESPACE:
-					if(isLocatedAt(value, i, endToken))
-					{
-						int jump = endToken.length() - 1;
-						i += jump;
-						column += jump;
-						
-						// Namespace was actually the entire expression
-						try
-						{
-							Content dynamicContent = builder.createDynamicContent(namespace, buffer.toString());
-							dynamicContent.withDebugInfo(source, currentExpressionStartLine, currentExpressionStart);
-							content.add(dynamicContent);
-						}
-						catch(Exception e)
-						{
-							errors.newError(currentExpressionStartLine, currentExpressionStart, "%s", e);
-						}
-						buffer.setLength(0);
-						state = ParserState.WAITING;
-					}
-					else if(c == ':')
-					{
-						// Namespace has been found, check the buffer to ensure that the namespace is valid
-						namespace = buffer.toString();
-						buffer.setLength(0);
-						
-						state = ParserState.CLOSE;
-					}
-					else if(Character.isLetterOrDigit(c))
-					{
-						buffer.append(c);
-					}
-					else
-					{
-						// Only letters and digits are allowed in the namespace, so revert to "normal" expression
-						buffer.append(c);
-						state = ParserState.CLOSE;
-					}
-					
-					break;
-					
-				case CLOSE:
+				case MAIN:
 					if(isLocatedAt(value, i, endToken))
 					{
 						int jump = endToken.length() - 1;
@@ -142,7 +98,7 @@ public class ExpressionExtractor
 						
 						try
 						{
-							Content dynamicContent = builder.createDynamicContent(namespace, buffer.toString());
+							Content dynamicContent = builder.createDynamicContent(buffer.toString());
 							dynamicContent.withDebugInfo(source, currentExpressionStartLine, currentExpressionStart);
 							content.add(dynamicContent);
 						}
@@ -202,7 +158,6 @@ public class ExpressionExtractor
 	private enum ParserState
 	{
 		WAITING,
-		NAMESPACE,
-		CLOSE
+		MAIN
 	}
 }

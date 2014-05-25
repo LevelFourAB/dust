@@ -31,7 +31,6 @@ import se.l4.dust.api.template.mixin.MixinEncounter;
 import se.l4.dust.api.template.mixin.TemplateMixin;
 import se.l4.dust.api.template.spi.ErrorCollector;
 import se.l4.dust.api.template.spi.FragmentEncounter;
-import se.l4.dust.api.template.spi.PropertySource;
 import se.l4.dust.api.template.spi.TemplateBuilder;
 import se.l4.dust.api.template.spi.TemplateFragment;
 import se.l4.dust.api.template.spi.TemplateInfo;
@@ -391,24 +390,6 @@ public class TemplateBuilderImpl
 	
 	public Content createDynamicContent(String expression)
 	{
-		return createDynamicContent(null, expression);
-	}
-	
-	public Content createDynamicContent(String prefix, String expression)
-	{
-		if(prefix != null)
-		{
-			PropertySource source = templates.getPropertySource(prefix);
-			if(source != null)
-			{
-				// TODO: Find the property parent
-				return source.getPropertyContent(namespaces, context, expression);
-			}
-			
-			// Join expression again
-			expression = prefix + ":" + expression;
-		}
-		
 		Expression expr = expressions.compile(url, boundNamespaces, expression, context);
 		return applyDebugHints(new ExpressionContent(expr));
 	}

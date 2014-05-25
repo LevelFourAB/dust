@@ -5,9 +5,11 @@ import java.net.URI;
 import se.l4.dust.api.NamespaceManager;
 import se.l4.dust.api.NamespaceManager.Namespace;
 import se.l4.dust.api.NamespacePlugin;
+import se.l4.dust.api.asset.AssetManager;
 import se.l4.dust.api.expression.ExpressionSource;
 import se.l4.dust.api.expression.Expressions;
 import se.l4.dust.api.messages.MessageManager;
+import se.l4.dust.core.internal.asset.AssetExpressionSource;
 import se.l4.dust.core.internal.messages.CustomMessageExpressionSource;
 
 import com.google.inject.Injector;
@@ -79,6 +81,48 @@ public class TemplateNamespacePlugins
 				);
 				
 				injector.getInstance(Expressions.class).addSource(ns.getUri(), source);
+			}
+		};
+	}
+	
+	/**
+	 * Register the namespace so that assets can be resolved in templates.
+	 * 
+	 * @return
+	 */
+	public static NamespacePlugin assets()
+	{
+		return new NamespacePlugin()
+		{
+			@Override
+			public void register(Injector injector, Namespace ns)
+			{
+				AssetManager assets = injector.getInstance(AssetManager.class);
+				
+				injector.getInstance(Expressions.class)
+					.addSource(ns.getUri(), new AssetExpressionSource(assets, ns.getUri()));
+			}
+		};
+	}
+	
+	/**
+	 * Register so that the namespace resolved assets that are registered in
+	 * another namespace.
+	 * 
+	 * @param namespace
+	 * @return
+	 */
+	public static NamespacePlugin assets(final String namespace)
+	{
+		return new NamespacePlugin()
+		{
+			@Override
+			public void register(Injector injector, Namespace ns)
+			{
+				AssetManager assets = injector.getInstance(AssetManager.class);
+				
+				injector.getInstance(Expressions.class)
+					.addSource(ns.getUri(), new AssetExpressionSource(assets, namespace));
 			}
 		};
 	}

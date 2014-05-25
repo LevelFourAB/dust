@@ -2,7 +2,6 @@ package se.l4.dust.core.internal;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,7 +14,6 @@ import se.l4.dust.api.TemplateManager;
 import se.l4.dust.api.annotation.Component;
 import se.l4.dust.api.discovery.NamespaceDiscovery;
 import se.l4.dust.api.template.mixin.TemplateMixin;
-import se.l4.dust.api.template.spi.PropertySource;
 import se.l4.dust.api.template.spi.TemplateFragment;
 import se.l4.dust.core.internal.template.dom.ComponentTemplateFragment;
 
@@ -41,7 +39,6 @@ public class TemplateManagerImpl
 	implements TemplateManager
 {
 	private final Injector injector;
-	private final ConcurrentMap<String, Object> propertySources;
 	private final LoadingCache<String, NamespacedTemplateImpl> namespaces;
 	private final AtomicInteger counter;
 	
@@ -55,7 +52,6 @@ public class TemplateManagerImpl
 		
 		counter = new AtomicInteger();
 		
-		propertySources = new ConcurrentHashMap<String, Object>();
 		namespaces = CacheBuilder.newBuilder()
 			.build(new CacheLoader<String, NamespacedTemplateImpl>()
 			{
@@ -82,32 +78,6 @@ public class TemplateManagerImpl
 		}
 	}
 
-	
-	public void addPropertySource(String prefix, PropertySource source)
-	{
-		propertySources.put(prefix, source);
-	}
-	
-	public void addPropertySource(String prefix, Class<? extends PropertySource> provider)
-	{
-		propertySources.put(prefix, provider);
-	}
-	
-	public PropertySource getPropertySource(String prefix)
-	{
-		Object o = propertySources.get(prefix);
-		if(o instanceof PropertySource)
-		{
-			return (PropertySource) o;
-		}
-		else if(o instanceof Class<?>)
-		{
-			return (PropertySource) injector.getInstance((Class<?>) o);
-		}
-		
-		return null;
-	}
-	
 	@Override
 	public int fetchTemplateId()
 	{
