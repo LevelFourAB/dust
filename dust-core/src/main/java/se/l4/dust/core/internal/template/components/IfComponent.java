@@ -34,7 +34,6 @@ public class IfComponent
 		Attribute test = encounter.getAttribute("test");
 		Element elseContents = encounter.findParameter("else");
 		
-		Class<?> type = test.getValueType();
 		NonGenericConversion<Object, Boolean> conversion = converter.getDynamicConversion(test.getValueType(), Boolean.class);
 		
 		encounter.replaceWith(new Component(test, conversion, elseContents, encounter.getBody()));
@@ -75,10 +74,7 @@ public class IfComponent
 			else if(elseContents != null)
 			{
 				// Render the else
-				for(Content c : elseContents.getRawContents())
-				{
-					emitter.emit(output, c);
-				}
+				emitter.emit(output, elseContents);
 			}
 		}
 	}
