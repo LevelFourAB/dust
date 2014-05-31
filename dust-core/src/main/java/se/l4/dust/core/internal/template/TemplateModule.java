@@ -21,6 +21,8 @@ import se.l4.dust.core.internal.template.components.ParameterComponent;
 import se.l4.dust.core.internal.template.components.RawComponent;
 import se.l4.dust.core.internal.template.components.RenderComponent;
 
+import com.google.inject.Stage;
+
 /**
  * Module that activates template functions. Binds they default implementations
  * and add common components.
@@ -98,8 +100,12 @@ public class TemplateModule
 	@Contribution(name="dust-discovery-template-loading")
 	@Order("after:dust-discovery-components")
 	public void contributePreloadingDiscovery(NamespaceDiscovery discovery,
+			Stage stage,
 			TemplatePreloadingHandler handler)
 	{
-		discovery.addHandler(handler);
+		if(stage != Stage.DEVELOPMENT)
+		{
+			discovery.addHandler(handler);
+		}
 	}
 }

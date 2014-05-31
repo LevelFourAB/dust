@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
@@ -362,24 +360,17 @@ public class TemplateCacheImpl
 		private final Class<?> context;
 		private final URL url;
 		private final Object[] extra;
-		private Context extraContext;
 
 		public Key(Class<?> context, URL url)
 		{
-			this(context, url, null, null);
+			this(context, url, null);
 		}
 		
-		public Key(Class<?> context, URL url, Context extraContext, Object[] extra)
+		public Key(Class<?> context, URL url, Object[] extra)
 		{
 			this.context = context;
 			this.url = url;
-			this.extraContext = extraContext;
 			this.extra = extra;
-		}
-		
-		public void clearExtraContext()
-		{
-			this.extraContext = null;
 		}
 
 		@Override
@@ -424,6 +415,12 @@ public class TemplateCacheImpl
 			else if(!url.equals(other.url))
 				return false;
 			return true;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return "Key{context=" + context + ", url=" + url + "}";
 		}
 	}
 	

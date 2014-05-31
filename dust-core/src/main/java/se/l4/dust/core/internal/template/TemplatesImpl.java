@@ -8,8 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.l4.dust.api.Namespace;
-import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.discovery.NamespaceDiscovery;
 import se.l4.dust.api.template.Component;
 import se.l4.dust.api.template.ComponentException;
@@ -46,7 +44,6 @@ public class TemplatesImpl
 	@Inject
 	public TemplatesImpl(Injector injector_, 
 			final Stage stage,
-			final Namespaces nsManager,
 			final NamespaceDiscovery discovery)
 	{
 		this.injector = injector_;
@@ -60,8 +57,6 @@ public class TemplatesImpl
 				public TemplateNamespaceImpl load(String key)
 					throws Exception
 				{
-					Namespace ns = nsManager.getNamespaceByURI(key);
-					
 					return new TemplateNamespaceImpl(TemplatesImpl.this, injector, key, discovery, stage == Stage.DEVELOPMENT);
 				}
 			});

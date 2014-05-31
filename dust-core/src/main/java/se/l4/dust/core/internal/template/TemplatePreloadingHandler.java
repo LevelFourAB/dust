@@ -15,8 +15,6 @@ import se.l4.dust.api.template.Component;
 import se.l4.dust.api.template.Template;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateException;
-import se.l4.dust.api.template.Templates;
-import se.l4.dust.api.template.Templates.TemplateNamespace;
 
 import com.google.inject.Inject;
 
@@ -25,21 +23,17 @@ public class TemplatePreloadingHandler
 {
 	private static final Logger logger = LoggerFactory.getLogger(DiscoveryHandler.class);
 	
-	private final Templates templates;
 	private final TemplateCache cache;
 
 	@Inject
-	public TemplatePreloadingHandler(Templates templates, TemplateCache cache)
+	public TemplatePreloadingHandler(TemplateCache cache)
 	{
-		this.templates = templates;
 		this.cache = cache;
 	}
 
 	@Override
 	public void handle(Namespace ns, DiscoveryEncounter encounter)
 	{
-		TemplateNamespace ts = templates.getNamespace(ns.getUri());
-		
 		Context context = new DefaultContext();
 		
 		try
