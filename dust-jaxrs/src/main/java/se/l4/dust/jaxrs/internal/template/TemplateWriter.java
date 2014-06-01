@@ -18,9 +18,9 @@ import se.l4.dust.api.template.Component;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.Template;
 import se.l4.dust.api.template.TemplateCache;
+import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.TemplateRenderer;
 import se.l4.dust.api.template.dom.ParsedTemplate;
-import se.l4.dust.api.template.spi.TemplateOutputStream;
 import se.l4.dust.core.template.html.HtmlTemplateOutput;
 import se.l4.dust.servlet.WebRenderingContext;
 

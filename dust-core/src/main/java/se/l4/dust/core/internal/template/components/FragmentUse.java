@@ -6,8 +6,8 @@ import java.util.List;
 import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Element.Attribute;
-import se.l4.dust.api.template.spi.FragmentEncounter;
-import se.l4.dust.api.template.spi.TemplateFragment;
+import se.l4.dust.api.template.fragment.FragmentEncounter;
+import se.l4.dust.api.template.fragment.TemplateFragment;
 
 /**
  * Usage of a previously defined fragment.

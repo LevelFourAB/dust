@@ -1,10 +1,4 @@
 <ul>
-	{% if include.context == "/" %}
-		<li class="{% if page.url == "/" %}active{% endif %}">
-			<a href="{{ site.baseurl }}/">{{ site.title }}</a>
-		</li>
-	{% endif %}
- 
 	{% assign entries = site.pages | sort: "weight" %}
 	{% for entry in entries %}
  
@@ -13,11 +7,9 @@
  
 		{% if current == include.context %}
 			<li class="{% if page.url contains entry.url %}expanded{% endif %} {% if page.url == entry.url %}active{% endif %}">
-				<a href="{{ site.baseurl }}{{ entry.url }}">{{ entry.title }}</a>
-				{% if page.url contains entry.url %}
-					{% assign context = include.context | append: '/' | append: slug %}
-					{% include _nav.html context=context %}
-				{% endif %}
+				<h4><a href="{{ site.baseurl }}{{ entry.url }}">{{ entry.title }}</a></h4>
+				{% assign context = include.context | append: '/' | append: slug %}
+				{% include _nav-sub.html context=context %}
 			</li>
 		{% endif %}
  

@@ -1,4 +1,4 @@
-package se.l4.dust.api.template.spi;
+package se.l4.dust.api.template.fragment;
 
 /**
  * Fragment as used within a template.

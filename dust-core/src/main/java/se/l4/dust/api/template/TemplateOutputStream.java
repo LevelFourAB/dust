@@ -1,4 +1,4 @@
-package se.l4.dust.api.template.spi;
+package se.l4.dust.api.template;
 
 import java.io.Closeable;
 import java.io.IOException;

@@ -1,8 +1,7 @@
-package se.l4.dust.api.template.spi;
-
-import java.util.Collection;
+package se.l4.dust.api.template.fragment;
 
 import se.l4.dust.api.template.Emittable;
+import se.l4.dust.api.template.TemplateBuilder;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Element;
 

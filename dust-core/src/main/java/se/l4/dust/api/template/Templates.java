@@ -1,7 +1,7 @@
 package se.l4.dust.api.template;
 
+import se.l4.dust.api.template.fragment.TemplateFragment;
 import se.l4.dust.api.template.mixin.TemplateMixin;
-import se.l4.dust.api.template.spi.TemplateFragment;
 
 /**
  * Manager of template related information such as registered filters and

@@ -7,6 +7,7 @@ import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateException;
+import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.dom.Comment;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.DocType;
@@ -18,7 +19,6 @@ import se.l4.dust.api.template.dom.Text;
 import se.l4.dust.api.template.dom.WrappedElement;
 import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
-import se.l4.dust.api.template.spi.TemplateOutputStream;
 
 /**
  * Emitter of templates. Takes a {@link ParsedTemplate} and processes it 

@@ -7,12 +7,12 @@ import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.Template;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateEmitter;
+import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.dom.DocType;
 import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.dom.ParsedTemplate;
-import se.l4.dust.api.template.spi.FragmentEncounter;
-import se.l4.dust.api.template.spi.TemplateFragment;
-import se.l4.dust.api.template.spi.TemplateOutputStream;
+import se.l4.dust.api.template.fragment.FragmentEncounter;
+import se.l4.dust.api.template.fragment.TemplateFragment;
 import se.l4.dust.core.internal.template.dom.TemplateEmitterImpl;
 
 import com.google.inject.Inject;

@@ -1,4 +1,4 @@
-package se.l4.dust.api.template.spi.internal;
+package se.l4.dust.api.template.spi;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,16 +19,14 @@ import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
 import se.l4.dust.api.Namespaces;
+import se.l4.dust.api.template.TemplateBuilder;
 import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.Templates;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Text;
-import se.l4.dust.api.template.spi.ErrorCollector;
-import se.l4.dust.api.template.spi.ExpressionExtractor;
-import se.l4.dust.api.template.spi.TemplateBuilder;
-import se.l4.dust.api.template.spi.TemplateParser;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Parser for XML based templates.
@@ -36,6 +34,7 @@ import com.google.inject.Inject;
  * @author andreas
  *
  */
+@Singleton
 public class XmlTemplateParser
 	implements TemplateParser
 {
@@ -49,6 +48,7 @@ public class XmlTemplateParser
 		this.templates = templates;
 	}
 
+	@Override
 	public void parse(InputStream stream, String name, TemplateBuilder builder)
 		throws IOException, TemplateException
 	{
@@ -319,6 +319,7 @@ public class XmlTemplateParser
 			}
 		}
 		
+		@Override
 		public void comment(char[] ch, int start, int length)
 			throws SAXException
 		{
@@ -335,12 +336,14 @@ public class XmlTemplateParser
 			builder.comment(content);
 		}
 		
+		@Override
 		public void startDTD(String name, String publicId, String systemId)
 			throws SAXException
 		{
 			builder.setDoctype(name, publicId, systemId);
 		}
 		
+		@Override
 		public void endDTD()
 			throws SAXException
 		{
@@ -348,21 +351,25 @@ public class XmlTemplateParser
 			
 		}
 		
+		@Override
 		public void startEntity(String name)
 			throws SAXException
 		{
 		}
 		
+		@Override
 		public void endEntity(String name)
 			throws SAXException
 		{
 		}
 		
+		@Override
 		public void startCDATA()
 			throws SAXException
 		{
 		}
 		
+		@Override
 		public void endCDATA()
 			throws SAXException
 		{

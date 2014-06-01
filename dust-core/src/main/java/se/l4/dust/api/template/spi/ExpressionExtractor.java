@@ -3,6 +3,7 @@ package se.l4.dust.api.template.spi;
 import java.util.ArrayList;
 import java.util.List;
 
+import se.l4.dust.api.template.TemplateBuilder;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Text;
 

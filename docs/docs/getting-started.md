@@ -57,7 +57,7 @@ To start routing requests to Dust update your web.xml with a new filter and your
 {% highlight xml %}
 <filter>
 	<filter-name>dust</filter-name>
-	<filter-class>se.l4.dust.jaxrs.DustFilter</filter-class>
+	<filter-class>se.l4.dust.servlet.DustFilter</filter-class>
 </filter>
 
 <filter-mapping>

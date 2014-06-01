@@ -1,9 +1,11 @@
-package se.l4.dust.api.template.spi;
+package se.l4.dust.api.template;
 
 import java.util.List;
 
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Text;
+import se.l4.dust.api.template.fragment.TemplateFragment;
+import se.l4.dust.api.template.spi.ErrorCollector;
 
 /**
  * Builder for templates, this is used by template sources to create template

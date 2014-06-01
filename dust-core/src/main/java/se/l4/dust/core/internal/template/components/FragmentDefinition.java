@@ -1,8 +1,8 @@
 package se.l4.dust.core.internal.template.components;
 
 import se.l4.dust.api.template.dom.Element.Attribute;
-import se.l4.dust.api.template.spi.FragmentEncounter;
-import se.l4.dust.api.template.spi.TemplateFragment;
+import se.l4.dust.api.template.fragment.FragmentEncounter;
+import se.l4.dust.api.template.fragment.TemplateFragment;
 
 /**
  * Definition of a fragment.

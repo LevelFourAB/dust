@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.dom.Element.Attribute;
-import se.l4.dust.api.template.spi.TemplateOutputStream;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;

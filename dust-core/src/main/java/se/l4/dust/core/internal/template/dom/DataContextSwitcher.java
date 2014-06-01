@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateEmitter;
+import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.dom.Content;
-import se.l4.dust.api.template.spi.TemplateOutputStream;
 
 public class DataContextSwitcher
 	implements Emittable

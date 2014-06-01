@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URL;
 
 import se.l4.dust.api.template.dom.ParsedTemplate;
-import se.l4.dust.api.template.spi.TemplateOutputStream;
 
 /**
  * Template renderer, performs rendering of a template into a

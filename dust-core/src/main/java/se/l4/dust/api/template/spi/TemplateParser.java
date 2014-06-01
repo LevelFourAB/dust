@@ -3,6 +3,7 @@ package se.l4.dust.api.template.spi;
 import java.io.IOException;
 import java.io.InputStream;
 
+import se.l4.dust.api.template.TemplateBuilder;
 import se.l4.dust.api.template.TemplateException;
 
 /**
