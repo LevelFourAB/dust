@@ -52,10 +52,10 @@ public class ComponentTemplateFragment
 	
 	private final boolean dev;
 
-	public ComponentTemplateFragment(Injector injector, Class<?> type)
+	public ComponentTemplateFragment(Injector injector0, Class<?> type0)
 	{
-		this.injector = injector;
-		this.type = type;
+		this.injector = injector0;
+		this.type = type0;
 		
 		Stage stage = injector.getInstance(Stage.class);
 		dev = stage == Stage.DEVELOPMENT;
@@ -63,14 +63,21 @@ public class ComponentTemplateFragment
 		cache = injector.getInstance(TemplateCache.class);
 		converter = injector.getInstance(TypeConverter.class);
 		
-		instance = injector.getProvider(type);
-		
 		if(dev)
 		{
+			instance = new Provider()
+			{
+				@Override
+				public Object get()
+				{
+					return injector.getInstance(type);
+				}
+			};
 			prepare = afterRender = setters = null;
 		}
 		else
 		{
+			instance = injector.getProvider(type);
 			prepare = createMethodInvocations();
 			afterRender = createAfterRenderInvocations();
 			setters = createSetMethodInvocations();
