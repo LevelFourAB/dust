@@ -50,24 +50,6 @@ public interface TemplateBuilder
 	 */
 	TemplateBuilder endElement();
 	
-//	/**
-//	 * Start creating a component of the given name. The name will be 
-//	 * dynamically expanded.
-//	 * 
-//	 * @param name
-//	 * @param namespace
-//	 * @return
-//	 */
-//	TemplateBuilder startComponent(String name, String namespace);
-//	
-//	/**
-//	 * Start creating a component.
-//	 * 
-//	 * @param component
-//	 * @return
-//	 */
-//	TemplateBuilder startComponent(Class<?> component);
-	
 	TemplateBuilder startFragment(String name);
 	
 	TemplateBuilder startFragment(String name, String namespace);
@@ -75,13 +57,6 @@ public interface TemplateBuilder
 	TemplateBuilder startFragment(TemplateFragment fragment);
 	
 	TemplateBuilder endFragment();
-	
-//	/**
-//	 * End the current component.
-//	 * 
-//	 * @return
-//	 */
-//	TemplateBuilder endComponent();
 	
 	/**
 	 * End the current element or component.
@@ -130,15 +105,6 @@ public interface TemplateBuilder
 	 */
 	TemplateBuilder setAttribute(String name, List<Content> value);
 	
-//	/**
-//	 * Start creating a component of the given name. The name will be 
-//	 * dynamically expanded using default namespace bindings.
-//	 * 
-//	 * @param name
-//	 * @return
-//	 */
-//	TemplateBuilder startComponent(String name);
-	
 	/**
 	 * Add a comment to the template.
 	 * 
@@ -153,7 +119,7 @@ public interface TemplateBuilder
 	 * @param content
 	 * @return
 	 */
-	TemplateBuilder comment(List<Content> content);
+	TemplateBuilder comment(List<Emittable> content);
 	
 	/**
 	 * Add content to the current element. This is usally instances of
@@ -162,7 +128,7 @@ public interface TemplateBuilder
 	 * @param content
 	 * @return
 	 */
-	TemplateBuilder addContent(List<Content> content);
+	TemplateBuilder addContent(List<Emittable> content);
 	
 	/**
 	 * Bind a namespace to a specific prefix.

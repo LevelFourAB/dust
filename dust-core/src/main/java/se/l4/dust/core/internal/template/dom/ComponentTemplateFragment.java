@@ -162,9 +162,9 @@ public class ComponentTemplateFragment
 				}
 			}
 
-			if(root instanceof Element)
+			if(root instanceof Emittable)
 			{
-				emitter.emit(out, (Element) root);
+				emitter.emit((Emittable) root);
 			}
 			else
 			{
@@ -191,7 +191,7 @@ public class ComponentTemplateFragment
 				
 				Element templateRoot = template.getRoot();
 				
-				emitterImpl.emit(out, templateRoot);
+				emitterImpl.emit(templateRoot);
 				
 				// Switch context back
 				emitterImpl.switchData(old, current);

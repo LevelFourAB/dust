@@ -1,6 +1,9 @@
 package se.l4.dust.core.internal.template.dom;
 
-import se.l4.dust.api.template.dom.Content;
+import java.io.IOException;
+
+import se.l4.dust.api.template.TemplateEmitter;
+import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.dom.Element;
 
 public class Empty
@@ -12,8 +15,9 @@ public class Empty
 	}
 	
 	@Override
-	public Content doCopy()
+	public void emit(TemplateEmitter emitter, TemplateOutputStream output)
+		throws IOException
 	{
-		return new Empty();
+		emitter.emit(contents);
 	}
 }

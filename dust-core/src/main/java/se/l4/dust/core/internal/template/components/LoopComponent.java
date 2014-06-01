@@ -14,7 +14,6 @@ import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.TemplateOutputStream;
-import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.fragment.FragmentEncounter;
 import se.l4.dust.api.template.fragment.TemplateFragment;
@@ -73,9 +72,9 @@ public class LoopComponent
 	{
 		private final Attribute value;
 		private final Attribute source;
-		private final Content[] contents;
+		private final Emittable[] contents;
 
-		public AbstractComponent(Attribute source, Attribute value, Content[] contents)
+		public AbstractComponent(Attribute source, Attribute value, Emittable[] contents)
 		{
 			this.source = source;
 			this.value = value;
@@ -108,17 +107,14 @@ public class LoopComponent
 		{
 			value.setValue(emitter.getContext(), emitter.getObject(), o);
 			
-			for(Content c : contents)
-			{
-				emitter.emit(out, c);
-			}
+			emitter.emit(contents);
 		}
 	}
 	
 	private class DynamicComponent
 		extends AbstractComponent
 	{
-		public DynamicComponent(Attribute source, Attribute value, Content[] contents)
+		public DynamicComponent(Attribute source, Attribute value, Emittable[] contents)
 		{
 			super(source, value, contents);
 		}
@@ -189,7 +185,7 @@ public class LoopComponent
 
 		public IterableComponent(Attribute source,
 				Attribute value,
-				Content[] contents,
+				Emittable[] contents,
 				Conversion<Object, Iterable<Object>> conversion)
 		{
 			super(source, value, contents);
@@ -216,7 +212,7 @@ public class LoopComponent
 	
 		public IteratorComponent(Attribute source,
 				Attribute value,
-				Content[] contents,
+				Emittable[] contents,
 				Conversion<Object, Iterator<Object>> conversion)
 		{
 			super(source, value, contents);
@@ -240,7 +236,7 @@ public class LoopComponent
 	{
 		public ArrayComponent(Attribute source,
 				Attribute value,
-				Content[] contents)
+				Emittable[] contents)
 		{
 			super(source, value, contents);
 		}

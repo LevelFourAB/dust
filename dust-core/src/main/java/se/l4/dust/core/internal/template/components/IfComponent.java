@@ -8,7 +8,6 @@ import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateOutputStream;
-import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.fragment.FragmentEncounter;
@@ -46,9 +45,9 @@ public class IfComponent
 		private final Attribute test;
 		private final Conversion<Object, Boolean> conversion;
 		private final Element elseContents;
-		private final Content[] content;
+		private final Emittable[] content;
 
-		public Component(Attribute test, Conversion<Object, Boolean> conversion, Element elseContents, Content[] content)
+		public Component(Attribute test, Conversion<Object, Boolean> conversion, Element elseContents, Emittable[] content)
 		{
 			this.test = test;
 			this.conversion = conversion;
@@ -66,15 +65,11 @@ public class IfComponent
 			
 			if(Boolean.TRUE.equals(bool))
 			{
-				for(Content c : content)
-				{
-					emitter.emit(output, c);
-				}
+				emitter.emit(content);
 			}
 			else if(elseContents != null)
 			{
-				// Render the else
-				emitter.emit(output, elseContents);
+				emitter.emit(elseContents);
 			}
 		}
 	}

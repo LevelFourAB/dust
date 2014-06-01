@@ -64,12 +64,12 @@ public class TemplateBuilderImpl
 	private final Map<String, Object> values;
 	
 	private final Integer id;
+	private final LinkedList<Element> stack;
 	
 	private ErrorCollector errorCollector;
 	private Class<?> context;
 	
 	private DocType docType;
-	private Element current;
 	private Element root;
 	private URL url;
 	private int line;
@@ -95,6 +95,8 @@ public class TemplateBuilderImpl
 		boundNamespaces = new HashMap<String, String>();
 		mixinAttributes = new LinkedList<Map<String, Element.Attribute>>();
 		namespaces = createNamespaces();
+		
+		stack = new LinkedList<>();
 	}
 	
 	private TemplateInfo createNamespaces()
@@ -163,17 +165,32 @@ public class TemplateBuilderImpl
 	
 	private Element current()
 	{
-		if(current == null)
+		if(stack.isEmpty())
 		{
 			throw raiseError("No current element");
 		}
 		
-		return current;
+		return stack.getLast();
+	}
+	
+	private Element currentN()
+	{
+		return stack.getLast();
+	}
+	
+	private void setCurrent(Element e)
+	{
+		stack.add(e);
+	}
+	
+	private void goToParent()
+	{
+		stack.removeLast();
 	}
 	
 	private boolean isFragment()
 	{
-		return current instanceof FragmentElement;
+		return currentN() instanceof FragmentElement;
 	}
 	
 	@Override
@@ -190,16 +207,16 @@ public class TemplateBuilderImpl
 		Element e = new Element(name, attributes);
 		applyDebugHints(e);
 		
-		if(current == null)
+		if(stack.isEmpty())
 		{
 			root = e;
 		}
 		else
 		{
-			current.addContent(e);
+			current().addContent(e);
 		}
 		
-		current = e;
+		setCurrent(e);
 		
 		return this;
 	}
@@ -207,10 +224,7 @@ public class TemplateBuilderImpl
 	@Override
 	public TemplateBuilder endElement()
 	{
-		if(current == null)
-		{
-			throw raiseError("No current element");
-		}
+		Element current = current();
 		
 		if(isFragment())
 		{
@@ -221,7 +235,7 @@ public class TemplateBuilderImpl
 		
 		mixinAttributes.removeLast();
 		
-		current = current.getParent();
+		goToParent();
 		
 		return this;
 	}
@@ -274,18 +288,17 @@ public class TemplateBuilderImpl
 		// Add mixin attributes to the stack
 		mixinAttributes.add(new LinkedHashMap<String, Element.Attribute>());
 				
-		Element emittable = new FragmentElement(fragment);
-		emittable.setParent(current);
+		Element emittable = new FragmentElement(fragment, hasCurrent() ? current() : null);
 		
 		applyDebugHints(emittable);
 		
-		if(current == null)
+		if(stack.isEmpty())
 		{
 			// No current item, set as root
 			root = emittable;
 		}
 		
-		current = emittable;
+		setCurrent(emittable);
 		
 		return this;
 	}
@@ -293,6 +306,7 @@ public class TemplateBuilderImpl
 	@Override
 	public TemplateBuilder endFragment()
 	{
+		Element current = current();
 		if(! isFragment())
 		{
 			throw raiseError("Currently building an element: " + current);
@@ -300,7 +314,7 @@ public class TemplateBuilderImpl
 		
 		FragmentElement self = (FragmentElement) current;
 		
-		current = current.getParent();
+		goToParent();
 		
 		self.apply(this);
 		
@@ -309,8 +323,8 @@ public class TemplateBuilderImpl
 			applyMixins();
 			
 			mixinAttributes.removeLast();
-			
-			current = current.getParent();
+
+			goToParent();
 		}
 		
 		return this;
@@ -319,10 +333,7 @@ public class TemplateBuilderImpl
 	@Override
 	public TemplateBuilder endCurrent()
 	{
-		if(current == null)
-		{
-			throw raiseError("No current element or component");
-		}
+		current();
 		
 		if(isFragment())
 		{
@@ -395,7 +406,7 @@ public class TemplateBuilderImpl
 	}
 	
 	@Override
-	public TemplateBuilder addContent(List<Content> content)
+	public TemplateBuilder addContent(List<Emittable> content)
 	{
 		current().addContent(content);
 		
@@ -410,15 +421,14 @@ public class TemplateBuilderImpl
 	}
 	
 	@Override
-	public TemplateBuilder comment(List<Content> content)
+	public TemplateBuilder comment(List<Emittable> content)
 	{
 		Comment comment = new Comment();
-		comment.setParent(current);
 		comment.addContent(content);
 		
 		applyDebugHints(comment);
 		
-		current.addContent(comment);
+		current().addContent(comment);
 		
 		return this;
 	}
@@ -426,7 +436,7 @@ public class TemplateBuilderImpl
 	@Override
 	public TemplateBuilder comment(String comment)
 	{
-		return comment(Collections.<Content>singletonList(new Text(comment)));
+		return comment(Collections.<Emittable>singletonList(new Text(comment)));
 	}
 	
 	private <T extends Content> T applyDebugHints(T object)
@@ -450,7 +460,7 @@ public class TemplateBuilderImpl
 	@Override
 	public boolean hasCurrent()
 	{
-		return current != null;
+		return ! stack.isEmpty();
 	}
 	
 	private void applyMixins()
@@ -510,14 +520,15 @@ public class TemplateBuilderImpl
 		@Override
 		public Element.Attribute getAttribute(String name)
 		{
-			return current.getAttribute(name);
+			return current().getAttribute(name);
 		}
 
 		@Override
 		public void wrap(ElementWrapper wrapper)
 		{
+			Element current = current();
 			WrappedElement wrapped = new WrappedElement(current, wrapper);
-			if(current.getParent() == null)
+			if(stack.size() == 1)
 			{
 				// Special case, wrapping the root element
 				Empty empty = new Empty();
@@ -526,33 +537,33 @@ public class TemplateBuilderImpl
 			}
 			else
 			{
-				current.getParent()
-					.replaceContent(current, wrapped);
+				Element parent = stack.get(stack.size() - 2);
+				parent.replaceContent(current, wrapped);
 			}
 		}
 		
 		@Override
-		public void append(Content... content)
+		public void append(Emittable... content)
 		{
-			current.addContent(Arrays.asList(content));
+			current().addContent(Arrays.asList(content));
 		}
 		
 		@Override
-		public void append(List<Content> content)
+		public void append(List<? extends Emittable> content)
 		{
-			current.addContent(content);
+			current().addContent(content);
 		}
 		
 		@Override
-		public void prepend(Content... content)
+		public void prepend(Emittable... content)
 		{
-			current.prependContent(Arrays.asList(content));
+			current().prependContent(Arrays.asList(content));
 		}
 		
 		@Override
-		public void prepend(List<Content> content)
+		public void prepend(List<? extends Emittable> content)
 		{
-			current.prependContent(content);
+			current().prependContent(content);
 		}
 		
 		@Override
@@ -579,7 +590,7 @@ public class TemplateBuilderImpl
 		@Override
 		public void setAttribute(String attribute, Content content)
 		{
-			current.setAttribute(attribute, content);
+			current().setAttribute(attribute, content);
 		}
 		
 		@Override
@@ -593,13 +604,15 @@ public class TemplateBuilderImpl
 		extends Element
 	{
 		private final TemplateFragment fragment;
+		private final Element parent;
 		private boolean replaced;
 
-		public FragmentElement(TemplateFragment fragment)
+		public FragmentElement(TemplateFragment fragment, Element parent)
 		{
 			super("internal:fragment:" + fragment.getClass().getSimpleName());
 			
 			this.fragment = fragment;
+			this.parent = parent;
 		}
 
 		public void apply(final TemplateBuilderImpl builder)
@@ -641,9 +654,9 @@ public class TemplateBuilderImpl
 				@Override
 				public void addParameter(String name, Element content)
 				{
-					if(self.getParent() != null)
+					if(parent != null)
 					{
-						self.getParent().addParameter(name, content);
+						parent.addParameter(name, content);
 					}
 				}
 				
@@ -654,7 +667,7 @@ public class TemplateBuilderImpl
 				}
 				
 				@Override
-				public Content[] getBody()
+				public Emittable[] getBody()
 				{
 					return getRawContents();
 				}
@@ -676,62 +689,62 @@ public class TemplateBuilderImpl
 				{
 					Element content = new EmittableContent(emittable);
 					
-					if(builder.current == null)
+					if(builder.hasCurrent())
+					{
+						builder.current().addContent(content);
+					}
+					else
 					{
 						builder.root = content;
 					}
-					else
-					{
-						builder.current.addContent(content);
-					}
 					
-					builder.current = content;
+					builder.setCurrent(content);
 					
 					replaced = true;
 				}
 				
 				@Override
-				public void replaceWith(Content[] content)
+				public void replaceWith(Emittable[] content)
 				{
 					Element root;
-					if(builder.current == null)
+					if(builder.hasCurrent())
 					{
-						root = builder.root = new Empty();
+						root = builder.current();
 					}
 					else
 					{
-						root = builder.current;
+						root = builder.root = new Empty();
 					}
 					
-					for(Content c : content)
+					for(Emittable c : content)
 					{
 						root.addContent(c);
 					}
 					
-					builder.current = root;
+					builder.setCurrent(root);
 					
 					replaced = true;
 				}
 				
 				@Override
-				public void replaceWith(final Iterable<Content> content)
+				public void replaceWith(final Iterable<? extends Emittable> content)
 				{
 					Element root;
-					if(builder.current == null)
+					if(builder.hasCurrent())
 					{
-						root = builder.root = new Empty();
+						root = builder.current();
 					}
 					else
 					{
-						root = builder.current;
+						root = builder.root = new Empty();
 					}
 					
-					for(Content c : content)
+					for(Emittable c : content)
 					{
 						root.addContent(c);
 					}
 					
-					builder.current = root;
+					builder.setCurrent(root);
 					
 					replaced = true;
 				}

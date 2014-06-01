@@ -24,12 +24,6 @@ public class ExpressionContentWithContext
 		this.context = context;
 	}
 
-	@Override
-	public Content doCopy()
-	{
-		return new ExpressionContentWithContext(expr, context);
-	}
-	
 	private Object getActualContext(RenderingContext ctx, Object root)
 	{
 		Object context = this.context;

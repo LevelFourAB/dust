@@ -32,14 +32,4 @@ public abstract class AbstractContent
 		this.line = line;
 		this.column = column;
 	}
-	
-	@Override
-	public final Content copy()
-	{
-		Content copied = doCopy();
-		copied.withDebugInfo(source, line, column);
-		return copied;
-	}
-	
-	protected abstract Content doCopy();
 }

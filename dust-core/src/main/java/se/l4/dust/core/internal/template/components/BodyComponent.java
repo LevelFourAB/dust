@@ -3,10 +3,8 @@ package se.l4.dust.core.internal.template.components;
 import java.io.IOException;
 
 import se.l4.dust.api.template.Emittable;
-import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateOutputStream;
-import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.fragment.FragmentEncounter;
 import se.l4.dust.api.template.fragment.TemplateFragment;
@@ -50,7 +48,7 @@ public class BodyComponent
 			Element e = emitterImpl.getCurrentComponent();
 			if(e == null) return;
 			
-			emitter.emit(output, e);
+			emitter.emit(e);
 		}
 	}
 	
@@ -75,7 +73,7 @@ public class BodyComponent
 			Element param = e.getParameter(name);
 			if(param != null)
 			{
-				emitter.emit(output, e);
+				emitter.emit(e);
 			}
 		}
 	}

@@ -60,7 +60,7 @@ public class RenderComponent
 				
 				Element templateRoot = template.getRoot();
 				
-				emitter.emit(output, templateRoot);
+				emitter.emit(templateRoot);
 				
 				// Switch context back
 				emitter.switchData(old, current);

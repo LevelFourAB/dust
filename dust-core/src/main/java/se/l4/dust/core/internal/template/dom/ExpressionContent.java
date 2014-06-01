@@ -2,7 +2,6 @@ package se.l4.dust.core.internal.template.dom;
 
 import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.DynamicContent;
 
 /**
@@ -21,12 +20,6 @@ public class ExpressionContent
 		this.expr = expr;
 	}
 
-	@Override
-	public Content doCopy()
-	{
-		return new ExpressionContent(expr);
-	}
-	
 	@Override
 	public Class<?> getValueType()
 	{

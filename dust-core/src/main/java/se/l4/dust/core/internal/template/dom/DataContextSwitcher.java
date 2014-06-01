@@ -5,15 +5,14 @@ import java.io.IOException;
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateOutputStream;
-import se.l4.dust.api.template.dom.Content;
 
 public class DataContextSwitcher
 	implements Emittable
 {
 	private final Integer id;
-	private final Content[] content;
+	private final Emittable[] content;
 
-	public DataContextSwitcher(Integer id, Content[] content)
+	public DataContextSwitcher(Integer id, Emittable[] content)
 	{
 		this.id = id;
 		this.content = content;
@@ -26,10 +25,7 @@ public class DataContextSwitcher
 		TemplateEmitterImpl emitterImpl = (TemplateEmitterImpl) emitter;
 		Integer old = emitterImpl.switchData(id);
 		
-		for(Content c : content)
-		{
-			emitterImpl.emit(out, c);
-		}
+		emitterImpl.emit(content);
 		
 		emitterImpl.switchData(old);
 	}

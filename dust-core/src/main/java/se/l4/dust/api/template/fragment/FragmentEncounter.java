@@ -2,7 +2,6 @@ package se.l4.dust.api.template.fragment;
 
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateBuilder;
-import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Element;
 
 /**
@@ -52,7 +51,7 @@ public interface FragmentEncounter
 	 * 
 	 * @return
 	 */
-	Content[] getBody();
+	Emittable[] getBody();
 	
 	/**
 	 * Similar to {@link #getBody()} but will ensure that the content is
@@ -77,9 +76,9 @@ public interface FragmentEncounter
 	 */
 	void replaceWith(Emittable emittable);
 	
-	void replaceWith(Content[] content);
+	void replaceWith(Emittable[] content);
 	
-	void replaceWith(Iterable<Content> content);
+	void replaceWith(Iterable<? extends Emittable> content);
 
 	/**
 	 * Add a parameter to the current element.

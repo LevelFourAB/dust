@@ -1,6 +1,11 @@
 package se.l4.dust.api.template.dom;
 
+import java.io.IOException;
+
+import se.l4.dust.api.template.TemplateEmitter;
+import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.mixin.ElementWrapper;
+import se.l4.dust.core.internal.template.dom.TemplateEmitterImpl;
 
 /**
  * Holder for an element that has been wrapped by a mixin.
@@ -13,36 +18,11 @@ public class WrappedElement
 {
 	private final Element element;
 	private final ElementWrapper wrapper;
-	private Element parent;
 
 	public WrappedElement(Element element, ElementWrapper wrapper)
 	{
 		this.element = element;
 		this.wrapper = wrapper;
-	}
-
-	@Override
-	public Element getParent()
-	{
-		return parent;
-	}
-
-	@Override
-	public void setParent(Element element)
-	{
-		this.parent = element;
-	}
-
-	@Override
-	public Content copy()
-	{
-		return new WrappedElement(element, wrapper);
-	}
-	
-	@Override
-	public Content deepCopy()
-	{
-		return copy();
 	}
 
 	public Element getElement()
@@ -76,5 +56,13 @@ public class WrappedElement
 	@Override
 	public void withDebugInfo(String source, int line, int column)
 	{
+	}
+	
+	@Override
+	public void emit(TemplateEmitter emitter, TemplateOutputStream output)
+		throws IOException
+	{
+		TemplateEmitterImpl emitterImpl = (TemplateEmitterImpl) emitter;
+		emitterImpl.emitWrapped(this);
 	}
 }

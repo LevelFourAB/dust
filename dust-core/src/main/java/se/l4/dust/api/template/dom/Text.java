@@ -1,5 +1,10 @@
 package se.l4.dust.api.template.dom;
 
+import java.io.IOException;
+
+import se.l4.dust.api.template.TemplateEmitter;
+import se.l4.dust.api.template.TemplateOutputStream;
+
 /**
  * Text content.
  * 
@@ -11,21 +16,9 @@ public class Text
 {
 	private final String text;
 	
-	private Element parent;
-	
 	public Text(String text)
 	{
 		this.text = text;
-	}
-
-	public Element getParent()
-	{
-		return parent;
-	}
-
-	public void setParent(Element element)
-	{
-		this.parent = element;
 	}
 
 	public String getText()
@@ -33,15 +26,11 @@ public class Text
 		return text;
 	}
 	
-	public Content doCopy()
-	{
-		return new Text(text);
-	}
-	
 	@Override
-	public Content deepCopy()
+	public void emit(TemplateEmitter emitter, TemplateOutputStream output)
+		throws IOException
 	{
-		return copy();
+		output.text(text);
 	}
 	
 	@Override

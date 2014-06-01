@@ -2,6 +2,7 @@ package se.l4.dust.api.template.mixin;
 
 import java.util.List;
 
+import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Element;
 
@@ -70,7 +71,7 @@ public interface MixinEncounter
 	 * 
 	 * @param content
 	 */
-	void prepend(Content... content);
+	void prepend(Emittable... content);
 	
 	/**
 	 * Insert content at the beginning of the current element, see
@@ -78,14 +79,14 @@ public interface MixinEncounter
 	 * 
 	 * @param content
 	 */
-	void prepend(List<Content> content);
+	void prepend(List<? extends Emittable> content);
 	
 	/**
 	 * Insert content at the end of the current element.
 	 * 
 	 * @param content
 	 */
-	void append(Content... content);
+	void append(Emittable... content);
 	
 	/**
 	 * Insert content at the end of the current element, see
@@ -93,7 +94,7 @@ public interface MixinEncounter
 	 * 
 	 * @param content
 	 */
-	void append(List<Content> content);
+	void append(List<? extends Emittable> content);
 	
 	/**
 	 * Set the value of a given attribute.

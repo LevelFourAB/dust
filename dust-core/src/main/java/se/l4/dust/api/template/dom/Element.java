@@ -1,14 +1,16 @@
 package se.l4.dust.api.template.dom;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-
+import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.RenderingContext;
+import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateException;
+import se.l4.dust.api.template.TemplateOutputStream;
+
+import com.google.common.collect.Maps;
 
 /**
  * Element abstraction. This is used to represent tags and components in the
@@ -25,9 +27,8 @@ public class Element
 	
 	private final String name;
 	
-	private Attribute[] attributes;
-	private Content[] contents;
-	private Element parent;
+	protected Attribute[] attributes;
+	protected Emittable[] contents;
 	
 	private Map<String, Element> parameters;
 	
@@ -58,28 +59,6 @@ public class Element
 		contents = EMPTY_OBJECTS;
 	}
 	
-	@Override
-	public Content doCopy()
-	{
-		return new Element(name, attributes);
-	}
-	
-	@Override
-	public Content deepCopy()
-	{
-		Element result = (Element) copy();
-		Content[] copyContent = new Content[contents.length];
-		for(int i=0, n=copyContent.length; i<n; i++)
-		{
-			copyContent[i] = contents[i].deepCopy();
-			copyContent[i].setParent(result);
-		}
-		
-		result.contents = copyContent;
-		
-		return result;
-	}
-	
 	public Element copyAttributes(Element other)
 	{
 		this.attributes = other.attributes;
@@ -93,12 +72,11 @@ public class Element
 	 * @param object
 	 * @return
 	 */
-	public Element addContent(Content object)
+	public Element addContent(Emittable object)
 	{
-		Content[] result = new Content[contents.length + 1];
+		Emittable[] result = new Emittable[contents.length + 1];
 		System.arraycopy(contents, 0, result, 0, contents.length);
 		result[contents.length] = object;
-		object.setParent(this);
 		
 		contents = result;
 		
@@ -111,16 +89,15 @@ public class Element
 	 * @param objects
 	 * @return
 	 */
-	public Element addContent(Collection<Content> objects)
+	public Element addContent(Collection<? extends Emittable> objects)
 	{
-		Content[] result = new Content[contents.length + objects.size()];
+		Emittable[] result = new Emittable[contents.length + objects.size()];
 		System.arraycopy(contents, 0, result, 0, contents.length);
 		
 		int index = contents.length;
-		for(Content o : objects)
+		for(Emittable o : objects)
 		{
 			result[index++] = o;
-			o.setParent(this);
 		}
 		
 		contents = result;
@@ -134,16 +111,15 @@ public class Element
 	 * @param objects
 	 * @return
 	 */
-	public Element prependContent(Collection<Content> objects)
+	public Element prependContent(Collection<? extends Emittable> objects)
 	{
-		Content[] result = new Content[contents.length + objects.size()];
+		Emittable[] result = new Emittable[contents.length + objects.size()];
 		System.arraycopy(contents, 0, result, objects.size(), contents.length);
 		
 		int index = 0;
-		for(Content o : objects)
+		for(Emittable o : objects)
 		{
 			result[index++] = o;
-			o.setParent(this);
 		}
 		
 		contents = result;
@@ -151,7 +127,7 @@ public class Element
 		return this;
 	}
 	
-	public void replaceContent(Content existing, Content newContent)
+	public void replaceContent(Emittable existing, Emittable newContent)
 	{
 		for(int i=0, n=contents.length; i<n; i++)
 		{
@@ -202,43 +178,29 @@ public class Element
 		return attributes;
 	}
 	
-	public Element getParent()
-	{
-		return parent;
-	}
-	
-	public void setParent(Element element)
-	{
-		parent = element;
-	}
-	
-	public Content[] getRawContents()
+	public Emittable[] getRawContents()
 	{
 		return contents;
 	}
 	
 	@Override
-	public String toString()
+	public void emit(TemplateEmitter emitter, TemplateOutputStream output)
+		throws IOException
 	{
-		return "Element[" + name + ", path=" + getPath() + "]";
+		Emittable[] content = getRawContents();
+		String[] attrs = emitter.createAttributes(this);
+		
+		output.startElement(name, attrs, false);
+		
+		emitter.emit(content);
+		
+		output.endElement(name);
 	}
 	
-	public String getPath()
+	@Override
+	public String toString()
 	{
-		List<String> path = new ArrayList<String>();
-		Element o = this;
-		while(o != null)
-		{
-			path.add(o.getName());
-			o = o.getParent();
-		}
-		
-		StringBuilder result = new StringBuilder();
-		for(int i=path.size()-1; i>=0; i--)
-		{
-			result.append("/").append(path.get(i));
-		}
-		return result.toString();
+		return "Element[" + name + "]";
 	}
 	
 	public Content[] getAttributeValue(String name)
@@ -270,23 +232,6 @@ public class Element
 	public void setAttributes(Attribute[] attributes)
 	{
 		this.attributes = attributes;
-	}
-	
-	public String findNamespace(String prefix)
-	{
-		String attr = "xmlns:" + prefix;
-		Element e = this;
-		while(e != null)
-		{
-			Element.Attribute a = e.getAttribute(attr);
-			if(a != null)
-			{
-				return a.getStringValue();
-			}
-			e = e.getParent();
-		}
-		
-		return null;
 	}
 	
 	@Override

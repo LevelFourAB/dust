@@ -315,7 +315,7 @@ public class XmlTemplateParser
 					}
 				}
 				
-				builder.addContent(content);
+				builder.addContent((List) content);
 			}
 		}
 		
@@ -333,7 +333,7 @@ public class XmlTemplateParser
 				commentText
 			);
 			
-			builder.comment(content);
+			builder.comment((List) content);
 		}
 		
 		@Override

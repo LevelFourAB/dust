@@ -1,6 +1,11 @@
 package se.l4.dust.api.template.dom;
 
+import java.io.IOException;
 import java.util.Collection;
+
+import se.l4.dust.api.template.Emittable;
+import se.l4.dust.api.template.TemplateEmitter;
+import se.l4.dust.api.template.TemplateOutputStream;
 
 /**
  * Comment as found in a template.
@@ -13,58 +18,26 @@ public class Comment
 {
 	private static final Content[] EMTPY_CONTENT = new Content[0];
 	
-	private Element parent;
-	private Content[] contents;
+	private Emittable[] contents;
 
 	public Comment()
 	{
 		contents = EMTPY_CONTENT;
 	}
 	
-	@Override
-	public Content doCopy()
-	{
-		return new Comment();
-	}
-	
-	@Override
-	public Content deepCopy()
-	{
-		Content result = copy();
-		Content[] copyContent = new Content[contents.length];
-		for(int i=0, n=copyContent.length; i<n; i++)
-		{
-			copyContent[i] = contents[i].deepCopy();
-		}
-		
-		((Comment) result).contents = copyContent;
-		
-		return result;
-	}
-
-	public Element getParent()
-	{
-		return parent;
-	}
-
-	public void setParent(Element element)
-	{
-		this.parent = element;
-	}
-
 	/**
 	 * Add content to this element, see {@link #addContent(Content)}.
 	 * 
 	 * @param objects
 	 * @return
 	 */
-	public Comment addContent(Collection<Content> objects)
+	public Comment addContent(Collection<Emittable> objects)
 	{
-		Content[] result = new Content[contents.length + objects.size()];
+		Emittable[] result = new Emittable[contents.length + objects.size()];
 		System.arraycopy(contents, 0, result, 0, contents.length);
 		
 		int index = contents.length;
-		for(Content o : objects)
+		for(Emittable o : objects)
 		{
 			result[index++] = o;
 		}
@@ -74,8 +47,19 @@ public class Comment
 		return this;
 	}
 
-	public Content[] getRawContents()
+	public Emittable[] getRawContents()
 	{
 		return contents;
+	}
+	
+	@Override
+	public void emit(TemplateEmitter emitter, TemplateOutputStream output)
+		throws IOException
+	{
+		output.startComment();
+		
+		emitter.emit(contents);
+		
+		output.endComment();
 	}
 }

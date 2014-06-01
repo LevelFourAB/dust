@@ -1,6 +1,10 @@
 package se.l4.dust.api.template.dom;
 
+import java.io.IOException;
+
 import se.l4.dust.api.template.RenderingContext;
+import se.l4.dust.api.template.TemplateEmitter;
+import se.l4.dust.api.template.TemplateOutputStream;
 
 /**
  * Dynamic content that is determined on runtime.
@@ -11,26 +15,17 @@ import se.l4.dust.api.template.RenderingContext;
 public abstract class DynamicContent
 	extends AbstractContent
 {
-	private Element parent;
-	
 	public DynamicContent()
 	{
 	}
-
-	public Element getParent()
-	{
-		return parent;
-	}
-
-	public void setParent(Element element)
-	{
-		this.parent = element;
-	}
 	
 	@Override
-	public Content deepCopy()
+	public void emit(TemplateEmitter emitter, TemplateOutputStream output)
+		throws IOException
 	{
-		return copy();
+		RenderingContext ctx = emitter.getContext();
+		Object value = ctx.getDynamicValue(this, emitter.getObject());
+		output.text(ctx.getStringValue(value));
 	}
 	
 	/**

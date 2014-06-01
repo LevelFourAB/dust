@@ -8,14 +8,10 @@ import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.TemplateOutputStream;
-import se.l4.dust.api.template.dom.Comment;
-import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.DocType;
-import se.l4.dust.api.template.dom.DynamicContent;
 import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.dom.ParsedTemplate;
-import se.l4.dust.api.template.dom.Text;
 import se.l4.dust.api.template.dom.WrappedElement;
 import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
@@ -76,9 +72,15 @@ public class TemplateEmitterImpl
 			out.docType(docType.getName(), docType.getPublicId(), docType.getSystemId());
 		}
 		
-		emit(out, template.getRoot());
+		emit(template.getRoot());
 	}
 
+	@Override
+	public String[] createAttributes(Element element)
+	{
+		return createAttributes(element, current);
+	}
+	
 	private String[] createAttributes(Element element, Object data)
 	{
 		Attribute[] rawAttrs = element.getAttributes();
@@ -103,99 +105,45 @@ public class TemplateEmitterImpl
 	}
 
 	@Override
-	public void emit(TemplateOutputStream out, Content c)
+	public void emit(Emittable c)
 		throws IOException
 	{
 		try
 		{
-			if(c instanceof Emittable)
+			c.emit(this, out);
+		}
+		catch(Exception e)
+		{
+			if(e instanceof TemplateException)
 			{
-				((Emittable) c).emit(this, out);
+				throw ((TemplateException) e).withDebugInfo(c);
 			}
-			else if(c instanceof EmittableContent)
+			
+			throw new TemplateException(e.getMessage(), e).withDebugInfo(c);
+		}
+	}
+	
+	@Override
+	public void emit(Emittable[] emittables)
+		throws IOException
+	{
+		int i = 0;
+		try
+		{
+			int n = emittables.length;
+			for(i=0; i<n; i++)
 			{
-				((EmittableContent) c).getEmittable().emit(this, out);
-			}
-			else if(c instanceof DynamicContent)
-			{
-				Object value = ctx.getDynamicValue((DynamicContent) c, current);
-				out.text(ctx.getStringValue(value));
-			}
-			else if(c instanceof Text)
-			{
-				out.text(((Text) c).getText());
-			}
-			else if(c instanceof Comment)
-			{
-				out.startComment();
-				
-				for(Content sc : ((Comment) c).getRawContents())
-				{
-					emit(out, sc);
-				}
-				
-				out.endComment();
-			}
-			else if(c instanceof Element)
-			{
-				if(c instanceof Empty)
-				{
-					for(Content subContent : ((Element) c).getRawContents())
-					{
-						emit(out, subContent);
-					}
-				}
-				else
-				{
-					Element element = (Element) c;
-					Content[] content = element.getRawContents();
-					String[] attrs = createAttributes(element, current);
-					
-					out.startElement(element.getName(), attrs, false);
-					
-					for(Content subContent : content)
-					{
-						emit(out, subContent);
-					}
-					
-					out.endElement(element.getName());
-				}
-			}
-			else if(c instanceof WrappedElement)
-			{
-				WrappedElement we = (WrappedElement) c;
-				ElementWrapper wrapper = we.getWrapper();
-				this.wrapped = we.getElement();
-				skip = false;
-				wrapper.beforeElement(this);
-				
-				if(! skip)
-				{
-					emit(out, we.getElement());
-				}
-				
-				wrapper.afterElement(this);
-			}
-			else
-			{
-				throw new AssertionError("Found content that can not be emitted: " + c);
+				emittables[i].emit(this, out);
 			}
 		}
 		catch(Exception e)
 		{
 			if(e instanceof TemplateException)
 			{
-				throw (TemplateException) e;
+				throw ((TemplateException) e).withDebugInfo(emittables[i]);
 			}
 			
-			if(c.getLine() > 0 && c.getColumn() > 0)
-			{
-				throw new TemplateException(c.getDebugSource() + ":\n  Error on line " + c.getLine() + ", column " + c.getColumn() + ":\n\n" + e.getMessage(), e);
-			}
-			else
-			{
-				throw new TemplateException(e.getMessage(), e);
-			}
+			throw new TemplateException(e.getMessage(), e).withDebugInfo(emittables[i]);
 		}
 	}
 	
@@ -222,7 +170,7 @@ public class TemplateEmitterImpl
 		throws IOException
 	{
 		this.skip = true;
-		emit(out, wrapped);
+		emit(wrapped);
 	}
 	
 	public Element getCurrentComponent()
@@ -276,5 +224,21 @@ public class TemplateEmitterImpl
 		currentComponentId = id;
 		
 		return old;
+	}
+
+	public void emitWrapped(WrappedElement we)
+		throws IOException
+	{
+		ElementWrapper wrapper = we.getWrapper();
+		this.wrapped = we.getElement();
+		skip = false;
+		wrapper.beforeElement(this);
+		
+		if(! skip)
+		{
+			emit(this.wrapped);
+		}
+		
+		wrapper.afterElement(this);
 	}
 }
