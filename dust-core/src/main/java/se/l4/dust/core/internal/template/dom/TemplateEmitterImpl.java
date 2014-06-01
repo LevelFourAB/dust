@@ -173,6 +173,12 @@ public class TemplateEmitterImpl
 		emit(wrapped);
 	}
 	
+	@Override
+	public TemplateOutputStream getOutput()
+	{
+		return out;
+	}
+	
 	public Element getCurrentComponent()
 	{
 		return currentComponent;
