@@ -102,4 +102,11 @@ public interface MixinEncounter
 	 * @param content
 	 */
 	void setAttribute(String attribute, Content content);
+
+	/**
+	 * Report an error with handling this mixin.
+	 * 
+	 * @param string
+	 */
+	void error(String error);
 }

@@ -101,11 +101,13 @@ public class TemplateBuilderImpl
 	{
 		return new TemplateInfo()
 		{
+			@Override
 			public String getURL()
 			{
 				return url.toExternalForm();
 			}
 			
+			@Override
 			public Namespace getNamespaceByPrefix(String prefix)
 			{
 				String uri = boundNamespaces.get(prefix);
@@ -134,6 +136,7 @@ public class TemplateBuilderImpl
 		this.context = context;
 	}
 	
+	@Override
 	public TemplateBuilder bindNamespace(String prefix, String uri)
 	{
 		boundNamespaces.put(prefix, uri);
@@ -141,6 +144,7 @@ public class TemplateBuilderImpl
 		return this;
 	}
 	
+	@Override
 	public TemplateBuilder unbindNamespace(String prefix)
 	{
 		boundNamespaces.remove(prefix);
@@ -148,6 +152,7 @@ public class TemplateBuilderImpl
 		return this;
 	}
 	
+	@Override
 	public TemplateBuilder setDoctype(String name, String publicId,
 			String systemId)
 	{
@@ -171,6 +176,7 @@ public class TemplateBuilderImpl
 		return current instanceof FragmentElement;
 	}
 	
+	@Override
 	public TemplateBuilder startElement(String name, String... attributes)
 	{
 		if(attributes.length % 2 != 0)
@@ -198,6 +204,7 @@ public class TemplateBuilderImpl
 		return this;
 	}
 	
+	@Override
 	public TemplateBuilder endElement()
 	{
 		if(current == null)
@@ -309,6 +316,7 @@ public class TemplateBuilderImpl
 		return this;
 	}
 	
+	@Override
 	public TemplateBuilder endCurrent()
 	{
 		if(current == null)
@@ -328,6 +336,7 @@ public class TemplateBuilderImpl
 		return this;
 	}
 	
+	@Override
 	public TemplateBuilder setAttribute(String name, String value)
 	{
 		setAttribute(name, new Text(value));
@@ -335,6 +344,7 @@ public class TemplateBuilderImpl
 		return this;
 	}
 	
+	@Override
 	public TemplateBuilder setAttribute(String name, String value,
 			boolean expand)
 	{
@@ -343,6 +353,7 @@ public class TemplateBuilderImpl
 		return this;
 	}
 	
+	@Override
 	public TemplateBuilder setAttribute(String name, Content... value)
 	{
 		Element current = current();
@@ -375,6 +386,7 @@ public class TemplateBuilderImpl
 		return this;
 	}
 	
+	@Override
 	public TemplateBuilder setAttribute(String name, List<Content> value)
 	{
 		setAttribute(name, value.toArray(new Content[value.size()]));
@@ -382,6 +394,7 @@ public class TemplateBuilderImpl
 		return this;
 	}
 	
+	@Override
 	public TemplateBuilder addContent(List<Content> content)
 	{
 		current().addContent(content);
@@ -389,12 +402,14 @@ public class TemplateBuilderImpl
 		return this;
 	}
 	
+	@Override
 	public Content createDynamicContent(String expression)
 	{
 		Expression expr = expressions.compile(url, boundNamespaces, expression, context);
 		return applyDebugHints(new ExpressionContent(expr));
 	}
 	
+	@Override
 	public TemplateBuilder comment(List<Content> content)
 	{
 		Comment comment = new Comment();
@@ -408,6 +423,7 @@ public class TemplateBuilderImpl
 		return this;
 	}
 	
+	@Override
 	public TemplateBuilder comment(String comment)
 	{
 		return comment(Collections.<Content>singletonList(new Text(comment)));
@@ -431,6 +447,7 @@ public class TemplateBuilderImpl
 		return new ParsedTemplate(url.toString(), context.getSimpleName(), docType, root, id);
 	}
 	
+	@Override
 	public boolean hasCurrent()
 	{
 		return current != null;
@@ -563,6 +580,12 @@ public class TemplateBuilderImpl
 		public void setAttribute(String attribute, Content content)
 		{
 			current.setAttribute(attribute, content);
+		}
+		
+		@Override
+		public void error(String error)
+		{
+			errorCollector.newError(line, column, error);
 		}
 	}
 	

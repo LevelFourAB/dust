@@ -20,6 +20,8 @@ import se.l4.dust.core.internal.template.components.LoopComponent;
 import se.l4.dust.core.internal.template.components.ParameterComponent;
 import se.l4.dust.core.internal.template.components.RawComponent;
 import se.l4.dust.core.internal.template.components.RenderComponent;
+import se.l4.dust.core.internal.template.mixins.IfMixin;
+import se.l4.dust.core.internal.template.mixins.RepeatMixin;
 
 import com.google.inject.Stage;
 
@@ -56,7 +58,8 @@ public class TemplateModule
 			HolderComponent holder,
 			RawComponent raw,
 			RenderComponent render,
-			IfMixin ifM)
+			IfMixin ifM,
+			RepeatMixin repeatM)
 	{
 		manager.getNamespace(COMMON)
 			.addFragment("parameter", parameter)
@@ -66,7 +69,8 @@ public class TemplateModule
 			.addFragment("holder", holder)
 			.addFragment("raw", raw)
 			.addFragment("render", render)
-			.addMixin("if", ifM);
+			.addMixin("if", ifM)
+			.addMixin("repeat", repeatM);
 	}
 	
 	@TemplateContribution

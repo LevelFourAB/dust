@@ -1,4 +1,4 @@
-package se.l4.dust.core.internal.template;
+package se.l4.dust.core.internal.template.mixins;
 
 import com.google.inject.Inject;
 
@@ -9,6 +9,7 @@ import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.mixin.MixinEncounter;
 import se.l4.dust.api.template.mixin.TemplateMixin;
+import se.l4.dust.core.internal.template.TemplateModule;
 
 public class IfMixin
 	implements TemplateMixin
