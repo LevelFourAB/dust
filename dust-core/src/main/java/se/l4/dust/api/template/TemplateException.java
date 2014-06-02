@@ -43,7 +43,7 @@ public class TemplateException
 			return source + ":\n  Error on line " + line + ", column " + column + ":\n\n" + super.getMessage();
 		}
 		
-		return getMessage();
+		return super.getMessage();
 	}
 	
 	public TemplateException withDebugInfo(Object o)
