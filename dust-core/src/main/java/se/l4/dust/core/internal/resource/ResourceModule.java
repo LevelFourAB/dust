@@ -2,7 +2,7 @@ package se.l4.dust.core.internal.resource;
 
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
-import se.l4.dust.api.asset.Assets;
+import se.l4.crayon.annotation.Order;
 import se.l4.dust.api.resource.Resources;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
 
@@ -33,5 +33,12 @@ public class ResourceModule
 	public void bindLocaleVariantSource(ResourceVariantManager vm, LocaleVariantSource source)
 	{
 		vm.addSource(source);
+	}
+	
+	@Contribution(name="resource-locators")
+	@Order("after:internal-resource-locators")
+	public void resourceLocators()
+	{
+		// Currently empty - used for ordering
 	}
 }

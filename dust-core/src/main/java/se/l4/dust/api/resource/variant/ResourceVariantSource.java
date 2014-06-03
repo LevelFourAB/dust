@@ -21,6 +21,14 @@ public interface ResourceVariantSource
 	List<ResourceVariant> getVariants(Context ctx);
 	
 	/**
+	 * Get the class of the {@link ResourceVariant} returned by this
+	 * source.
+	 * 
+	 * @return
+	 */
+	Class<? extends ResourceVariant> getVariantClass();
+	
+	/**
 	 * Get a value to use for caching purposes from the context.
 	 * 
 	 * @param ctx

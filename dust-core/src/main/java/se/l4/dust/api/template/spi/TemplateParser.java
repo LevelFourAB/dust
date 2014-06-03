@@ -1,8 +1,8 @@
 package se.l4.dust.api.template.spi;
 
 import java.io.IOException;
-import java.io.InputStream;
 
+import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.template.TemplateBuilder;
 import se.l4.dust.api.template.TemplateException;
 
@@ -22,6 +22,6 @@ public interface TemplateParser
 	 * @throws IOException
 	 * @throws TemplateException
 	 */
-	void parse(InputStream stream, String name, TemplateBuilder builder)
+	void parse(Resource resource, TemplateBuilder builder)
 		throws IOException, TemplateException;
 }

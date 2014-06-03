@@ -20,18 +20,11 @@ public interface AssetEncounter
 	Resource getResource();
 	
 	/**
-	 * Get the namespace URI of the asset.
-	 * 
-	 * @return
-	 */
-	String getNamepace();
-	
-	/**
 	 * Get the namespace as an object.
 	 * 
 	 * @return
 	 */
-	Namespace getNamespaceObject();
+	Namespace getNamespace();
 	
 	/**
 	 * Get the path of the asset.
@@ -71,12 +64,4 @@ public interface AssetEncounter
 	 * @param resource
 	 */
 	AssetEncounter replaceWith(Resource resource);
-	
-	/**
-	 * Rename the asset.
-	 * 
-	 * @param name
-	 * @return
-	 */
-	AssetEncounter rename(String name);
 }

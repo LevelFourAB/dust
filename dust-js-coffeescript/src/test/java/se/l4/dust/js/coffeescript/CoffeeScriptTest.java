@@ -1,7 +1,5 @@
 package se.l4.dust.js.coffeescript;
 
-import static org.junit.Assert.*;
-
 import java.io.IOException;
 
 import org.junit.Test;
@@ -25,23 +23,16 @@ public class CoffeeScriptTest
 	public void testCompilation()
 		throws IOException
 	{
-		Injector injector = Guice.createInjector(Stage.DEVELOPMENT, new CoffeeScriptModule(), new TestModule());
+		Injector injector = Guice.createInjector(Stage.DEVELOPMENT, new TestModule());
 		injector.getInstance(Crayon.class).start();
 		CoffeeScriptProcessor processor = injector.getInstance(CoffeeScriptProcessor.class);
 		
-		final UrlResource resource = new UrlResource(getClass().getResource("test.coffee"));
+		final UrlResource resource = new UrlResource(null, getClass().getResource("test.coffee"));
 		processor.process(new AssetEncounter()
 		{
 			@Override
 			public AssetEncounter replaceWith(Resource resource)
 			{
-				return this;
-			}
-			
-			@Override
-			public AssetEncounter rename(String name)
-			{
-				assertEquals("test.js", name);
 				return this;
 			}
 			
@@ -64,15 +55,9 @@ public class CoffeeScriptTest
 			}
 			
 			@Override
-			public Namespace getNamespaceObject()
+			public Namespace getNamespace()
 			{
 				return null;
-			}
-			
-			@Override
-			public String getNamepace()
-			{
-				return "dust:test";
 			}
 			
 			@Override

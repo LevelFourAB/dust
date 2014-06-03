@@ -6,7 +6,7 @@ import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import se.l4.dust.api.Namespaces;
+import se.l4.dust.api.Namespace;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.resource.Resource;
 
@@ -19,24 +19,19 @@ import se.l4.dust.api.resource.Resource;
 public class AssetImpl
 	implements Asset
 {
-	private final String ns;
+	private final Namespace ns;
 	private final String name;
 	private final Resource resource;
 	private final String checksum;
 	private final boolean protect;
 	
-	public AssetImpl(Namespaces manager, boolean protect, String ns, String name, Resource resource)
+	public AssetImpl(Namespace ns, String name, Resource resource, boolean protect)
 	{
-		this.protect = protect;
-		if(manager != null && resource == null)
-		{
-			// Check manager for null assets
-			throw new IllegalArgumentException("Resource of asset can not be null (name " + name + " in " + ns + ")");
-		}
-		
 		this.ns = ns;
 		this.name = name;
+		
 		this.resource = resource;
+		this.protect = protect;
 		
 		this.checksum = resource == null ? null : getChecksum(resource);
 	}
@@ -98,26 +93,31 @@ public class AssetImpl
 		}
 	}
 	
+	@Override
 	public String getChecksum()
 	{
 		return checksum;
 	}
-
+	
+	@Override
 	public String getName()
 	{
 		return name;
 	}
 
-	public String getNamespace()
+	@Override
+	public Namespace getNamespace()
 	{
 		return ns;
 	}
 
+	@Override
 	public Resource getResource()
 	{
 		return resource;
 	}
 	
+	@Override
 	public boolean isProtected()
 	{
 		return protect;

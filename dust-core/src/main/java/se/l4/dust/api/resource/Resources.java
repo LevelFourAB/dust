@@ -1,6 +1,7 @@
 package se.l4.dust.api.resource;
 
 import java.io.IOException;
+import java.net.URL;
 
 import se.l4.dust.api.Namespaces;
 
@@ -32,9 +33,30 @@ public interface Resources
 		throws IOException;
 	
 	/**
+	 * Locate a resource at the given URL.
+	 * 
+	 * @param url
+	 * @return
+	 * @throws IOException
+	 */
+	Resource locate(URL url)
+		throws IOException;
+	
+	/**
+	 * Locate the given resource as defined by the location.
+	 * 
+	 * @param location
+	 * @return
+	 * @throws IOException
+	 */
+	Resource locate(ResourceLocation location)
+		throws IOException;
+	
+	/**
 	 * Add a source of assets to the manager.
 	 * 
 	 * @param source
 	 */
 	void addLocator(ResourceLocator source);
+
 }

@@ -1,10 +1,7 @@
 package se.l4.dust.core.internal.template;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,10 +9,10 @@ import org.slf4j.LoggerFactory;
 import se.l4.dust.api.Context;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.ResourceLocation;
+import se.l4.dust.api.resource.UrlLocation;
 import se.l4.dust.api.resource.UrlResource;
-import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
-import se.l4.dust.api.resource.variant.ResourceVariantManager.ResourceCallback;
 import se.l4.dust.api.template.Template;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateException;
@@ -25,6 +22,7 @@ import se.l4.dust.api.template.spi.XmlTemplateParser;
 import se.l4.dust.core.internal.template.dom.TemplateBuilderImpl;
 
 import com.google.common.base.Throwables;
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -46,49 +44,27 @@ public class TemplateCacheImpl
 {
 	private static final Logger logger = LoggerFactory.getLogger(TemplateCacheImpl.class);
 	
-	private final Templates manager;
 	private final InnerCache inner;
 	
-	private final Namespaces namespaces;
-	private final ResourceVariantManager variants;
 	private final Provider<TemplateBuilderImpl> templateBuilders;
 
-	private final ResourceCallback resourceCallback;
+	private XmlTemplateParser parser;
 	
 	@Inject
 	public TemplateCacheImpl(
 			Templates manager,
 			Namespaces namespaces,
 			ResourceVariantManager variants,
+			XmlTemplateParser parser,
 			Provider<TemplateBuilderImpl> templateBuilders,
 			Stage stage)
 	{
-		this.manager = manager;
-		this.namespaces = namespaces;
-		this.variants = variants;
+		this.parser = parser;
 		this.templateBuilders = templateBuilders;
 		
 		inner = stage == Stage.DEVELOPMENT 
 			? new DevelopmentCache()
 			: new ProductionCache();
-		
-		resourceCallback = new ResourceVariantManager.ResourceCallback()
-		{
-			public boolean exists(ResourceVariant variant, String url)
-				throws IOException
-			{
-				try
-				{
-					InputStream stream = new URL(url).openStream();
-					stream.close();
-					return true;
-				}
-				catch(IOException e)
-				{
-					return false;
-				}
-			}
-		};
 		
 		logger.info("Template cache is in " + stage + " mode");
 	}
@@ -102,6 +78,7 @@ public class TemplateCacheImpl
 	 * @return
 	 * @throws IOException
 	 */
+	@Override
 	public ParsedTemplate getTemplate(Context context, Class<?> c, Template annotation)
 		throws IOException
 	{
@@ -162,11 +139,18 @@ public class TemplateCacheImpl
 		return new ContextKey(c, url);
 	}
 	
+	@Override
 	public ParsedTemplate getTemplate(Context context, Class<?> dataContext, URL url)
+		throws IOException
+	{
+		return getTemplate(context, dataContext, new UrlResource(new UrlLocation(url), url));
+	}
+	
+	public ParsedTemplate getTemplate(Context context, Class<?> dataContext, Resource resource)
 	{
 		try
 		{
-			return inner.getTemplate(context, dataContext, url);
+			return inner.getTemplate(context, dataContext, resource);
 		}
 		catch(ComputationException e)
 		{
@@ -181,27 +165,16 @@ public class TemplateCacheImpl
 		}
 	}
 	
-	private ParsedTemplate loadTemplate(Class<?> dataContext, URL url)
+	private ParsedTemplate loadTemplate(Class<?> dataContext, Resource resource)
 	{
 		try
 		{
 			TemplateBuilderImpl builder = templateBuilders.get();
-			builder.setContext(url, dataContext);
+			builder.setContext(resource.getLocation(), dataContext);
 			
-			// TODO: Selection of suitable parser
-			XmlTemplateParser parser = new XmlTemplateParser(namespaces, manager);
+			parser.parse(resource, builder);
 			
-			InputStream in = url.openStream();
-			try
-			{
-				parser.parse(in, url.getPath(), builder);
-				
-				return builder.getTemplate(); 
-			}
-			finally
-			{
-				in.close();
-			}
+			return builder.getTemplate(); 
 		}
 		catch(IOException e)
 		{
@@ -211,7 +184,7 @@ public class TemplateCacheImpl
 	
 	private interface InnerCache
 	{
-		ParsedTemplate getTemplate(Context context, Class<?> ctx, URL url);
+		ParsedTemplate getTemplate(Context context, Class<?> ctx, Resource resource);
 		
 		ContextKey getTemplateUrl(Class<?> ctx);
 	}
@@ -219,22 +192,12 @@ public class TemplateCacheImpl
 	private class ProductionCache
 		implements InnerCache
 	{
-		private final LoadingCache<Key, ParsedTemplate> templates;
+		private final Cache<Key, ParsedTemplate> templates;
 		private final LoadingCache<Class<?>, ContextKey> urlCache;
 		
 		public ProductionCache()
 		{
-			templates = CacheBuilder.newBuilder()
-				.build(new CacheLoader<Key, ParsedTemplate>()
-				{
-					@Override
-					public ParsedTemplate load(Key key)
-					{
-						return loadTemplate(key.context, key.url);
-					}
-				});
-			
-
+			templates = CacheBuilder.newBuilder().build();
 			urlCache = CacheBuilder.newBuilder()
 				.build(new CacheLoader<Class<?>, ContextKey>()
 				{
@@ -246,17 +209,17 @@ public class TemplateCacheImpl
 				});
 		}
 		
-		public ParsedTemplate getTemplate(Context context, Class<?> ctx, URL url)
+		@Override
+		public ParsedTemplate getTemplate(Context context, Class<?> ctx, Resource resource)
 		{
-			try
-			{
-				Key key = new Key(ctx, url);
-				return templates.get(key);
-			}
-			catch(ExecutionException e)
-			{
-				throw new TemplateException("Unable to load " + url + "; " + e.getCause().getMessage(), e.getCause());
-			}
+			Key key = new Key(ctx, resource.getLocation());
+			ParsedTemplate template = templates.getIfPresent(resource);
+			if(template != null) return template;
+			
+			template = loadTemplate(ctx, resource);
+			templates.put(key, template);
+			
+			return template;
 		}
 		
 		@Override
@@ -278,61 +241,26 @@ public class TemplateCacheImpl
 	private class DevelopmentCache
 		implements InnerCache
 	{
-		protected final LoadingCache<Key, DevParsedTemplate> templates;
+		private final Cache<Key, DevParsedTemplate> templates;
 		
 		public DevelopmentCache()
 		{
-			templates = CacheBuilder.newBuilder()
-				.build(new CacheLoader<Key, DevParsedTemplate>()
-				{
-					@Override
-					public DevParsedTemplate load(Key key)
-					{
-						return new DevParsedTemplate(loadTemplate(key.context, key.url), getResource(key.url));
-					}
-				});
+			templates = CacheBuilder.newBuilder().build();
 		}
 		
-		public ParsedTemplate getTemplate(Context context, Class<?> ctx, URL url)
+		@Override
+		public ParsedTemplate getTemplate(Context context, Class<?> ctx, Resource resource)
 		{
-			String raw = url.toExternalForm();
-			try
+			Key key = new Key(ctx, resource.getLocation());
+			DevParsedTemplate template = templates.getIfPresent(key);
+			if(template == null || template.resource.getLastModified() < resource.getLastModified())
 			{
-				ResourceVariantManager.Result result = variants.resolve(context, resourceCallback, raw);
-				url = new URL(result.getUrl());
+				// Modified, reload the template
+				template = new DevParsedTemplate(loadTemplate(ctx, resource), resource);
+				templates.put(key, template);
+			}
 			
-				DevParsedTemplate template = templates.get(new Key(ctx, url));
-				Resource resource = template.resource;
-				Resource newResource = getResource(url);
-				if(resource.getLastModified() < newResource.getLastModified())
-				{
-					// Modified, reload the template
-					template = new DevParsedTemplate(loadTemplate(ctx, url), newResource);
-					templates.put(new Key(ctx, url), template);
-				}
-				
-				return template;
-			}
-			catch(IOException e)
-			{
-				throw new TemplateException("Unable to load " + raw + "; " + e.getMessage(), e);
-			}
-			catch(ExecutionException e)
-			{
-				throw new TemplateException("Unable to load " + raw + "; " + e.getCause().getMessage(), e.getCause());
-			}
-		}
-		
-		private Resource getResource(URL url)
-		{
-			try
-			{
-				return new UrlResource(url);
-			}
-			catch(IOException e)
-			{
-				throw new TemplateException("Could not create reference to resource");
-			}
+			return template;
 		}
 		
 		@Override
@@ -349,7 +277,7 @@ public class TemplateCacheImpl
 
 		public DevParsedTemplate(ParsedTemplate tpl, Resource resource)
 		{
-			super(tpl.getUrl(), tpl.getName(), tpl.getDocType(), tpl.getRoot(), tpl.getRawId());
+			super(tpl.getLocation(), tpl.getName(), tpl.getDocType(), tpl.getRoot(), tpl.getRawId());
 			
 			this.resource = resource;
 		}
@@ -358,18 +286,18 @@ public class TemplateCacheImpl
 	private static class Key
 	{
 		private final Class<?> context;
-		private final URL url;
+		private final ResourceLocation location;
 		private final Object[] extra;
 
-		public Key(Class<?> context, URL url)
+		public Key(Class<?> context, ResourceLocation location)
 		{
-			this(context, url, null);
+			this(context, location, null);
 		}
 		
-		public Key(Class<?> context, URL url, Object[] extra)
+		public Key(Class<?> context, ResourceLocation location, Object[] extra)
 		{
 			this.context = context;
-			this.url = url;
+			this.location = location;
 			this.extra = extra;
 		}
 
@@ -378,13 +306,10 @@ public class TemplateCacheImpl
 		{
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((context == null)
-				? 0
-				: context.hashCode());
-			result = prime * result + Arrays.hashCode(extra);
-			result = prime * result + ((url == null)
-				? 0
-				: url.hashCode());
+			result = prime * result
+					+ ((context == null) ? 0 : context.hashCode());
+			result = prime * result
+					+ ((location == null) ? 0 : location.hashCode());
 			return result;
 		}
 
@@ -405,22 +330,20 @@ public class TemplateCacheImpl
 			}
 			else if(!context.equals(other.context))
 				return false;
-			if(!Arrays.equals(extra, other.extra))
-				return false;
-			if(url == null)
+			if(location == null)
 			{
-				if(other.url != null)
+				if(other.location != null)
 					return false;
 			}
-			else if(!url.equals(other.url))
+			else if(!location.equals(other.location))
 				return false;
 			return true;
 		}
-		
+
 		@Override
 		public String toString()
 		{
-			return "Key{context=" + context + ", url=" + url + "}";
+			return "Key{context=" + context + ", location=" + location + "}";
 		}
 	}
 	

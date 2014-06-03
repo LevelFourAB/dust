@@ -2,6 +2,8 @@ package se.l4.dust.api.resource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -11,20 +13,29 @@ import java.io.InputStream;
  *
  */
 public class MergedResource
-	implements Resource
+	extends AbstractResource
 {
 	private final Resource[] resources;
 	
-	public MergedResource(Resource... resources)
+	public MergedResource(ResourceLocation location, List<Resource> resources)
 	{
+		this(location, resources.toArray(new Resource[resources.size()]));
+	}
+	
+	public MergedResource(ResourceLocation location, Resource... resources)
+	{
+		super(location);
+		
 		this.resources = resources;
 	}
 	
+	@Override
 	public String getContentType()
 	{
 		return resources[0].getContentType();
 	}
 
+	@Override
 	public int getContentLength()
 	{
 		int length = 0;
@@ -36,11 +47,13 @@ public class MergedResource
 		return length;
 	}
 
+	@Override
 	public String getContentEncoding()
 	{
 		return null;
 	}
 
+	@Override
 	public long getLastModified()
 	{
 		long last = 0;
@@ -52,10 +65,22 @@ public class MergedResource
 		return last;
 	}
 
+	@Override
 	public InputStream openStream()
 		throws IOException
 	{
 		return new MergedInputStream(resources);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return getClass().getSimpleName() + "{location=" + getLocation() + ", resources=" + Arrays.toString(resources) + "}";
+	}
+	
+	public Resource[] getResources()
+	{
+		return resources;
 	}
 
 	/**

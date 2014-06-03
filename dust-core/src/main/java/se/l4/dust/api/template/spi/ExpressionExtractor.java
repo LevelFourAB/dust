@@ -3,6 +3,7 @@ package se.l4.dust.api.template.spi;
 import java.util.ArrayList;
 import java.util.List;
 
+import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.TemplateBuilder;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Text;
@@ -39,7 +40,7 @@ public class ExpressionExtractor
 	 * @param value
 	 * @return
 	 */
-	public List<Content> parse(String source, int line, int column, CharSequence value)
+	public List<Content> parse(ResourceLocation source, int line, int column, CharSequence value)
 	{
 		List<Content> content = new ArrayList<Content>();
 		

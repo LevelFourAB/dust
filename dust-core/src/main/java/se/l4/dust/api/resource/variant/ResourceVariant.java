@@ -23,4 +23,12 @@ public interface ResourceVariant
 	 * @return
 	 */
 	String getIdentifier();
+
+	/**
+	 * Get if this variant is more specific than the given variant.
+	 * 
+	 * @param current
+	 * @return
+	 */
+	boolean isMoreSpecific(ResourceVariant current);
 }

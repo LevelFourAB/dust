@@ -3,6 +3,7 @@ package se.l4.dust.api.messages;
 import java.io.IOException;
 
 import se.l4.dust.api.Context;
+import se.l4.dust.api.resource.ResourceLocation;
 
 /**
  * Source of data for {@link MessageCollection}.
@@ -22,18 +23,6 @@ public interface MessageSource
 	 * 		the resource URL
 	 * @return
 	 */
-	MessageCollection load(Context context, String resource)
-		throws IOException;
-	
-	/**
-	 * Attempt to load any message besides the given resource.
-	 * 
-	 * @param context
-	 * 		the current context
-	 * @param resource
-	 * 		the resource type
-	 * @return
-	 */
-	MessageCollection load(Context context, Class<?> resource)
+	MessageCollection load(Context context, ResourceLocation resource)
 		throws IOException;
 }

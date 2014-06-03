@@ -21,6 +21,7 @@ import com.google.common.base.Objects;
 public class LocaleVariantSource
 	implements ResourceVariantSource
 {
+	@Override
 	public List<ResourceVariant> getVariants(Context ctx)
 	{
 		Object value = ctx.getValue(ResourceVariant.LOCALE);
@@ -58,9 +59,16 @@ public class LocaleVariantSource
 		return Collections.emptyList();
 	}
 	
+	@Override
 	public Object getCacheValue(Context ctx)
 	{
 		return ctx.getValue(ResourceVariant.LOCALE);
+	}
+	
+	@Override
+	public Class<? extends ResourceVariant> getVariantClass()
+	{
+		return LocaleVariant.class;
 	}
 	
 	private static class LocaleVariant
@@ -75,14 +83,22 @@ public class LocaleVariantSource
 			this.identifier = identifier;
 		}
 		
+		@Override
 		public Object getCacheValue()
 		{
 			return locale;
 		}
 		
+		@Override
 		public String getIdentifier()
 		{
 			return identifier;
+		}
+		
+		@Override
+		public boolean isMoreSpecific(ResourceVariant current)
+		{
+			return identifier.length() > ((LocaleVariant) current).identifier.length();
 		}
 
 		@Override

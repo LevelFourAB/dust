@@ -15,8 +15,8 @@ import se.l4.dust.api.DefaultContext;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetEncounter;
 import se.l4.dust.api.asset.AssetException;
-import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.asset.AssetProcessor;
+import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.resource.MemoryResource;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.js.env.JavascriptEnvironment;
@@ -48,6 +48,7 @@ public class LessProcessor
 		development = stage != Stage.PRODUCTION;
 	}
 
+	@Override
 	public void process(AssetEncounter encounter)
 		throws IOException
 	{
@@ -91,7 +92,7 @@ public class LessProcessor
 		{
 			Object result = new JavascriptEnvironment(getClass().getName())
 				.define("development", development)
-				.define("importer", new Importer(assets, encounter.getNamepace(), folder))
+				.define("importer", new Importer(assets, encounter.getNamespace().getUri(), folder))
 				.add(LessProcessor.class.getResource("env.js"))
 				.add(LessProcessor.class.getResource("less-1.5.0.js"))
 				.add(LessProcessor.class.getResource("processor.js"))
@@ -104,7 +105,7 @@ public class LessProcessor
 				encounter.cache("lesscss", res);
 			}
 			
-			encounter.replaceWith(res).rename(path);
+			encounter.replaceWith(res);
 		}
 		catch(JavaScriptException e)
 		{

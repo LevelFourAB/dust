@@ -13,7 +13,7 @@ import com.google.common.io.ByteStreams;
  *
  */
 public class MemoryResource
-	implements Resource
+	extends AbstractResource
 {
 	private final String contentType;
 	private final String contentEncoding;
@@ -23,12 +23,26 @@ public class MemoryResource
 	public MemoryResource(String contentType, String contentEncoding, InputStream stream)
 		throws IOException
 	{
-		this(contentType, contentEncoding, ByteStreams.toByteArray(stream));
+		this(new MemoryLocation("memory"), contentType, contentEncoding, stream);
+	}
+	
+	public MemoryResource(ResourceLocation location, String contentType, String contentEncoding, InputStream stream)
+		throws IOException
+	{
+		this(location, contentType, contentEncoding, ByteStreams.toByteArray(stream));
 	}
 	
 	public MemoryResource(String contentType, String contentEncoding, byte[] data)
 		throws IOException
 	{
+		this(new MemoryLocation("memory"), contentType, contentEncoding, data);
+	}
+	
+	public MemoryResource(ResourceLocation location, String contentType, String contentEncoding, byte[] data)
+		throws IOException
+	{
+		super(location);
+		
 		this.contentType = contentType;
 		this.contentEncoding = contentEncoding;
 		
@@ -36,26 +50,31 @@ public class MemoryResource
 		lastModified = System.currentTimeMillis();
 	}
 	
+	@Override
 	public int getContentLength()
 	{
 		return data.length;
 	}
 
+	@Override
 	public String getContentType()
 	{
 		return contentType;
 	}
 	
+	@Override
 	public String getContentEncoding()
 	{
 		return contentEncoding;
 	}
 	
+	@Override
 	public long getLastModified()
 	{
 		return lastModified;
 	}
 
+	@Override
 	public InputStream openStream()
 		throws IOException
 	{

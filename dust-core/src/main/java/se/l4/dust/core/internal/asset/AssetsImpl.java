@@ -1,39 +1,40 @@
 package se.l4.dust.core.internal.asset;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
-import java.util.regex.Pattern;
 
 import se.l4.dust.api.Context;
+import se.l4.dust.api.Namespace;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetCache;
 import se.l4.dust.api.asset.AssetException;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.asset.Assets;
+import se.l4.dust.api.resource.AbstractResource;
 import se.l4.dust.api.resource.MergedResource;
+import se.l4.dust.api.resource.NamespaceLocation;
 import se.l4.dust.api.resource.Resource;
-import se.l4.dust.api.resource.ResourceLocator;
+import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.resource.Resources;
-import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
-import se.l4.dust.api.resource.variant.ResourceVariantManager.ResourceCallback;
-import se.l4.dust.core.internal.resource.MergedResourceVariant;
+import se.l4.dust.api.resource.variant.ResourceVariantResolution;
 
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ComputationException;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
@@ -44,7 +45,7 @@ import com.google.inject.Stage;
 public class AssetsImpl
 	implements Assets
 {
-	private static final Asset NULL_ASSET = new AssetImpl(null, false, null, null, null);
+	private static final Asset NULL_ASSET = new AssetImpl(null, null, null, false);
 	
 	private final LoadingCache<String, AssetNamespace> cache;
 	private final Namespaces manager;
@@ -54,24 +55,27 @@ public class AssetsImpl
 	private final boolean production;
 	
 	private final Set<String> protectedExtensions;
-	private final Map<String, AssetProcessor> extensionProcessors;
 	
 	private final Injector injector;
+	private final BuiltAssetLocator builtAssetLocator;
 
 	private volatile AssetCache assetCache;
 	
 	@Inject
-	public AssetsImpl(Namespaces manager,
+	public AssetsImpl(Namespaces namespaces0,
 			Resources resources,
 			ResourceVariantManager variants,
+			BuiltAssetLocator builtAssetLocator,
 			Injector injector,
 			Stage stage)
 	{
-		this.manager = manager;
+		this.manager = namespaces0;
 		this.resources = resources;
 		this.variants = variants;
+		this.builtAssetLocator = builtAssetLocator;
 		this.injector = injector;
-		extensionProcessors = new ConcurrentHashMap<String, AssetProcessor>();
+		
+		protectedExtensions = Sets.newHashSet();
 		
 		CacheLoader<String, AssetNamespace> f;
 		if(stage == Stage.DEVELOPMENT)
@@ -81,7 +85,7 @@ public class AssetsImpl
 				@Override
 				public AssetNamespace load(String from)
 				{
-					return new DevAssetNamespace(from);
+					return new DevAssetNamespace(manager.getNamespaceByURI(from));
 				}
 			};
 			
@@ -94,7 +98,7 @@ public class AssetsImpl
 				@Override
 				public AssetNamespace load(String from)
 				{
-					return new AssetNamespace(from);
+					return new AssetNamespace(manager.getNamespaceByURI(from));
 				}
 			};
 				
@@ -104,8 +108,6 @@ public class AssetsImpl
 		cache = CacheBuilder
 			.newBuilder()
 			.build(f);
-		
-		protectedExtensions = new CopyOnWriteArraySet<String>();
 	}
 	
 	@Inject(optional=true)
@@ -126,6 +128,7 @@ public class AssetsImpl
 		}
 	}
 	
+	@Override
 	public Asset locate(Context context, String ns, String file)
 	{
 		AssetNamespace ans = get(ns);
@@ -134,50 +137,29 @@ public class AssetsImpl
 		return a == NULL_ASSET ? null: a;
 	}
 
+	@Override
 	public void addProtectedExtension(String extension)
 	{
 		protectedExtensions.add(extension);
 	}
 	
+	@Override
 	public boolean isProtectedExtension(String extension)
 	{
 		return protectedExtensions.contains(extension);
 	}
 	
+	@Override
 	public void addTemporaryAsset(String ns, String path, Resource resource)
 	{
-//		Asset asset = locate(ns, path);
-//		if(asset != null)
-//		{
-//			throw new IllegalArgumentException("Asset " + path 
-//				+ " already exists in " + ns + ", can't add temporary resource");
-//		}
-		
-		AssetNamespace ans = get(ns);
-		ans.set(path, resource);
+		builtAssetLocator.add(ns, path, resource);
 	}
 	
-	public void processAssets(String namespace, String filter, Class<? extends AssetProcessor> processor)
-	{
-		AssetNamespace ans = get(namespace);
-		ans.addProcessor(filter, processor);
-	}
-	
-	public void processAssets(String namespace, String filter, AssetProcessor processor)
-	{
-		AssetNamespace ans = get(namespace);
-		ans.addProcessor(filter, processor);
-	}
-	
-	public AssetBuilder addAsset(String namespace, String pathToFile)
+	@Override
+	public AssetBuilder define(String namespace, String pathToFile)
 	{
 		AssetNamespace parent = get(namespace);
 		return new AssetBuilderImpl(parent, namespace, pathToFile);
-	}
-	
-	public void addExtensionProcessor(String extension, AssetProcessor processor)
-	{
-		extensionProcessors.put(extension, processor);
 	}
 	
 	/**
@@ -194,8 +176,8 @@ public class AssetsImpl
 		private final String namespace;
 		private final String pathToFile;
 		
-		private final List<AssetDef> assets;
-		private final List<ProcessorDef> processors;
+		private final List<ResourceLocation> resources;
+		private final List<Provider<? extends AssetProcessor>> processors;
 
 		public AssetBuilderImpl(AssetNamespace parent, String namespace, String pathToFile)
 		{
@@ -203,26 +185,28 @@ public class AssetsImpl
 			this.namespace = namespace;
 			this.pathToFile = pathToFile;
 			
-			assets = new ArrayList<AssetDef>();
-			processors = new ArrayList<ProcessorDef>();
+			resources = Lists.newArrayList();
+			processors = Lists.newArrayList();
 		}
 
+		@Override
 		public AssetBuilder add(String pathToFile)
 		{
 			return add(namespace, pathToFile);
 		}
 
+		@Override
 		public AssetBuilder add(String ns, String pathToFile)
 		{
-			AssetNamespace assetNs = get(ns);
-			assets.add(new AssetDef(assetNs, pathToFile));
+			resources.add(new NamespaceLocation(manager.getNamespaceByURI(ns), pathToFile));
 			
 			return this;
 		}
 
+		@Override
 		public AssetBuilder process(Class<? extends AssetProcessor> processor)
 		{
-			processors.add(new ProcessorDef(Pattern.quote(pathToFile), injector.getProvider(processor)));
+			processors.add(injector.getProvider(processor));
 			
 			return this;
 		}
@@ -230,38 +214,28 @@ public class AssetsImpl
 		@Override
 		public AssetBuilder process(final AssetProcessor processor)
 		{
-			processors.add(new ProcessorDef(Pattern.quote(pathToFile), new InstanceProvider<AssetProcessor>(processor)));
+			processors.add(new InstanceProvider<AssetProcessor>(processor));
 			
 			return this;
 		}
 
+		@Override
 		public void create()
 		{
-			parent.defineResource(pathToFile, assets, processors);
+			parent.defineResource(pathToFile, resources, processors);
 		}
-		
 	}
 	
-	/**
-	 * Definition of an asset in a specific namespace.
-	 * 
-	 * @author Andreas Holstenson
-	 *
-	 */
 	private static class AssetDef
 	{
-		private final AssetNamespace ns;
-		private final String path;
-
-		public AssetDef(AssetNamespace ns, String path)
-		{
-			this.ns = ns;
-			this.path = path;
-		}
+		private final List<ResourceLocation> resources;
+		private final List<Provider<? extends AssetProcessor>> processors;
 		
-		public Asset get(Context context)
+		public AssetDef(List<ResourceLocation> resources,
+				List<Provider<? extends AssetProcessor>> processors)
 		{
-			return ns.get(context, path);
+			this.resources = resources;
+			this.processors = processors;
 		}
 	}
 	
@@ -272,34 +246,16 @@ public class AssetsImpl
 	 * @author Andreas Holstenson
 	 *
 	 */
-	private class AssetNamespace
+	public class AssetNamespace
 	{
-		private final LoadingCache<String, Asset> cache;
-		protected final List<ProcessorDef> processors;
-		protected final ConcurrentMap<String, List<AssetDef>> builtAssets;
-		protected final ConcurrentMap<String, Resource> definedResources;
+		protected final Namespace namespace;
+		protected final Map<String, AssetDef> builtAssets;
 		
-		protected final String namespace;
-		
-		private final ResourceCallback resourceCallback;
-		
-		public AssetNamespace(String namespace)
+		public AssetNamespace(Namespace namespace)
 		{
 			this.namespace = namespace;
 			
-			cache = CacheBuilder.newBuilder().build(new AssetLocator(this));
-			processors = new CopyOnWriteArrayList<ProcessorDef>();
-			builtAssets = new ConcurrentHashMap<String, List<AssetDef>>();
-			definedResources = new ConcurrentHashMap<String, Resource>();
-			
-			resourceCallback = new ResourceVariantManager.ResourceCallback()
-			{
-				public boolean exists(ResourceVariant variant, String url)
-					throws IOException
-				{
-					return locate(url) != null;
-				}
-			};
+			builtAssets = Maps.newHashMap();
 		}
 		
 		/**
@@ -308,42 +264,46 @@ public class AssetsImpl
 		 * @param pathToFile
 		 * @param assets
 		 * @param processors
+		 * @throws IOException 
 		 */
-		public void defineResource(String pathToFile, List<AssetDef> assets, List<ProcessorDef> processors)
+		public void defineResource(String pathToFile,
+				List<ResourceLocation> resourceLocations,
+				List<Provider<? extends AssetProcessor>> processors)
 		{
-			this.processors.addAll(processors);
-			builtAssets.put(pathToFile, assets);
-		}
-		
-		public Resource getResource(Context context, List<Asset> assets)
-		{
-			Resource[] resources = new Resource[assets.size()];
-			for(int i=0, n=assets.size(); i<n; i++)
+			// Register a default one with the resources
+			Resource[] resolvedResources = new Resource[resourceLocations.size()];
+			int idx = 0;
+			for(ResourceLocation location : resourceLocations)
 			{
-				resources[i] = assets.get(i).getResource();
+				try
+				{
+					Resource resource = resources.locate(location);
+					if(resource == null)
+					{
+						throw new AssetException("Unable to define " + pathToFile + " in " + namespace.getUri() + "; Resource " + location + " does not exist");
+					}
+					resolvedResources[idx++] = wrapResource(resource);
+				}
+				catch(IOException e)
+				{
+					throw new AssetException("Unable to define " + pathToFile + " in " + namespace.getUri() + "; Resource " + location + " could not be read; " + e.getMessage(), e);
+				}
 			}
-			return new MergedResource(resources);
-		}
-
-		public void addProcessor(String filter, Class<? extends AssetProcessor> processor)
-		{
-			processors.add(new ProcessorDef(filter, injector.getProvider(processor)));
-		}
-		
-		public void addProcessor(String filter, AssetProcessor processor)
-		{
-			processors.add(new ProcessorDef(filter, new InstanceProvider<AssetProcessor>(processor)));
-		}
-		
-		private Asset load(String url)
-		{
+			
+			AssetDef def = new AssetDef(resourceLocations, processors);
+			builtAssets.put(pathToFile, def);
+			
 			try
 			{
-				return cache.get(url);
+				MergedResource merged = new MergedResource(
+					new NamespaceLocation(namespace, pathToFile),
+					resolvedResources
+				);
+				processAndRegister(pathToFile, merged, processors);
 			}
-			catch(ExecutionException e)
+			catch(IOException e)
 			{
-				throw Throwables.propagate(e.getCause());
+				throw new AssetException("Unable to define " + pathToFile + " in " + namespace.getUri() + "; " + e.getMessage(), e);
 			}
 		}
 		
@@ -363,209 +323,107 @@ public class AssetsImpl
 				}
 
 				// Attempt to resolve the correct variant of the asset
-				ResourceVariantManager.Result result = variants.resolve(context, resourceCallback, path);
+				ResourceVariantResolution result = variants.resolve(context, new NamespaceLocation(namespace, path));
+				if(result == null) return null;
 				
-				Asset asset = load(result.getUrl());
-				return asset == NULL_ASSET ? null : asset;
+				return createAsset(result.getName(), result.getResource());
 			}
 			catch(IOException e)
 			{
 				throw new AssetException("Unable to locate suitable variant of " + path + " in " + namespace);
 			}
-			catch(ComputationException e)
+		}
+		
+		private Asset handleBuiltAsset(final Context context, final String path)
+			throws IOException
+		{
+			final NamespaceLocation location = new NamespaceLocation(namespace, path);
+			ResourceVariantResolution result = variants.createCombined(context, location, new Supplier<List<ResourceVariantResolution>>()
 			{
-				throw new AssetException("Unable to load " + path + " in " + namespace + "; " + e.getCause().getMessage(), e.getCause());
+				@Override
+				public List<ResourceVariantResolution> get()
+				{
+					try
+					{
+						List<ResourceLocation> defs = builtAssets.get(path).resources;
+						
+						List<ResourceVariantResolution> actualResources = Lists.newArrayListWithCapacity(defs.size());
+						for(ResourceLocation def : defs)
+						{
+							actualResources.add(variants.resolve(context, def));
+						}
+						
+						return actualResources;
+					}
+					catch(IOException e)
+					{
+						throw Throwables.propagate(e);
+					}
+				}
+			});
+			
+			Resource resource = builtAssetLocator.locate(namespace.getUri(), result.getName());
+			if(resource == null)
+			{
+				processAndRegister(result.getName(), result.getResource(), builtAssets.get(path).processors);
 			}
+			
+			return createAsset(result.getName(), resource);
+		}
+		
+		protected Resource wrapResource(Resource resource)
+		{
+			return resource;
+		}
+		
+		protected void processAndRegister(String pathToFile, Resource resource, List<Provider<? extends AssetProcessor>> processors)
+			throws IOException
+		{
+			resource = process(resource, processors);
+			builtAssetLocator.add(namespace.getUri(), pathToFile, resource);
+		}
+		
+		protected Resource process(Resource in, List<Provider<? extends AssetProcessor>> processors)
+			throws IOException
+		{
+			String name = in.getLocation().getName();
+			Resource current = in;
+			
+			for(Provider<? extends AssetProcessor> provider : processors)
+			{
+				AssetEncounterImpl encounter = new AssetEncounterImpl(production, current, namespace, name, assetCache);
+				
+				AssetProcessor processor = provider.get();
+				processor.process(encounter);
+				
+				if(encounter.isReplaced())
+				{
+					current = encounter.getReplacedWith();
+				}
+			}
+			
+			return current;
+		}
+		
+		public Asset createAsset(String name, Resource resource)
+			throws IOException
+		{
+			int idx = name.lastIndexOf('.');
+			boolean protect = idx == -1 ? false
+				: isProtectedExtension(name.substring(idx+1));
+			
+			return createAsset(name, resource, protect);
+		}
+		
+		protected Asset createAsset(String name, Resource resource, boolean protect)
+		{
+			return new AssetImpl(namespace, name, resource, protect);
 		}
 
-		private Asset handleBuiltAsset(Context context, String path)
+		public Resource locate(ResourceLocation location)
 			throws IOException
 		{
-			/*
-			 * Built assets need special treatment. First try to resolve
-			 * a new name for the merged asset.
-			 */
-			final List<AssetDef> defs = builtAssets.get(path);
-			ResourceVariantManager.Result result = variants.resolve(context, new ResourceCallback()
-			{
-				public boolean exists(ResourceVariant variant, String url)
-					throws IOException
-				{
-					for(AssetDef d : defs)
-					{
-						ResourceVariant v = variants.resolveRealVariant(variant, resourceCallback, d.path);
-						if(v != null && ((MergedResourceVariant) variant).hasSpecific(v))
-						{
-							return true;
-						}
-					}
-					
-					return false;
-				}
-			}, path);
-			
-			String name = result.getUrl();
-			Asset existing = cache.getIfPresent(name);
-			if(existing == null)
-			{
-				// If it has not been cached create a suitable resource for it
-				List<Asset> assets = new ArrayList<Asset>();
-				for(AssetDef d : defs)
-				{
-					Asset asset = d.get(context);
-					assets.add(asset);
-				}
-				
-				Resource r = getResource(context, assets);
-				definedResources.put(name, r);
-				
-				existing = load(name);
-			}
-			
-			return existing;
-		}
-		
-		public void set(String path, Resource resource)
-		{
-			Asset asset = new AssetImpl(manager, false, namespace, path, resource);
-			cache.put(path, asset);
-		}
-		
-		public void set(String path, Asset asset)
-		{
-			cache.put(path, asset);
-		}
-		
-		public Asset createAsset(String path)
-			throws IOException
-		{
-			Resource resource = locate(path);
-			if(resource != null)
-			{
-				return createAsset(path, resource);
-			}
-			
-			return null;
-		}
-		
-		public Asset createAsset(String path, Resource resource)
-			throws IOException
-		{
-			int idx = path.lastIndexOf('.');
-			String extension = idx > 0 ? path.substring(idx+1) : "";
-			boolean protect = isProtectedExtension(extension);
-			
-			boolean processed = false;
-			Resource current = resource;
-			String lastName = path;
-			
-			if(! extensionProcessors.isEmpty())
-			{
-				AssetProcessor ext = extensionProcessors.get(extension);
-				if(ext != null)
-				{
-					AssetEncounterImpl encounter = new AssetEncounterImpl(manager, production, current, namespace, lastName, assetCache);
-					
-					ext.process(encounter);
-					
-					if(encounter.isReplaced())
-					{
-						current = encounter.getReplacedWith();
-					}
-					
-					if(encounter.isRenamed())
-					{
-						lastName = encounter.getRenamedTo();
-					}
-				}
-			}
-			
-			Set<ProcessorDef> applied = new HashSet<ProcessorDef>();
-			
-			/*
-			 * Check if we have any filters that need to be applied.
-			 * 
-			 * Filters are applied in order and if a filter opts to rename
-			 * a resource all filters but the ones already applied must
-			 * be tested again.
-			 */
-			_outer:
-			while(true)
-			{
-				for(ProcessorDef def : processors)
-				{
-					if(applied.contains(def)) continue;
-					
-					if(def.matches(path))
-					{
-						if(false == processed)
-						{
-							processed = true;
-						}
-						
-						AssetEncounterImpl encounter = new AssetEncounterImpl(manager, production, current, namespace, lastName, assetCache);
-						
-						def.getProcessor().process(encounter);
-						applied.add(def);
-						
-						if(encounter.isReplaced())
-						{
-							current = encounter.getReplacedWith();
-						}
-						
-						if(encounter.isRenamed())
-						{
-							lastName = encounter.getRenamedTo();
-							
-							// Reapply filters in order
-							continue _outer;
-						}
-					}
-				}
-				
-				break;
-			}
-			
-			String originalPath = path;
-			boolean renamed = ! lastName.equals(path);
-			if(renamed)
-			{
-				// The resource has been renamed, update path
-				path = lastName;
-			}
-			
-			// Create the actual asset (to make sure the new path is applied)
-			Asset asset = createAsset(protect, path, current, resource, originalPath);
-			
-			if(renamed)
-			{
-				// If renamed, also apply it to its new path
-				set(path, asset);
-			}
-			
-			// Return the asset
-			return asset;
-		}
-		
-		protected Asset createAsset(boolean protect,
-				String path, 
-				Resource resource, 
-				Resource original,
-				String originalPath)
-		{
-			return new AssetImpl(manager, protect, namespace, path, resource);
-		}
-
-		public Resource locate(String path)
-			throws IOException
-		{
-			// Check if the resource has been defined
-			if(definedResources.containsKey(path))
-			{
-				return definedResources.get(path);
-			}
-
-			return resources.locate(namespace, path);
+			return resources.locate(location);
 		}
 	}
 	
@@ -579,160 +437,177 @@ public class AssetsImpl
 	private class DevAssetNamespace
 		extends AssetNamespace
 	{
-		public DevAssetNamespace(String namespace)
+		public DevAssetNamespace(Namespace namespace)
 		{
 			super(namespace);
 		}
 		
-		@Override
-		public Resource getResource(Context context, List<Asset> assets)
+		protected Resource process0(Resource in, List<Provider<? extends AssetProcessor>> processors)
+			throws IOException
 		{
-			return new MergedAssetResource(AssetsImpl.this, context, assets.toArray(new Asset[assets.size()]));
+			return super.process(in, processors);
 		}
 		
 		@Override
-		protected Asset createAsset(
-				boolean protect,
-				String path,
-				Resource resource, 
-				final Resource original,
-				String originalPath)
+		protected Resource wrapResource(final Resource resource)
 		{
-			final Asset asset = super.createAsset(protect, path, resource, original, originalPath);
-			return new DevAsset(this, asset, originalPath);
+			if(resource instanceof ReloadingResource)
+			{
+				return resource;
+			}
+			
+			Supplier<Resource> original = new Supplier<Resource>()
+			{
+				@Override
+				public Resource get()
+				{
+					try
+					{
+						return locate(resource.getLocation());
+					}
+					catch(IOException e)
+					{
+						throw Throwables.propagate(e);
+					}
+				}
+			};
+			
+			return new ReloadingResource(resource, original, Functions.<Resource>identity());
+		}
+		
+		@Override
+		protected Asset createAsset(final String name, Resource resource, boolean protect)
+		{
+			resource = wrapResource(resource);
+			
+			return new AssetImpl(namespace, name, resource, protect)
+			{
+				@Override
+				public Resource getResource()
+				{
+					Resource resource = super.getResource();
+					try
+					{
+						((ReloadingResource) resource).maybeReload();
+					}
+					catch(IOException e)
+					{
+						throw new AssetException();
+					}
+					return resource;
+				}
+			};
+		}
+		
+		@Override
+		protected Resource process(Resource in, final List<Provider<? extends AssetProcessor>> processors)
+			throws IOException
+		{
+			return new ReloadingResource(in, Suppliers.ofInstance(in), new Function<Resource, Resource>()
+			{
+				@Override
+				public Resource apply(Resource input)
+				{
+					System.out.println("Processing");
+					try
+					{
+						return process0(input, processors);
+					}
+					catch(IOException e)
+					{
+						throw Throwables.propagate(e);
+					}
+				}
+			});
 		}
 	}
 	
-	/**
-	 * Implementation of asset that takes care of data reloading when
-	 * needed.
-	 * 
-	 * @author Andreas Holstenson
-	 *
-	 */
-	private static class DevAsset
-		implements Asset
+	private class ReloadingResource
+		extends AbstractResource
 	{
-		private final DevAssetNamespace ns;
+		private final Function<Resource, Resource> reloader;
+		private final Supplier<Resource> original;
 		
-		private final String orignalPath;
-		private Asset asset;
+		private Resource current;
+		private boolean first;
 
-		public DevAsset(DevAssetNamespace ns, Asset asset, String orignalPath)
+		public ReloadingResource(Resource resource,
+				Supplier<Resource> original,
+				Function<Resource, Resource> reloader)
 		{
-			this.ns = ns;
-			this.asset = asset;
-			this.orignalPath = orignalPath;
+			super(null);
+			
+			first = true;
+			
+			this.original = original;
+			this.current = resource;
+			this.reloader = reloader;
 		}
 		
-		public String getChecksum()
+		@Override
+		public String getContentEncoding()
 		{
-			return asset.getChecksum();
+			return current.getContentEncoding();
 		}
 		
-		public String getName()
+		@Override
+		public int getContentLength()
 		{
-			return asset.getName();
+			return current.getContentLength();
 		}
 		
-		public String getNamespace()
+		@Override
+		public String getContentType()
 		{
-			return asset.getNamespace();
+			return current.getContentType();
 		}
 		
-		public synchronized Resource getResource()
+		@Override
+		public long getLastModified()
 		{
-			try
+			return current.getLastModified();
+		}
+		
+		@Override
+		public InputStream openStream()
+			throws IOException
+		{
+			return current.openStream();
+		}
+		
+		public synchronized void maybeReload()
+			throws IOException
+		{
+			Resource resource = original.get();
+			maybeReload(resource);
+			
+			System.out.println(resource.getLocation() + " " + resource.getLastModified() + " < " + current.getLastModified());
+			
+			if(first || resource.getLastModified() > current.getLastModified())
 			{
-				Resource resource = ns.locate(orignalPath);
-				if(resource == null)
+				first = false;
+				this.current = reloader.apply(resource);
+			}
+		}
+		
+		private void maybeReload(Resource resource)
+			throws IOException
+		{
+			if(resource instanceof MergedResource)
+			{
+				MergedResource merged = (MergedResource) resource;
+				for(Resource r : merged.getResources())
 				{
-					throw new AssetException("Could not locate " + orignalPath);
-				}
-				
-				if(resource.getLastModified() > asset.getResource().getLastModified())
-				{
-					// Recreation needed so we replace the old asset
-					asset = ns.createAsset(orignalPath, resource);
-					if(asset instanceof DevAsset)
+					if(r instanceof ReloadingResource)
 					{
-						asset = ((DevAsset) asset).asset;
+						((ReloadingResource) r).maybeReload();
+					}
+					else if (r instanceof MergedResource)
+					{
+						maybeReload(resource);
 					}
 				}
 			}
-			catch(IOException e)
-			{
-				throw new RuntimeException("Unable to recreate the asset; " + e.getMessage(), e);
-			}
-			
-			return asset.getResource();
-		}
-		
-		public boolean isProtected()
-		{
-			return asset.isProtected();
-		}
-	}
-	
-	/**
-	 * Definition of a processor as seen by an asset namespace.
-	 * 
-	 * @author Andreas Holstenson
-	 *
-	 */
-	private class ProcessorDef
-	{
-		private final Pattern filter;
-		private final Provider<? extends AssetProcessor> processor;
-		
-		public ProcessorDef(String filter, Provider<? extends AssetProcessor> processor)
-		{
-			this.filter = Pattern.compile(filter);
-			this.processor = processor;
-		}
-		
-		public boolean matches(String path)
-		{
-			return filter.matcher(path).matches();
-		}
-		
-		public AssetProcessor getProcessor()
-		{
-			return processor.get();
-		}
-	}
-	
-	/** 
-	 * Locator function used with the computation map to create assets on
-	 * the fly.
-	 * 
-	 * @author Andreas Holstenson
-	 *
-	 */
-	private class AssetLocator
-		extends CacheLoader<String, Asset>
-	{
-		private final AssetNamespace namespace;
-
-		public AssetLocator(AssetNamespace namespace)
-		{
-			this.namespace = namespace;
-		}
-		
-		@Override
-		public Asset load(String from)
-		{
-			Asset asset;
-			try
-			{
-				asset = namespace.createAsset(from);
-			}
-			catch(IOException e)
-			{
-				throw new ComputationException(e);
-			}
-			
-			return asset == null ? NULL_ASSET : asset;
 		}
 	}
 	

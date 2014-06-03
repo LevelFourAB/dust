@@ -1,7 +1,9 @@
 package se.l4.dust.api;
 
-import java.net.URI;
+import java.io.IOException;
 import java.net.URL;
+
+import se.l4.dust.api.resource.Resource;
 
 /**
  * Information about a namespace.
@@ -37,18 +39,19 @@ public interface Namespace
 	 * 
 	 * @param resource
 	 * @return
+	 * @throws IOException 
 	 */
-	URL getResource(String resource);
-
+	Resource getResource(String resource)
+		throws IOException;
+	
 	/**
-	 * Resolve the URI of a certain resource. This will not check if
-	 * the resource actually exists.
+	 * Attempt to locate a resource within the classpath of the namespace.
 	 * 
 	 * @param resource
 	 * @return
 	 */
-	URI resolveResource(String resource);
-	
+	URL getClasspathResource(String resource);
+
 	/**
 	 * Get the Java package of this namespace.
 	 * 

@@ -19,12 +19,14 @@ import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
 import se.l4.dust.api.Namespaces;
+import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.template.TemplateBuilder;
 import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.Templates;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Text;
 
+import com.google.common.io.Closeables;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -49,15 +51,16 @@ public class XmlTemplateParser
 	}
 
 	@Override
-	public void parse(InputStream stream, String name, TemplateBuilder builder)
+	public void parse(Resource resource, TemplateBuilder builder)
 		throws IOException, TemplateException
 	{
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		factory.setNamespaceAware(true);
 		factory.setValidating(false);
 		
-		ErrorCollector errors = new ErrorCollector(name);
+		ErrorCollector errors = new ErrorCollector(resource.getLocation());
 		builder.withErrorCollector(errors);
+		InputStream stream = resource.openStream();
 		try
 		{
 			SAXParser parser = factory.newSAXParser();
@@ -86,6 +89,10 @@ public class XmlTemplateParser
 		{
 			errors.newError(0, 0, "Unable to parse template: %s", e);
 			throw errors.raiseException();
+		}
+		finally
+		{
+			Closeables.closeQuietly(stream);
 		}
 	}
 	
@@ -230,7 +237,7 @@ public class XmlTemplateParser
 				String value = attributes.getValue(i);
 				
 				List<Content> contents = extractor.parse(
-					errors.getName(),
+					errors.getSource(),
 					locator.getLineNumber(), 
 					locator.getLineNumber(), 
 					value
@@ -301,7 +308,7 @@ public class XmlTemplateParser
 			}
 			else
 			{
-				List<Content> content = extractor.parse(errors.getName(), textLine, textColumn, text);
+				List<Content> content = extractor.parse(errors.getSource(), textLine, textColumn, text);
 				if(currentIgnoreWhitespace)
 				{
 					Iterator<Content> it = content.iterator();
@@ -327,7 +334,7 @@ public class XmlTemplateParser
 
 			String commentText = new String(ch, start, length);
 			List<Content> content = extractor.parse(
-				errors.getName(),
+				errors.getSource(),
 				locator.getLineNumber(), 
 				locator.getColumnNumber(), 
 				commentText

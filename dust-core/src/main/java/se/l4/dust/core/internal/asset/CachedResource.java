@@ -3,15 +3,18 @@ package se.l4.dust.core.internal.asset;
 import java.io.IOException;
 import java.io.InputStream;
 
-import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.AbstractResource;
+import se.l4.dust.api.resource.ResourceLocation;
 
 public class CachedResource
-	implements Resource
+	extends AbstractResource
 {
 	private final CacheFormat format;
 
-	public CachedResource(CacheFormat format)
+	public CachedResource(ResourceLocation location, CacheFormat format)
 	{
+		super(location);
+		
 		this.format = format;
 	}
 

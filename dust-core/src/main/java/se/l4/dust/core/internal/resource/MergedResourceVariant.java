@@ -35,6 +35,7 @@ public class MergedResourceVariant
 		this.id = id.toString();
 	}
 
+	@Override
 	public Object getCacheValue()
 	{
 		Object[] result = new Object[variants.length];
@@ -45,9 +46,16 @@ public class MergedResourceVariant
 		return result;
 	}
 
+	@Override
 	public String getIdentifier()
 	{
 		return id;
+	}
+	
+	@Override
+	public boolean isMoreSpecific(ResourceVariant current)
+	{
+		return false;
 	}
 	
 	@Override

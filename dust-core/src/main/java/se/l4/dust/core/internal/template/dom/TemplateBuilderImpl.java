@@ -1,6 +1,5 @@
 package se.l4.dust.core.internal.template.dom;
 
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,6 +13,7 @@ import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.expression.Expressions;
+import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateBuilder;
 import se.l4.dust.api.template.TemplateCache;
@@ -34,7 +34,6 @@ import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.mixin.MixinEncounter;
 import se.l4.dust.api.template.mixin.TemplateMixin;
 import se.l4.dust.api.template.spi.ErrorCollector;
-import se.l4.dust.api.template.spi.TemplateInfo;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -56,7 +55,6 @@ public class TemplateBuilderImpl
 	private final TypeConverter converter;
 	
 	private final Map<String, String> boundNamespaces;
-	private final TemplateInfo namespaces;
 	private final Expressions expressions;
 	
 	private final LinkedList<Map<String, Element.Attribute>> mixinAttributes;
@@ -71,7 +69,7 @@ public class TemplateBuilderImpl
 	
 	private DocType docType;
 	private Element root;
-	private URL url;
+	private ResourceLocation source;
 	private int line;
 	private int column;
 
@@ -94,29 +92,8 @@ public class TemplateBuilderImpl
 		values = new HashMap<String, Object>();
 		boundNamespaces = new HashMap<String, String>();
 		mixinAttributes = new LinkedList<Map<String, Element.Attribute>>();
-		namespaces = createNamespaces();
 		
 		stack = new LinkedList<>();
-	}
-	
-	private TemplateInfo createNamespaces()
-	{
-		return new TemplateInfo()
-		{
-			@Override
-			public String getURL()
-			{
-				return url.toExternalForm();
-			}
-			
-			@Override
-			public Namespace getNamespaceByPrefix(String prefix)
-			{
-				String uri = boundNamespaces.get(prefix);
-				return uri == null ? null
-					: namespaceManager.getNamespaceByURI(uri);
-			}
-		};
 	}
 	
 	private TemplateException raiseError(String message)
@@ -132,9 +109,9 @@ public class TemplateBuilderImpl
 		return this;
 	}
 
-	public void setContext(URL url, Class<?> context)
+	public void setContext(ResourceLocation source, Class<?> context)
 	{
-		this.url = url;
+		this.source = source;
 		this.context = context;
 	}
 	
@@ -416,7 +393,7 @@ public class TemplateBuilderImpl
 	@Override
 	public Content createDynamicContent(String expression)
 	{
-		Expression expr = expressions.compile(url, boundNamespaces, expression, context);
+		Expression expr = expressions.compile(source, boundNamespaces, expression, context);
 		return applyDebugHints(new ExpressionContent(expr));
 	}
 	
@@ -441,7 +418,7 @@ public class TemplateBuilderImpl
 	
 	private <T extends Content> T applyDebugHints(T object)
 	{
-		object.withDebugInfo(url.getPath(), line, column);
+		object.withDebugInfo(source, line, column);
 		line = 0;
 		column = 0;
 		return object;
@@ -454,7 +431,7 @@ public class TemplateBuilderImpl
 
 	public ParsedTemplate getTemplate()
 	{
-		return new ParsedTemplate(url.toString(), context.getSimpleName(), docType, root, id);
+		return new ParsedTemplate(source, context.getSimpleName(), docType, root, id);
 	}
 	
 	@Override
@@ -576,14 +553,14 @@ public class TemplateBuilderImpl
 		@Override
 		public Content parseExpression(String expression)
 		{
-			Expression expr = expressions.compile(url, boundNamespaces, expression, context);
+			Expression expr = expressions.compile(source, boundNamespaces, expression, context);
 			return new ExpressionContent(expr);
 		}
 		
 		@Override
 		public Content parseExpression(String expression, Object context)
 		{
-			Expression expr = expressions.compile(url, boundNamespaces, expression, expressions.resolveType(context));
+			Expression expr = expressions.compile(source, boundNamespaces, expression, expressions.resolveType(context));
 			return new ExpressionContentWithContext(expr, context);
 		}
 		

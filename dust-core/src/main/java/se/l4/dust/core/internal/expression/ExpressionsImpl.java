@@ -1,6 +1,5 @@
 package se.l4.dust.core.internal.expression;
 
-import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -9,6 +8,7 @@ import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.expression.ExpressionSource;
 import se.l4.dust.api.expression.Expressions;
+import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.core.internal.expression.ast.Node;
@@ -107,7 +107,7 @@ public class ExpressionsImpl
 	}
 
 	@Override
-	public Expression compile(URL source, Map<String, String> namespaces, String expression, Class<?> localContext)
+	public Expression compile(ResourceLocation source, Map<String, String> namespaces, String expression, Class<?> localContext)
 	{
 		Key key = new Key(expression, localContext);
 		Expression result = cachedExpressions.getIfPresent(key);

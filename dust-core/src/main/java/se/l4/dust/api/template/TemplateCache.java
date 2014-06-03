@@ -19,8 +19,10 @@ public interface TemplateCache
 	 * 
 	 * @param url
 	 * @return
+	 * @throws IOException 
 	 */
-	ParsedTemplate getTemplate(Context context, Class<?> dataContext, URL url);
+	ParsedTemplate getTemplate(Context context, Class<?> dataContext, URL url)
+		throws IOException;
 
 	/**
 	 * Get a template using the given class and annotation. If no annotation
@@ -31,6 +33,7 @@ public interface TemplateCache
 	 * @return
 	 * @throws IOException
 	 */
-	ParsedTemplate getTemplate(Context context, Class<?> dataContext, Template annotation) throws IOException;
+	ParsedTemplate getTemplate(Context context, Class<?> dataContext, Template annotation)
+		throws IOException;
 
 }

@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
@@ -43,10 +44,12 @@ public class AssetProvider
 		
 		context = new Context()
 		{
+			@Override
 			public void putValue(Object key, Object value)
 			{
 			}
 			
+			@Override
 			public <T> T getValue(Object key)
 			{
 				return null;
@@ -61,7 +64,7 @@ public class AssetProvider
 			@PathParam("version") String version, 
 			@PathParam("path") String path)
 	{
-		Object result = serve(prefix, version, path);
+		Object result = serve(prefix, version, path, null);
 		if(result instanceof Asset)
 		{
 			Asset asset = (Asset) result;
@@ -81,7 +84,8 @@ public class AssetProvider
 	public Object serve(
 			@PathParam("ns") String prefix, 
 			@PathParam("version") String version, 
-			@PathParam("path") String path)
+			@PathParam("path") String path,
+			@HeaderParam("If-Modified-Since") Date ifModifiedSince)
 	{
 		Namespace ns = namespaces.getNamespaceByPrefix(prefix);
 		if(ns == null)
@@ -112,6 +116,11 @@ public class AssetProvider
 		if(checksum != null && false == checksum.equals(a.getChecksum()))
 		{
 			return Response.status(404).build();
+		}
+		
+		if(ifModifiedSince != null && ifModifiedSince.getTime() > a.getResource().getLastModified())
+		{
+			return Response.status(304).build();
 		}
 		
 		return a;

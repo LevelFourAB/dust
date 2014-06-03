@@ -1,5 +1,6 @@
 package se.l4.dust.api.template.dom;
 
+import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.Emittable;
 
 public interface Content
@@ -10,7 +11,7 @@ public interface Content
 	 * 
 	 * @return
 	 */
-	String getDebugSource();
+	ResourceLocation getDebugSource();
 	
 	/**
 	 * Get the line where this content originated.
@@ -32,5 +33,5 @@ public interface Content
 	 * @param line
 	 * @param column
 	 */
-	void withDebugInfo(String source, int line, int column);
+	void withDebugInfo(ResourceLocation source, int line, int column);
 }

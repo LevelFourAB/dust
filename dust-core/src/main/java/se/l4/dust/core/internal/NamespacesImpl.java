@@ -1,5 +1,6 @@
 package se.l4.dust.core.internal;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -11,6 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.NamespacePlugin;
 import se.l4.dust.api.Namespaces;
+import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.Resources;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -26,6 +29,7 @@ public class NamespacesImpl
 	private final static SecureRandom random = new SecureRandom();
 	
 	private final Injector injector;
+	private final Resources resources;
 	
 	private final Map<String, Namespace> packages;
 	private final Map<String, Namespace> prefixes;
@@ -34,9 +38,10 @@ public class NamespacesImpl
 	private final List<Namespace> namespaces;
 	
 	@Inject
-	public NamespacesImpl(Injector injector)
+	public NamespacesImpl(Injector injector, Resources resources)
 	{
 		this.injector = injector;
+		this.resources = resources;
 		packages = new ConcurrentHashMap<String, Namespace>();
 		prefixes = new ConcurrentHashMap<String, Namespace>();
 		uris = new ConcurrentHashMap<String, Namespace>();
@@ -46,6 +51,7 @@ public class NamespacesImpl
 		bind("dust:common").add();
 	}
 	
+	@Override
 	public NamespaceBinder bind(String nsUri)
 	{
 		return new NamespaceBinderImpl(nsUri);
@@ -64,7 +70,7 @@ public class NamespacesImpl
 			ClassLoader loader,
 			List<NamespacePlugin> plugins)
 	{
-		Namespace ns = new NamespaceImpl(uri, prefix, pkg, version, resourceReference, loader);
+		Namespace ns = new NamespaceImpl(uri, prefix, pkg, version, resourceReference, loader, resources);
 		namespaces.add(ns);
 		uris.put(uri, ns);
 		
@@ -84,16 +90,19 @@ public class NamespacesImpl
 		}
 	}
 	
+	@Override
 	public boolean isBound(String ns)
 	{
 		return uris.containsKey(ns);
 	}
 	
+	@Override
 	public Namespace getBinding(String pkg)
 	{
 		return packages.get(pkg);
 	}
 	
+	@Override
 	public Namespace getNamespaceByPrefix(String prefix)
 	{
 		return prefixes.get(prefix);
@@ -129,6 +138,7 @@ public class NamespacesImpl
 			plugins = Lists.newArrayList();
 		}
 
+		@Override
 		public NamespaceBinder setPackage(String pkg)
 		{
 			if(loader != null)
@@ -141,11 +151,13 @@ public class NamespacesImpl
 			return this;
 		}
 
+		@Override
 		public NamespaceBinder setPackage(Package pkg)
 		{
 			return setPackage(pkg.getName());
 		}
 
+		@Override
 		public NamespaceBinder setPackageFromClass(Class<?> type)
 		{
 			loader = type.getClassLoader();
@@ -153,6 +165,7 @@ public class NamespacesImpl
 			return setPackage(type.getPackage());
 		}
 
+		@Override
 		public NamespaceBinder setVersion(String version)
 		{
 			this.version = version;
@@ -160,6 +173,7 @@ public class NamespacesImpl
 			return this;
 		}
 
+		@Override
 		public NamespaceBinder setPrefix(String prefix)
 		{
 			this.prefix = prefix;
@@ -183,6 +197,7 @@ public class NamespacesImpl
 			return this;
 		}
 
+		@Override
 		public void add()
 		{
 			if(version == null)
@@ -223,44 +238,53 @@ public class NamespacesImpl
 		private final String pkg;
 		private final String version;
 		private final Locator locator;
+		private final Resources resources;
 
-		public NamespaceImpl(String uri, String prefix, String pkg, String version, String resourceReference, ClassLoader loader)
+		public NamespaceImpl(String uri, String prefix, String pkg, String version, String resourceReference, ClassLoader loader, Resources resources)
 		{
 			this.uri = uri;
 			this.prefix = prefix;
 			this.pkg = pkg;
 			this.version = version;
+			this.resources = resources;
 			
 			locator = loader != null 
 				? new ClassLoaderLocator(loader, pkg, resourceReference)
 				: new FailingLocator(uri);
 		}
 
+		@Override
 		public String getPrefix()
 		{
 			return prefix;
 		}
 
+		@Override
 		public String getUri()
 		{
 			return uri;
 		}
 
+		@Override
 		public String getVersion()
 		{
 			return version;
 		}
 
-		public URL getResource(String resource)
+		@Override
+		public URL getClasspathResource(String resource)
 		{
 			return locator.locateResource(resource);
 		}
 		
-		public URI resolveResource(String resource)
+		@Override
+		public Resource getResource(String resource)
+			throws IOException
 		{
-			return locator.resolveResource(resource);
+			return resources.locate(uri, resource);
 		}
 		
+		@Override
 		public String getPackage()
 		{
 			return pkg;
@@ -317,6 +341,7 @@ public class NamespacesImpl
 			return reference.resolve(path);
 		}
 		
+		@Override
 		public URL locateResource(String path)
 		{
 			return loader.getResource(base + path);

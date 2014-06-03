@@ -13,7 +13,7 @@ import java.net.URLConnection;
  *
  */
 public class UrlResource
-	implements Resource
+	extends AbstractResource
 {
 	private final URL url;
 	private final String contentType;
@@ -21,9 +21,11 @@ public class UrlResource
 	private final String contentEncoding;
 	private final long lastModified;
 
-	public UrlResource(URL url)
+	public UrlResource(ResourceLocation location, URL url)
 		throws IOException
 	{
+		super(location);
+		
 		this.url = url;
 		
 		URLConnection conn = url.openConnection();
@@ -74,26 +76,31 @@ public class UrlResource
 		return contentType;
 	}
 
+	@Override
 	public String getContentType()
 	{
 		return contentType;
 	}
 	
+	@Override
 	public int getContentLength()
 	{
 		return contentLength;
 	}
 	
+	@Override
 	public String getContentEncoding()
 	{
 		return contentEncoding;
 	}
 	
+	@Override
 	public long getLastModified()
 	{
 		return lastModified;
 	}
 
+	@Override
 	public InputStream openStream()
 		throws IOException
 	{

@@ -1,16 +1,14 @@
 package se.l4.dust.api.template;
 
-import java.net.URI;
-
 import se.l4.dust.api.Namespace;
-import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.NamespacePlugin;
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.expression.ExpressionSource;
 import se.l4.dust.api.expression.Expressions;
 import se.l4.dust.api.messages.Messages;
 import se.l4.dust.core.internal.asset.AssetExpressionSource;
-import se.l4.dust.core.internal.messages.CustomMessageExpressionSource;
+import se.l4.dust.core.internal.messages.NamespaceMessagesExpressionSource;
 
 import com.google.inject.Injector;
 import com.google.inject.Stage;
@@ -73,11 +71,11 @@ public class TemplateNamespacePlugins
 			@Override
 			public void register(Injector injector, Namespace ns)
 			{
-				URI uri = ns.resolveResource(relativeFileWithoutExtension);
-				CustomMessageExpressionSource source = new CustomMessageExpressionSource(
+				NamespaceMessagesExpressionSource source = new NamespaceMessagesExpressionSource(
 					injector.getInstance(Stage.class),
 					injector.getInstance(Messages.class),
-					uri.toString()
+					ns,
+					relativeFileWithoutExtension
 				);
 				
 				injector.getInstance(Expressions.class).addSource(ns.getUri(), source);

@@ -6,8 +6,10 @@ import java.io.InputStream;
 import se.l4.dust.api.Context;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.Assets;
+import se.l4.dust.api.resource.AbstractResource;
 import se.l4.dust.api.resource.MergedResource;
 import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.ResourceLocation;
 
 
 /**
@@ -18,30 +20,34 @@ import se.l4.dust.api.resource.Resource;
  *
  */
 public class MergedAssetResource
-	implements Resource
+	extends AbstractResource
 {
 	private final Assets manager;
 	private final Asset[] assets;
 	private final Context context;
 
-	public MergedAssetResource(Assets manager, Context context, Asset... assets)
+	public MergedAssetResource(ResourceLocation location, Assets manager, Context context, Asset... assets)
 	{
+		super(location);
+		
 		this.manager = manager;
 		this.context = context;
 		this.assets = assets;
 	}
 	
+	@Override
 	public String getContentType()
 	{
 		return "unknown";
 	}
 
+	@Override
 	public int getContentLength()
 	{
 		int length = 0;
 		for(Asset asset : assets)
 		{
-			asset = manager.locate(context, asset.getNamespace(), asset.getName());
+			asset = manager.locate(context, asset.getNamespace().getUri(), asset.getName());
 			
 			length += asset.getResource().getContentLength();
 		}
@@ -49,11 +55,13 @@ public class MergedAssetResource
 		return length;
 	}
 
+	@Override
 	public String getContentEncoding()
 	{
 		return null;
 	}
 
+	@Override
 	public long getLastModified()
 	{
 		long last = 0;
@@ -65,6 +73,7 @@ public class MergedAssetResource
 		return last;
 	}
 
+	@Override
 	public InputStream openStream()
 		throws IOException
 	{

@@ -51,7 +51,10 @@ public class TemplateException
 		if(o instanceof Content)
 		{
 			Content c = (Content) o;
-			return withDebugInfo(c.getDebugSource(), c.getLine(), c.getColumn());
+			if(c.getDebugSource() != null)
+			{
+				return withDebugInfo(c.getDebugSource().toString(), c.getLine(), c.getColumn());
+			}
 		}
 		
 		return this;

@@ -1,5 +1,6 @@
 package se.l4.dust.api.asset;
 
+import se.l4.dust.api.Namespace;
 import se.l4.dust.api.resource.Resource;
 
 /**
@@ -17,7 +18,7 @@ public interface Asset
 	 * 
 	 * @return
 	 */
-	String getNamespace();
+	Namespace getNamespace();
 	
 	/**
 	 * Get the name of the asset, should be unique within the namespace.

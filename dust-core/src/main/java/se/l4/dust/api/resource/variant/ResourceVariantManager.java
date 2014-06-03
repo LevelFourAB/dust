@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.List;
 
 import se.l4.dust.api.Context;
+import se.l4.dust.api.resource.ResourceLocation;
+
+import com.google.common.base.Supplier;
 
 /**
  * Manager for working with resource variants.
@@ -13,29 +16,6 @@ import se.l4.dust.api.Context;
  */
 public interface ResourceVariantManager
 {
-	interface ResourceCallback
-	{
-		boolean exists(ResourceVariant variant, String url)
-			throws IOException;
-	}
-	
-	interface Result
-	{
-		/**
-		 * Get the URL of the variant.
-		 * 
-		 * @return
-		 */
-		String getUrl();
-		
-		/**
-		 * Get the {@link ResourceVariant} that is active.
-		 * 
-		 * @return
-		 */
-		ResourceVariant getVariant();
-	}
-	
 	/**
 	 * Add a new source of variants.
 	 * 
@@ -72,12 +52,11 @@ public interface ResourceVariantManager
 	 * given context.
 	 * 
 	 * @param context
-	 * @param callback
-	 * @param original
+	 * @param location
 	 * @return
 	 * @throws IOException 
 	 */
-	Result resolve(Context context, ResourceCallback callback, String original)
+	ResourceVariantResolution resolve(Context context, ResourceLocation location)
 		throws IOException;
 	
 	/**
@@ -85,35 +64,32 @@ public interface ResourceVariantManager
 	 * given context.
 	 * 
 	 * @param context
-	 * @param callback
-	 * @param original
+	 * @param location
 	 * @return
 	 * @throws IOException 
 	 */
-	Result resolveNoCache(Context context, ResourceCallback callback, String original)
+	ResourceVariantResolution resolveNoCache(Context context, ResourceLocation location)
 		throws IOException;
 	
 	/**
-	 * Try creating a more specific URL based on the given variant.
+	 * Create a new combined resource. This method will resolve a combined
+	 * {@link ResourceVariant} and the returned result will reflect the
+	 * actual name of the resource.
 	 * 
-	 * @param context
-	 * @param callback
-	 * @param original
+	 * @param result
+	 * @param location
 	 * @return
-	 * @throws IOException 
 	 */
-	String resolve(ResourceVariant variant, ResourceCallback callback, String original)
-		throws IOException;
+	ResourceVariantResolution createCombined(List<ResourceVariantResolution> result, ResourceLocation location);
 	
 	/**
-	 * Resolve the real variant that was used for the specified resource.
+	 * Create a new combined resource. This method will resolve a combined
+	 * {@link ResourceVariant} and the returned result will reflect the
+	 * actual name of the resource.
 	 * 
-	 * @param context
-	 * @param callback
-	 * @param original
+	 * @param result
+	 * @param location
 	 * @return
-	 * @throws IOException 
 	 */
-	ResourceVariant resolveRealVariant(ResourceVariant variant, ResourceCallback callback, String original)
-		throws IOException;
+	ResourceVariantResolution createCombined(Context context, ResourceLocation location, Supplier<List<ResourceVariantResolution>> resultSupplier);
 }

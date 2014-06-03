@@ -1,6 +1,6 @@
 package se.l4.dust.api.expression;
 
-import java.net.URL;
+import se.l4.dust.api.resource.ResourceLocation;
 
 
 /**
@@ -11,7 +11,12 @@ import java.net.URL;
  */
 public interface ExpressionEncounter
 {
-	URL getSource();
+	/**
+	 * Get the source of this expression.
+	 * 
+	 * @return
+	 */
+	ResourceLocation getSource();
 	
 	/**
 	 * Get if this is the root context.

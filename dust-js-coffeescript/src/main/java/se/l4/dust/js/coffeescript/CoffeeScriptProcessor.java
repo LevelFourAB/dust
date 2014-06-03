@@ -23,16 +23,10 @@ public class CoffeeScriptProcessor
 {
 	private static final String EXTENSION = ".coffee";
 
+	@Override
 	public void process(AssetEncounter encounter)
 		throws IOException
 	{
-		String path = encounter.getPath();
-		if(path.endsWith(EXTENSION))
-		{
-			// Rewrite path to end with .js
-			path = path.substring(0, path.length() - EXTENSION.length()) + ".js";
-		}
-		
 		Resource cached = encounter.getCached("coffeescript");
 		if(cached != null)
 		{
@@ -70,8 +64,7 @@ public class CoffeeScriptProcessor
 			MemoryResource res = new MemoryResource("text/javascript", "UTF-8", ((String) result).getBytes("UTF-8"));
 			encounter
 				.cache("coffeescript", res)
-				.replaceWith(res)
-				.rename(path);
+				.replaceWith(res);
 		}
 		catch(JavaScriptException e)
 		{

@@ -5,13 +5,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
@@ -49,6 +47,7 @@ public class AssetWriter
 		maxAge = c.getTimeInMillis() - time;
 	}
 	
+	@Override
 	public long getSize(Asset t, Class<?> type, Type genericType,
 			Annotation[] annotations, MediaType mediaType)
 	{
@@ -56,12 +55,14 @@ public class AssetWriter
 		return resource.getContentLength();
 	}
 
+	@Override
 	public boolean isWriteable(Class<?> type, Type genericType,
 			Annotation[] annotations, MediaType mediaType)
 	{
 		return Asset.class.isAssignableFrom(type);
 	}
 
+	@Override
 	public void writeTo(Asset t, Class<?> type, Type genericType,
 			Annotation[] annotations, MediaType mediaType,
 			MultivaluedMap<String, Object> httpHeaders,

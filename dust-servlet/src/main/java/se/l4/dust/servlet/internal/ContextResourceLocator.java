@@ -8,6 +8,7 @@ import javax.servlet.ServletContext;
 
 import se.l4.dust.Dust;
 import se.l4.dust.api.Namespaces;
+import se.l4.dust.api.resource.NamespaceLocation;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.ResourceLocator;
 import se.l4.dust.api.resource.UrlResource;
@@ -15,7 +16,6 @@ import se.l4.dust.api.template.TemplateException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 
 /**
  * Asset source that works on the {@link ServletContext}.
@@ -37,6 +37,7 @@ public class ContextResourceLocator
 		this.namespaces = namespaces;
 	}
 	
+	@Override
 	public Resource locate(String ns, String pathToFile)
 		throws IOException
 	{
@@ -51,7 +52,7 @@ public class ContextResourceLocator
 			{
 				URL url = ctx.get().getResource("/" + pathToFile);
 				
-				return url == null ? null : new UrlResource(url) ;
+				return url == null ? null : new UrlResource(new NamespaceLocation(namespaces.getNamespaceByURI(ns), pathToFile), url) ;
 			}
 			catch(MalformedURLException e)
 			{

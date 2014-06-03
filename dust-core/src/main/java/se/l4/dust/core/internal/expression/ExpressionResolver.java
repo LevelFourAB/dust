@@ -3,7 +3,6 @@ package se.l4.dust.core.internal.expression;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +14,7 @@ import se.l4.dust.api.expression.DynamicProperty;
 import se.l4.dust.api.expression.ExpressionEncounter;
 import se.l4.dust.api.expression.ExpressionException;
 import se.l4.dust.api.expression.ExpressionSource;
+import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.Expose;
 import se.l4.dust.core.internal.expression.ast.AddNode;
 import se.l4.dust.core.internal.expression.ast.AndNode;
@@ -90,7 +90,7 @@ public class ExpressionResolver
 	
 	private final ExpressionsImpl expressions;
 	private final Map<String, String> namespaces;
-	private final URL url;
+	private final ResourceLocation source;
 	
 	private TypeResolver typeResolver;
 	private MemberResolver memberResolver;
@@ -98,14 +98,14 @@ public class ExpressionResolver
 	public ExpressionResolver(
 			TypeConverter converter, 
 			ExpressionsImpl expressions,
-			URL url,
+			ResourceLocation source,
 			Map<String, String> namespaces,
 			ErrorHandler errors, 
 			Node root)
 	{
 		this.converter = converter;
 		this.expressions = expressions;
-		this.url = url;
+		this.source = source;
 		this.namespaces = namespaces;
 		this.errors = errors;
 		this.root = root;
@@ -850,9 +850,9 @@ public class ExpressionResolver
 		}
 		
 		@Override
-		public URL getSource()
+		public ResourceLocation getSource()
 		{
-			return url;
+			return source;
 		}
 		
 		public int getLevel()

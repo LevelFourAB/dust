@@ -1,5 +1,7 @@
 package se.l4.dust.api.template.dom;
 
+import se.l4.dust.api.resource.ResourceLocation;
+
 
 /**
  * Template root. This class contains information about the full template,
@@ -10,15 +12,15 @@ package se.l4.dust.api.template.dom;
  */
 public class ParsedTemplate
 {
-	private final String url;
+	private final ResourceLocation location;
 	private final String name;
 	private final DocType doctype;
 	private final Element root;
 	private final Integer id;
 
-	public ParsedTemplate(String url, String name, DocType doctype, Element root, Integer id)
+	public ParsedTemplate(ResourceLocation location, String name, DocType doctype, Element root, Integer id)
 	{
-		this.url = url;
+		this.location = location;
 		this.name = name;
 		this.doctype = doctype;
 		this.root = root;
@@ -55,8 +57,8 @@ public class ParsedTemplate
 		return id;
 	}
 	
-	public String getUrl()
+	public ResourceLocation getLocation()
 	{
-		return url;
+		return location;
 	}
 }

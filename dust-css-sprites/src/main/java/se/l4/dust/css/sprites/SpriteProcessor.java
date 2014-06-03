@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetEncounter;
-import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.asset.AssetProcessor;
+import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.resource.MemoryResource;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.template.DefaultRenderingContext;
@@ -60,11 +60,12 @@ public class SpriteProcessor
 		this.contexts = contexts;
 	}
 	
+	@Override
 	public void process(AssetEncounter encounter)
 		throws IOException
 	{
 		String path = encounter.getPath();
-		String namespace = encounter.getNamepace();
+		String namespace = encounter.getNamespace().getUri();
 		logger.info("Processing sprites in file " + path + " found in " + namespace);
 		
 		List<String> cssFiles = new LinkedList<String>();
@@ -85,6 +86,7 @@ public class SpriteProcessor
 		MessageLog log = new MessageLog(
 			new MessageSink()
 			{
+				@Override
 				public void add(Message message)
 				{
 					MessageLevel level = message.level;
@@ -196,6 +198,7 @@ public class SpriteProcessor
 			output = new HashMap<String, ByteArrayOutputStream>();
 		}
 		
+		@Override
 		public InputStream getResourceAsInputStream(String path)
 				throws IOException
 		{
@@ -208,6 +211,7 @@ public class SpriteProcessor
 			return asset.getResource().openStream();
 		}
 
+		@Override
 		public OutputStream getResourceAsOutputStream(final String path)
 				throws IOException
 		{
@@ -217,6 +221,7 @@ public class SpriteProcessor
 			return out;
 		}
 
+		@Override
 		public Reader getResourceAsReader(String path) throws IOException
 		{
 			if(cssPath.equals(path))
@@ -227,11 +232,13 @@ public class SpriteProcessor
 			return null;
 		}
 
+		@Override
 		public Writer getResourceAsWriter(String path) throws IOException
 		{
 			return new OutputStreamWriter(getResourceAsOutputStream(path));
 		}
 
+		@Override
 		public String getResourcePath(String cssFilePath, String cssRelativePath)
 		{
 			if(cssRelativePath.startsWith("/"))

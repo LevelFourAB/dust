@@ -3,6 +3,7 @@ package se.l4.dust.api.template.spi;
 import java.util.ArrayList;
 import java.util.List;
 
+import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.TemplateException;
 
 /**
@@ -15,17 +16,17 @@ import se.l4.dust.api.template.TemplateException;
 public class ErrorCollector
 {
 	private final List<String> errors;
-	private final String name;
+	private final ResourceLocation source;
 	
-	public ErrorCollector(String name)
+	public ErrorCollector(ResourceLocation source)
 	{
-		this.name = name;
+		this.source = source;
 		errors = new ArrayList<String>();
 	}
 	
-	public String getName()
+	public ResourceLocation getSource()
 	{
-		return name;
+		return source;
 	}
 	
 	public void newError(int line, int column, String error, Object... params)
@@ -49,7 +50,7 @@ public class ErrorCollector
 	public TemplateException raiseException()
 	{
 		StringBuilder builder = new StringBuilder();
-		builder.append(name + ":\n The template could not be processed:");
+		builder.append(source + ":\n The template could not be processed:");
 		for(String error : errors)
 		{
 			builder

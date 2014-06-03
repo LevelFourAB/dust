@@ -1,7 +1,8 @@
 package se.l4.dust.api.expression;
 
-import java.net.URL;
 import java.util.Map;
+
+import se.l4.dust.api.resource.ResourceLocation;
 
 
 /**
@@ -28,7 +29,7 @@ public interface Expressions
 	 * @param context
 	 * @return
 	 */
-	Expression compile(URL sourceUrl, Map<String, String> namespaces, String expression, Class<?> localContext);
+	Expression compile(ResourceLocation source, Map<String, String> namespaces, String expression, Class<?> localContext);
 
 	/**
 	 * Resolve a suitable type for the given object.

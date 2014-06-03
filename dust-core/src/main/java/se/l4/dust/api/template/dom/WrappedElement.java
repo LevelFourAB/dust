@@ -2,6 +2,7 @@ package se.l4.dust.api.template.dom;
 
 import java.io.IOException;
 
+import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.mixin.ElementWrapper;
@@ -36,7 +37,7 @@ public class WrappedElement
 	}
 	
 	@Override
-	public String getDebugSource()
+	public ResourceLocation getDebugSource()
 	{
 		return element.getDebugSource();
 	}
@@ -54,7 +55,7 @@ public class WrappedElement
 	}
 	
 	@Override
-	public void withDebugInfo(String source, int line, int column)
+	public void withDebugInfo(ResourceLocation source, int line, int column)
 	{
 	}
 	

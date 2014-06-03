@@ -1,6 +1,7 @@
 package se.l4.dust.api.messages;
 
 import se.l4.dust.api.Context;
+import se.l4.dust.api.resource.ResourceLocation;
 
 /**
  * Manager of {@link MessageCollection messages}.
@@ -11,22 +12,13 @@ import se.l4.dust.api.Context;
 public interface Messages
 {
 	/**
-	 * Get the messages for the given URL and context.
+	 * Get the messages for the given location and context.
 	 * 
 	 * @param context
 	 * @param url
 	 * @return
 	 */
-	MessageCollection getMessages(Context context, String url);
-	
-	/**
-	 * Get messages for the given type and context.
-	 * 
-	 * @param context
-	 * @param type
-	 * @return
-	 */
-	MessageCollection getMessages(Context context, Class<?> type);
+	MessageCollection getMessages(Context context, ResourceLocation location);
 	
 	/**
 	 * Add a new source to the manager.

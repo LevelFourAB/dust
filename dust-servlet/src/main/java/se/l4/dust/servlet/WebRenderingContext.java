@@ -54,16 +54,10 @@ public class WebRenderingContext
 	
 	private URI resolveAsset(Asset asset)
 	{
-		String ns = asset.getNamespace();
+		Namespace ns = asset.getNamespace();
 		if(ns != null)
 		{
-			Namespace nns = namespaceManager.getNamespaceByURI(ns);
-			if(nns == null)
-			{
-				throw new RuntimeException("Namespace " + ns + " is not bound to NamespaceManager");
-			}
-			
-			String prefix = nns.getPrefix();
+			String prefix = ns.getPrefix();
 			String name = asset.getName();
 			if(asset.isProtected())
 			{
@@ -74,7 +68,7 @@ public class WebRenderingContext
 				name = name.substring(0, idx) + "." + checksum + "." + extension; 
 			}
 			
-			String version = nns.getVersion();
+			String version = ns.getVersion();
 			
 			return URI.create("/asset/" + prefix + "/" + version + "/" + name);
 		}

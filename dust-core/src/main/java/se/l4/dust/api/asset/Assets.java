@@ -5,7 +5,6 @@ import javax.xml.stream.events.Namespace;
 import se.l4.dust.api.Context;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.resource.Resource;
-import se.l4.dust.api.resource.ResourceLocator;
 import se.l4.dust.api.resource.Resources;
 
 /**
@@ -136,36 +135,6 @@ public interface Assets
 	void addTemporaryAsset(String ns, String path, Resource resource);
 	
 	/**
-	 * Define that assets in the given namespace matching the regular expression
-	 * should be processed by the given classes before being used.
-	 * 
-	 * <p>
-	 * Examples:
-	 * <pre>
-	 * // To process all CSS files in the given namespace
-	 * processAssets(ns, ".*\\.css", CssProcessor.class);
-	 * 
-	 * // To process a specific file
-	 * processAssets(ns, "logo.png", ImageScaler.class);
-	 * </pre>
-	 * 
-	 * <p>
-	 * Processing is only done once for every asset.
-	 *  
-	 * @param processor
-	 */
-	void processAssets(String namespace, String filter, Class<? extends AssetProcessor> processor);
-	
-	/**
-	 * Define that assets in the given namespace matching the regular expression
-	 * should be processed by the given classes before being used. See
-	 * documentation for {@link #processAssets(String, String, Class)}.
-	 * 
-	 * @param processor
-	 */
-	void processAssets(String namespace, String filter, AssetProcessor processor);
-	
-	/**
 	 * Start building a custom combined asset. Combined assets are special in
 	 * that they combine several files into a single one. This can be used
 	 * to combined CSS or JavaScript files at runtime to reduce the number
@@ -175,13 +144,5 @@ public interface Assets
 	 * @param pathToFile
 	 * @return
 	 */
-	AssetBuilder addAsset(String namespace, String pathToFile);
-	
-	/**
-	 * Add a new default processor for a certain file extension.
-	 * 
-	 * @param extension
-	 * @param processor
-	 */
-	void addExtensionProcessor(String extension, AssetProcessor processor);
+	AssetBuilder define(String namespace, String pathToFile);
 }

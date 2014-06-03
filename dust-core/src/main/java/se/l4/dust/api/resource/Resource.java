@@ -12,6 +12,13 @@ import java.io.InputStream;
 public interface Resource
 {
 	/**
+	 * Get the location of this resource.
+	 * 
+	 * @return
+	 */
+	ResourceLocation getLocation();
+	
+	/**
 	 * Get the content type of the resource, {@code null} if unknown. 
 	 * 
 	 * @return

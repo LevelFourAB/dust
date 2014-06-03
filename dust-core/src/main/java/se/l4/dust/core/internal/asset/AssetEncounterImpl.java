@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import se.l4.dust.api.Namespace;
-import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.AssetCache;
 import se.l4.dust.api.asset.AssetEncounter;
 import se.l4.dust.api.asset.AssetException;
+import se.l4.dust.api.resource.MemoryLocation;
 import se.l4.dust.api.resource.Resource;
 
 import com.google.common.hash.Hasher;
@@ -23,27 +23,23 @@ import com.google.common.io.Closeables;
 public class AssetEncounterImpl
 	implements AssetEncounter
 {
-	private final Namespaces namespaces;
 	private final boolean production;
 	private final Resource in;
-	private final String namespace;
+	private final Namespace namespace;
 	private final String path;
 	
 	private final AssetCache cache;
 	private String cacheKey;
 	
 	private Resource replacedWith;
-	private String renamedTo;
 
 	public AssetEncounterImpl(
-			Namespaces namespaces, 
 			boolean production,
 			Resource in, 
-			String namespace, 
+			Namespace namespace, 
 			String path,
 			AssetCache cache)
 	{
-		this.namespaces = namespaces;
 		this.production = production;
 		this.in = in;
 		this.namespace = namespace;
@@ -58,15 +54,9 @@ public class AssetEncounterImpl
 	}
 
 	@Override
-	public String getNamepace()
+	public Namespace getNamespace()
 	{
 		return namespace;
-	}
-
-	@Override
-	public Namespace getNamespaceObject()
-	{
-		return namespaces.getNamespaceByURI(namespace);
 	}
 
 	@Override
@@ -89,14 +79,6 @@ public class AssetEncounterImpl
 		return this;
 	}
 
-	@Override
-	public AssetEncounter rename(String name)
-	{
-		renamedTo = name;
-		
-		return this;
-	}
-	
 	@Override
 	public AssetEncounter cache(String id, Resource resource)
 	{
@@ -124,7 +106,7 @@ public class AssetEncounterImpl
 		try
 		{
 			CacheFormat format = CacheFormat.fromCachedStream(cache, cacheKey);
-			return format == null ? null : new CachedResource(format);
+			return format == null ? null : new CachedResource(new MemoryLocation(""), format);
 		}
 		catch(IOException e)
 		{
@@ -163,16 +145,6 @@ public class AssetEncounterImpl
 		return replacedWith;
 	}
 	
-	public String getRenamedTo()
-	{
-		return renamedTo;
-	}
-
-	public boolean isRenamed()
-	{
-		return renamedTo != null;
-	}
-
 	public boolean isReplaced()
 	{
 		return replacedWith != null;
