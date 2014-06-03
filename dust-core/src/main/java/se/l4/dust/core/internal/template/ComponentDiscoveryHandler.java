@@ -2,12 +2,8 @@ package se.l4.dust.core.internal.template;
 
 import java.util.Collection;
 
-import javax.print.attribute.standard.Copies;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.inject.Inject;
 
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.discovery.DiscoveryEncounter;
@@ -16,6 +12,8 @@ import se.l4.dust.api.template.Component;
 import se.l4.dust.api.template.ComponentOverride;
 import se.l4.dust.api.template.Templates;
 import se.l4.dust.api.template.Templates.TemplateNamespace;
+
+import com.google.inject.Inject;
 
 /**
  * Handler that registers components annotated with {@link Component}.
@@ -52,7 +50,6 @@ public class ComponentDiscoveryHandler
 		components = encounter.getAnnotatedWith(ComponentOverride.class);
 		for(Class<?> c : components)
 		{
-			System.out.println(c);
 			ComponentOverride co = c.getAnnotation(ComponentOverride.class);
 			ts.addComponentOverride(co.namespace(), co.component(), c);
 		}

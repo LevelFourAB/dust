@@ -508,7 +508,6 @@ public class AssetsImpl
 				@Override
 				public Resource apply(Resource input)
 				{
-					System.out.println("Processing");
 					try
 					{
 						return process0(input, processors);
@@ -580,8 +579,6 @@ public class AssetsImpl
 		{
 			Resource resource = original.get();
 			maybeReload(resource);
-			
-			System.out.println(resource.getLocation() + " " + resource.getLastModified() + " < " + current.getLastModified());
 			
 			if(first || resource.getLastModified() > current.getLastModified())
 			{
