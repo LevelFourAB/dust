@@ -332,6 +332,10 @@ public class AssetsImpl
 			{
 				throw new AssetException("Unable to locate suitable variant of " + path + " in " + namespace);
 			}
+			catch(AssetException e)
+			{
+				throw e.withLocation(new NamespaceLocation(namespace, path));
+			}
 		}
 		
 		private Asset handleBuiltAsset(final Context context, final String path)
@@ -365,7 +369,7 @@ public class AssetsImpl
 			Resource resource = builtAssetLocator.locate(namespace.getUri(), result.getName());
 			if(resource == null)
 			{
-				processAndRegister(result.getName(), result.getResource(), builtAssets.get(path).processors);
+				resource = processAndRegister(result.getName(), result.getResource(), builtAssets.get(path).processors);
 			}
 			
 			return createAsset(result.getName(), resource);
@@ -376,33 +380,41 @@ public class AssetsImpl
 			return resource;
 		}
 		
-		protected void processAndRegister(String pathToFile, Resource resource, List<Provider<? extends AssetProcessor>> processors)
+		protected Resource processAndRegister(String pathToFile, Resource resource, List<Provider<? extends AssetProcessor>> processors)
 			throws IOException
 		{
 			resource = process(resource, processors);
 			builtAssetLocator.add(namespace.getUri(), pathToFile, resource);
+			return resource;
 		}
 		
 		protected Resource process(Resource in, List<Provider<? extends AssetProcessor>> processors)
 			throws IOException
 		{
-			String name = in.getLocation().getName();
-			Resource current = in;
-			
-			for(Provider<? extends AssetProcessor> provider : processors)
+			try
 			{
-				AssetEncounterImpl encounter = new AssetEncounterImpl(production, current, namespace, name, assetCache);
+				String name = in.getLocation().getName();
+				Resource current = in;
 				
-				AssetProcessor processor = provider.get();
-				processor.process(encounter);
-				
-				if(encounter.isReplaced())
+				for(Provider<? extends AssetProcessor> provider : processors)
 				{
-					current = encounter.getReplacedWith();
+					AssetEncounterImpl encounter = new AssetEncounterImpl(production, current, namespace, name, assetCache);
+					
+					AssetProcessor processor = provider.get();
+					processor.process(encounter);
+					
+					if(encounter.isReplaced())
+					{
+						current = encounter.getReplacedWith();
+					}
 				}
+				
+				return current;
 			}
-			
-			return current;
+			catch(AssetException e)
+			{
+				throw e.withLocation(in.getLocation());
+			}
 		}
 		
 		public Asset createAsset(String name, Resource resource)
@@ -451,7 +463,11 @@ public class AssetsImpl
 		@Override
 		protected Resource wrapResource(final Resource resource)
 		{
-			if(resource instanceof ReloadingResource)
+			if(resource == null)
+			{
+				throw new AssetException("The asset could not be found");
+			}
+			else if(resource instanceof ReloadingResource)
 			{
 				return resource;
 			}
@@ -605,6 +621,12 @@ public class AssetsImpl
 					}
 				}
 			}
+		}
+		
+		@Override
+		public String toString()
+		{
+			return "Reloading{current=" + current + ", original=" + original + "}";
 		}
 	}
 	

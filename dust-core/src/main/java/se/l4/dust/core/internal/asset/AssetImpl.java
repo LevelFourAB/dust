@@ -33,11 +33,12 @@ public class AssetImpl
 		this.resource = resource;
 		this.protect = protect;
 		
-		this.checksum = resource == null ? null : getChecksum(resource);
+		this.checksum = protect ? createChecksum() : null;
 	}
 	
-	private String getChecksum(Resource resource)
+	private String createChecksum()
 	{
+		Resource resource = getResource();
 		try
 		{
 			byte[] digest = digest(resource);
