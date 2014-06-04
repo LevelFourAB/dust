@@ -213,7 +213,7 @@ public class TemplateCacheImpl
 		public ParsedTemplate getTemplate(Context context, Class<?> ctx, Resource resource)
 		{
 			Key key = new Key(ctx, resource.getLocation());
-			ParsedTemplate template = templates.getIfPresent(resource);
+			ParsedTemplate template = templates.getIfPresent(key);
 			if(template != null) return template;
 			
 			template = loadTemplate(ctx, resource);
@@ -283,24 +283,17 @@ public class TemplateCacheImpl
 		}
 	}
 	
-	private static class Key
+	public static class Key
 	{
 		private final Class<?> context;
 		private final ResourceLocation location;
-		private final Object[] extra;
 
 		public Key(Class<?> context, ResourceLocation location)
 		{
-			this(context, location, null);
-		}
-		
-		public Key(Class<?> context, ResourceLocation location, Object[] extra)
-		{
 			this.context = context;
 			this.location = location;
-			this.extra = extra;
 		}
-
+		
 		@Override
 		public int hashCode()
 		{
