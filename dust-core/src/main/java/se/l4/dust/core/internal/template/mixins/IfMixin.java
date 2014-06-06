@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 
 import se.l4.dust.api.conversion.NonGenericConversion;
 import se.l4.dust.api.conversion.TypeConverter;
-import se.l4.dust.api.template.dom.Element.Attribute;
+import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.mixin.MixinEncounter;

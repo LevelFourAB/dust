@@ -10,21 +10,19 @@ import java.util.Map;
 
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.Namespaces;
-import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.expression.Expressions;
 import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateBuilder;
-import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.Templates;
 import se.l4.dust.api.template.Templates.TemplateNamespace;
+import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.dom.Comment;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.DocType;
 import se.l4.dust.api.template.dom.Element;
-import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.dom.Text;
 import se.l4.dust.api.template.dom.WrappedElement;
@@ -36,7 +34,6 @@ import se.l4.dust.api.template.mixin.TemplateMixin;
 import se.l4.dust.api.template.spi.ErrorCollector;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 
 /**
  * Implementation of {@link TemplateBuilder}.
@@ -47,17 +44,13 @@ import com.google.inject.Injector;
 public class TemplateBuilderImpl
 	implements TemplateBuilder
 {
-	private final Injector injector;
 	private final Templates templates;
 	private final Namespaces namespaceManager;
-	
-	private final TemplateCache templateCache;
-	private final TypeConverter converter;
 	
 	private final Map<String, String> boundNamespaces;
 	private final Expressions expressions;
 	
-	private final LinkedList<Map<String, Element.Attribute>> mixinAttributes;
+	private final LinkedList<Map<String, Attribute>> mixinAttributes;
 	
 	private final Map<String, Object> values;
 	
@@ -74,24 +67,19 @@ public class TemplateBuilderImpl
 	private int column;
 
 	@Inject
-	public TemplateBuilderImpl(Injector injector, 
+	public TemplateBuilderImpl( 
 			Namespaces namespaceManager, 
 			Templates templates,
-			TemplateCache templateCache,
-			TypeConverter converter,
 			Expressions expressions)
 	{
-		this.injector = injector;
 		this.namespaceManager = namespaceManager;
 		this.templates = templates;
-		this.templateCache = templateCache;
-		this.converter = converter;
 		this.expressions = expressions;
 		this.id = templates.fetchTemplateId();
 		
 		values = new HashMap<String, Object>();
 		boundNamespaces = new HashMap<String, String>();
-		mixinAttributes = new LinkedList<Map<String, Element.Attribute>>();
+		mixinAttributes = new LinkedList<Map<String, Attribute>>();
 		
 		stack = new LinkedList<>();
 	}
@@ -179,7 +167,7 @@ public class TemplateBuilderImpl
 		}
 		
 		// Add mixin attributes to the stack
-		mixinAttributes.add(new LinkedHashMap<String, Element.Attribute>());
+		mixinAttributes.add(new LinkedHashMap<String, Attribute>());
 		
 		Element e = new Element(name, attributes);
 		applyDebugHints(e);
@@ -263,9 +251,10 @@ public class TemplateBuilderImpl
 	public TemplateBuilder startFragment(TemplateFragment fragment)
 	{
 		// Add mixin attributes to the stack
-		mixinAttributes.add(new LinkedHashMap<String, Element.Attribute>());
+		LinkedHashMap<String, Attribute> attributes = new LinkedHashMap<>();
+		mixinAttributes.add(attributes);
 				
-		Element emittable = new FragmentElement(fragment, hasCurrent() ? current() : null);
+		Element emittable = new FragmentElement(fragment, hasCurrent() ? current() : null, attributes);
 		
 		applyDebugHints(emittable);
 		
@@ -362,7 +351,7 @@ public class TemplateBuilderImpl
 				mixinAttributes.getLast()
 					.put(
 						uri + "|" + name.substring(idx+1), 
-						new Element.Attribute(name, value)
+						new Attribute(name, value)
 					);
 				
 				return this;
@@ -489,13 +478,13 @@ public class TemplateBuilderImpl
 		}
 
 		@Override
-		public Element.Attribute getAttribute(String namespace, String name)
+		public Attribute getAttribute(String namespace, String name)
 		{
 			return mixinAttributes.getLast().get(namespace + "|" + name);
 		}
 
 		@Override
-		public Element.Attribute getAttribute(String name)
+		public Attribute getAttribute(String name)
 		{
 			return current().getAttribute(name);
 		}
@@ -582,14 +571,18 @@ public class TemplateBuilderImpl
 	{
 		private final TemplateFragment fragment;
 		private final Element parent;
+		private final Map<String, Attribute> attributes;
 		private boolean replaced;
 
-		public FragmentElement(TemplateFragment fragment, Element parent)
+		public FragmentElement(TemplateFragment fragment,
+				Element parent,
+				Map<String, Attribute> attributes)
 		{
 			super("internal:fragment:" + fragment.getClass().getSimpleName());
 			
 			this.fragment = fragment;
 			this.parent = parent;
+			this.attributes = attributes;
 		}
 
 		public void apply(final TemplateBuilderImpl builder)
@@ -598,15 +591,13 @@ public class TemplateBuilderImpl
 			fragment.build(new FragmentEncounter()
 			{
 				@Override
-				public Element.Attribute getAttribute(String namespace, String name)
+				public Attribute getAttribute(String namespace, String name)
 				{
-					// TODO
-//					return self.getAttribute(namespace, name);
-					return null;
+					return attributes.get(namespace + '|' + name);
 				}
 
 				@Override
-				public Element.Attribute getAttribute(String name)
+				public Attribute getAttribute(String name)
 				{
 					return self.getAttribute(name);
 				}
@@ -623,13 +614,13 @@ public class TemplateBuilderImpl
 				}
 				
 				@Override
-				public Element findParameter(String name)
+				public Emittable findParameter(String name)
 				{
 					return self.getParameter(name);
 				}
 				
 				@Override
-				public void addParameter(String name, Element content)
+				public void addParameter(String name, Emittable content)
 				{
 					if(parent != null)
 					{
@@ -650,7 +641,7 @@ public class TemplateBuilderImpl
 				}
 				
 				@Override
-				public Element getScopedBody()
+				public Emittable getScopedBody()
 				{
 					return new EmittableContent(new DataContextSwitcher(builder.id, self.getRawContents()));
 				}

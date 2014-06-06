@@ -19,10 +19,9 @@ import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.TemplateParam;
-import se.l4.dust.api.template.dom.Content;
+import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.dom.DocType;
 import se.l4.dust.api.template.dom.Element;
-import se.l4.dust.api.template.dom.Element.Attribute;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.dom.WrappedElement;
 import se.l4.dust.api.template.fragment.FragmentEncounter;
@@ -93,10 +92,10 @@ public class ComponentTemplateFragment
 	private class ComponentEmittable
 		implements Emittable
 	{
-		private final Element scopedBody;
+		private final Emittable scopedBody;
 		private final Methods methods;
 
-		public ComponentEmittable(Methods methods, Element scopedBody)
+		public ComponentEmittable(Methods methods, Emittable scopedBody)
 		{
 			this.methods = methods;
 			this.scopedBody = scopedBody;
@@ -176,7 +175,7 @@ public class ComponentTemplateFragment
 				Object current = emitterImpl.getCurrentData();
 				Integer old = emitterImpl.switchData(template.getRawId(), root);
 				
-				Content content = scopedBody;
+				Emittable content = scopedBody;
 				Element element = content instanceof Element
 					? (Element) content
 					: (content instanceof WrappedElement ? ((WrappedElement) content).getElement() : null); 

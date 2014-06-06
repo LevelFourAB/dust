@@ -2,7 +2,7 @@ package se.l4.dust.api.template.fragment;
 
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateBuilder;
-import se.l4.dust.api.template.dom.Element;
+import se.l4.dust.api.template.dom.Attribute;
 
 /**
  * Information passed to {@link TemplateFragment} when it is encountered.
@@ -19,7 +19,7 @@ public interface FragmentEncounter
 	 * @param name
 	 * @return
 	 */
-	Element.Attribute getAttribute(String namespace, String name);
+	Attribute getAttribute(String namespace, String name);
 	
 	/**
 	 * Get a specific attribute from the current element.
@@ -27,7 +27,7 @@ public interface FragmentEncounter
 	 * @param name
 	 * @return
 	 */
-	Element.Attribute getAttribute(String name);
+	Attribute getAttribute(String name);
 	
 	/**
 	 * Get a specific attribute from the current element.
@@ -36,7 +36,7 @@ public interface FragmentEncounter
 	 * @param required
 	 * @return
 	 */
-	Element.Attribute getAttribute(String name, boolean required);
+	Attribute getAttribute(String name, boolean required);
 	
 	/**
 	 * Find a parameter with the given name.
@@ -44,7 +44,7 @@ public interface FragmentEncounter
 	 * @param name
 	 * @return
 	 */
-	Element findParameter(String name);
+	Emittable findParameter(String name);
 	
 	/**
 	 * Get content in the body of the fragment.
@@ -60,7 +60,7 @@ public interface FragmentEncounter
 	 * 
 	 * @return
 	 */
-	Element getScopedBody();
+	Emittable getScopedBody();
 	
 	/**
 	 * Get the template builder used for emitting fragment contents.
@@ -86,7 +86,7 @@ public interface FragmentEncounter
 	 * @param name
 	 * @param scopedBody
 	 */
-	void addParameter(String name, Element scopedBody);
+	void addParameter(String name, Emittable scopedBody);
 	
 	/**
 	 * Raise an error related to the processing of the fragment.

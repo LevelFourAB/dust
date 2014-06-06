@@ -14,7 +14,7 @@ import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.TemplateOutputStream;
-import se.l4.dust.api.template.dom.Element.Attribute;
+import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.fragment.FragmentEncounter;
 import se.l4.dust.api.template.fragment.TemplateFragment;
 

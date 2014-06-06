@@ -1,8 +1,7 @@
 package se.l4.dust.validation;
 
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.api.template.dom.Element;
-import se.l4.dust.api.template.dom.Element.Attribute;
+import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.mixin.MixinEncounter;
@@ -30,7 +29,7 @@ public class FieldMixin
 	{
 		private final Attribute field;
 
-		public Wrapper(Element.Attribute field)
+		public Wrapper(Attribute field)
 		{
 			this.field = field;
 		}

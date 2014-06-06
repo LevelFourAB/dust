@@ -6,8 +6,7 @@ import javax.validation.ConstraintViolation;
 
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateException;
-import se.l4.dust.api.template.dom.Element;
-import se.l4.dust.api.template.dom.Element.Attribute;
+import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.mixin.MixinEncounter;
@@ -37,7 +36,7 @@ public class ViolationsMixin
 	{
 		private final Attribute errors;
 
-		public Wrapper(Element.Attribute errors)
+		public Wrapper(Attribute errors)
 		{
 			this.errors = errors;
 		}

@@ -4,7 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import se.l4.dust.api.expression.ReflectiveExpressionSource;
-import se.l4.dust.api.template.dom.Element;
+import se.l4.dust.api.template.dom.Attribute;
 
 import com.google.inject.Inject;
 import com.google.inject.Stage;
@@ -27,13 +27,13 @@ public class CommonSource
 	@Property
 	public Object skip()
 	{
-		return Element.Attribute.ATTR_SKIP;
+		return Attribute.ATTR_SKIP;
 	}
 	
 	@Property
 	public Object emit()
 	{
-		return Element.Attribute.ATTR_EMIT;
+		return Attribute.ATTR_EMIT;
 	}
 	
 	@Method

@@ -230,7 +230,7 @@ public class TemplateCacheImpl
 			{
 				Throwables.propagateIfInstanceOf(e, TemplateException.class);
 				Throwables.propagateIfInstanceOf(e.getCause(), TemplateException.class);
-				throw new TemplateException("Unable to get url for " + ctx + "; " + e.getCause().getMessage(), e.getCause());
+				throw new TemplateException("Unable to get location for " + ctx + "; " + e.getCause().getMessage(), e.getCause());
 			}
 		}
 	}

@@ -6,8 +6,7 @@ import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateOutputStream;
-import se.l4.dust.api.template.dom.Element;
-import se.l4.dust.api.template.dom.Element.Attribute;
+import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.fragment.FragmentEncounter;
 import se.l4.dust.api.template.fragment.TemplateFragment;
 import se.l4.dust.core.internal.template.dom.TemplateEmitterImpl;
@@ -22,7 +21,7 @@ public class RawComponent
 	@Override
 	public void build(FragmentEncounter encounter)
 	{
-		final Element.Attribute attribute = encounter.getAttribute("value");
+		final Attribute attribute = encounter.getAttribute("value");
 		encounter.replaceWith(new Emittable()
 		{
 			@Override

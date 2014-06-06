@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import se.l4.dust.api.expression.ExpressionSource;
-import se.l4.dust.api.template.dom.Element;
+import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.core.internal.expression.model.Person;
 
 import com.google.inject.Stage;
@@ -28,15 +28,15 @@ public class CommonSourceTest
 	@Test
 	public void testEmit()
 	{
-		Assert.assertEquals(Element.Attribute.ATTR_EMIT, execute("t:emit", ""));
-		Assert.assertEquals(Element.Attribute.ATTR_EMIT, execute("true ? t:emit", ""));
+		Assert.assertEquals(Attribute.ATTR_EMIT, execute("t:emit", ""));
+		Assert.assertEquals(Attribute.ATTR_EMIT, execute("true ? t:emit", ""));
 	}
 	
 	@Test
 	public void testSkip()
 	{
-		Assert.assertEquals(Element.Attribute.ATTR_SKIP, execute("t:skip", ""));
-		Assert.assertEquals(Element.Attribute.ATTR_SKIP, execute("true ? t:skip", ""));
+		Assert.assertEquals(Attribute.ATTR_SKIP, execute("t:skip", ""));
+		Assert.assertEquals(Attribute.ATTR_SKIP, execute("true ? t:skip", ""));
 	}
 	
 	@Test

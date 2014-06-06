@@ -8,8 +8,7 @@ import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateOutputStream;
-import se.l4.dust.api.template.dom.Element;
-import se.l4.dust.api.template.dom.Element.Attribute;
+import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.fragment.FragmentEncounter;
 import se.l4.dust.api.template.fragment.TemplateFragment;
 
@@ -31,7 +30,7 @@ public class IfComponent
 	public void build(FragmentEncounter encounter)
 	{
 		Attribute test = encounter.getAttribute("test");
-		Element elseContents = encounter.findParameter("else");
+		Emittable elseContents = encounter.findParameter("else");
 		
 		NonGenericConversion<Object, Boolean> conversion = converter.getDynamicConversion(test.getValueType(), Boolean.class);
 		
@@ -44,10 +43,13 @@ public class IfComponent
 	{
 		private final Attribute test;
 		private final Conversion<Object, Boolean> conversion;
-		private final Element elseContents;
+		private final Emittable elseContents;
 		private final Emittable[] content;
 
-		public Component(Attribute test, Conversion<Object, Boolean> conversion, Element elseContents, Emittable[] content)
+		public Component(Attribute test,
+				Conversion<Object, Boolean> conversion,
+				Emittable elseContents,
+				Emittable[] content)
 		{
 			this.test = test;
 			this.conversion = conversion;

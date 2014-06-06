@@ -3,8 +3,8 @@ package se.l4.dust.api.template.mixin;
 import java.util.List;
 
 import se.l4.dust.api.template.Emittable;
+import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.dom.Content;
-import se.l4.dust.api.template.dom.Element;
 
 /**
  * Encounter for mixing during template parsing. The encounter is triggered
@@ -23,7 +23,7 @@ public interface MixinEncounter
 	 * @param name
 	 * @return
 	 */
-	Element.Attribute getAttribute(String namespace, String name);
+	Attribute getAttribute(String namespace, String name);
 	
 	/**
 	 * Get a specific attribute from the current element.
@@ -31,7 +31,7 @@ public interface MixinEncounter
 	 * @param name
 	 * @return
 	 */
-	Element.Attribute getAttribute(String name);
+	Attribute getAttribute(String name);
 	
 	/**
 	 * Bind an extra namespace for this encounter.

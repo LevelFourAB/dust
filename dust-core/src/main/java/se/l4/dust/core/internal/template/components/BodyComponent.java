@@ -5,6 +5,7 @@ import java.io.IOException;
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateOutputStream;
+import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.fragment.FragmentEncounter;
 import se.l4.dust.api.template.fragment.TemplateFragment;
@@ -20,7 +21,7 @@ public class BodyComponent
 	@Override
 	public void build(FragmentEncounter encounter)
 	{
-		Element.Attribute param = encounter.getAttribute("parameter");
+		Attribute param = encounter.getAttribute("parameter");
 		if(param == null)
 		{
 			encounter.replaceWith(new SimpleBodyEmitter());
@@ -70,7 +71,7 @@ public class BodyComponent
 			Element e = emitterImpl.getCurrentComponent();
 			if(e == null) return;
 			
-			Element param = e.getParameter(name);
+			Emittable param = e.getParameter(name);
 			if(param != null)
 			{
 				emitter.emit(e);

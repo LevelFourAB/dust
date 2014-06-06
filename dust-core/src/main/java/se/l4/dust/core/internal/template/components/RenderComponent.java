@@ -7,6 +7,7 @@ import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateOutputStream;
+import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.dom.DocType;
 import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.dom.ParsedTemplate;
@@ -30,7 +31,7 @@ public class RenderComponent
 	@Override
 	public void build(FragmentEncounter encounter)
 	{
-		final Element.Attribute attr = encounter.getAttribute("object");
+		final Attribute attr = encounter.getAttribute("object");
 		encounter.replaceWith(new Emittable()
 		{
 			@Override

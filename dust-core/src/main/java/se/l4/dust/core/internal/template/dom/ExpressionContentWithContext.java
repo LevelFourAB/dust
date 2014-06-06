@@ -2,9 +2,9 @@ package se.l4.dust.core.internal.template.dom;
 
 import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.template.RenderingContext;
+import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.DynamicContent;
-import se.l4.dust.api.template.dom.Element.Attribute;
 
 /**
  * Content that will use another {@link Content} to fetch its data.
