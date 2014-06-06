@@ -1,10 +1,10 @@
 package se.l4.dust.core.internal.template;
 
 import java.io.IOException;
-import java.net.URL;
 
 import se.l4.dust.api.Context;
 import se.l4.dust.api.Scopes;
+import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.Component;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.Template;
@@ -35,6 +35,7 @@ public class TemplateRendererImpl
 		this.cache = cache;
 	}
 	
+	@Override
 	public void render(RenderingContext ctx, ParsedTemplate template, Object data, TemplateOutputStream out)
 		throws IOException
 	{
@@ -51,6 +52,7 @@ public class TemplateRendererImpl
 		}
 	}
 	
+	@Override
 	public void render(RenderingContext ctx, Object data, TemplateOutputStream out)
 		throws IOException
 	{
@@ -60,12 +62,12 @@ public class TemplateRendererImpl
 			throw new IllegalArgumentException("Object of type " + c + " does not have a @" + Template.class.getSimpleName() + " annotation");
 		}
 		
-		ParsedTemplate tpl = cache.getTemplate(ctx, c, c.getAnnotation(Template.class));
+		ParsedTemplate tpl = cache.getTemplate(ctx, c);
 		render(ctx, tpl, data, out);
 	}
 	
-	public void render(RenderingContext ctx, Object data, URL template,
-			TemplateOutputStream out)
+	@Override
+	public void render(RenderingContext ctx, Object data, ResourceLocation template, TemplateOutputStream out)
 		throws IOException
 	{
 		Class<?> c = data.getClass();

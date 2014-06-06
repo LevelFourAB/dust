@@ -53,12 +53,14 @@ public class TemplateWriter
 		this.requests = requests;
 	}
 	
+	@Override
 	public long getSize(Object t, Class<?> type, Type genericType,
 			Annotation[] annotations, MediaType mediaType)
 	{
 		return -1;
 	}
 
+	@Override
 	public boolean isWriteable(Class<?> type, Type genericType,
 			Annotation[] annotations, MediaType mediaType)
 	{
@@ -83,6 +85,7 @@ public class TemplateWriter
 		return false;
 	}
 
+	@Override
 	public void writeTo(
 			Object t, 
 			Class<?> type, 
@@ -93,15 +96,13 @@ public class TemplateWriter
 			OutputStream entityStream) 
 		throws IOException, WebApplicationException
 	{
-		Template tpl = findAnnotation(annotations);
-		
 		RenderingContext context = (RenderingContext) ctx.get();
 		if(context instanceof WebRenderingContext)
 		{
 			((WebRenderingContext) context).setup(requests.get());
 		}
 		
-		ParsedTemplate template = cache.getTemplate(context, type, tpl);
+		ParsedTemplate template = cache.getTemplate(context, type);
 
 		// FIXME: Should we really do this?
 		httpHeaders.putSingle("Content-Type", "text/html; charset=utf-8");
@@ -114,18 +115,5 @@ public class TemplateWriter
 		TemplateOutputStream out = new HtmlTemplateOutput(entityStream);
 		renderer.render(context, template, t, out);
 		out.close();
-	}
-
-	private Template findAnnotation(Annotation[] annotations)
-	{
-		for(Annotation a : annotations)
-		{
-			if(a instanceof Template)
-			{
-				return (Template) a;
-			}
-		}
-		
-		return null;
 	}
 }

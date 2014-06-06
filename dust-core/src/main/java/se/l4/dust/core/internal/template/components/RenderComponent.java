@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.api.template.Template;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateOutputStream;
@@ -44,7 +43,7 @@ public class RenderComponent
 				Object root = attr.getValue(ctx, emitter.getCurrentData());
 				
 				// Process the template of the component 
-				ParsedTemplate template = cache.getTemplate(ctx, root.getClass(), (Template) null);
+				ParsedTemplate template = cache.getTemplate(ctx, root.getClass());
 				
 				// Switch to new context
 				Object current = emitter.getCurrentData();

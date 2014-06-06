@@ -115,6 +115,22 @@ public class NamespacesImpl
 	}
 	
 	@Override
+	public Namespace findNamespaceFor(Class<?> c)
+	{
+		String pkg = c.getPackage().getName();
+		while(true)
+		{
+			Namespace ns = packages.get(pkg);
+			if(ns != null) return ns;
+			
+			int idx = pkg.lastIndexOf('.');
+			if(idx == -1) return null;
+			
+			pkg = pkg.substring(0, idx);
+		}
+	}
+	
+	@Override
 	public Iterable<Namespace> list()
 	{
 		return namespaces;

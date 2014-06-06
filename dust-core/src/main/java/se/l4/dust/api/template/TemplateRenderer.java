@@ -1,8 +1,8 @@
 package se.l4.dust.api.template;
 
 import java.io.IOException;
-import java.net.URL;
 
+import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 
 /**
@@ -48,6 +48,6 @@ public interface TemplateRenderer
 	 * @param out
 	 * @throws IOException
 	 */
-	void render(RenderingContext ctx, Object data, URL template, TemplateOutputStream out)
+	void render(RenderingContext ctx, Object data, ResourceLocation template, TemplateOutputStream out)
 		throws IOException;
 }

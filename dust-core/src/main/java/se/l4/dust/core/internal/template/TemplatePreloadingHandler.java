@@ -41,13 +41,13 @@ public class TemplatePreloadingHandler
 			Collection<Class<?>> components = encounter.getAnnotatedWith(Component.class);
 			for(Class<?> c : components)
 			{
-				cache.getTemplate(context, c, c.getAnnotation(Template.class));
+				cache.getTemplate(context, c);
 			}
 			
 			Collection<Class<?>> templates = encounter.getAnnotatedWith(Template.class);
 			for(Class<?> c : templates)
 			{
-				cache.getTemplate(context, c, c.getAnnotation(Template.class));
+				cache.getTemplate(context, c);
 			}
 			
 			logger.debug("{}: Loaded {} templates", ns.getUri(), components.size() + templates.size());

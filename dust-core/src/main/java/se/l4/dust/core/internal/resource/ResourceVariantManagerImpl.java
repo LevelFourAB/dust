@@ -47,7 +47,7 @@ public class ResourceVariantManagerImpl
 {
 	private volatile ResourceVariantSource[] sources;
 	private final Lock sourceLock;
-	private final Map<Key, Value> cache;
+	private final Map<Key, ResourceVariantResolution> cache;
 	private ResourceCallback urlCallback;
 	
 	@Inject
@@ -56,7 +56,7 @@ public class ResourceVariantManagerImpl
 		sources = new ResourceVariantSource[0];
 		sourceLock = new ReentrantLock();
 		
-		cache = new ConcurrentHashMap<Key, Value>();
+		cache = new ConcurrentHashMap<>();
 		
 		urlCallback = new ResourceCallback()
 		{
@@ -172,12 +172,17 @@ public class ResourceVariantManagerImpl
 	@Override
 	public Object[] getCacheObject(Context context)
 	{
+		Object[] cached = context.getValue("dust:resourceVariant");
+		if(cached != null) return cached;
+		
 		ResourceVariantSource[] sources = this.sources;
 		Object[] values = new Object[sources.length];
 		for(int i=0, n=sources.length; i<n; i++)
 		{
 			values[i] = sources[i].getCacheValue(context);
 		}
+		
+		context.putValue("dust:resourceVariant", cached);
 		
 		return values;
 	}
@@ -212,43 +217,15 @@ public class ResourceVariantManagerImpl
 	public ResourceVariantResolution resolve(Context context, ResourceLocation location)
 		throws IOException
 	{
-		ResourceVariantSource[] sources = this.sources;
-		Object[] values = new Object[sources.length];
-		for(int i=0, n=sources.length; i<n; i++)
-		{
-			values[i] = sources[i].getCacheValue(context);
-		}
-		
-		Key key = new Key(location, values);
+		Key key = new Key(location, getCacheObject(context));
 		
 		// Check if this is cached
-		Value cached = cache.get(key);
+		ResourceVariantResolution cached = cache.get(key);
 		if(cached != null) return cached;
 		
-		String original = getInitialName(location);
-		ResourceCallback callback = getCallback(location);
-		
-		// Try different variants for the URL
-		int idx = original.lastIndexOf('.');
-		String extension = idx > 0 ? original.substring(idx) : "";
-		String firstPart = idx > 0 ? original.substring(0, idx) : original;
-		
-		for(ResourceVariant v : getVariants(context))
-		{
-			String variant = firstPart + "." + v.getIdentifier() + extension;
-			
-			if(callback.exists(v, variant))
-			{
-				// This URL exists, use it
-				Value result = new Value(callback.create(variant), variant, v);
-				cache.put(key, result);
-				return result;
-			}
-		}
-		
-		// No variant found, use original
-		Value result = new Value(callback.create(original), original, null);
+		ResourceVariantResolution result = resolveNoCache(context, location);
 		cache.put(key, result);
+		
 		return result;
 	}
 	
@@ -313,10 +290,10 @@ public class ResourceVariantManagerImpl
 	public ResourceVariantResolution createCombined(Context context, ResourceLocation location, Supplier<List<ResourceVariantResolution>> resultSupplier)
 	{
 		Key key = new Key(location, getCacheObject(context));
-		Value result = cache.get(key);
+		ResourceVariantResolution result = cache.get(key);
 		if(result != null) return result;
 
-		result = (Value) createCombined(resultSupplier.get(), location);
+		result = createCombined(resultSupplier.get(), location);
 		cache.put(key, result);
 		return result;
 	}

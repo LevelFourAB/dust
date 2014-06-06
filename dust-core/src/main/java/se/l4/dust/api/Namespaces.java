@@ -130,9 +130,18 @@ public interface Namespaces
 	Namespace getNamespaceByURI(String uri);
 
 	/**
+	 * Find the namespace (if any) that the given type belongs to.
+	 * 
+	 * @param c
+	 * @return
+	 */
+	Namespace findNamespaceFor(Class<?> c);
+	
+	/**
 	 * List all of the registered namespaces.
 	 * 
 	 * @return
 	 */
 	Iterable<Namespace> list();
+
 }

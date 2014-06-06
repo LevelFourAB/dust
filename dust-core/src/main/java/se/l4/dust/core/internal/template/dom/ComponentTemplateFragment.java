@@ -14,7 +14,6 @@ import se.l4.dust.api.template.AfterRender;
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.PrepareRender;
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.api.template.Template;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateException;
@@ -171,7 +170,7 @@ public class ComponentTemplateFragment
 				TemplateEmitterImpl emitterImpl = (TemplateEmitterImpl) emitter;
 				
 				// Process the template of the component 
-				ParsedTemplate template = cache.getTemplate(ctx, root.getClass(), (Template) null);
+				ParsedTemplate template = cache.getTemplate(ctx, root.getClass());
 				
 				// Switch to new context
 				Object current = emitterImpl.getCurrentData();

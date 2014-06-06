@@ -1,9 +1,9 @@
 package se.l4.dust.api.template;
 
 import java.io.IOException;
-import java.net.URL;
 
 import se.l4.dust.api.Context;
+import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 
 /**
@@ -15,25 +15,23 @@ import se.l4.dust.api.template.dom.ParsedTemplate;
 public interface TemplateCache
 {
 	/**
-	 * Get a parsed template for the given URL.
+	 * Get a parsed template for the given location.
 	 * 
 	 * @param url
 	 * @return
 	 * @throws IOException 
 	 */
-	ParsedTemplate getTemplate(Context context, Class<?> dataContext, URL url)
+	ParsedTemplate getTemplate(Context context, Class<?> dataContext, ResourceLocation location)
 		throws IOException;
-
+	
 	/**
-	 * Get a template using the given class and annotation. If no annotation
-	 * is present this will only use the class as a reference.
+	 * Get a parsed template for the given type.
 	 * 
-	 * @param c
-	 * @param annotation
+	 * @param context
+	 * @param type
 	 * @return
 	 * @throws IOException
 	 */
-	ParsedTemplate getTemplate(Context context, Class<?> dataContext, Template annotation)
+	ParsedTemplate getTemplate(Context context, Class<?> type)
 		throws IOException;
-
 }
