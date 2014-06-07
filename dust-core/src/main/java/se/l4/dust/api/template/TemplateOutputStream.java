@@ -34,6 +34,17 @@ public interface TemplateOutputStream
 	 * @param close
 	 * @throws IOException
 	 */
+	void startElement(String name, String[] attributes)
+		throws IOException;
+	
+	/**
+	 * Output a new element.
+	 * 
+	 * @param name
+	 * @param attributes
+	 * @param close
+	 * @throws IOException
+	 */
 	void startElement(String name, String[] attributes, boolean close)
 		throws IOException;
 		

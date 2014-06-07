@@ -76,28 +76,27 @@ public class TemplateEmitterImpl
 	}
 
 	@Override
-	public String[] createAttributes(Element element)
+	public String[] createAttributes(Attribute[] attributes)
 	{
-		return createAttributes(element, current);
+		return createAttributes(attributes, current);
 	}
 	
-	private String[] createAttributes(Element element, Object data)
+	private String[] createAttributes(Attribute[] attributes, Object data)
 	{
-		Attribute[] rawAttrs = element.getAttributes();
 		String[] attrs;
-		if(rawAttrs.length >= 10)
+		if(attributes.length >= 10)
 		{
-			attrs = new String[rawAttrs.length * 2];
+			attrs = new String[attributes.length * 2];
 		}
 		else
 		{
 			attrs = attrsCache;
-			attrs[rawAttrs.length * 2] = null;
+			attrs[attributes.length * 2] = null;
 		}
 		
-		for(int i=0, n=rawAttrs.length*2; i<n; i+=2)
+		for(int i=0, n=attributes.length*2; i<n; i+=2)
 		{
-			Attribute attr = rawAttrs[i/2];
+			Attribute attr = attributes[i/2];
 			attrs[i] = attr.getName();
 			attrs[i+1] = attr.getStringValue(ctx, data);
 		}

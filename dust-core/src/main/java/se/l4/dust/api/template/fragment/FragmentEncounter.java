@@ -1,7 +1,9 @@
 package se.l4.dust.api.template.fragment;
 
+import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateBuilder;
+import se.l4.dust.api.template.Value;
 import se.l4.dust.api.template.dom.Attribute;
 
 /**
@@ -13,6 +15,23 @@ import se.l4.dust.api.template.dom.Attribute;
 public interface FragmentEncounter
 {
 	/**
+	 * Get attributes as found in the template. These attributes will not
+	 * include attributes that belong to a namespace that is bound via
+	 * {@link Namespaces}. 
+	 * 
+	 * @return
+	 */
+	Attribute[] getAttributes();
+	
+	/**
+	 * Get attributes excluding certain ones.
+	 * 
+	 * @param names
+	 * @return
+	 */
+	Attribute[] getAttributesExcluding(String... names);
+	
+	/**
 	 * Get a specific attribute from the current element.
 	 * 
 	 * @param namespace
@@ -20,6 +39,17 @@ public interface FragmentEncounter
 	 * @return
 	 */
 	Attribute getAttribute(String namespace, String name);
+	
+	/**
+	 * Get a specific attribute from the current element and bind it to
+	 * handle a specific type.
+	 * 
+	 * @param namespace
+	 * @param name
+	 * @param type
+	 * @return
+	 */
+	<T> Value<T> getAttribute(String namespace, String name, Class<T> type);
 	
 	/**
 	 * Get a specific attribute from the current element.
@@ -30,6 +60,15 @@ public interface FragmentEncounter
 	Attribute getAttribute(String name);
 	
 	/**
+	 * Get a specific attribute and bind it to handle a specific type.
+	 * 
+	 * @param name
+	 * @param type
+	 * @return
+	 */
+	<T> Value<T> getAttribute(String name, Class<T> type);
+	
+	/**
 	 * Get a specific attribute from the current element.
 	 * 
 	 * @param name
@@ -37,6 +76,16 @@ public interface FragmentEncounter
 	 * @return
 	 */
 	Attribute getAttribute(String name, boolean required);
+	
+	/**
+	 * Get a specific attribute and bind it to handle a specific type.
+	 * 
+	 * @param name
+	 * @param type
+	 * @param required
+	 * @return
+	 */
+	<T> Value<T> getAttribute(String name, Class<T> type, boolean required);
 	
 	/**
 	 * Find a parameter with the given name.

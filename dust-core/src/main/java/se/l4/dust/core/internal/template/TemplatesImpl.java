@@ -62,6 +62,7 @@ public class TemplatesImpl
 			});
 	}
 	
+	@Override
 	public TemplateNamespace getNamespace(String nsUri)
 	{
 		try
@@ -121,15 +122,12 @@ public class TemplatesImpl
 				names = annotation.value();
 			}
 			
-			if(names != null && names.length > 0)
+			if(names == null || names.length == 0)
 			{
-				addComponent(component, names);
+				names = new String[] { component.getSimpleName() };
 			}
-			else
-			{
-				String name = component.getSimpleName();
-				addComponent(component, name);
-			}
+			
+			addComponent(component, names);
 			
 			return this;
 		}
@@ -137,7 +135,16 @@ public class TemplatesImpl
 		@Override
 		public TemplateNamespace addComponent(Class<?> component, String... names)
 		{
-			TemplateFragment fragment = new ComponentTemplateFragment(injector, component);
+			TemplateFragment fragment;
+			if(TemplateFragment.class.isAssignableFrom(component))
+			{
+				fragment = (TemplateFragment) injector.getInstance(component);
+			}
+			else
+			{
+				fragment = new ComponentTemplateFragment(injector, component);
+			}
+			
 			for(String name : names)
 			{
 				fragments.put(name.toLowerCase(), fragment);
@@ -191,6 +198,7 @@ public class TemplatesImpl
 			return false;
 		}
 		
+		@Override
 		public String getComponentName(Class<?> component)
 		{
 			Component annotation = component.getAnnotation(Component.class);

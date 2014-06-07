@@ -41,7 +41,7 @@ public class RenderComponent
 				TemplateEmitterImpl emitter = (TemplateEmitterImpl) emitter_;
 				RenderingContext ctx = emitter.getContext();
 				
-				Object root = attr.getValue(ctx, emitter.getCurrentData());
+				Object root = attr.get(ctx, emitter.getCurrentData());
 				
 				// Process the template of the component 
 				ParsedTemplate template = cache.getTemplate(ctx, root.getClass());

@@ -92,7 +92,15 @@ public class HtmlTemplateOutput
 		writer.write(Integer.toString(c, 10));
 		writer.write(';');
 	}
+	
+	@Override
+	public void startElement(String name, String[] attributes)
+		throws IOException
+	{
+		startElement(name, attributes, false);
+	}
 
+	@Override
 	public void startElement(String name, String[] attributes, boolean close)
 		throws IOException
 	{
@@ -142,6 +150,7 @@ public class HtmlTemplateOutput
 		writer.write('>');
 	}
 
+	@Override
 	public void endElement(String name)
 		throws IOException
 	{
@@ -161,6 +170,7 @@ public class HtmlTemplateOutput
 		}
 	}
 
+	@Override
 	public void startComment()
 		throws IOException
 	{
@@ -168,6 +178,7 @@ public class HtmlTemplateOutput
 		writer.write("<!--");
 	}
 
+	@Override
 	public void endComment()
 		throws IOException
 	{
@@ -175,6 +186,7 @@ public class HtmlTemplateOutput
 		writer.write("-->");
 	}
 
+	@Override
 	public void text(String text)
 		throws IOException
 	{
@@ -225,12 +237,14 @@ public class HtmlTemplateOutput
 		}
 	}
 	
+	@Override
 	public void raw(String text)
 		throws IOException
 	{
 		writer.write(text);
 	}
 	
+	@Override
 	public void docType(String name, String publicId, String systemId)
 		throws IOException
 	{
@@ -260,6 +274,7 @@ public class HtmlTemplateOutput
 		written = true;
 	}
 
+	@Override
 	public void close()
 		throws IOException
 	{

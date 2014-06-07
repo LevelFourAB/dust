@@ -45,18 +45,18 @@ public class LoopComponent
 		final Attribute value = encounter.getAttribute("value", true);
 		
 		AbstractComponent component;
-		if(source.getValueType().isArray())
+		if(source.getType().isArray())
 		{
 			component = new ArrayComponent(source, value, encounter.getBody());
 		}
-		else if(converter.canConvertBetween(source.getValueType(), Iterable.class))
+		else if(converter.canConvertBetween(source.getType(), Iterable.class))
 		{
-			NonGenericConversion conversion = converter.getDynamicConversion(source.getValueType(), Iterable.class);
+			NonGenericConversion conversion = converter.getDynamicConversion(source.getType(), Iterable.class);
 			component = new IterableComponent(source, value, encounter.getBody(), conversion);
 		}
-		else if(converter.canConvertBetween(source.getValueType(), Iterator.class))
+		else if(converter.canConvertBetween(source.getType(), Iterator.class))
 		{
-			NonGenericConversion conversion = converter.getDynamicConversion(source.getValueType(), Iterator.class);
+			NonGenericConversion conversion = converter.getDynamicConversion(source.getType(), Iterator.class);
 			component = new IteratorComponent(source, value, encounter.getBody(), conversion);
 		}
 		else
@@ -90,7 +90,7 @@ public class LoopComponent
 		{
 			Object data = emitter.getObject();
 			RenderingContext ctx = emitter.getContext();
-			Object sourceData = source.getValue(ctx, data);
+			Object sourceData = source.get(ctx, data);
 			if(sourceData == null)
 			{
 				// TODO: Proper way to handle null?
@@ -105,7 +105,7 @@ public class LoopComponent
 				Object o)
 			throws IOException
 		{
-			value.setValue(emitter.getContext(), emitter.getObject(), o);
+			value.set(emitter.getContext(), emitter.getObject(), o);
 			
 			emitter.emit(contents);
 		}

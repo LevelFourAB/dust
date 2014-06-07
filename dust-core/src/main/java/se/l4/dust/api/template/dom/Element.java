@@ -186,7 +186,7 @@ public class Element
 		throws IOException
 	{
 		Emittable[] content = getRawContents();
-		String[] attrs = emitter.createAttributes(this);
+		String[] attrs = emitter.createAttributes(getAttributes());
 		
 		output.startElement(name, attrs, false);
 		

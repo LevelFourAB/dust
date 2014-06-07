@@ -10,6 +10,7 @@ import java.util.Map;
 
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.Namespaces;
+import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.expression.Expressions;
 import se.l4.dust.api.resource.ResourceLocation;
@@ -18,6 +19,7 @@ import se.l4.dust.api.template.TemplateBuilder;
 import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.Templates;
 import se.l4.dust.api.template.Templates.TemplateNamespace;
+import se.l4.dust.api.template.Value;
 import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.dom.Comment;
 import se.l4.dust.api.template.dom.Content;
@@ -33,6 +35,7 @@ import se.l4.dust.api.template.mixin.MixinEncounter;
 import se.l4.dust.api.template.mixin.TemplateMixin;
 import se.l4.dust.api.template.spi.ErrorCollector;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 /**
@@ -56,6 +59,7 @@ public class TemplateBuilderImpl
 	
 	private final Integer id;
 	private final LinkedList<Element> stack;
+	private final TypeConverter converter;
 	
 	private ErrorCollector errorCollector;
 	private Class<?> context;
@@ -70,11 +74,13 @@ public class TemplateBuilderImpl
 	public TemplateBuilderImpl( 
 			Namespaces namespaceManager, 
 			Templates templates,
-			Expressions expressions)
+			Expressions expressions,
+			TypeConverter converter)
 	{
 		this.namespaceManager = namespaceManager;
 		this.templates = templates;
 		this.expressions = expressions;
+		this.converter = converter;
 		this.id = templates.fetchTemplateId();
 		
 		values = new HashMap<String, Object>();
@@ -254,7 +260,7 @@ public class TemplateBuilderImpl
 		LinkedHashMap<String, Attribute> attributes = new LinkedHashMap<>();
 		mixinAttributes.add(attributes);
 				
-		Element emittable = new FragmentElement(fragment, hasCurrent() ? current() : null, attributes);
+		Element emittable = new FragmentElement(fragment, hasCurrent() ? current() : null, converter, attributes);
 		
 		applyDebugHints(emittable);
 		
@@ -482,11 +488,23 @@ public class TemplateBuilderImpl
 		{
 			return mixinAttributes.getLast().get(namespace + "|" + name);
 		}
+		
+		@Override
+		public <T> Value<T> getAttribute(String namespace, String name, Class<T> type)
+		{
+			return bindAttribute(getAttribute(namespace, name), type);
+		}
 
 		@Override
 		public Attribute getAttribute(String name)
 		{
 			return current().getAttribute(name);
+		}
+		
+		@Override
+		public <T> Value<T> getAttribute(String name, Class<T> type)
+		{
+			return bindAttribute(getAttribute(name), type);
 		}
 
 		@Override
@@ -566,22 +584,36 @@ public class TemplateBuilderImpl
 		}
 	}
 	
+	private <T> Value<T> bindAttribute(Attribute attr, Class<T> type)
+	{
+		if(attr == null)
+		{
+			return null;
+		}
+		
+		return attr.bindVia(converter, type);
+	}
+	
 	private static class FragmentElement
 		extends Element
 	{
 		private final TemplateFragment fragment;
 		private final Element parent;
 		private final Map<String, Attribute> attributes;
+		private final TypeConverter converter;
+		
 		private boolean replaced;
 
 		public FragmentElement(TemplateFragment fragment,
 				Element parent,
+				TypeConverter converter,
 				Map<String, Attribute> attributes)
 		{
 			super("internal:fragment:" + fragment.getClass().getSimpleName());
 			
 			this.fragment = fragment;
 			this.parent = parent;
+			this.converter = converter;
 			this.attributes = attributes;
 		}
 
@@ -591,15 +623,60 @@ public class TemplateBuilderImpl
 			fragment.build(new FragmentEncounter()
 			{
 				@Override
+				public Attribute[] getAttributes()
+				{
+					return self.getAttributes();
+				}
+				
+				@Override
+				public Attribute[] getAttributesExcluding(String... names)
+				{
+					List<Attribute> attributes = Lists.newArrayList();
+					_outer:
+					for(Attribute a : self.getAttributes())
+					{
+						for(String n : names)
+						{
+							if(n.equals(a.getName())) continue _outer;
+						}
+						
+						attributes.add(a);
+					}
+					return attributes.toArray(new Attribute[attributes.size()]);
+				}
+				
+				private <T> Value<T> bindAttribute(Attribute attr, Class<T> type)
+				{
+					if(attr == null)
+					{
+						return null;
+					}
+					
+					return attr.bindVia(converter, type);
+				}
+				
+				@Override
 				public Attribute getAttribute(String namespace, String name)
 				{
 					return attributes.get(namespace + '|' + name);
+				}
+				
+				@Override
+				public <T> Value<T> getAttribute(String namespace, String name, Class<T> type)
+				{
+					return bindAttribute(getAttribute(namespace, name), type);
 				}
 
 				@Override
 				public Attribute getAttribute(String name)
 				{
 					return self.getAttribute(name);
+				}
+				
+				@Override
+				public <T> Value<T> getAttribute(String name, Class<T> type)
+				{
+					return bindAttribute(getAttribute(name), type);
 				}
 				
 				@Override
@@ -611,6 +688,12 @@ public class TemplateBuilderImpl
 						raiseError("The attribute " + name + " is required but was not found");
 					}
 					return attribute;
+				}
+				
+				@Override
+				public <T> Value<T> getAttribute(String name, Class<T> type, boolean required)
+				{
+					return bindAttribute(getAttribute(name, required), type);
 				}
 				
 				@Override

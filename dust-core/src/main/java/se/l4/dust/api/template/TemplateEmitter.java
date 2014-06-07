@@ -2,7 +2,7 @@ package se.l4.dust.api.template;
 
 import java.io.IOException;
 
-import se.l4.dust.api.template.dom.Element;
+import se.l4.dust.api.template.dom.Attribute;
 /**
  * Helper for {@link Emittable}s.
  * 
@@ -31,7 +31,7 @@ public interface TemplateEmitter
 	 * @param element
 	 * @return
 	 */
-	String[] createAttributes(Element element);
+	String[] createAttributes(Attribute[] attributes);
 
 	/**
 	 * Emit the given contents.

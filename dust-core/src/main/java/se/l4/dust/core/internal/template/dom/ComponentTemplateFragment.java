@@ -478,7 +478,7 @@ public class ComponentTemplateFragment
 		{
 			if(attribute != null)
 			{
-				return attribute.getValue(ctx, root);
+				return attribute.get(ctx, root);
 			}
 			else if(def.binding != null)
 			{

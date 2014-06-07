@@ -2,10 +2,8 @@ package se.l4.dust.core.internal.template.mixins;
 
 import java.io.IOException;
 
-import se.l4.dust.api.conversion.NonGenericConversion;
-import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.api.template.dom.Attribute;
+import se.l4.dust.api.template.Value;
 import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.mixin.MixinEncounter;
@@ -17,28 +15,17 @@ import com.google.inject.Inject;
 public class RepeatMixin
 	implements TemplateMixin
 {
-	private final TypeConverter converter;
-
 	@Inject
-	public RepeatMixin(TypeConverter converter)
+	public RepeatMixin()
 	{
-		this.converter = converter;
 	}
 
 	@Override
 	public void element(MixinEncounter encounter)
 	{
-		final Attribute attribute = encounter.getAttribute(TemplateModule.COMMON, "repeat");
-		final Attribute in = encounter.getAttribute(TemplateModule.COMMON, "in");
-		if(in != null)
-		{
-			if(in.getValueType() != Integer.class && in.getValueType() != int.class)
-			{
-				encounter.error("Attribute in must be an integer");
-			}
-		}
+		final Value<Integer> attribute = encounter.getAttribute(TemplateModule.COMMON, "repeat", Integer.class);
+		final Value<Integer> in = encounter.getAttribute(TemplateModule.COMMON, "in", Integer.class);
 		
-		final NonGenericConversion<Object, Integer> conversion = converter.getDynamicConversion(attribute.getValueType(), Integer.class);
 		encounter.wrap(new ElementWrapper()
 		{
 			@Override
@@ -48,11 +35,10 @@ public class RepeatMixin
 				RenderingContext ctx = encounter.getContext();
 				Object object = encounter.getObject();
 				
-				Object value = attribute.getValue(ctx, object);
-				Integer count = conversion.convert(value);
-				for(int i=0, n=count; i<n; i++)
+				Integer value = attribute.get(ctx, object);
+				for(int i=0, n=value; i<n; i++)
 				{
-					if(in != null) in.setValue(ctx, object, i);
+					if(in != null) in.set(ctx, object, i);
 					encounter.emit();
 				}
 			}

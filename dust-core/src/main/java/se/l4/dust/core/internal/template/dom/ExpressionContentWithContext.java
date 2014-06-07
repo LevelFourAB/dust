@@ -29,7 +29,7 @@ public class ExpressionContentWithContext
 		Object context = this.context;
 		if(context instanceof Attribute)
 		{
-			context = ((Attribute) context).getValue(ctx, root);
+			context = ((Attribute) context).get(ctx, root);
 		}
 		
 		// TODO: Support for more types?
