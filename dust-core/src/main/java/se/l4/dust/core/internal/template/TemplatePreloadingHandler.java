@@ -15,6 +15,7 @@ import se.l4.dust.api.template.Component;
 import se.l4.dust.api.template.Template;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateException;
+import se.l4.dust.api.template.fragment.TemplateFragment;
 
 import com.google.inject.Inject;
 
@@ -41,7 +42,10 @@ public class TemplatePreloadingHandler
 			Collection<Class<?>> components = encounter.getAnnotatedWith(Component.class);
 			for(Class<?> c : components)
 			{
-				cache.getTemplate(context, c);
+				if(! TemplateFragment.class.isAssignableFrom(c))
+				{
+					cache.getTemplate(context, c);
+				}
 			}
 			
 			Collection<Class<?>> templates = encounter.getAnnotatedWith(Template.class);

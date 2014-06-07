@@ -3,7 +3,6 @@ package se.l4.dust.api.template.mixin;
 import java.util.List;
 
 import se.l4.dust.api.template.Emittable;
-import se.l4.dust.api.template.Value;
 import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.dom.Content;
 
@@ -24,7 +23,7 @@ public interface MixinEncounter
 	 * @param name
 	 * @return
 	 */
-	Attribute getAttribute(String namespace, String name);
+	Attribute<? extends Object> getAttribute(String namespace, String name);
 	
 	/**
 	 * Get a specific attribute and bind it to the given type.
@@ -34,7 +33,7 @@ public interface MixinEncounter
 	 * @param type
 	 * @return
 	 */
-	<T> Value<T> getAttribute(String namespace, String name, Class<T> type);
+	<T> Attribute<T> getAttribute(String namespace, String name, Class<T> type);
 	
 	/**
 	 * Get a specific attribute from the current element.
@@ -42,7 +41,7 @@ public interface MixinEncounter
 	 * @param name
 	 * @return
 	 */
-	Attribute getAttribute(String name);
+	Attribute<? extends Object> getAttribute(String name);
 	
 	/**
 	 * Get a specific attribute and bind it to the given type.
@@ -51,7 +50,7 @@ public interface MixinEncounter
 	 * @param type
 	 * @return
 	 */
-	<T> Value<T> getAttribute(String name, Class<T> type);
+	<T> Attribute<T> getAttribute(String name, Class<T> type);
 	
 	/**
 	 * Bind an extra namespace for this encounter.

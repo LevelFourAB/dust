@@ -1,5 +1,6 @@
 package se.l4.dust.api.template;
 
+
 /**
  * Abstraction for getting a value that might be bound to both a
  * {@link RenderingContext} and an object.
@@ -33,5 +34,5 @@ public interface Value<T>
 	 * 
 	 * @return
 	 */
-	Class<T> getType();
+	Class<? extends T> getType();
 }

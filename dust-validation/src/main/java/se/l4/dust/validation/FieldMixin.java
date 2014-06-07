@@ -20,16 +20,16 @@ public class FieldMixin
 	@Override
 	public void element(MixinEncounter encounter)
 	{
-		Attribute field = encounter.getAttribute(ValidationModule.NAMESPACE, ValidationModule.TPL_FIELD);
+		Attribute<String> field = encounter.getAttribute(ValidationModule.NAMESPACE, ValidationModule.TPL_FIELD, String.class);
 		encounter.wrap(new Wrapper(field));
 	}
 
 	private static class Wrapper
 		implements ElementWrapper
 	{
-		private final Attribute field;
+		private final Attribute<String> field;
 
-		public Wrapper(Attribute field)
+		public Wrapper(Attribute<String> field)
 		{
 			this.field = field;
 		}
@@ -39,7 +39,7 @@ public class FieldMixin
 		{
 			RenderingContext ctx = encounter.getContext();
 			
-			Object value = field.getValue(
+			Object value = field.get(
 				ctx, 
 				encounter.getObject()
 			);

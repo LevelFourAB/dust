@@ -1,9 +1,10 @@
 package se.l4.dust.api.template.fragment;
 
+import java.util.Set;
+
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateBuilder;
-import se.l4.dust.api.template.Value;
 import se.l4.dust.api.template.dom.Attribute;
 
 /**
@@ -21,7 +22,7 @@ public interface FragmentEncounter
 	 * 
 	 * @return
 	 */
-	Attribute[] getAttributes();
+	Attribute<? extends Object>[] getAttributes();
 	
 	/**
 	 * Get attributes excluding certain ones.
@@ -29,7 +30,15 @@ public interface FragmentEncounter
 	 * @param names
 	 * @return
 	 */
-	Attribute[] getAttributesExcluding(String... names);
+	Attribute<? extends Object>[] getAttributesExcluding(String... names);
+	
+	/**
+	 * Get attributes excluding certain ones.
+	 * 
+	 * @param names
+	 * @return
+	 */
+	Attribute<? extends Object>[] getAttributesExcluding(Set<String> names);
 	
 	/**
 	 * Get a specific attribute from the current element.
@@ -38,7 +47,7 @@ public interface FragmentEncounter
 	 * @param name
 	 * @return
 	 */
-	Attribute getAttribute(String namespace, String name);
+	Attribute<? extends Object> getAttribute(String namespace, String name);
 	
 	/**
 	 * Get a specific attribute from the current element and bind it to
@@ -49,7 +58,7 @@ public interface FragmentEncounter
 	 * @param type
 	 * @return
 	 */
-	<T> Value<T> getAttribute(String namespace, String name, Class<T> type);
+	<T> Attribute<T> getAttribute(String namespace, String name, Class<T> type);
 	
 	/**
 	 * Get a specific attribute from the current element.
@@ -57,7 +66,7 @@ public interface FragmentEncounter
 	 * @param name
 	 * @return
 	 */
-	Attribute getAttribute(String name);
+	Attribute<? extends Object> getAttribute(String name);
 	
 	/**
 	 * Get a specific attribute and bind it to handle a specific type.
@@ -66,7 +75,7 @@ public interface FragmentEncounter
 	 * @param type
 	 * @return
 	 */
-	<T> Value<T> getAttribute(String name, Class<T> type);
+	<T> Attribute<T> getAttribute(String name, Class<T> type);
 	
 	/**
 	 * Get a specific attribute from the current element.
@@ -75,7 +84,7 @@ public interface FragmentEncounter
 	 * @param required
 	 * @return
 	 */
-	Attribute getAttribute(String name, boolean required);
+	Attribute<? extends Object> getAttribute(String name, boolean required);
 	
 	/**
 	 * Get a specific attribute and bind it to handle a specific type.
@@ -85,7 +94,7 @@ public interface FragmentEncounter
 	 * @param required
 	 * @return
 	 */
-	<T> Value<T> getAttribute(String name, Class<T> type, boolean required);
+	<T> Attribute<T> getAttribute(String name, Class<T> type, boolean required);
 	
 	/**
 	 * Find a parameter with the given name.

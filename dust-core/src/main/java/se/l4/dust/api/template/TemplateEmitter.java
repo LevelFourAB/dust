@@ -31,7 +31,7 @@ public interface TemplateEmitter
 	 * @param element
 	 * @return
 	 */
-	String[] createAttributes(Attribute[] attributes);
+	String[] createAttributes(Attribute<String>[] attributes);
 
 	/**
 	 * Emit the given contents.

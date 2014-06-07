@@ -27,16 +27,16 @@ public class ViolationsMixin
 	@Override
 	public void element(MixinEncounter encounter)
 	{
-		Attribute errors = encounter.getAttribute(ValidationModule.NAMESPACE, ValidationModule.TPL_VIOLATIONS);
+		Attribute<?> errors = encounter.getAttribute(ValidationModule.NAMESPACE, ValidationModule.TPL_VIOLATIONS);
 		encounter.wrap(new Wrapper(errors));
 	}
 
 	private static class Wrapper
 		implements ElementWrapper
 	{
-		private final Attribute errors;
+		private final Attribute<?> errors;
 
-		public Wrapper(Attribute errors)
+		public Wrapper(Attribute<?> errors)
 		{
 			this.errors = errors;
 		}
@@ -46,7 +46,7 @@ public class ViolationsMixin
 		{
 			RenderingContext ctx = encounter.getContext();
 			
-			Object value = errors.getValue(
+			Object value = errors.get(
 				ctx, 
 				encounter.getObject()
 			);

@@ -31,7 +31,7 @@ public class RenderComponent
 	@Override
 	public void build(FragmentEncounter encounter)
 	{
-		final Attribute attr = encounter.getAttribute("object");
+		final Attribute<?> attr = encounter.getAttribute("object");
 		encounter.replaceWith(new Emittable()
 		{
 			@Override

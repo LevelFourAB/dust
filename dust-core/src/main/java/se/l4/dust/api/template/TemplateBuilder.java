@@ -74,16 +74,16 @@ public interface TemplateBuilder
 	 */
 	TemplateBuilder setAttribute(String name, String value);
 	
-	/**
-	 * Set an attribute on the current element component, optionally expanding 
-	 * it via the current variable tokenizer.
-	 * 
-	 * @param name
-	 * @param value
-	 * @param expand
-	 * @return
-	 */
-	TemplateBuilder setAttribute(String name, String value, boolean expand);
+//	/**
+//	 * Set an attribute on the current element component, optionally expanding 
+//	 * it via the current variable tokenizer.
+//	 * 
+//	 * @param name
+//	 * @param value
+//	 * @param expand
+//	 * @return
+//	 */
+//	TemplateBuilder setAttribute(String name, String value, boolean expand);
 	
 	/**
 	 * Set an attribute to a set of expanded values. The different values

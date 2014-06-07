@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import se.l4.dust.api.template.TemplateOutputStream;
-import se.l4.dust.api.template.dom.Attribute;
+import se.l4.dust.api.template.dom.AttributeImpl;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
@@ -119,12 +119,12 @@ public class HtmlTemplateOutput
 					break;
 				}
 				
-				if(v == Attribute.ATTR_EMIT)
+				if(v == AttributeImpl.ATTR_EMIT)
 				{
 					writer.write(' ');
 					writer.write(k);
 				}
-				else if(v != Attribute.ATTR_SKIP)
+				else if(v != AttributeImpl.ATTR_SKIP)
 				{
 					writer.write(' ');
 					writer.write(k);

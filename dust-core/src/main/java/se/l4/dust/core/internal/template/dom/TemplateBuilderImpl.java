@@ -1,5 +1,6 @@
 package se.l4.dust.core.internal.template.dom;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -7,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.Namespaces;
@@ -16,15 +18,18 @@ import se.l4.dust.api.expression.Expressions;
 import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateBuilder;
+import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateException;
+import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.Templates;
 import se.l4.dust.api.template.Templates.TemplateNamespace;
-import se.l4.dust.api.template.Value;
 import se.l4.dust.api.template.dom.Attribute;
+import se.l4.dust.api.template.dom.AttributeImpl;
 import se.l4.dust.api.template.dom.Comment;
 import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.api.template.dom.DocType;
 import se.l4.dust.api.template.dom.Element;
+import se.l4.dust.api.template.dom.HtmlElement;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.dom.Text;
 import se.l4.dust.api.template.dom.WrappedElement;
@@ -53,7 +58,7 @@ public class TemplateBuilderImpl
 	private final Map<String, String> boundNamespaces;
 	private final Expressions expressions;
 	
-	private final LinkedList<Map<String, Attribute>> mixinAttributes;
+	private final LinkedList<Map<String, AttributeImpl>> mixinAttributes;
 	
 	private final Map<String, Object> values;
 	
@@ -85,7 +90,7 @@ public class TemplateBuilderImpl
 		
 		values = new HashMap<String, Object>();
 		boundNamespaces = new HashMap<String, String>();
-		mixinAttributes = new LinkedList<Map<String, Attribute>>();
+		mixinAttributes = new LinkedList<Map<String, AttributeImpl>>();
 		
 		stack = new LinkedList<>();
 	}
@@ -173,10 +178,15 @@ public class TemplateBuilderImpl
 		}
 		
 		// Add mixin attributes to the stack
-		mixinAttributes.add(new LinkedHashMap<String, Attribute>());
+		mixinAttributes.add(new LinkedHashMap<String, AttributeImpl>());
 		
-		Element e = new Element(name, attributes);
+		Element e = new HtmlElement(name);
 		applyDebugHints(e);
+		
+		for(int i=0, n=attributes.length; i<n; i+=2)
+		{
+			e.addAttribute(new AttributeImpl(attributes[i], new Text(attributes[i+1])));
+		}
 		
 		if(stack.isEmpty())
 		{
@@ -257,7 +267,7 @@ public class TemplateBuilderImpl
 	public TemplateBuilder startFragment(TemplateFragment fragment)
 	{
 		// Add mixin attributes to the stack
-		LinkedHashMap<String, Attribute> attributes = new LinkedHashMap<>();
+		LinkedHashMap<String, AttributeImpl> attributes = new LinkedHashMap<>();
 		mixinAttributes.add(attributes);
 				
 		Element emittable = new FragmentElement(fragment, hasCurrent() ? current() : null, converter, attributes);
@@ -328,15 +338,6 @@ public class TemplateBuilderImpl
 	}
 	
 	@Override
-	public TemplateBuilder setAttribute(String name, String value,
-			boolean expand)
-	{
-		setAttribute(name, new Text(value));
-		
-		return this;
-	}
-	
-	@Override
 	public TemplateBuilder setAttribute(String name, Content... value)
 	{
 		Element current = current();
@@ -357,14 +358,19 @@ public class TemplateBuilderImpl
 				mixinAttributes.getLast()
 					.put(
 						uri + "|" + name.substring(idx+1), 
-						new Attribute(name, value)
+						new AttributeImpl(name, value)
 					);
 				
 				return this;
 			}
 		}
 		
-		current.setAttribute(name, value);
+		Attribute<?> attr = new AttributeImpl(name, value);
+		if(current.getClass() == HtmlElement.class)
+		{
+			attr = attr.bindVia(converter, String.class);
+		}
+		current.addAttribute(attr);
 		
 		return this;
 	}
@@ -437,7 +443,7 @@ public class TemplateBuilderImpl
 	
 	private void applyMixins()
 	{
-		Map<String, Attribute> attrs = mixinAttributes.getLast();
+		Map<String, AttributeImpl> attrs = mixinAttributes.getLast();
 		for(String attr : attrs.keySet())
 		{
 			int index = attr.indexOf('|');
@@ -454,6 +460,7 @@ public class TemplateBuilderImpl
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T> T getValue(String id)
 	{
 		return (T) values.get(id);
@@ -484,25 +491,25 @@ public class TemplateBuilderImpl
 		}
 
 		@Override
-		public Attribute getAttribute(String namespace, String name)
+		public AttributeImpl getAttribute(String namespace, String name)
 		{
 			return mixinAttributes.getLast().get(namespace + "|" + name);
 		}
 		
 		@Override
-		public <T> Value<T> getAttribute(String namespace, String name, Class<T> type)
+		public <T> Attribute<T> getAttribute(String namespace, String name, Class<T> type)
 		{
 			return bindAttribute(getAttribute(namespace, name), type);
 		}
 
 		@Override
-		public Attribute getAttribute(String name)
+		public Attribute<?> getAttribute(String name)
 		{
 			return current().getAttribute(name);
 		}
 		
 		@Override
-		public <T> Value<T> getAttribute(String name, Class<T> type)
+		public <T> Attribute<T> getAttribute(String name, Class<T> type)
 		{
 			return bindAttribute(getAttribute(name), type);
 		}
@@ -574,7 +581,7 @@ public class TemplateBuilderImpl
 		@Override
 		public void setAttribute(String attribute, Content content)
 		{
-			current().setAttribute(attribute, content);
+			TemplateBuilderImpl.this.setAttribute(attribute, content);
 		}
 		
 		@Override
@@ -584,7 +591,7 @@ public class TemplateBuilderImpl
 		}
 	}
 	
-	private <T> Value<T> bindAttribute(Attribute attr, Class<T> type)
+	private <T> Attribute<T> bindAttribute(Attribute<?> attr, Class<T> type)
 	{
 		if(attr == null)
 		{
@@ -599,7 +606,7 @@ public class TemplateBuilderImpl
 	{
 		private final TemplateFragment fragment;
 		private final Element parent;
-		private final Map<String, Attribute> attributes;
+		private final Map<String, AttributeImpl> attributes;
 		private final TypeConverter converter;
 		
 		private boolean replaced;
@@ -607,7 +614,7 @@ public class TemplateBuilderImpl
 		public FragmentElement(TemplateFragment fragment,
 				Element parent,
 				TypeConverter converter,
-				Map<String, Attribute> attributes)
+				Map<String, AttributeImpl> attributes)
 		{
 			super("internal:fragment:" + fragment.getClass().getSimpleName());
 			
@@ -616,6 +623,13 @@ public class TemplateBuilderImpl
 			this.converter = converter;
 			this.attributes = attributes;
 		}
+		
+		@Override
+		public void emit(TemplateEmitter emitter, TemplateOutputStream output)
+			throws IOException
+		{
+			throw new UnsupportedOperationException();
+		}
 
 		public void apply(final TemplateBuilderImpl builder)
 		{
@@ -623,17 +637,17 @@ public class TemplateBuilderImpl
 			fragment.build(new FragmentEncounter()
 			{
 				@Override
-				public Attribute[] getAttributes()
+				public Attribute<?>[] getAttributes()
 				{
 					return self.getAttributes();
 				}
 				
 				@Override
-				public Attribute[] getAttributesExcluding(String... names)
+				public Attribute<?>[] getAttributesExcluding(String... names)
 				{
-					List<Attribute> attributes = Lists.newArrayList();
+					List<Attribute<?>> attributes = Lists.newArrayList();
 					_outer:
-					for(Attribute a : self.getAttributes())
+					for(Attribute<?> a : self.getAttributes())
 					{
 						for(String n : names)
 						{
@@ -645,7 +659,19 @@ public class TemplateBuilderImpl
 					return attributes.toArray(new Attribute[attributes.size()]);
 				}
 				
-				private <T> Value<T> bindAttribute(Attribute attr, Class<T> type)
+				@Override
+				public Attribute<?>[] getAttributesExcluding(Set<String> names)
+				{
+					List<Attribute<?>> attributes = Lists.newArrayList();
+					for(Attribute<?> a : self.getAttributes())
+					{
+						if(names.contains(a.getName())) continue;
+						attributes.add(a);
+					}
+					return attributes.toArray(new Attribute[attributes.size()]);
+				}
+				
+				private <T> Attribute<T> bindAttribute(Attribute<?> attr, Class<T> type)
 				{
 					if(attr == null)
 					{
@@ -656,33 +682,33 @@ public class TemplateBuilderImpl
 				}
 				
 				@Override
-				public Attribute getAttribute(String namespace, String name)
+				public Attribute<?> getAttribute(String namespace, String name)
 				{
 					return attributes.get(namespace + '|' + name);
 				}
 				
 				@Override
-				public <T> Value<T> getAttribute(String namespace, String name, Class<T> type)
+				public <T> Attribute<T> getAttribute(String namespace, String name, Class<T> type)
 				{
 					return bindAttribute(getAttribute(namespace, name), type);
 				}
 
 				@Override
-				public Attribute getAttribute(String name)
+				public Attribute<?> getAttribute(String name)
 				{
 					return self.getAttribute(name);
 				}
 				
 				@Override
-				public <T> Value<T> getAttribute(String name, Class<T> type)
+				public <T> Attribute<T> getAttribute(String name, Class<T> type)
 				{
 					return bindAttribute(getAttribute(name), type);
 				}
 				
 				@Override
-				public Attribute getAttribute(String name, boolean required)
+				public Attribute<?> getAttribute(String name, boolean required)
 				{
-					Attribute attribute = self.getAttribute(name);
+					Attribute<?> attribute = self.getAttribute(name);
 					if(attribute == null)
 					{
 						raiseError("The attribute " + name + " is required but was not found");
@@ -691,7 +717,7 @@ public class TemplateBuilderImpl
 				}
 				
 				@Override
-				public <T> Value<T> getAttribute(String name, Class<T> type, boolean required)
+				public <T> Attribute<T> getAttribute(String name, Class<T> type, boolean required)
 				{
 					return bindAttribute(getAttribute(name, required), type);
 				}

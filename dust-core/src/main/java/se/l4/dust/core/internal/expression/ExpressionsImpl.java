@@ -10,7 +10,6 @@ import se.l4.dust.api.expression.ExpressionSource;
 import se.l4.dust.api.expression.Expressions;
 import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.dom.Attribute;
-import se.l4.dust.api.template.dom.Content;
 import se.l4.dust.core.internal.expression.ast.Node;
 import se.l4.dust.core.internal.expression.invoke.Invoker;
 import se.l4.dust.core.internal.template.dom.ExpressionContent;
@@ -79,16 +78,7 @@ public class ExpressionsImpl
 		}
 		else if(context instanceof Attribute)
 		{
-			Attribute attr = (Attribute) context;
-			Content[] value = attr.getValue();
-			if(value.length != 1)
-			{
-				// Can't really do anything with it
-				return Object.class;
-			}
-			
-			Content content = value[0];
-			return resolveType(content);
+			return ((Attribute) context).getType();
 		}
 		else if(context instanceof ExpressionContent)
 		{

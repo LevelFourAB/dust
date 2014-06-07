@@ -41,8 +41,8 @@ public class LoopComponent
 	@Override
 	public void build(FragmentEncounter encounter)
 	{
-		final Attribute source = encounter.getAttribute("source", true);
-		final Attribute value = encounter.getAttribute("value", true);
+		final Attribute<?> source = encounter.getAttribute("source", true);
+		final Attribute<?> value = encounter.getAttribute("value", true);
 		
 		AbstractComponent component;
 		if(source.getType().isArray())
@@ -70,11 +70,11 @@ public class LoopComponent
 	private abstract class AbstractComponent
 		implements Emittable
 	{
-		private final Attribute value;
-		private final Attribute source;
+		private final Attribute<?> value;
+		private final Attribute<?> source;
 		private final Emittable[] contents;
 
-		public AbstractComponent(Attribute source, Attribute value, Emittable[] contents)
+		public AbstractComponent(Attribute<?> source, Attribute<?> value, Emittable[] contents)
 		{
 			this.source = source;
 			this.value = value;
@@ -114,7 +114,7 @@ public class LoopComponent
 	private class DynamicComponent
 		extends AbstractComponent
 	{
-		public DynamicComponent(Attribute source, Attribute value, Emittable[] contents)
+		public DynamicComponent(Attribute<?> source, Attribute<?> value, Emittable[] contents)
 		{
 			super(source, value, contents);
 		}
@@ -183,8 +183,8 @@ public class LoopComponent
 	{
 		private final Conversion<Object, Iterable<Object>> conversion;
 
-		public IterableComponent(Attribute source,
-				Attribute value,
+		public IterableComponent(Attribute<?> source,
+				Attribute<?> value,
 				Emittable[] contents,
 				Conversion<Object, Iterable<Object>> conversion)
 		{
@@ -210,8 +210,8 @@ public class LoopComponent
 	{
 		private final Conversion<Object, Iterator<Object>> conversion;
 	
-		public IteratorComponent(Attribute source,
-				Attribute value,
+		public IteratorComponent(Attribute<?> source,
+				Attribute<?> value,
 				Emittable[] contents,
 				Conversion<Object, Iterator<Object>> conversion)
 		{
@@ -234,8 +234,8 @@ public class LoopComponent
 	private class ArrayComponent
 		extends AbstractComponent
 	{
-		public ArrayComponent(Attribute source,
-				Attribute value,
+		public ArrayComponent(Attribute<?> source,
+				Attribute<?> value,
 				Emittable[] contents)
 		{
 			super(source, value, contents);

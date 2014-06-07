@@ -1,7 +1,9 @@
 package se.l4.dust.core.internal.template.dom;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.RenderingContext;
@@ -16,6 +18,8 @@ import se.l4.dust.api.template.dom.WrappedElement;
 import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
 
+import com.google.common.collect.Maps;
+
 /**
  * Emitter of templates. Takes a {@link ParsedTemplate} and processes it 
  * sending the results to {@link TemplateOutputStream}.
@@ -24,7 +28,7 @@ import se.l4.dust.api.template.mixin.ElementWrapper;
  *
  */
 public class TemplateEmitterImpl
-	implements ElementEncounter, TemplateEmitter
+	implements TemplateEmitter
 {
 	private final ParsedTemplate template;
 	private final RenderingContext ctx;
@@ -32,6 +36,8 @@ public class TemplateEmitterImpl
 	private final String[] attrsCache;
 	private final HashMap<Integer, Element> componentMap;
 	private final HashMap<Integer, Object> dataMap;
+	
+	private final ElementEncounterImpl encounter;
 	
 	private Object current;
 	private Integer currentId;
@@ -41,8 +47,7 @@ public class TemplateEmitterImpl
 	private Element currentComponent;
 	private Integer currentComponentId;
 	
-	private boolean skip;
-	private Element wrapped;
+	private Map<String, String> extraAttributes;
 	
 	public TemplateEmitterImpl(ParsedTemplate template, RenderingContext ctx, Object data)
 	{
@@ -57,7 +62,10 @@ public class TemplateEmitterImpl
 		dataMap.put(currentId, current);
 		
 		componentMap.put(currentId, template.getRoot());
-		attrsCache = new String[10*2];
+		attrsCache = new String[20*2];
+		
+		encounter = new ElementEncounterImpl();
+		extraAttributes = Maps.newHashMap();
 	}
 	
 	public void process(TemplateOutputStream out)
@@ -76,12 +84,12 @@ public class TemplateEmitterImpl
 	}
 
 	@Override
-	public String[] createAttributes(Attribute[] attributes)
+	public String[] createAttributes(Attribute<String>[] attributes)
 	{
 		return createAttributes(attributes, current);
 	}
 	
-	private String[] createAttributes(Attribute[] attributes, Object data)
+	private String[] createAttributes(Attribute<String>[] attributes, Object data)
 	{
 		String[] attrs;
 		if(attributes.length >= 10)
@@ -96,10 +104,44 @@ public class TemplateEmitterImpl
 		
 		for(int i=0, n=attributes.length*2; i<n; i+=2)
 		{
-			Attribute attr = attributes[i/2];
+			Attribute<String> attr = attributes[i/2];
 			attrs[i] = attr.getName();
-			attrs[i+1] = attr.getStringValue(ctx, data);
+			String value = attr.get(ctx, data);
+			
+			String extra = extraAttributes.remove(attr.getName());
+			if(extra != null)
+			{
+				// TODO: Different modes for attributes?
+				if(value == null || value.isEmpty())
+				{
+					value = extra;
+				}
+				else
+				{
+					value += ' ' + extra;
+				}
+			}
+			
+			attrs[i+1] = value;
 		}
+		
+		if(! extraAttributes.isEmpty())
+		{
+			int i = attributes.length;
+			if(i + extraAttributes.size()*2 > attrs.length)
+			{
+				attrs = Arrays.copyOf(attrs, i + extraAttributes.size()*2);
+			}
+			
+			for(Map.Entry<String, String> e : extraAttributes.entrySet())
+			{
+				attrs[i] = e.getKey();
+				attrs[i+1] = e.getValue();
+				i += 2;
+			}
+		}
+		extraAttributes.clear();
+		
 		return attrs;
 	}
 
@@ -156,26 +198,6 @@ public class TemplateEmitterImpl
 	public Object getObject()
 	{
 		return current;
-	}
-	
-	@Override
-	public void skip()
-	{
-		this.skip = true;
-	}
-	
-	@Override
-	public void emit()
-		throws IOException
-	{
-		this.skip = true;
-		emit(wrapped);
-	}
-	
-	@Override
-	public TemplateOutputStream getOutput()
-	{
-		return out;
 	}
 	
 	public Element getCurrentComponent()
@@ -235,15 +257,66 @@ public class TemplateEmitterImpl
 		throws IOException
 	{
 		ElementWrapper wrapper = we.getWrapper();
-		this.wrapped = we.getElement();
-		skip = false;
-		wrapper.beforeElement(this);
+		encounter.wrapped = we.getElement();
+		encounter.skip = false;
+		wrapper.beforeElement(encounter);
 		
-		if(! skip)
+		if(! encounter.skip)
 		{
-			emit(this.wrapped);
+			emit(encounter.wrapped);
 		}
 		
-		wrapper.afterElement(this);
+		wrapper.afterElement(encounter);
+		encounter.reset();
+	}
+	
+	private class ElementEncounterImpl
+		implements ElementEncounter
+	{
+		private boolean skip;
+		private Element wrapped;
+		
+		@Override
+		public RenderingContext getContext()
+		{
+			return TemplateEmitterImpl.this.getContext();
+		}
+		
+		@Override
+		public Object getObject()
+		{
+			return TemplateEmitterImpl.this.getObject();
+		}
+		
+		@Override
+		public void skip()
+		{
+			skip = true;
+		}
+		
+		@Override
+		public void emit()
+			throws IOException
+		{
+			skip = true;
+			TemplateEmitterImpl.this.emit(wrapped);
+		}
+		
+		@Override
+		public TemplateOutputStream getOutput()
+		{
+			return out;
+		}
+		
+		@Override
+		public void pushAttribute(String name, String value)
+		{
+			extraAttributes.put(name, value);
+		}
+		
+		public void reset()
+		{
+			extraAttributes.clear();
+		}
 	}
 }

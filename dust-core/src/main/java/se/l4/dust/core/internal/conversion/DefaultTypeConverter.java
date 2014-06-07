@@ -49,6 +49,15 @@ public class DefaultTypeConverter
 				return in;
 			}
 		};
+		
+	private static final Conversion<?, ?> STRING_CONVERSION = new Conversion<Object, Object>()
+		{
+			@Override
+			public Object convert(Object in)
+			{
+				return String.valueOf(in);
+			}
+		};
 	
 	private final LoadingCache<Class<?>, List<Conversion<?, ?>>> conversions;
 	private final Map<CacheKey, Conversion<?, ?>> cache;
@@ -84,6 +93,7 @@ public class DefaultTypeConverter
 		}
 	}
 	
+	@Override
 	public void add(Conversion<?, ?> conversion)
 	{
 		NonGenericConversion<?, ?> nonGeneric = toNonGeneric(conversion);
@@ -141,7 +151,17 @@ public class DefaultTypeConverter
 		{
 			// If not cached find suitable conversion
 			tc = findConversion(in, output);
-			if(tc == null) tc = NULL;
+			if(tc == null)
+			{
+				if(output == String.class)
+				{
+					tc = STRING_CONVERSION;
+				}
+				else
+				{
+					tc = NULL;
+				}
+			}
 			
 			cache.put(key, tc);
 		}
@@ -198,6 +218,7 @@ public class DefaultTypeConverter
 		};
 	}
 	
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T convert(Object in, Class<T> output)
 	{
@@ -223,12 +244,14 @@ public class DefaultTypeConverter
 		return (T) tc.convert(in);
 	}
 	
+	@Override
 	public boolean canConvertBetween(Class<?> in, Class<?> out)
 	{
 		Class<?> type = getType(in, out);
 		return getConversion0(type, out) != null;
 	}
 	
+	@Override
 	public boolean canConvertBetween(Object in, Class<?> out)
 	{
 		return canConvertBetween(in == null ? null : in.getClass(), out);
@@ -251,14 +274,15 @@ public class DefaultTypeConverter
 	@SuppressWarnings("unchecked")
 	private <I, O> Conversion<I, O> findConversion(Class<I> in, Class<O> out)
 	{
-		in = (Class) Primitives.wrap(in);
-		out = (Class) Primitives.wrap(out);
+		in = Primitives.wrap(in);
+		out = Primitives.wrap(out);
 		
 		Set<Conversion<I, O>> tested = new HashSet<Conversion<I, O>>();
 		PriorityQueue<NonGenericConversion<I, O>> queue = new PriorityQueue<NonGenericConversion<I, O>>(
 			10,
 			new Comparator<NonGenericConversion<I, O>>()
 			{
+				@Override
 				public int compare(NonGenericConversion<I,O> o1, NonGenericConversion<I,O> o2)
 				{
 					int c1 = count(o1);

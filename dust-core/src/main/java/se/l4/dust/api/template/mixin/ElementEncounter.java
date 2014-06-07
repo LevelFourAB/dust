@@ -51,4 +51,11 @@ public interface ElementEncounter
 	 * @return
 	 */
 	TemplateOutputStream getOutput();
+	
+	/**
+	 * 
+	 * @param name
+	 * @param value
+	 */
+	void pushAttribute(String name, String value);
 }

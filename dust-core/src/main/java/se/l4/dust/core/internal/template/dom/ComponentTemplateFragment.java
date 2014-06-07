@@ -8,6 +8,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.template.AfterRender;
@@ -27,6 +28,7 @@ import se.l4.dust.api.template.dom.WrappedElement;
 import se.l4.dust.api.template.fragment.FragmentEncounter;
 import se.l4.dust.api.template.fragment.TemplateFragment;
 
+import com.google.common.collect.Sets;
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -47,6 +49,8 @@ public class ComponentTemplateFragment
 	private final MethodDef[] prepare;
 	private final MethodDef[] afterRender;
 	private final MethodDef[] setters;
+	
+	private final Set<String> attributesUsed;
 	
 	private final boolean dev;
 
@@ -72,6 +76,8 @@ public class ComponentTemplateFragment
 				}
 			};
 			prepare = afterRender = setters = null;
+			
+			attributesUsed = getAttributesUsed(createMethodInvocations(), createSetMethodInvocations());
 		}
 		else
 		{
@@ -79,6 +85,8 @@ public class ComponentTemplateFragment
 			prepare = createMethodInvocations();
 			afterRender = createAfterRenderInvocations();
 			setters = createSetMethodInvocations();
+			
+			attributesUsed = getAttributesUsed(prepare, setters);
 		}
 	}
 	
@@ -86,7 +94,35 @@ public class ComponentTemplateFragment
 	public void build(FragmentEncounter encounter)
 	{
 		Methods methods = dev ? new DevMethods(encounter) : new ProductionMethods(encounter);
-		encounter.replaceWith(new ComponentEmittable(methods, encounter.getScopedBody()));
+		Attribute<?>[] leftOverAttributes = encounter.getAttributesExcluding(attributesUsed);
+		Attribute<String>[] extraAttributes = new Attribute[leftOverAttributes.length];
+		for(int i=0, n=leftOverAttributes.length; i<n; i++)
+		{
+			extraAttributes[i] = leftOverAttributes[i].bindVia(converter, String.class);
+		}
+		encounter.replaceWith(new ComponentEmittable(methods, encounter.getScopedBody(), extraAttributes));
+	}
+	
+	private Set<String> getAttributesUsed(MethodDef prepare[], MethodDef[] setters)
+	{
+		Set<String> result = Sets.newHashSet();
+		handle(result, prepare);
+		handle(result, setters);
+		return result;
+	}
+	
+	private void handle(Set<String> result, MethodDef[] methodInvocations)
+	{
+		for(MethodDef mi : methodInvocations)
+		{
+			for(ArgumentDef def : mi.arguments)
+			{
+				if(def.attribute != null)
+				{
+					result.add(def.attribute);
+				}
+			}
+		}
 	}
 
 	private class ComponentEmittable
@@ -94,11 +130,13 @@ public class ComponentTemplateFragment
 	{
 		private final Emittable scopedBody;
 		private final Methods methods;
+		private final Attribute<String>[] extraAttributes;
 
-		public ComponentEmittable(Methods methods, Emittable scopedBody)
+		public ComponentEmittable(Methods methods, Emittable scopedBody, Attribute<String>[] extraAttributes)
 		{
 			this.methods = methods;
 			this.scopedBody = scopedBody;
+			this.extraAttributes = extraAttributes;
 		}
 		
 		@Override
@@ -167,6 +205,7 @@ public class ComponentTemplateFragment
 			else
 			{
 				TemplateEmitterImpl emitterImpl = (TemplateEmitterImpl) emitter;
+				ctx.putValue("dust:extraAttributes", extraAttributes);
 				
 				// Process the template of the component 
 				ParsedTemplate template = cache.getTemplate(ctx, root.getClass());
@@ -447,9 +486,9 @@ public class ComponentTemplateFragment
 	private class Argument
 	{
 		private final ArgumentDef def;
-		private final Attribute attribute;
+		private final Attribute<?> attribute;
 
-		public Argument(ArgumentDef def, Attribute attribute)
+		public Argument(ArgumentDef def, Attribute<?> attribute)
 		{
 			this.def = def;
 			this.attribute = attribute;
@@ -583,7 +622,7 @@ public class ComponentTemplateFragment
 		
 		private Argument bind(FragmentEncounter encounter)
 		{
-			Attribute attr = null;
+			Attribute<?> attr = null;
 			if(attribute != null)
 			{
 				attr = encounter.getAttribute(attribute);
