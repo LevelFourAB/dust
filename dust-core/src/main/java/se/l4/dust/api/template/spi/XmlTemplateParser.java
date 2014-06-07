@@ -19,13 +19,19 @@ import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
 import se.l4.dust.api.Namespaces;
+import se.l4.dust.api.Value;
+import se.l4.dust.api.Values;
+import se.l4.dust.api.conversion.NonGenericConversion;
+import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.template.Emittable;
+import se.l4.dust.api.template.EmittableValue;
 import se.l4.dust.api.template.TemplateBuilder;
 import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.Templates;
-import se.l4.dust.api.template.dom.Content;
-import se.l4.dust.api.template.dom.Text;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.io.Closeables;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -42,12 +48,25 @@ public class XmlTemplateParser
 {
 	private final Templates templates;
 	private final Namespaces namespaces;
+	private final Function<Value<?>, Emittable> valueToEmittable;
 
 	@Inject
-	public XmlTemplateParser(Namespaces namespaces, Templates templates)
+	public XmlTemplateParser(Namespaces namespaces,
+			Templates templates,
+			final TypeConverter converter)
 	{
 		this.namespaces = namespaces;
 		this.templates = templates;
+		
+		valueToEmittable = new Function<Value<?>, Emittable>()
+		{
+			@Override
+			public Emittable apply(Value<?> input)
+			{
+				NonGenericConversion<?, String> conversion = converter.createDynamicConversionTo(String.class);
+				return new EmittableValue(input, conversion);
+			}
+		};
 	}
 
 	@Override
@@ -65,7 +84,7 @@ public class XmlTemplateParser
 		{
 			SAXParser parser = factory.newSAXParser();
 		    
-			Handler handler = new Handler(namespaces, templates, builder, errors);
+			Handler handler = new Handler(namespaces, templates, valueToEmittable, builder, errors);
 			parser.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
 //			parser.parse(stream, handler);
 			
@@ -114,6 +133,7 @@ public class XmlTemplateParser
 	{
 		private final Namespaces namespaces;
 		private final Templates templates;
+		private final Function<Value<?>, Emittable> valueToEmittable;
 		private final TemplateBuilder builder;
 		private final ErrorCollector errors;
 		
@@ -132,11 +152,13 @@ public class XmlTemplateParser
 
 		public Handler(Namespaces namespaces, 
 				Templates templates, 
+				Function<Value<?>, Emittable> valueToEmittable,
 				TemplateBuilder builder, 
 				ErrorCollector errors)
 		{
 			this.namespaces = namespaces;
 			this.templates = templates;
+			this.valueToEmittable = valueToEmittable;
 			this.builder = builder;
 			this.errors = errors;
 			
@@ -236,10 +258,10 @@ public class XmlTemplateParser
 				String name = attributes.getQName(i);
 				String value = attributes.getValue(i);
 				
-				List<Content> contents = extractor.parse(
+				List<Value<?>> contents = extractor.parse(
 					errors.getSource(),
 					locator.getLineNumber(), 
-					locator.getLineNumber(), 
+					locator.getColumnNumber(), 
 					value
 				);
 				
@@ -308,21 +330,21 @@ public class XmlTemplateParser
 			}
 			else
 			{
-				List<Content> content = extractor.parse(errors.getSource(), textLine, textColumn, text);
+				List<Value<?>> content = extractor.parse(errors.getSource(), textLine, textColumn, text);
 				if(currentIgnoreWhitespace)
 				{
-					Iterator<Content> it = content.iterator();
+					Iterator<Value<?>> it = content.iterator();
 					while(it.hasNext())
 					{
-						Content c = it.next();
-						if(c instanceof Text && ((Text) c).getText().trim().isEmpty())
+						Value<?> c = it.next();
+						if(c instanceof Values.StaticValue && ((String) c.get(null, null)).trim().isEmpty())
 						{
 							it.remove();
 						}
 					}
 				}
 				
-				builder.addContent((List) content);
+				builder.addContent(toEmittable(content));
 			}
 		}
 		
@@ -333,14 +355,19 @@ public class XmlTemplateParser
 			flushCharacters();
 
 			String commentText = new String(ch, start, length);
-			List<Content> content = extractor.parse(
+			List<Value<?>> content = extractor.parse(
 				errors.getSource(),
 				locator.getLineNumber(), 
 				locator.getColumnNumber(), 
 				commentText
 			);
 			
-			builder.comment((List) content);
+			builder.comment(toEmittable(content));
+		}
+		
+		private Iterable<Emittable> toEmittable(Iterable<Value<?>> values)
+		{
+			return Iterables.transform(values, valueToEmittable);
 		}
 		
 		@Override

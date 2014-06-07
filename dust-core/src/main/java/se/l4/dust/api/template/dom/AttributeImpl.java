@@ -1,8 +1,10 @@
 package se.l4.dust.api.template.dom;
 
+import se.l4.dust.api.Context;
+import se.l4.dust.api.Value;
+import se.l4.dust.api.Values;
 import se.l4.dust.api.conversion.Conversion;
 import se.l4.dust.api.conversion.TypeConverter;
-import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateException;
 
 public class AttributeImpl
@@ -12,9 +14,9 @@ public class AttributeImpl
 	public static final String ATTR_SKIP = "##skip";
 	
 	private final String name;
-	private final Content[] value;
+	private final Value<?>[] value;
 
-	public AttributeImpl(String name, Content... value)
+	public AttributeImpl(String name, Value<?>... value)
 	{
 		this.name = name;
 		this.value = value;
@@ -26,26 +28,24 @@ public class AttributeImpl
 		return name;
 	}
 	
-	public Content[] getValue()
+	public Value<?>[] getValue()
 	{
 		return value;
 	}
 	
 	@Override
-	public Object get(RenderingContext ctx, Object root)
+	public Object get(Context ctx, Object root)
 	{
 		if(value.length == 1)
 		{
-			Content c = value[0];
-			return getValueOf(ctx, root, c);
+			return value[0].get(ctx, root);
 		}
 		else
 		{
 			StringBuilder result = new StringBuilder();
-			for(Content c : value)
+			for(Value<?> c : value)
 			{
-				Object value = getValueOf(ctx, root, c);
-				result.append(ctx.getStringValue(value));
+				result.append(c.get(ctx, root));
 			}
 			
 			return result.toString();
@@ -55,82 +55,53 @@ public class AttributeImpl
 	@Override
 	public Class<? extends Object> getType()
 	{
-		if(value.length == 1 && value[0] instanceof DynamicContent)
+		if(value.length == 1)
 		{
-			return ((DynamicContent) value[0]).getValueType();
+			return value[0].getType();
 		}
 		
 		return String.class;
 	}
 
-	private Object getValueOf(RenderingContext ctx, Object root, Content c)
-	{
-		if(c instanceof DynamicContent)
-		{
-			return ctx.getDynamicValue((DynamicContent) c, root);
-		}
-		else if(c instanceof Text)
-		{
-			return ((Text) c).getText();
-		}
-		else
-		{
-			return "";
-		}
-	}
-
-	public String getStringValue(RenderingContext ctx, Object root)
-	{
-		if(value.length == 1)
-		{
-			Content c = value[0];
-			return ctx.getStringValue(getValueOf(ctx, root, c));
-		}
-		else
-		{
-			StringBuilder result = new StringBuilder();
-			for(Content c : value)
-			{
-				Object value = getValueOf(ctx, root, c);
-				result.append(ctx.getStringValue(value));
-			}
-			
-			return result.toString();
-		}
-	}
 
 	@Override
 	public String getStringValue()
 	{
-		StringBuilder builder = new StringBuilder();
-		for(Content c : value)
+		if(value.length == 1)
 		{
-			if(c instanceof Text)
+			Value<?> v = value[0];
+			if(v instanceof Values.StaticValue)
 			{
-				builder.append(((Text) c).getText());
+				return (String) v.get(null, null);
 			}
+			
+			return "";
 		}
-		
-		return builder.toString();
+		else
+		{
+			StringBuilder builder = new StringBuilder();
+			for(Value<?> v : value)
+			{
+				if(v instanceof Values.StaticValue)
+				{
+					builder.append(v.get(null, null));
+				}
+			}
+			
+			return builder.toString();
+		}
 	}
 	
 	@Override
-	public void set(RenderingContext ctx, Object root, Object value)
+	public void set(Context ctx, Object root, Object value)
 	{
 		if(this.value.length != 1)
 		{
 			throw new TemplateException("Unable to set value of attribute " + name + ", contains more than one expression");
 		}
 		
-		Content c = this.value[0];
-		if(c instanceof DynamicContent)
-		{
-			((DynamicContent) c).setValue(ctx, root, value);
-		}
-		else
-		{
-			throw new TemplateException("Unable to set value of attribute " + name + ", does not contain any dynamic content");
-		}
+		Value<?> c = this.value[0];
+		c.set(ctx, root, value);
 	}
 	
 	/**
@@ -153,14 +124,14 @@ public class AttributeImpl
 			}
 			
 			@Override
-			public T get(RenderingContext context, Object data)
+			public T get(Context context, Object data)
 			{
 				Object value = AttributeImpl.this.get(context, data);
 				return get.convert(value);
 			}
 			
 			@Override
-			public void set(RenderingContext context, Object data, Object value)
+			public void set(Context context, Object data, Object value)
 			{
 				Object object = set.convert(value);
 				AttributeImpl.this.set(context, data, object);
@@ -186,9 +157,51 @@ public class AttributeImpl
 		};
 	}
 	
+	private Value<String> convertToString(final Value<?> value, TypeConverter converter)
+	{
+		if(value.getType() == String.class) return (Value) value;
+		
+		final Conversion<Object, String> conversion = converter.getDynamicConversion(value.getType(), String.class);
+		return new Value<String>()
+		{
+			@Override
+			public Class<? extends String> getType()
+			{
+				return String.class;
+			}
+			
+			@Override
+			public String get(Context context, Object data)
+			{
+				Object object = value.get(context, data);
+				return conversion.convert(object);
+			}
+			
+			@Override
+			public void set(Context context, Object data, Object value)
+			{
+				throw new UnsupportedOperationException();
+			}
+		};
+	}
+	
 	@Override
 	public <T> Attribute<T> bindVia(TypeConverter converter, Class<T> output)
 	{
+		Class<?> type = getType();
+		if(output == String.class && type == output)
+		{
+			// Special case, convert every value
+			Value<?>[] newValues = new Value[this.value.length];
+			for(int i=0, n=newValues.length; i<n; i++)
+			{
+				Value<?> v = this.value[i];
+				newValues[i] = convertToString(v, converter);
+			}
+			
+			return (Attribute<T>) new AttributeImpl(name, newValues);
+		}
+		
 		// If we are binding to the same type
 		if(output == getType()) return (Attribute<T>) this;
 		

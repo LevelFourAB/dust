@@ -65,7 +65,7 @@ public class ExpressionCompiler
 			CtClass exprIf = pool.get(Expression.class.getName());
 			CtMethod get = exprIf.getMethod("get", "(Lse/l4/dust/api/Context;Ljava/lang/Object;)Ljava/lang/Object;");
 			CtMethod set = exprIf.getMethod("set", "(Lse/l4/dust/api/Context;Ljava/lang/Object;Ljava/lang/Object;)V");
-			CtMethod returnClass = exprIf.getMethod("getReturnClass", "()Ljava/lang/Class;");
+			CtMethod returnClass = exprIf.getMethod("getType", "()Ljava/lang/Class;");
 			CtMethod source = exprIf.getMethod("getSource", "()Ljava/lang/String;");
 			
 			CtClass type = pool.makeClass("se.l4.dust.core.internal.expression.Expression$$" + compiled.incrementAndGet());

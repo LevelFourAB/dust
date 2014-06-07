@@ -2,7 +2,7 @@ package se.l4.dust.api.template;
 
 import java.util.List;
 
-import se.l4.dust.api.template.dom.Content;
+import se.l4.dust.api.Value;
 import se.l4.dust.api.template.dom.Text;
 import se.l4.dust.api.template.fragment.TemplateFragment;
 import se.l4.dust.api.template.spi.ErrorCollector;
@@ -93,7 +93,7 @@ public interface TemplateBuilder
 	 * @param value
 	 * @return
 	 */
-	TemplateBuilder setAttribute(String name, Content... value);
+	TemplateBuilder setAttribute(String name, Value<?>... values);
 	
 	/**
 	 * Set an attribute to a set of expanded values. The different values
@@ -103,7 +103,7 @@ public interface TemplateBuilder
 	 * @param value
 	 * @return
 	 */
-	TemplateBuilder setAttribute(String name, List<Content> value);
+	TemplateBuilder setAttribute(String name, List<Value<?>> value);
 	
 	/**
 	 * Add a comment to the template.
@@ -119,7 +119,7 @@ public interface TemplateBuilder
 	 * @param content
 	 * @return
 	 */
-	TemplateBuilder comment(List<Emittable> content);
+	TemplateBuilder comment(Iterable<? extends Emittable> content);
 	
 	/**
 	 * Add content to the current element. This is usally instances of
@@ -128,7 +128,7 @@ public interface TemplateBuilder
 	 * @param content
 	 * @return
 	 */
-	TemplateBuilder addContent(List<Emittable> content);
+	TemplateBuilder addContent(Iterable<? extends Emittable> content);
 	
 	/**
 	 * Bind a namespace to a specific prefix.
@@ -153,7 +153,7 @@ public interface TemplateBuilder
 	 * @param expression
 	 * @return
 	 */
-	Content createDynamicContent(String expression);
+	Value<?> createDynamicContent(String expression);
 
 	/**
 	 * Get if the builder has started creating an element or component.

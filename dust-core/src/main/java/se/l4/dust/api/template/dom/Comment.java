@@ -1,7 +1,8 @@
 package se.l4.dust.api.template.dom;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateEmitter;
@@ -31,20 +32,20 @@ public class Comment
 	 * @param objects
 	 * @return
 	 */
-	public Comment addContent(Collection<Emittable> objects)
+	public void addContent(Iterable<? extends Emittable> objects)
 	{
-		Emittable[] result = new Emittable[contents.length + objects.size()];
-		System.arraycopy(contents, 0, result, 0, contents.length);
-		
-		int index = contents.length;
-		for(Emittable o : objects)
+		List<Emittable> result = new ArrayList<>(contents.length + 10);
+		for(Emittable e : contents)
 		{
-			result[index++] = o;
+			result.add(e);
 		}
 		
-		contents = result;
+		for(Emittable e : objects)
+		{
+			result.add(e);
+		}
 		
-		return this;
+		contents = result.toArray(new Emittable[result.size()]);
 	}
 
 	public Emittable[] getRawContents()

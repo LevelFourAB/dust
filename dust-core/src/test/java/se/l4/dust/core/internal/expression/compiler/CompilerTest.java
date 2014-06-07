@@ -1,7 +1,8 @@
 package se.l4.dust.core.internal.expression.compiler;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -451,10 +452,10 @@ public class CompilerTest
 	public void testGetReturnClass()
 	{
 		Expression expr = compile("this", Person.class);
-		assertThat(expr.getReturnClass(), is((Object) Person.class));
+		assertThat(expr.getType(), is((Object) Person.class));
 		
 		expr = compile("'static'", Person.class);
-		assertThat(expr.getReturnClass(), is((Object) String.class));
+		assertThat(expr.getType(), is((Object) String.class));
 	}
 	
 	

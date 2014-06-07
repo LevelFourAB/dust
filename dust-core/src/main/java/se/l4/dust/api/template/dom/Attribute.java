@@ -1,7 +1,7 @@
 package se.l4.dust.api.template.dom;
 
+import se.l4.dust.api.Value;
 import se.l4.dust.api.conversion.TypeConverter;
-import se.l4.dust.api.template.Value;
 
 public interface Attribute<T>
 	extends Value<T>

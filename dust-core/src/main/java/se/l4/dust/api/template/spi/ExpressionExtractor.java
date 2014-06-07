@@ -1,12 +1,14 @@
 package se.l4.dust.api.template.spi;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import se.l4.dust.api.Value;
+import se.l4.dust.api.Values;
 import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.TemplateBuilder;
-import se.l4.dust.api.template.dom.Content;
-import se.l4.dust.api.template.dom.Text;
+import se.l4.dust.core.internal.expression.ExpressionDebugger;
+
+import com.google.common.collect.Lists;
 
 /**
  * Extractor of expressions within a larger text mass. This is used by template
@@ -40,9 +42,9 @@ public class ExpressionExtractor
 	 * @param value
 	 * @return
 	 */
-	public List<Content> parse(ResourceLocation source, int line, int column, CharSequence value)
+	public List<Value<?>> parse(ResourceLocation source, int line, int column, CharSequence value)
 	{
-		List<Content> content = new ArrayList<Content>();
+		List<Value<?>> content = Lists.newArrayList();
 		
 		ParserState state = ParserState.WAITING;
 		
@@ -78,9 +80,7 @@ public class ExpressionExtractor
 								
 						if(buffer.length() > 0)
 						{
-							Text text = new Text(buffer.toString());
-							text.withDebugInfo(source, line, column);
-							content.add(text);
+							content.add(Values.of(buffer.toString()));
 						}
 								
 						buffer.setLength(0);
@@ -100,9 +100,12 @@ public class ExpressionExtractor
 						
 						try
 						{
-							Content dynamicContent = builder.createDynamicContent(buffer.toString());
-							dynamicContent.withDebugInfo(source, currentExpressionStartLine, currentExpressionStart);
-							content.add(dynamicContent);
+							Value<?> v = builder.createDynamicContent(buffer.toString());
+							if(v instanceof ExpressionDebugger)
+							{
+								((ExpressionDebugger) v).withDebugInfo(source, currentExpressionStartLine, currentExpressionStart);
+							}
+							content.add(v);
 						}
 						catch(Throwable e)
 						{
@@ -127,9 +130,7 @@ public class ExpressionExtractor
 		{
 			if(buffer.length() > 0)
 			{
-				Text text = new Text(buffer.toString());
-				text.withDebugInfo(source, line, column);
-				content.add(text);
+				content.add(Values.of(buffer.toString()));
 			}
 		}
 		

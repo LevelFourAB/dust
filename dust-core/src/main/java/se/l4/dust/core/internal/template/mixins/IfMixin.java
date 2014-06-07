@@ -1,6 +1,6 @@
 package se.l4.dust.core.internal.template.mixins;
 
-import se.l4.dust.api.template.Value;
+import se.l4.dust.api.Value;
 import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.mixin.MixinEncounter;

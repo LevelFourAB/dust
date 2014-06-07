@@ -23,6 +23,10 @@ public class ExpressionDebugger
 	private final Invoker invoker;
 	private final ErrorHandler errors;
 	private final String expression;
+	
+	private ResourceLocation debugSource;
+	private int debugLine;
+	private int debugColumn;
 
 	public ExpressionDebugger(TypeConverter converter, 
 			ExpressionsImpl expressions,
@@ -40,7 +44,7 @@ public class ExpressionDebugger
 	}
 	
 	@Override
-	public Class<?> getReturnClass()
+	public Class<?> getType()
 	{
 		return invoker.getReturnClass();
 	}
@@ -61,5 +65,12 @@ public class ExpressionDebugger
 	public String getSource()
 	{
 		return expression;
+	}
+
+	public void withDebugInfo(ResourceLocation source, int line, int column)
+	{
+		this.debugSource = source;
+		this.debugLine = line;
+		this.debugColumn = column;
 	}
 }

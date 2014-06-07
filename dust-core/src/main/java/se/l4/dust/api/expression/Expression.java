@@ -1,6 +1,7 @@
 package se.l4.dust.api.expression;
 
 import se.l4.dust.api.Context;
+import se.l4.dust.api.Value;
 
 /**
  * Expression as retrieved from {@link Expressions}.
@@ -9,13 +10,15 @@ import se.l4.dust.api.Context;
  *
  */
 public interface Expression
+	extends Value<Object>
 {
 	/**
 	 * Get the return class of the expression.
 	 * 
 	 * @return
 	 */
-	Class<?> getReturnClass();
+	@Override
+	Class<?> getType();
 	
 	/**
 	 * Execute the expression using the given context and instance.

@@ -2,8 +2,8 @@ package se.l4.dust.core.internal.template.mixins;
 
 import java.io.IOException;
 
+import se.l4.dust.api.Value;
 import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.api.template.Value;
 import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.mixin.MixinEncounter;

@@ -4,15 +4,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import se.l4.dust.api.Value;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.expression.ExpressionSource;
 import se.l4.dust.api.expression.Expressions;
 import se.l4.dust.api.resource.ResourceLocation;
-import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.core.internal.expression.ast.Node;
 import se.l4.dust.core.internal.expression.invoke.Invoker;
-import se.l4.dust.core.internal.template.dom.ExpressionContent;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -76,18 +75,9 @@ public class ExpressionsImpl
 		{
 			return (Class) context;
 		}
-		else if(context instanceof Attribute)
+		else if(context instanceof Value)
 		{
-			return ((Attribute) context).getType();
-		}
-		else if(context instanceof ExpressionContent)
-		{
-			return resolveType(((ExpressionContent) context).getExpression());
-		}
-		else if(context instanceof Expression)
-		{
-			Expression expr = (Expression) context;
-			return expr.getReturnClass();
+			return ((Value) context).getType();
 		}
 		else
 		{

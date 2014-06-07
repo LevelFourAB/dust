@@ -1,6 +1,8 @@
 package se.l4.dust.api.template.dom;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import se.l4.dust.api.template.Emittable;
@@ -43,15 +45,13 @@ public abstract class Element
 	 * @param object
 	 * @return
 	 */
-	public Element addContent(Emittable object)
+	public void addContent(Emittable object)
 	{
 		Emittable[] result = new Emittable[contents.length + 1];
 		System.arraycopy(contents, 0, result, 0, contents.length);
 		result[contents.length] = object;
 		
 		contents = result;
-		
-		return this;
 	}
 	
 	/**
@@ -60,20 +60,20 @@ public abstract class Element
 	 * @param objects
 	 * @return
 	 */
-	public Element addContent(Collection<? extends Emittable> objects)
+	public void addContent(Iterable<? extends Emittable> objects)
 	{
-		Emittable[] result = new Emittable[contents.length + objects.size()];
-		System.arraycopy(contents, 0, result, 0, contents.length);
-		
-		int index = contents.length;
-		for(Emittable o : objects)
+		List<Emittable> result = new ArrayList<>(contents.length + 10);
+		for(Emittable e : contents)
 		{
-			result[index++] = o;
+			result.add(e);
 		}
 		
-		contents = result;
+		for(Emittable e : objects)
+		{
+			result.add(e);
+		}
 		
-		return this;
+		contents = result.toArray(new Emittable[result.size()]);
 	}
 	
 	/**
@@ -82,7 +82,7 @@ public abstract class Element
 	 * @param objects
 	 * @return
 	 */
-	public Element prependContent(Collection<? extends Emittable> objects)
+	public void prependContent(Collection<? extends Emittable> objects)
 	{
 		Emittable[] result = new Emittable[contents.length + objects.size()];
 		System.arraycopy(contents, 0, result, objects.size(), contents.length);
@@ -94,8 +94,6 @@ public abstract class Element
 		}
 		
 		contents = result;
-		
-		return this;
 	}
 	
 	public void replaceContent(Emittable existing, Emittable newContent)
@@ -117,7 +115,7 @@ public abstract class Element
 		this.contents = newContent;
 	}
 	
-	public Element addAttribute(Attribute<?> attribute)
+	public void addAttribute(Attribute<?> attribute)
 	{
 		// Check for existing attribute
 		for(int i=0, n=attributes.length; i<n; i++)
@@ -126,7 +124,7 @@ public abstract class Element
 			{
 				// Replace the attribute
 				attributes[i] = attribute;
-				return this;
+				return;
 			}
 		}
 		
@@ -135,8 +133,6 @@ public abstract class Element
 		System.arraycopy(attributes, 0, result, 0, attributes.length);
 		result[attributes.length] = attribute;
 		attributes = result;
-		
-		return this;
 	}
 	
 	public String getName()

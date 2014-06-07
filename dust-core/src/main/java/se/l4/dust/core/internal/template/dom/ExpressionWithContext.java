@@ -1,10 +1,9 @@
 package se.l4.dust.core.internal.template.dom;
 
+import se.l4.dust.api.Context;
+import se.l4.dust.api.Value;
 import se.l4.dust.api.expression.Expression;
-import se.l4.dust.api.template.RenderingContext;
-import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.dom.Content;
-import se.l4.dust.api.template.dom.DynamicContent;
 
 /**
  * Content that will use another {@link Content} to fetch its data.
@@ -12,24 +11,24 @@ import se.l4.dust.api.template.dom.DynamicContent;
  * @author Andreas Holstenson
  *
  */
-public class ExpressionContentWithContext
-	extends DynamicContent
+public class ExpressionWithContext
+	implements Value<Object>
 {
 	private final Expression expr;
 	private final Object context;
 
-	public ExpressionContentWithContext(Expression expr, Object context)
+	public ExpressionWithContext(Expression expr, Object context)
 	{
 		this.expr = expr;
 		this.context = context;
 	}
 
-	private Object getActualContext(RenderingContext ctx, Object root)
+	private Object getActualContext(Context ctx, Object root)
 	{
 		Object context = this.context;
-		if(context instanceof Attribute)
+		if(context instanceof Value)
 		{
-			context = ((Attribute) context).get(ctx, root);
+			context = ((Value) context).get(ctx, root);
 		}
 		
 		// TODO: Support for more types?
@@ -37,19 +36,19 @@ public class ExpressionContentWithContext
 	}
 	
 	@Override
-	public Class<?> getValueType()
+	public Class<?> getType()
 	{
-		return expr.getReturnClass();
+		return expr.getType();
 	}
 
 	@Override
-	public Object getValue(RenderingContext ctx, Object root)
+	public Object get(Context ctx, Object root)
 	{
 		return expr.get(ctx, getActualContext(ctx, root));
 	}
 
 	@Override
-	public void setValue(RenderingContext ctx, Object root, Object data)
+	public void set(Context ctx, Object root, Object data)
 	{
 		expr.set(ctx, getActualContext(ctx, root), data);
 	}

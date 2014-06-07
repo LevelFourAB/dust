@@ -2,6 +2,7 @@ package se.l4.dust.api.template.mixin;
 
 import java.util.List;
 
+import se.l4.dust.api.Value;
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.dom.Content;
@@ -67,7 +68,7 @@ public interface MixinEncounter
 	 * @param expression
 	 * @return
 	 */
-	Content parseExpression(String expression);
+	Value<?> parseExpression(String expression);
 	
 	/**
 	 * Parse an expression on an alternative context.
@@ -76,7 +77,7 @@ public interface MixinEncounter
 	 * @param context
 	 * @return
 	 */
-	Content parseExpression(String expression, Object context);
+	Value<?> parseExpression(String expression, Object context);
 	
 	/**
 	 * Wrap the current element with the specified wrapper.
@@ -121,7 +122,7 @@ public interface MixinEncounter
 	 * @param attribute
 	 * @param content
 	 */
-	void setAttribute(String attribute, Content content);
+	void setAttribute(String attribute, Value<?> content);
 
 	/**
 	 * Report an error with handling this mixin.

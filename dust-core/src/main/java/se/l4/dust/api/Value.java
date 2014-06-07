@@ -1,4 +1,6 @@
-package se.l4.dust.api.template;
+package se.l4.dust.api;
+
+import se.l4.dust.api.template.RenderingContext;
 
 
 /**
@@ -18,7 +20,7 @@ public interface Value<T>
 	 * @param data
 	 * @return
 	 */
-	T get(RenderingContext context, Object data);
+	T get(Context context, Object data);
 	
 	/**
 	 * Set the value.
@@ -27,7 +29,7 @@ public interface Value<T>
 	 * @param data
 	 * @param value
 	 */
-	void set(RenderingContext context, Object data, Object value);
+	void set(Context context, Object data, Object value);
 	
 	/**
 	 * Get the type of this value.

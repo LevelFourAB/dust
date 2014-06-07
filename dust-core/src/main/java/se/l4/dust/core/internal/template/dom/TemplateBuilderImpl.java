@@ -12,6 +12,8 @@ import java.util.Set;
 
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.Namespaces;
+import se.l4.dust.api.Value;
+import se.l4.dust.api.Values;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.expression.Expressions;
@@ -185,7 +187,7 @@ public class TemplateBuilderImpl
 		
 		for(int i=0, n=attributes.length; i<n; i+=2)
 		{
-			e.addAttribute(new AttributeImpl(attributes[i], new Text(attributes[i+1])));
+			e.addAttribute(new AttributeImpl(attributes[i], Values.of(attributes[i+1])));
 		}
 		
 		if(stack.isEmpty())
@@ -332,13 +334,13 @@ public class TemplateBuilderImpl
 	@Override
 	public TemplateBuilder setAttribute(String name, String value)
 	{
-		setAttribute(name, new Text(value));
+		setAttribute(name, Values.of(value));
 		
 		return this;
 	}
 	
 	@Override
-	public TemplateBuilder setAttribute(String name, Content... value)
+	public TemplateBuilder setAttribute(String name, Value<?>... value)
 	{
 		Element current = current();
 		
@@ -376,15 +378,15 @@ public class TemplateBuilderImpl
 	}
 	
 	@Override
-	public TemplateBuilder setAttribute(String name, List<Content> value)
+	public TemplateBuilder setAttribute(String name, List<Value<?>> value)
 	{
-		setAttribute(name, value.toArray(new Content[value.size()]));
+		setAttribute(name, value.toArray(new Value[value.size()]));
 		
 		return this;
 	}
 	
 	@Override
-	public TemplateBuilder addContent(List<Emittable> content)
+	public TemplateBuilder addContent(Iterable<? extends Emittable> content)
 	{
 		current().addContent(content);
 		
@@ -392,14 +394,13 @@ public class TemplateBuilderImpl
 	}
 	
 	@Override
-	public Content createDynamicContent(String expression)
+	public Value<?> createDynamicContent(String expression)
 	{
-		Expression expr = expressions.compile(source, boundNamespaces, expression, context);
-		return applyDebugHints(new ExpressionContent(expr));
+		return expressions.compile(source, boundNamespaces, expression, context);
 	}
 	
 	@Override
-	public TemplateBuilder comment(List<Emittable> content)
+	public TemplateBuilder comment(Iterable<? extends Emittable> content)
 	{
 		Comment comment = new Comment();
 		comment.addContent(content);
@@ -565,21 +566,20 @@ public class TemplateBuilderImpl
 		}
 		
 		@Override
-		public Content parseExpression(String expression)
+		public Value<?> parseExpression(String expression)
 		{
-			Expression expr = expressions.compile(source, boundNamespaces, expression, context);
-			return new ExpressionContent(expr);
+			return expressions.compile(source, boundNamespaces, expression, context);
 		}
 		
 		@Override
-		public Content parseExpression(String expression, Object context)
+		public Value<?> parseExpression(String expression, Object context)
 		{
 			Expression expr = expressions.compile(source, boundNamespaces, expression, expressions.resolveType(context));
-			return new ExpressionContentWithContext(expr, context);
+			return new ExpressionWithContext(expr, context);
 		}
 		
 		@Override
-		public void setAttribute(String attribute, Content content)
+		public void setAttribute(String attribute, Value<?> content)
 		{
 			TemplateBuilderImpl.this.setAttribute(attribute, content);
 		}
