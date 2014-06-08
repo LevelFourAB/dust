@@ -42,6 +42,7 @@ public class HtmlTemplateOutput
 	
 	private final List<Boolean> preserveWhitespace;
 	private boolean currentPreserveWhitespace;
+	private boolean lastWhitespace;
 
 	public HtmlTemplateOutput(OutputStream stream)
 	{
@@ -52,6 +53,7 @@ public class HtmlTemplateOutput
 	{
 		this.writer = writer;
 		preserveWhitespace = new ArrayList<Boolean>(20);
+		lastWhitespace = false;
 	}
 	
 	private void escape(String in)
@@ -104,6 +106,7 @@ public class HtmlTemplateOutput
 	public void startElement(String name, String[] attributes, boolean close)
 		throws IOException
 	{
+		lastWhitespace = false;
 		written = true;
 		writer.write('<');
 		writer.write(name);
@@ -222,15 +225,20 @@ public class HtmlTemplateOutput
 		}
 		else
 		{
-			boolean lastWhitespace = false;
-			
 			for(int i=0, n=text.length(); i<n; i++)
 			{
 				char c = text.charAt(i);
 				boolean whitespace = Character.isWhitespace(c);
-				if(lastWhitespace && whitespace) continue;
-				
-				escape(text.charAt(i));
+				if(whitespace)
+				{
+					if(lastWhitespace) continue;
+					
+					writer.write(' ');
+				}
+				else
+				{
+					escape(c);
+				}
 				
 				lastWhitespace = whitespace;
 			}
