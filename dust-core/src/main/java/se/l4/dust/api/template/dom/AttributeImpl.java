@@ -1,5 +1,7 @@
 package se.l4.dust.api.template.dom;
 
+import java.util.Arrays;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.api.Value;
 import se.l4.dust.api.Values;
@@ -14,12 +16,12 @@ public class AttributeImpl
 	public static final String ATTR_SKIP = "##skip";
 	
 	private final String name;
-	private final Value<?>[] value;
+	private final Value<?>[] values;
 
 	public AttributeImpl(String name, Value<?>... value)
 	{
 		this.name = name;
-		this.value = value;
+		this.values = value;
 	}
 	
 	@Override
@@ -30,20 +32,20 @@ public class AttributeImpl
 	
 	public Value<?>[] getValue()
 	{
-		return value;
+		return values;
 	}
 	
 	@Override
 	public Object get(Context ctx, Object root)
 	{
-		if(value.length == 1)
+		if(values.length == 1)
 		{
-			return value[0].get(ctx, root);
+			return values[0].get(ctx, root);
 		}
 		else
 		{
 			StringBuilder result = new StringBuilder();
-			for(Value<?> c : value)
+			for(Value<?> c : values)
 			{
 				result.append(c.get(ctx, root));
 			}
@@ -55,9 +57,9 @@ public class AttributeImpl
 	@Override
 	public Class<? extends Object> getType()
 	{
-		if(value.length == 1)
+		if(values.length == 1)
 		{
-			return value[0].getType();
+			return values[0].getType();
 		}
 		
 		return String.class;
@@ -67,9 +69,9 @@ public class AttributeImpl
 	@Override
 	public String getStringValue()
 	{
-		if(value.length == 1)
+		if(values.length == 1)
 		{
-			Value<?> v = value[0];
+			Value<?> v = values[0];
 			if(v instanceof Values.StaticValue)
 			{
 				return (String) v.get(null, null);
@@ -80,7 +82,7 @@ public class AttributeImpl
 		else
 		{
 			StringBuilder builder = new StringBuilder();
-			for(Value<?> v : value)
+			for(Value<?> v : values)
 			{
 				if(v instanceof Values.StaticValue)
 				{
@@ -95,12 +97,12 @@ public class AttributeImpl
 	@Override
 	public void set(Context ctx, Object root, Object value)
 	{
-		if(this.value.length != 1)
+		if(this.values.length != 1)
 		{
 			throw new TemplateException("Unable to set value of attribute " + name + ", contains more than one expression");
 		}
 		
-		Value<?> c = this.value[0];
+		Value<?> c = this.values[0];
 		c.set(ctx, root, value);
 	}
 	
@@ -192,10 +194,10 @@ public class AttributeImpl
 		if(output == String.class && type == output)
 		{
 			// Special case, convert every value
-			Value<?>[] newValues = new Value[this.value.length];
+			Value<?>[] newValues = new Value[this.values.length];
 			for(int i=0, n=newValues.length; i<n; i++)
 			{
-				Value<?> v = this.value[i];
+				Value<?> v = this.values[i];
 				newValues[i] = convertToString(v, converter);
 			}
 			
@@ -210,5 +212,11 @@ public class AttributeImpl
 			converter.getDynamicConversion(getType(), output),
 			converter.getDynamicConversion(output, getType())
 		);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return getClass().getSimpleName() + "{name=" + name + ", content=" + Arrays.toString(values) + "}";
 	}
 }
