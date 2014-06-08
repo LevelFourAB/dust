@@ -12,7 +12,6 @@ import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.resource.NamespaceLocation;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.ResourceLocation;
-import se.l4.dust.api.resource.Resources;
 import se.l4.dust.api.resource.UrlLocation;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.api.resource.variant.ResourceVariantResolution;
@@ -45,26 +44,23 @@ public class TemplateCacheImpl
 	private static final Logger logger = LoggerFactory.getLogger(TemplateCacheImpl.class);
 
 	private final Namespaces namespaces;
-	private final Resources resources;
+	private final ResourceVariantManager variants;
 	
 	private final Provider<TemplateBuilderImpl> templateBuilders;
 	private final XmlTemplateParser parser;
 	
 	private final InnerCache inner;
 
-	private ResourceVariantManager variants;
 	
 	@Inject
 	public TemplateCacheImpl(
 			Namespaces namespaces,
-			Resources resources,
 			ResourceVariantManager variants,
 			XmlTemplateParser parser,
 			Provider<TemplateBuilderImpl> templateBuilders,
 			Stage stage)
 	{
 		this.namespaces = namespaces;
-		this.resources = resources;
 		this.variants = variants;
 		this.parser = parser;
 		this.templateBuilders = templateBuilders;

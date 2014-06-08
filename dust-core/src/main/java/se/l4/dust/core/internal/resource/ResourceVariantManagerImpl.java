@@ -412,6 +412,12 @@ public class ResourceVariantManagerImpl
 				return false;
 			return true;
 		}
+		
+		@Override
+		public String toString()
+		{
+			return "Key{location=" + location + ", values=" + Arrays.toString(values) + "}";
+		}
 	}
 	
 	private static class CacheContext
