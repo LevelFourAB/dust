@@ -79,4 +79,11 @@ public interface TypeConverter
 	 * @return
 	 */
 	<T> NonGenericConversion<Object, T> createDynamicConversionTo(Class<T> out);
+
+	/**
+	 * Get a conversion that will just return {@code null}.
+	 * 
+	 * @return
+	 */
+	<I, O> Conversion<I, O> nullConversion();
 }

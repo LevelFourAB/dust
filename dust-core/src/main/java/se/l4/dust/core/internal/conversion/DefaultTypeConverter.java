@@ -423,6 +423,13 @@ public class DefaultTypeConverter
 		return in.getSuperclass();
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Override
+	public <I, O> Conversion<I, O> nullConversion()
+	{
+		return (Conversion<I, O>) NULL;
+	}
+	
 	private static class CacheKey
 	{
 		private Class<?> in;
