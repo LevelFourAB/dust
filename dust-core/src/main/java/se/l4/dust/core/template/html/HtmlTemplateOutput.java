@@ -157,6 +157,8 @@ public class HtmlTemplateOutput
 	public void endElement(String name)
 		throws IOException
 	{
+		lastWhitespace = false;
+		
 		if(singleTags.contains(name))
 		{
 			return;
@@ -185,6 +187,7 @@ public class HtmlTemplateOutput
 	public void endComment()
 		throws IOException
 	{
+		lastWhitespace = false;
 		inComment = false;
 		writer.write("-->");
 	}
