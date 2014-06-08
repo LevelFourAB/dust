@@ -41,11 +41,11 @@ public class ContextResourceLocator
 	public Resource locate(String ns, String pathToFile)
 		throws IOException
 	{
-		if(Dust.CONTEXT_NAMESPACE_URI.equals(ns))
+		if(Dust.NAMESPACE_CONTEXT.equals(ns))
 		{
 			if(false == namespaces.isBound(ns))
 			{
-				throw new TemplateException("Trying to use assets from the webapp context, but the namespace " + Dust.CONTEXT_NAMESPACE_URI + " has not been bound");
+				throw new TemplateException("Trying to use assets from the webapp context, but the namespace " + Dust.NAMESPACE_CONTEXT + " has not been bound");
 			}
 			
 			try
