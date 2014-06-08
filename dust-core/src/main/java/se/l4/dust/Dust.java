@@ -23,6 +23,16 @@ public class Dust
 	public static final String DUST_PRODUCTION = "production";
 	
 	/**
+	 * The common namespace where internal components reside.
+	 */
+	public static final String NAMESPACE_COMMON = "dust:common";
+	
+	/**
+	 * The parameter namespace used to define parameters.
+	 */
+	public static final String NAMESPACE_PARAMETERS = "dust:parameters";
+	
+	/**
 	 * URI of context namespace, used to refer to files in the webapp context.
 	 */
 	public static final String CONTEXT_NAMESPACE_URI = "dust:context";
