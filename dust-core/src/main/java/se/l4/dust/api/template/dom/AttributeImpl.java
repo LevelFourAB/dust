@@ -12,9 +12,6 @@ import se.l4.dust.api.template.TemplateException;
 public class AttributeImpl
 	implements Attribute<Object>
 {
-	public static final String ATTR_EMIT = "##emit";
-	public static final String ATTR_SKIP = "##skip";
-	
 	private final String name;
 	private final Value<?>[] values;
 
@@ -112,81 +109,25 @@ public class AttributeImpl
 	 * @param conversion
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public <T> Attribute<T> bindTo(
 			final Class<T> type,
 			final Conversion<Object, T> get,
 			final Conversion<Object, ?> set)
 	{
-		return new Attribute<T>()
-		{
-			@Override
-			public String getName()
-			{
-				return name;
-			}
-			
-			@Override
-			public T get(Context context, Object data)
-			{
-				Object value = AttributeImpl.this.get(context, data);
-				return get.convert(value);
-			}
-			
-			@Override
-			public void set(Context context, Object data, Object value)
-			{
-				Object object = set.convert(value);
-				AttributeImpl.this.set(context, data, object);
-			}
-			
-			@Override
-			public Class<T> getType()
-			{
-				return type;
-			}
-			
-			@Override
-			public String getStringValue()
-			{
-				return getStringValue();
-			}
-			
-			@Override
-			public <T> Attribute<T> bindVia(TypeConverter converter, Class<T> output)
-			{
-				throw new UnsupportedOperationException("Already bound");
-			}
-		};
+		return (Attribute<T>) new BoundAttribute<T>(name, values, type, get, set);
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Value<String> convertToString(final Value<?> value, TypeConverter converter)
 	{
 		if(value.getType() == String.class) return (Value) value;
 		
 		final Conversion<Object, String> conversion = converter.getDynamicConversion(value.getType(), String.class);
-		return new Value<String>()
-		{
-			@Override
-			public Class<? extends String> getType()
-			{
-				return String.class;
-			}
-			
-			@Override
-			public String get(Context context, Object data)
-			{
-				Object object = value.get(context, data);
-				return conversion.convert(object);
-			}
-			
-			@Override
-			public void set(Context context, Object data, Object value)
-			{
-				throw new UnsupportedOperationException();
-			}
-		};
+		return new StringValue(value, conversion);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> Attribute<T> bindVia(TypeConverter converter, Class<T> output)
 	{
@@ -218,5 +159,84 @@ public class AttributeImpl
 	public String toString()
 	{
 		return getClass().getSimpleName() + "{name=" + name + ", content=" + Arrays.toString(values) + "}";
+	}
+	
+	private static class StringValue
+		implements Value<String>
+	{
+		private final Value<?> value;
+		private final Conversion<Object, String> conversion;
+	
+		private StringValue(Value<?> value, Conversion<Object, String> conversion)
+		{
+			this.value = value;
+			this.conversion = conversion;
+		}
+	
+		@Override
+		public Class<? extends String> getType()
+		{
+			return String.class;
+		}
+	
+		@Override
+		public String get(Context context, Object data)
+		{
+			Object object = value.get(context, data);
+			return conversion.convert(object);
+		}
+	
+		@Override
+		public void set(Context context, Object data, Object value)
+		{
+			throw new UnsupportedOperationException();
+		}
+	}
+	
+	private static class BoundAttribute<T>
+		extends AttributeImpl
+	{
+		private final Class<T> type;
+		private final Conversion<Object, T> get;
+		private final Conversion<Object, ?> set;
+	
+		private BoundAttribute(String name,
+				Value<?>[] values,
+				Class<T> type,
+				Conversion<Object, T> get,
+				Conversion<Object, ?> set) 
+		{
+			super(name, values);
+			
+			this.type = type;
+			this.get = get;
+			this.set = set;
+		}
+	
+		@Override
+		public T get(Context context, Object data)
+		{
+			Object value = super.get(context, data);
+			return get.convert(value);
+		}
+	
+		@Override
+		public void set(Context context, Object data, Object value)
+		{
+			Object object = set.convert(value);
+			super.set(context, data, object);
+		}
+	
+		@Override
+		public Class<T> getType()
+		{
+			return type;
+		}
+	
+		@Override
+		public <T> Attribute<T> bindVia(TypeConverter converter, Class<T> output)
+		{
+			throw new UnsupportedOperationException("Already bound");
+		}
 	}
 }
