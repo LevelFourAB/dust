@@ -68,7 +68,7 @@ public class ExpressionCompiler
 			CtMethod returnClass = exprIf.getMethod("getType", "()Ljava/lang/Class;");
 			CtMethod source = exprIf.getMethod("getSource", "()Ljava/lang/String;");
 			
-			CtClass type = pool.makeClass("se.l4.dust.core.internal.expression.Expression$$" + compiled.incrementAndGet());
+			CtClass type = pool.makeClass(context.getName() + "$$Expression$$" + compiled.incrementAndGet());
 			type.addInterface(exprIf);
 			
 			// Create the expressions
