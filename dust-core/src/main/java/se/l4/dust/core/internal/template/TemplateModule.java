@@ -18,7 +18,6 @@ import se.l4.dust.core.internal.template.components.FragmentUse;
 import se.l4.dust.core.internal.template.components.HolderComponent;
 import se.l4.dust.core.internal.template.components.IfComponent;
 import se.l4.dust.core.internal.template.components.LoopComponent;
-import se.l4.dust.core.internal.template.components.ParameterComponent;
 import se.l4.dust.core.internal.template.components.RawComponent;
 import se.l4.dust.core.internal.template.components.RenderComponent;
 import se.l4.dust.core.internal.template.mixins.AttributesMixin;
@@ -51,7 +50,6 @@ public class TemplateModule
 	
 	@TemplateContribution
 	public void contributeCommonComponents(Templates manager,
-			ParameterComponent parameter,
 			BodyComponent body,
 			IfComponent ifC,
 			LoopComponent loop,
@@ -63,7 +61,6 @@ public class TemplateModule
 			AttributesMixin attributesM)
 	{
 		manager.getNamespace(Dust.NAMESPACE_COMMON)
-			.addFragment("parameter", parameter)
 			.addFragment("body", body)
 			.addFragment("if", ifC)
 			.addFragment("loop", loop)

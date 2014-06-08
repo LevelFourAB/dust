@@ -253,6 +253,10 @@ public class XmlTemplateParser
 					return;
 				}
 			}
+			else if(isParameterNamespace(uri))
+			{
+				builder.startParameter(localName);
+			}
 			else
 			{
 				builder.startElement(qName);
@@ -280,6 +284,11 @@ public class XmlTemplateParser
 			}
 		}
 		
+		private boolean isParameterNamespace(String uri)
+		{
+			return Dust.NAMESPACE_PARAMETERS.equals(uri);
+		}
+
 		@Override
 		public void endElement(String uri, String localName, String qName)
 			throws SAXException

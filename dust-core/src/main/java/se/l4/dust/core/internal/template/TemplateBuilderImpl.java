@@ -175,6 +175,11 @@ public class TemplateBuilderImpl
 		return currentN() instanceof FragmentElement;
 	}
 	
+	private boolean isParameter()
+	{
+		return currentN() instanceof ParameterElement;
+	}
+	
 	@Override
 	public TemplateBuilder startElement(String name, String... attributes)
 	{
@@ -323,6 +328,64 @@ public class TemplateBuilderImpl
 	}
 	
 	@Override
+	public TemplateBuilder startParameter(String name)
+	{
+		if(! isFragment())
+		{
+			errorCollector.newError(line, column, "Parameters can only be used as children to fragments");
+		}
+		
+		// Add mixin attributes to the stack
+		mixinAttributes.add(new LinkedHashMap<String, AttributeImpl>());
+		
+		Element e = new ParameterElement(name);
+		applyDebugHints(e);
+		
+		if(stack.isEmpty())
+		{
+			root = e;
+		}
+		else
+		{
+			current().addContent(e);
+		}
+		
+		setCurrent(e);
+		
+		return this;
+	}
+	
+	@Override
+	public TemplateBuilder endParameter()
+	{
+		Element current = current();
+		
+		if(! isParameter())
+		{
+			throw raiseError("Not currently building a parameter. Current is: " + current);
+		}
+		
+		Element actualContent = new EmittableContent(new DataContextSwitcher(id, current.getRawContents()));
+		setCurrent(actualContent);
+		
+		// Apply the mixins
+		applyMixins();
+		mixinAttributes.removeLast();
+
+		// Fetch new content
+		actualContent = current();
+		
+		// Go up twice to get to the parent element
+		goToParent();
+		goToParent();
+		
+		// Set the parameter
+		current().addParameter(current.getName(), actualContent);
+		
+		return this;
+	}
+	
+	@Override
 	public TemplateBuilder endCurrent()
 	{
 		current();
@@ -330,6 +393,10 @@ public class TemplateBuilderImpl
 		if(isFragment())
 		{
 			endFragment();
+		}
+		else if(isParameter())
+		{
+			endParameter();
 		}
 		else
 		{
@@ -839,6 +906,21 @@ public class TemplateBuilderImpl
 		public boolean wasReplaced()
 		{
 			return replaced;
+		}
+	}
+	
+	private static class ParameterElement
+		extends Element
+	{
+		public ParameterElement(String name)
+		{
+			super(name);
+		}
+		
+		@Override
+		public void emit(TemplateEmitter emitter, TemplateOutputStream output)
+			throws IOException
+		{
 		}
 	}
 }

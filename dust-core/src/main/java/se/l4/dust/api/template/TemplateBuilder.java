@@ -85,6 +85,21 @@ public interface TemplateBuilder
 	TemplateBuilder endFragment();
 	
 	/**
+	 * Start a new parameter.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	TemplateBuilder startParameter(String name);
+	
+	/**
+	 * End a parameter.
+	 * 
+	 * @return
+	 */
+	TemplateBuilder endParameter();
+	
+	/**
 	 * End the current element or component.
 	 * 
 	 * @return
