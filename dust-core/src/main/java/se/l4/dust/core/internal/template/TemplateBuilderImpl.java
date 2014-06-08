@@ -314,6 +314,10 @@ public class TemplateBuilderImpl
 
 			goToParent();
 		}
+		else
+		{
+			mixinAttributes.removeLast();
+		}
 		
 		return this;
 	}
