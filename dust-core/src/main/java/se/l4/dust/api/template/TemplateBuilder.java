@@ -50,12 +50,38 @@ public interface TemplateBuilder
 	 */
 	TemplateBuilder endElement();
 	
+	/**
+	 * Start a fragment based on a qualified name. The qualified name
+	 * is on the form {@code prefix:name}, where the prefix should be
+	 * a {@link #bindNamespace(String, String) bound namespace}.
+	 * 
+	 * @param name
+	 * @return
+	 */
 	TemplateBuilder startFragment(String name);
 	
+	/**
+	 * Start a fragment based on a name and a namespace.
+	 *
+	 * @param name
+	 * @param namespace
+	 * @return
+	 */
 	TemplateBuilder startFragment(String name, String namespace);
 	
+	/**
+	 * Start a fragment.
+	 * 
+	 * @param fragment
+	 * @return
+	 */
 	TemplateBuilder startFragment(TemplateFragment fragment);
 	
+	/**
+	 * End the current fragment.
+	 * 
+	 * @return
+	 */
 	TemplateBuilder endFragment();
 	
 	/**
@@ -73,17 +99,6 @@ public interface TemplateBuilder
 	 * @return
 	 */
 	TemplateBuilder setAttribute(String name, String value);
-	
-//	/**
-//	 * Set an attribute on the current element component, optionally expanding 
-//	 * it via the current variable tokenizer.
-//	 * 
-//	 * @param name
-//	 * @param value
-//	 * @param expand
-//	 * @return
-//	 */
-//	TemplateBuilder setAttribute(String name, String value, boolean expand);
 	
 	/**
 	 * Set an attribute to a set of expanded values. The different values
