@@ -2,7 +2,6 @@ package se.l4.dust.api.template.spi;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -18,6 +17,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
+import se.l4.dust.Dust;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.Value;
 import se.l4.dust.api.Values;
@@ -32,6 +32,7 @@ import se.l4.dust.api.template.Templates;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -46,6 +47,8 @@ import com.google.inject.Singleton;
 public class XmlTemplateParser
 	implements TemplateParser
 {
+	private enum Whitespace { KEEP, REMOVE }
+	
 	private final Templates templates;
 	private final Namespaces namespaces;
 	private final Function<Value<?>, Emittable> valueToEmittable;
@@ -139,8 +142,8 @@ public class XmlTemplateParser
 		
 		private final List<NsDeclaration> declaredNamespaces;
 		
-		private final List<Boolean> ignoreWhitespace;
-		private Boolean currentIgnoreWhitespace;
+		private final List<Whitespace> whitespace;
+		private Whitespace currentWhitespace;
 		
 		private StringBuilder text;
 		
@@ -162,11 +165,11 @@ public class XmlTemplateParser
 			this.builder = builder;
 			this.errors = errors;
 			
-			declaredNamespaces = new ArrayList<NsDeclaration>();
+			declaredNamespaces = Lists.newArrayList();
 			text = new StringBuilder();
 			
-			ignoreWhitespace = new ArrayList<Boolean>();
-			currentIgnoreWhitespace = Boolean.FALSE;
+			whitespace = Lists.newArrayList();
+			currentWhitespace = Whitespace.KEEP;
 			
 			extractor = new ExpressionExtractor("${", "}", builder, errors);
 		}
@@ -211,21 +214,29 @@ public class XmlTemplateParser
 			
 			builder.addDebugHint(locator.getLineNumber(), locator.getColumnNumber());
 			
-			int wsIdx = attributes.getIndex("dust:common", "whitespace");
+			int wsIdx = attributes.getIndex(Dust.NAMESPACE_COMMON, "whitespace");
 			if(wsIdx >= 0)
 			{
 				String value = attributes.getValue(wsIdx);
 				if("ignore".equals(value))
 				{
-					currentIgnoreWhitespace = Boolean.TRUE; 
+					currentWhitespace = Whitespace.REMOVE; 
+				}
+				else if("keep".equals(value))
+				{
+					currentWhitespace = Whitespace.KEEP;
 				}
 				else
 				{
-					currentIgnoreWhitespace = Boolean.FALSE;
+					errors.newError(
+						locator.getLineNumber(), locator.getColumnNumber(),
+						"Invalid value for argument `whitespace`: " + value
+					);
+					currentWhitespace = Whitespace.KEEP;
 				}
 			}
 			
-			ignoreWhitespace.add(currentIgnoreWhitespace);
+			whitespace.add(currentWhitespace);
 			
 			if(namespaces.isBound(uri))
 			{
@@ -276,10 +287,10 @@ public class XmlTemplateParser
 			flushCharacters();
 		
 			// Reset whitespace
-			ignoreWhitespace.remove(ignoreWhitespace.size() - 1);
-			if(! ignoreWhitespace.isEmpty())
+			whitespace.remove(whitespace.size() - 1);
+			if(! whitespace.isEmpty())
 			{
-				currentIgnoreWhitespace = ignoreWhitespace.get(ignoreWhitespace.size() - 1);
+				currentWhitespace = whitespace.get(whitespace.size() - 1);
 			}
 			
 			builder.addDebugHint(locator.getLineNumber(), locator.getColumnNumber());
@@ -319,7 +330,7 @@ public class XmlTemplateParser
 			String text = this.text.toString();
 			this.text.setLength(0);
 			
-			if(currentIgnoreWhitespace == Boolean.TRUE && text.trim().isEmpty())
+			if(currentWhitespace == Whitespace.REMOVE && text.trim().isEmpty())
 			{
 				return;
 			}
@@ -331,7 +342,7 @@ public class XmlTemplateParser
 			else
 			{
 				List<Value<?>> content = extractor.parse(errors.getSource(), textLine, textColumn, text);
-				if(currentIgnoreWhitespace)
+				if(currentWhitespace == Whitespace.REMOVE)
 				{
 					Iterator<Value<?>> it = content.iterator();
 					while(it.hasNext())
