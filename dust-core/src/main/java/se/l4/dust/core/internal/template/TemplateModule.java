@@ -4,6 +4,7 @@ import se.l4.crayon.Contributions;
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
 import se.l4.crayon.annotation.Order;
+import se.l4.dust.Dust;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.discovery.NamespaceDiscovery;
 import se.l4.dust.api.template.TemplateCache;
@@ -20,6 +21,7 @@ import se.l4.dust.core.internal.template.components.LoopComponent;
 import se.l4.dust.core.internal.template.components.ParameterComponent;
 import se.l4.dust.core.internal.template.components.RawComponent;
 import se.l4.dust.core.internal.template.components.RenderComponent;
+import se.l4.dust.core.internal.template.mixins.AttributesMixin;
 import se.l4.dust.core.internal.template.mixins.IfMixin;
 import se.l4.dust.core.internal.template.mixins.RepeatMixin;
 
@@ -35,8 +37,6 @@ import com.google.inject.Stage;
 public class TemplateModule
 	extends CrayonModule
 {
-	public static final String COMMON = "dust:common";
-	
 	@Override
 	public void configure()
 	{
@@ -59,9 +59,10 @@ public class TemplateModule
 			RawComponent raw,
 			RenderComponent render,
 			IfMixin ifM,
-			RepeatMixin repeatM)
+			RepeatMixin repeatM,
+			AttributesMixin attributesM)
 	{
-		manager.getNamespace(COMMON)
+		manager.getNamespace(Dust.NAMESPACE_COMMON)
 			.addFragment("parameter", parameter)
 			.addFragment("body", body)
 			.addFragment("if", ifC)
@@ -70,7 +71,8 @@ public class TemplateModule
 			.addFragment("raw", raw)
 			.addFragment("render", render)
 			.addMixin("if", ifM)
-			.addMixin("repeat", repeatM);
+			.addMixin("repeat", repeatM)
+			.addMixin("attributes", attributesM);
 	}
 	
 	@TemplateContribution
