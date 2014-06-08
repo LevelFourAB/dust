@@ -1,4 +1,4 @@
-package se.l4.dust.core.internal.template.dom;
+package se.l4.dust.core.internal.template;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -41,6 +41,10 @@ import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.mixin.MixinEncounter;
 import se.l4.dust.api.template.mixin.TemplateMixin;
 import se.l4.dust.api.template.spi.ErrorCollector;
+import se.l4.dust.core.internal.template.components.DataContextSwitcher;
+import se.l4.dust.core.internal.template.dom.EmittableContent;
+import se.l4.dust.core.internal.template.dom.Empty;
+import se.l4.dust.core.internal.template.dom.ExpressionWithContext;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;

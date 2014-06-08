@@ -9,11 +9,10 @@ import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.dom.DocType;
-import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.fragment.FragmentEncounter;
 import se.l4.dust.api.template.fragment.TemplateFragment;
-import se.l4.dust.core.internal.template.dom.TemplateEmitterImpl;
+import se.l4.dust.core.internal.template.TemplateEmitterImpl;
 
 import com.google.inject.Inject;
 
@@ -58,8 +57,7 @@ public class RenderComponent
 					output.docType(docType.getName(), docType.getPublicId(), docType.getSystemId());
 				}
 				
-				Element templateRoot = template.getRoot();
-				
+				Emittable templateRoot = template.getRoot();
 				emitter.emit(templateRoot);
 				
 				// Switch context back

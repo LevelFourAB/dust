@@ -4,18 +4,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Type;
 
-import org.jboss.resteasy.core.ValueInjector;
-import org.jboss.resteasy.spi.HttpRequest;
-import org.jboss.resteasy.spi.HttpResponse;
 import org.jboss.resteasy.spi.InjectorFactory;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
-import org.jboss.resteasy.util.Types;
+
+import se.l4.dust.servlet.WebRenderingContext;
 
 import com.google.inject.Inject;
-
-import se.l4.dust.api.Namespaces;
-import se.l4.dust.api.conversion.TypeConverter;
-import se.l4.dust.servlet.WebRenderingContext;
 
 /**
  * Extension to {@link WebRenderingContext} for Resteasy specific 
@@ -30,9 +24,8 @@ public class ResteasyRenderingContext
 	private final InjectorFactory injectorFactory;
 
 	@Inject
-	public ResteasyRenderingContext(Namespaces namespaceManager, TypeConverter converter, ResteasyProviderFactory factory)
+	public ResteasyRenderingContext(ResteasyProviderFactory factory)
 	{
-		super(namespaceManager, converter);
 		injectorFactory = factory.getInjectorFactory();
 	}
 

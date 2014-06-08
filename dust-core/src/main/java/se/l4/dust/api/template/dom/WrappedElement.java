@@ -6,7 +6,7 @@ import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.mixin.ElementWrapper;
-import se.l4.dust.core.internal.template.dom.TemplateEmitterImpl;
+import se.l4.dust.core.internal.template.TemplateEmitterImpl;
 
 /**
  * Holder for an element that has been wrapped by a mixin.

@@ -1,4 +1,4 @@
-package se.l4.dust.core.internal.template.dom;
+package se.l4.dust.core.internal.template.components;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -27,6 +27,7 @@ import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.dom.WrappedElement;
 import se.l4.dust.api.template.fragment.FragmentEncounter;
 import se.l4.dust.api.template.fragment.TemplateFragment;
+import se.l4.dust.core.internal.template.TemplateEmitterImpl;
 
 import com.google.common.collect.Sets;
 import com.google.inject.Binding;
@@ -226,8 +227,7 @@ public class ComponentTemplateFragment
 					out.docType(docType.getName(), docType.getPublicId(), docType.getSystemId());
 				}
 				
-				Element templateRoot = template.getRoot();
-				
+				Emittable templateRoot = template.getRoot();
 				emitterImpl.emit(templateRoot);
 				
 				// Switch context back

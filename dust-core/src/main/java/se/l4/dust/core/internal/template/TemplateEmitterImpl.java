@@ -1,4 +1,4 @@
-package se.l4.dust.core.internal.template.dom;
+package se.l4.dust.core.internal.template;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,7 +34,7 @@ public class TemplateEmitterImpl
 	private final RenderingContext ctx;
 
 	private final String[] attrsCache;
-	private final HashMap<Integer, Element> componentMap;
+	private final HashMap<Integer, Emittable> componentMap;
 	private final HashMap<Integer, Object> dataMap;
 	
 	private final ElementEncounterImpl encounter;
@@ -44,7 +44,7 @@ public class TemplateEmitterImpl
 	
 	private TemplateOutputStream out;
 	
-	private Element currentComponent;
+	private Emittable currentComponent;
 	private Integer currentComponentId;
 	
 	private Map<String, String> extraAttributes;
@@ -54,8 +54,8 @@ public class TemplateEmitterImpl
 		this.template = template;
 		this.ctx = ctx;
 		
-		dataMap = new HashMap<Integer, Object>(32);
-		componentMap = new HashMap<Integer, Element>(32);
+		dataMap = new HashMap<>(32);
+		componentMap = new HashMap<>(32);
 		
 		current = data;
 		currentId = template.getRawId();
@@ -144,6 +144,17 @@ public class TemplateEmitterImpl
 		
 		return attrs;
 	}
+	
+	@Override
+	public Emittable getParameter(String name)
+	{
+		if(currentComponent instanceof Element)
+		{
+			return ((Element) currentComponent).getParameter(name);
+		}
+		
+		return null;
+	}
 
 	@Override
 	public void emit(Emittable c)
@@ -200,7 +211,7 @@ public class TemplateEmitterImpl
 		return current;
 	}
 	
-	public Element getCurrentComponent()
+	public Emittable getCurrentComponent()
 	{
 		return currentComponent;
 	}

@@ -6,10 +6,9 @@ import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.dom.Attribute;
-import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.fragment.FragmentEncounter;
 import se.l4.dust.api.template.fragment.TemplateFragment;
-import se.l4.dust.core.internal.template.dom.TemplateEmitterImpl;
+import se.l4.dust.core.internal.template.TemplateEmitterImpl;
 
 public class BodyComponent
 	implements TemplateFragment
@@ -46,7 +45,7 @@ public class BodyComponent
 			throws IOException
 		{
 			TemplateEmitterImpl emitterImpl = (TemplateEmitterImpl) emitter;
-			Element e = emitterImpl.getCurrentComponent();
+			Emittable e = emitterImpl.getCurrentComponent();
 			if(e == null) return;
 			
 			emitter.emit(e);
@@ -68,10 +67,10 @@ public class BodyComponent
 			throws IOException
 		{
 			TemplateEmitterImpl emitterImpl = (TemplateEmitterImpl) emitter;
-			Element e = emitterImpl.getCurrentComponent();
+			Emittable e = emitterImpl.getCurrentComponent();
 			if(e == null) return;
 			
-			Emittable param = e.getParameter(name);
+			Emittable param = emitter.getParameter(name);
 			if(param != null)
 			{
 				emitter.emit(e);

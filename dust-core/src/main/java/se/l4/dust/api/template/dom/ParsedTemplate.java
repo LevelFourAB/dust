@@ -1,6 +1,7 @@
 package se.l4.dust.api.template.dom;
 
 import se.l4.dust.api.resource.ResourceLocation;
+import se.l4.dust.api.template.Emittable;
 
 
 /**
@@ -15,10 +16,10 @@ public class ParsedTemplate
 	private final ResourceLocation location;
 	private final String name;
 	private final DocType doctype;
-	private final Element root;
+	private final Emittable root;
 	private final Integer id;
 
-	public ParsedTemplate(ResourceLocation location, String name, DocType doctype, Element root, Integer id)
+	public ParsedTemplate(ResourceLocation location, String name, DocType doctype, Emittable root, Integer id)
 	{
 		this.location = location;
 		this.name = name;
@@ -47,7 +48,7 @@ public class ParsedTemplate
 	 * 
 	 * @return
 	 */
-	public Element getRoot()
+	public Emittable getRoot()
 	{
 		return root;
 	}

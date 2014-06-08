@@ -9,10 +9,6 @@ import java.util.Map;
 
 import com.google.inject.Inject;
 
-import se.l4.dust.api.Namespaces;
-import se.l4.dust.api.conversion.TypeConverter;
-import se.l4.dust.api.template.dom.DynamicContent;
-
 /**
  * Implementation of {@link RenderingContext} that does not handle any URI
  * resolving.
@@ -23,50 +19,33 @@ import se.l4.dust.api.template.dom.DynamicContent;
 public class DefaultRenderingContext
 	implements RenderingContext
 {
-	protected final Namespaces namespaceManager;
-	protected final TypeConverter converter;
 	private final Map<Object, Object> values;
 
 	@Inject
-	public DefaultRenderingContext(Namespaces namespaceManager, TypeConverter converter)
+	public DefaultRenderingContext()
 	{
-		this.namespaceManager = namespaceManager;
-		this.converter = converter;
 		values = new HashMap<Object, Object>();
 	}
 	
+	@Override
 	public Object getValue(Object key)
 	{
 		return values.get(key);
 	}
 	
+	@Override
 	public void putValue(Object key, Object value)
 	{
 		values.put(key, value);
 	}
 	
-	public Object getDynamicValue(DynamicContent content, Object root)
-	{
-		return content.getValue(this, root);
-	}
-	
-	public String getStringValue(Object input)
-	{
-		if(converter.canConvertBetween(input, String.class))
-		{
-			return converter.convert(input, String.class);
-		}
-		else
-		{
-			return String.valueOf(input);
-		}
-	}
-	
+	@Override
 	public URI resolveURI(Object object)
 	{
 		return null;
 	}
 	
+	@Override
 	public Object resolveObject(AccessibleObject parameter, Type type, 
 			Annotation[] annotations, Object instance)
 	{

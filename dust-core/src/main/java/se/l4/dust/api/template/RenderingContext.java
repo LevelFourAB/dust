@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 import java.net.URI;
 
 import se.l4.dust.api.Context;
-import se.l4.dust.api.template.dom.DynamicContent;
 
 /**
  * Context of a template rendering. The context is used to resolve links,
@@ -18,23 +17,6 @@ import se.l4.dust.api.template.dom.DynamicContent;
 public interface RenderingContext
 	extends Context
 {
-	/**
-	 * Get the value of the given dynamic content.
-	 * 
-	 * @param content
-	 * @param root
-	 * @return
-	 */
-	Object getDynamicValue(DynamicContent content, Object root);
-	
-	/**
-	 * Get the string value of the given input.
-	 * 
-	 * @param input
-	 * @return
-	 */
-	String getStringValue(Object input);
-	
 	/**
 	 * Resolve a URI for the given object.
 	 * 

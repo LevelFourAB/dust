@@ -12,7 +12,6 @@ import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.TemplateRenderer;
 import se.l4.dust.api.template.dom.ParsedTemplate;
-import se.l4.dust.core.internal.template.dom.TemplateEmitterImpl;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

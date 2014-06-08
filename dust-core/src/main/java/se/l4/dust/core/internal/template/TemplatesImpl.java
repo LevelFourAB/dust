@@ -14,7 +14,7 @@ import se.l4.dust.api.template.ComponentException;
 import se.l4.dust.api.template.Templates;
 import se.l4.dust.api.template.fragment.TemplateFragment;
 import se.l4.dust.api.template.mixin.TemplateMixin;
-import se.l4.dust.core.internal.template.dom.ComponentTemplateFragment;
+import se.l4.dust.core.internal.template.components.ComponentTemplateFragment;
 
 import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;

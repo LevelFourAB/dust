@@ -34,6 +34,14 @@ public interface TemplateEmitter
 	String[] createAttributes(Attribute<String>[] attributes);
 
 	/**
+	 * Get an active parameter.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	Emittable getParameter(String name);
+	
+	/**
 	 * Emit the given contents.
 	 * 
 	 * @param c
@@ -50,4 +58,5 @@ public interface TemplateEmitter
 	 */
 	void emit(Emittable[] emittables)
 		throws IOException;
+
 }

@@ -21,7 +21,6 @@ import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.spi.XmlTemplateParser;
-import se.l4.dust.core.internal.template.dom.TemplateBuilderImpl;
 
 import com.google.common.base.Throwables;
 import com.google.common.cache.Cache;

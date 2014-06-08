@@ -5,15 +5,11 @@ import java.net.URI;
 import javax.servlet.http.HttpServletRequest;
 
 import se.l4.dust.api.Namespace;
-import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.Asset;
-import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.template.DefaultRenderingContext;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateException;
-
-import com.google.inject.Inject;
 
 /**
  * Implementation of {@link RenderingContext} that resolves assets correctly
@@ -25,12 +21,6 @@ import com.google.inject.Inject;
 public class WebRenderingContext
 	extends DefaultRenderingContext
 {
-	@Inject
-	public WebRenderingContext(Namespaces namespaceManager, TypeConverter converter)
-	{
-		super(namespaceManager, converter);
-	}
-	
 	/**
 	 * Setup this rendering request for the given servlet request.
 	 * 
