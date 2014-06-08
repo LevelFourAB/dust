@@ -21,7 +21,7 @@ import se.l4.dust.Dust;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.Value;
 import se.l4.dust.api.Values;
-import se.l4.dust.api.conversion.NonGenericConversion;
+import se.l4.dust.api.conversion.Conversion;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.template.Emittable;
@@ -66,7 +66,7 @@ public class XmlTemplateParser
 			@Override
 			public Emittable apply(Value<?> input)
 			{
-				NonGenericConversion<?, String> conversion = converter.createDynamicConversionTo(String.class);
+				Conversion<?, String> conversion = converter.getDynamicConversion(input.getType(), String.class);
 				return new EmittableValue(input, conversion);
 			}
 		};
