@@ -1,11 +1,11 @@
 package se.l4.dust.core.internal.template.mixins;
 
+import se.l4.dust.Dust;
 import se.l4.dust.api.Value;
 import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.mixin.MixinEncounter;
 import se.l4.dust.api.template.mixin.TemplateMixin;
-import se.l4.dust.core.internal.template.TemplateModule;
 
 import com.google.inject.Inject;
 
@@ -20,7 +20,7 @@ public class IfMixin
 	@Override
 	public void element(MixinEncounter encounter)
 	{
-		final Value<Boolean> test = encounter.getAttribute(TemplateModule.COMMON, "if", Boolean.class);
+		final Value<Boolean> test = encounter.getAttribute(Dust.NAMESPACE_COMMON, "if", Boolean.class);
 		encounter.wrap(new ElementWrapper()
 		{
 			@Override

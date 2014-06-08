@@ -2,13 +2,13 @@ package se.l4.dust.core.internal.template.mixins;
 
 import java.io.IOException;
 
+import se.l4.dust.Dust;
 import se.l4.dust.api.Value;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.mixin.MixinEncounter;
 import se.l4.dust.api.template.mixin.TemplateMixin;
-import se.l4.dust.core.internal.template.TemplateModule;
 
 import com.google.inject.Inject;
 
@@ -23,8 +23,8 @@ public class RepeatMixin
 	@Override
 	public void element(MixinEncounter encounter)
 	{
-		final Value<Integer> attribute = encounter.getAttribute(TemplateModule.COMMON, "repeat", Integer.class);
-		final Value<Integer> in = encounter.getAttribute(TemplateModule.COMMON, "in", Integer.class);
+		final Value<Integer> attribute = encounter.getAttribute(Dust.NAMESPACE_COMMON, "repeat", Integer.class);
+		final Value<Integer> in = encounter.getAttribute(Dust.NAMESPACE_COMMON, "in", Integer.class);
 		
 		encounter.wrap(new ElementWrapper()
 		{
