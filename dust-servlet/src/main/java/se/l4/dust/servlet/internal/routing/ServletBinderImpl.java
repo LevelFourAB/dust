@@ -34,21 +34,25 @@ public class ServletBinderImpl
 		servlets = new ServletEntry[0];
 	}
 	
+	@Override
 	public FilterBuilder filterRegex(String path)
 	{
 		return new FilterBuilderImpl(path).regex();
 	}
 	
+	@Override
 	public FilterBuilder filter(String path)
 	{
 		return new FilterBuilderImpl(path);
 	}
 
+	@Override
 	public ServletBuilder serve(String path)
 	{
 		return new ServletBuilderImpl(path);
 	}
 	
+	@Override
 	public ServletBuilder serveRegex(String path)
 	{
 		return new ServletBuilderImpl(path).regex();
@@ -62,6 +66,22 @@ public class ServletBinderImpl
 	public ServletEntry[] getServlets()
 	{
 		return servlets;
+	}
+	
+	private Matcher createMatcher(boolean regex, String path)
+	{
+		if(regex)
+		{
+			return new RegexMatcher(path);
+		}
+		else if("/*".equals(path))
+		{
+			return AnyMatcher.INSTANCE;
+		}
+		else
+		{
+			return new NormalMatcher(path);
+		}
 	}
 	
 	private class FilterBuilderImpl
@@ -91,7 +111,7 @@ public class ServletBinderImpl
 		{
 			FilterEntry e = new FilterEntry(
 				path, 
-				regex ? new RegexMatcher(path) : new NormalMatcher(path), 
+				createMatcher(regex, path), 
 				instance, 
 				params
 			);
@@ -116,11 +136,13 @@ public class ServletBinderImpl
 			with(provider.get());
 		}
 		
+		@Override
 		public void with(Class<? extends Filter> filter)
 		{
 			with(injector.getInstance(filter));
 		}
 		
+		@Override
 		public FilterBuilder param(String key, String value)
 		{
 			params.put(key, value);
@@ -128,6 +150,7 @@ public class ServletBinderImpl
 			return this;
 		}
 		
+		@Override
 		public FilterBuilder params(Map<String, String> params)
 		{
 			params.putAll(params);
@@ -169,7 +192,7 @@ public class ServletBinderImpl
 		{
 			ServletEntry e = new ServletEntry(
 				path, 
-				regex ? new RegexMatcher(path) : new NormalMatcher(path), 
+				createMatcher(regex, path), 
 				instance, 
 				params
 			);
@@ -188,11 +211,13 @@ public class ServletBinderImpl
 			}
 		}
 		
+		@Override
 		public void with(Class<? extends Servlet> servlet)
 		{
 			with(injector.getInstance(servlet));
 		}
 		
+		@Override
 		public ServletBuilder param(String key, String value)
 		{
 			params.put(key, value);
@@ -200,6 +225,7 @@ public class ServletBinderImpl
 			return this;
 		}
 		
+		@Override
 		public ServletBuilder params(Map<String, String> params)
 		{
 			params.putAll(params);

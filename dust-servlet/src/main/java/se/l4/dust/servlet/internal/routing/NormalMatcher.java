@@ -11,7 +11,7 @@ public class NormalMatcher
 {
 	enum Match
 	{
-		EXAKT,
+		EXACT,
 		BEGIN,
 		END
 	}
@@ -34,7 +34,7 @@ public class NormalMatcher
 		else
 		{
 			this.path = path;
-			this.match = Match.EXAKT;
+			this.match = Match.EXACT;
 		}
 	}
 
