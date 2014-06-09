@@ -2,6 +2,7 @@ package se.l4.dust.core.internal.messages;
 
 import se.l4.crayon.CrayonModule;
 import se.l4.crayon.annotation.Contribution;
+import se.l4.dust.api.NamespaceBinding;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.expression.Expressions;
 import se.l4.dust.api.messages.Messages;
@@ -32,10 +33,10 @@ public class MessagesModule
 		manager.addSource(messages);
 	}
 	
-	@Contribution
+	@NamespaceBinding
 	public void bindNamespace(Namespaces manager)
 	{
-		manager.bind("dust:messages").add();
+		manager.bind("dust:messages").manual().add();
 	}
 	
 	@TemplateContribution

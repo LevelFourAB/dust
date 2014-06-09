@@ -54,7 +54,7 @@ public class TemplatePreloadingHandler
 				cache.getTemplate(context, c);
 			}
 			
-			logger.debug("{}: Loaded {} templates", ns.getUri(), components.size() + templates.size());
+			logger.info("{}: Loaded {} templates", ns.getUri(), components.size() + templates.size());
 		}
 		catch(IOException e)
 		{

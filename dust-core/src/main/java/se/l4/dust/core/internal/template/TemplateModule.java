@@ -78,7 +78,7 @@ public class TemplateModule
 			FragmentDefinition definition,
 			FragmentUse use)
 	{
-		namespaces.bind("dust:fragments").add();
+		namespaces.bind("dust:fragments").manual().add();
 		manager.getNamespace("dust:fragments")
 			.addFragment("define", definition)
 			.addFragment("use", use);

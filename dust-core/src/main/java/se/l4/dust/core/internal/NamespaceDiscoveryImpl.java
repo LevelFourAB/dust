@@ -66,8 +66,11 @@ public class NamespaceDiscoveryImpl
 		{
 			for(Namespace ns : namespaces.list())
 			{
-				encounter.setPackage(ns.getPackage());
-				handler.handle(ns, encounter);
+				if(ns.getPackage() != null)
+				{
+					encounter.setPackage(ns.getPackage());
+					handler.handle(ns, encounter);
+				}
 			}
 		}
 	}
