@@ -190,7 +190,17 @@ public class DefaultTypeConverter
 			return (NonGenericConversion<Object, O>) getConversion(in, out);
 		}
 		
-		return createDynamicConversionTo(out);
+		if(canBeDynamic(in))
+		{
+			return createDynamicConversionTo(out);
+		}
+		
+		throw new ConversionException("Unable to find a conversion between " + in + " and " + out);
+	}
+	
+	private boolean canBeDynamic(Class<?> in)
+	{
+		return in == Object.class;
 	}
 	
 	@Override
