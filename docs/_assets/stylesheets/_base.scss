@@ -45,7 +45,7 @@ a {
 	}
 
 	li {
-		margin-bottom: 0.5rem;
+		margin-bottom: 2rem;
 		font-size: 14px;
 
 		&.active > a {
@@ -56,6 +56,10 @@ a {
 	ul ul {
 		margin-top: 1rem;
 		padding-left: 1rem;
+
+		> li {
+			margin-bottom: 0.5rem;
+		}
 	}
 }
 
@@ -200,8 +204,12 @@ a {
 	text-align: center;
 	font-size: 18px;
 
+	background-color: #fafafa;
+	padding: 10px;
+	margin-bottom: 10px;
+
 	> b {
-		font-size: 26px;
+		font-size: 20px;
 		display: block;
 
 		line-height: 2em;
