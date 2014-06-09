@@ -25,6 +25,10 @@ public class RepeatMixin
 	{
 		final Value<Integer> attribute = encounter.getAttribute(Dust.NAMESPACE_COMMON, "repeat", Integer.class);
 		final Value<Integer> in = encounter.getAttribute(Dust.NAMESPACE_COMMON, "in", Integer.class);
+		if(in != null && ! in.supportsSet())
+		{
+			encounter.error("The attribute in must support setting of values");
+		}
 		
 		encounter.wrap(new ElementWrapper()
 		{

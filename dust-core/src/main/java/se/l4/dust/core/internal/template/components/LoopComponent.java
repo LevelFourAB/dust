@@ -44,6 +44,11 @@ public class LoopComponent
 		final Attribute<?> source = encounter.getAttribute("source", true);
 		final Attribute<?> value = encounter.getAttribute("value", true);
 		
+		if(! value.supportsSet())
+		{
+			encounter.raiseError("The attribute value must be settable");
+		}
+		
 		AbstractComponent component;
 		if(source.getType().isArray())
 		{

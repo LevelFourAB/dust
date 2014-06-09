@@ -20,7 +20,7 @@ public class FragmentDefinition
 	@Override
 	public void build(FragmentEncounter encounter)
 	{
-		Attribute attribute = encounter.getAttribute("id");
+		Attribute attribute = encounter.getAttribute("id", true);
 		String id = attribute.getStringValue();
 		
 		encounter.builder().putValue("fragment|" + id, encounter.getBody());

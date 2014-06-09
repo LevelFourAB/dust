@@ -21,11 +21,7 @@ public class FragmentUse
 	@Override
 	public void build(FragmentEncounter encounter)
 	{
-		Attribute attribute = encounter.getAttribute("id");
-		if(attribute == null)
-		{
-			throw new TemplateException("id attribute is required for fragment usage");
-		}
+		Attribute attribute = encounter.getAttribute("id", true);
 		
 		String id = attribute.getStringValue();
 		Emittable[] content = encounter.builder().getValue("fragment|" + id);

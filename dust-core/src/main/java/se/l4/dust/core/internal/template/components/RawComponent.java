@@ -19,7 +19,7 @@ public class RawComponent
 	@Override
 	public void build(FragmentEncounter encounter)
 	{
-		final Attribute<String> attribute = encounter.getAttribute("value", String.class);
+		final Attribute<String> attribute = encounter.getAttribute("value", String.class, true);
 		encounter.replaceWith(new Emittable()
 		{
 			@Override

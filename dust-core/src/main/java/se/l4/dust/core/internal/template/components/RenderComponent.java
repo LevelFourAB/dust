@@ -30,7 +30,7 @@ public class RenderComponent
 	@Override
 	public void build(FragmentEncounter encounter)
 	{
-		final Attribute<?> attr = encounter.getAttribute("object");
+		final Attribute<?> attr = encounter.getAttribute("object", true);
 		encounter.replaceWith(new Emittable()
 		{
 			@Override
@@ -41,6 +41,11 @@ public class RenderComponent
 				RenderingContext ctx = emitter.getContext();
 				
 				Object root = attr.get(ctx, emitter.getCurrentData());
+				if(root instanceof Emittable)
+				{
+					emitter.emit((Emittable) root);
+					return;
+				}
 				
 				// Process the template of the component 
 				ParsedTemplate template = cache.getTemplate(ctx, root.getClass());
