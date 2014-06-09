@@ -65,10 +65,15 @@ public class ExpressionCompiler
 			CtClass exprIf = pool.get(Expression.class.getName());
 			CtMethod get = exprIf.getMethod("get", "(Lse/l4/dust/api/Context;Ljava/lang/Object;)Ljava/lang/Object;");
 			CtMethod set = exprIf.getMethod("set", "(Lse/l4/dust/api/Context;Ljava/lang/Object;Ljava/lang/Object;)V");
+			CtMethod supportsGet = exprIf.getMethod("supportsGet", "()Z");
+			CtMethod supportsSet = exprIf.getMethod("supportsSet", "()Z");
 			CtMethod returnClass = exprIf.getMethod("getType", "()Ljava/lang/Class;");
 			CtMethod source = exprIf.getMethod("getSource", "()Ljava/lang/String;");
 			
-			CtClass type = pool.makeClass(context.getName() + "$$Expression$$" + compiled.incrementAndGet());
+			String name = isProtected(context)
+				? "se.l4.dust.core.internal.expression.ExpressionImpl$$" + compiled.incrementAndGet()
+				: context.getName() + "$$Expression$$" + compiled.incrementAndGet();
+			CtClass type = pool.makeClass(name);
 			type.addInterface(exprIf);
 			
 			// Create the expressions
@@ -141,6 +146,15 @@ public class ExpressionCompiler
 			impl.setBody(sourceGetter);
 			type.addMethod(impl);
 			
+			// Add supports methods
+			impl = CtNewMethod.copy(supportsGet, type, null);
+			impl.setBody("return " + root.supportsGet() + ";");
+			type.addMethod(impl);
+			
+			impl = CtNewMethod.copy(supportsSet, type, null);
+			impl.setBody("return " + root.supportsSet() + ";");
+			type.addMethod(impl);
+			
 			Class<? extends Expression> c = type.toClass();
 			
 			Constructor<? extends Expression> ct = c.getConstructor(typed);
@@ -155,6 +169,11 @@ public class ExpressionCompiler
 			
 			throw errors.error(root.getNode(), "Compilation failed; " + e.getMessage(), e);
 		}
+	}
+
+	private boolean isProtected(Class<?> context)
+	{
+		return context.getPackage().isSealed() || context.getName().startsWith("java.lang.");
 	}
 
 	/**

@@ -1,11 +1,11 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import com.fasterxml.classmate.ResolvedType;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker within an expression tree.
@@ -41,6 +41,13 @@ public interface Invoker
 	Object get(ErrorHandler errors, Context context, Object root, Object instance);
 	
 	/**
+	 * Check if this invoker supports getting values.
+	 * 
+	 * @return
+	 */
+	boolean supportsGet();
+	
+	/**
 	 * Set the value of this invoker. Not all invokers support setting values.
 	 * 
 	 * @param errors
@@ -50,6 +57,13 @@ public interface Invoker
 	 * @param value
 	 */
 	void set(ErrorHandler errors, Context context, Object root, Object instance, Object value);
+	
+	/**
+	 * Check if this invoker supports setting values.
+	 * 
+	 * @return
+	 */
+	boolean supportsSet();
 	
 	/**
 	 * Get the node of the invoker.

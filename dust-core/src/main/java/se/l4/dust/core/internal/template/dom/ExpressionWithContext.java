@@ -46,11 +46,23 @@ public class ExpressionWithContext
 	{
 		return expr.get(ctx, getActualContext(ctx, root));
 	}
+	
+	@Override
+	public boolean supportsGet()
+	{
+		return expr.supportsGet();
+	}
 
 	@Override
 	public void set(Context ctx, Object root, Object data)
 	{
 		expr.set(ctx, getActualContext(ctx, root), data);
+	}
+	
+	@Override
+	public boolean supportsSet()
+	{
+		return expr.supportsSet();
 	}
 
 }

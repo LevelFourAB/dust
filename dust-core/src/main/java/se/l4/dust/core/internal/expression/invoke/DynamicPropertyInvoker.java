@@ -53,6 +53,12 @@ public class DynamicPropertyInvoker
 	}
 	
 	@Override
+	public boolean supportsGet()
+	{
+		return true;
+	}
+	
+	@Override
 	public void set(ErrorHandler errors, Context context, Object root,
 			Object instance, Object value)
 	{
@@ -64,6 +70,12 @@ public class DynamicPropertyInvoker
 		{
 			throw errors.error(node, t);
 		}
+	}
+	
+	@Override
+	public boolean supportsSet()
+	{
+		return true;
 	}
 	
 	@Override

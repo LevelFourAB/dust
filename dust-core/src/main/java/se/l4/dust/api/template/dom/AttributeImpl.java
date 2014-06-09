@@ -6,6 +6,7 @@ import se.l4.dust.api.Context;
 import se.l4.dust.api.Value;
 import se.l4.dust.api.Values;
 import se.l4.dust.api.conversion.Conversion;
+import se.l4.dust.api.conversion.NonGenericConversion;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.template.TemplateException;
 
@@ -49,6 +50,17 @@ public class AttributeImpl
 			
 			return result.toString();
 		}
+	}
+	
+	@Override
+	public boolean supportsGet()
+	{
+		for(Value<?> v : values)
+		{
+			if(! v.supportsGet()) return false;
+		}
+		
+		return true;
 	}
 	
 	@Override
@@ -103,19 +115,12 @@ public class AttributeImpl
 		c.set(ctx, root, value);
 	}
 	
-	/**
-	 * Bind this attribute to the given conversion.
-	 * 
-	 * @param conversion
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public <T> Attribute<T> bindTo(
-			final Class<T> type,
-			final Conversion<Object, T> get,
-			final Conversion<Object, ?> set)
+	@Override
+	public boolean supportsSet()
 	{
-		return (Attribute<T>) new BoundAttribute<T>(name, values, type, get, set);
+		if(this.values.length != 1) return false;
+		
+		return values[0].supportsSet();
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -148,11 +153,14 @@ public class AttributeImpl
 		// If we are binding to the same type
 		if(output == getType()) return (Attribute<T>) this;
 		
-		return bindTo(
-			output,
-			converter.getDynamicConversion(getType(), output),
-			converter.getDynamicConversion(output, getType())
-		);
+		NonGenericConversion<Object, T> get = supportsGet() 
+			? converter.getDynamicConversion(getType(), output)
+			: null;
+		NonGenericConversion<Object, ? extends Object> set = supportsSet() 
+			? converter.getDynamicConversion(output, getType())
+			: null;
+			
+		return (Attribute<T>) new BoundAttribute<T>(name, values, output, get, set);
 	}
 	
 	@Override
@@ -185,11 +193,23 @@ public class AttributeImpl
 			Object object = value.get(context, data);
 			return conversion.convert(object);
 		}
+		
+		@Override
+		public boolean supportsGet()
+		{
+			return true;
+		}
 	
 		@Override
 		public void set(Context context, Object data, Object value)
 		{
 			throw new UnsupportedOperationException();
+		}
+		
+		@Override
+		public boolean supportsSet()
+		{
+			return false;
 		}
 	}
 	

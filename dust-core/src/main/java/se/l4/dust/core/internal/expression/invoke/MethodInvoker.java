@@ -74,10 +74,22 @@ public class MethodInvoker
 	}
 	
 	@Override
+	public boolean supportsGet()
+	{
+		return true;
+	}
+	
+	@Override
 	public void set(ErrorHandler errors, Context context, Object root,
 			Object instance, Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
+	}
+	
+	@Override
+	public boolean supportsSet()
+	{
+		return false;
 	}
 	
 	@Override

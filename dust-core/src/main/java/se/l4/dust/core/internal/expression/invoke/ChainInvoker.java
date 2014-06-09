@@ -54,6 +54,12 @@ public class ChainInvoker
 	}
 	
 	@Override
+	public boolean supportsGet()
+	{
+		return left.supportsGet() && right.supportsGet();
+	}
+	
+	@Override
 	public void set(ErrorHandler errors, Context context, Object root, Object instance, Object value)
 	{
 		try
@@ -65,6 +71,12 @@ public class ChainInvoker
 		{
 			throw errors.error(node, t);
 		}
+	}
+	
+	@Override
+	public boolean supportsSet()
+	{
+		return left.supportsGet() && right.supportsSet();
 	}
 	
 	@Override

@@ -1,11 +1,11 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import com.fasterxml.classmate.ResolvedType;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
 
 public class LongToIntInvoker
 	implements Invoker
@@ -37,11 +37,23 @@ public class LongToIntInvoker
 		Object value = input.get(errors, context, root, instance);
 		return ((Number) value).intValue();
 	}
+	
+	@Override
+	public boolean supportsGet()
+	{
+		return input.supportsGet();
+	}
 
 	@Override
 	public void set(ErrorHandler errors, Context context, Object root, Object instance, Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
+	}
+	
+	@Override
+	public boolean supportsSet()
+	{
+		return false;
 	}
 	
 	@Override

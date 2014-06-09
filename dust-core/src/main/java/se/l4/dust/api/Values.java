@@ -29,9 +29,21 @@ public class Values
 		}
 		
 		@Override
+		public boolean supportsGet()
+		{
+			return true;
+		}
+		
+		@Override
 		public void set(Context context, Object data, Object value)
 		{
 			throw new UnsupportedOperationException();
+		}
+		
+		@Override
+		public boolean supportsSet()
+		{
+			return false;
 		}
 		
 		@Override

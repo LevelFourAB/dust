@@ -56,9 +56,21 @@ public class ExpressionDebugger
 	}
 	
 	@Override
+	public boolean supportsGet()
+	{
+		return invoker.supportsGet();
+	}
+	
+	@Override
 	public void set(Context context, Object instance, Object value)
 	{
 		invoker.set(errors, context, instance, instance, value);
+	}
+	
+	@Override
+	public boolean supportsSet()
+	{
+		return invoker.supportsSet();
 	}
 	
 	@Override

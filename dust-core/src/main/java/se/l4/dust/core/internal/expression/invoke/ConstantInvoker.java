@@ -1,12 +1,12 @@
 package se.l4.dust.core.internal.expression.invoke;
 
-import com.fasterxml.classmate.ResolvedType;
-import com.google.common.primitives.Primitives;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
+
+import com.fasterxml.classmate.ResolvedType;
+import com.google.common.primitives.Primitives;
 
 /**
  * Invoker that holds a constant value.
@@ -51,10 +51,22 @@ public class ConstantInvoker
 	}
 	
 	@Override
+	public boolean supportsGet()
+	{
+		return true;
+	}
+	
+	@Override
 	public void set(ErrorHandler errors, Context context, Object root,
 			Object instance, Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
+	}
+	
+	@Override
+	public boolean supportsSet()
+	{
+		return false;
 	}
 	
 	@Override

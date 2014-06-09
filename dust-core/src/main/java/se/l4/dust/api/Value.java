@@ -23,6 +23,13 @@ public interface Value<T>
 	T get(Context context, Object data);
 	
 	/**
+	 * Check if this value supports {@link #get(Context, Object)}.
+	 *  
+	 * @return
+	 */
+	boolean supportsGet();
+	
+	/**
 	 * Set the value.
 	 * 
 	 * @param context
@@ -30,6 +37,13 @@ public interface Value<T>
 	 * @param value
 	 */
 	void set(Context context, Object data, Object value);
+	
+	/**
+	 * Check if this value supports {@link #set(Context, Object, Object)}.
+	 * 
+	 * @return
+	 */
+	boolean supportsSet();
 	
 	/**
 	 * Get the type of this value.

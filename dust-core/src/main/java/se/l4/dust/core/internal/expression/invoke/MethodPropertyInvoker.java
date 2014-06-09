@@ -69,6 +69,12 @@ public class MethodPropertyInvoker
 	}
 	
 	@Override
+	public boolean supportsGet()
+	{
+		return getter != null;
+	}
+	
+	@Override
 	public void set(ErrorHandler errors, Context context, Object root,
 			Object instance, Object value)
 	{
@@ -94,6 +100,12 @@ public class MethodPropertyInvoker
 		{
 			throw errors.error(node, "Error executing: " + e.getMessage(), e);
 		}
+	}
+	
+	@Override
+	public boolean supportsSet()
+	{
+		return setter != null;
 	}
 	
 	@Override

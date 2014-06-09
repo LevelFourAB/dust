@@ -18,6 +18,7 @@ public class FieldPropertyInvoker
 	private final Node node;
 	private final Field field;
 	private final ResolvedType type;
+	private final boolean isFinal;
 
 	public FieldPropertyInvoker(Node node, ResolvedType type, Field field)
 	{
@@ -25,6 +26,8 @@ public class FieldPropertyInvoker
 		this.type = type;
 		this.field = field;
 		field.setAccessible(true);
+		
+		isFinal = Modifier.isFinal(field.getModifiers());
 	}
 	
 	@Override
@@ -72,6 +75,12 @@ public class FieldPropertyInvoker
 	}
 	
 	@Override
+	public boolean supportsGet()
+	{
+		return true;
+	}
+	
+	@Override
 	public void set(ErrorHandler errors, Context context, Object root,
 			Object instance, Object value)
 	{
@@ -92,6 +101,12 @@ public class FieldPropertyInvoker
 		{
 			throw errors.error(node, "Can't access the field: " + e.getMessage(), e);
 		}
+	}
+	
+	@Override
+	public boolean supportsSet()
+	{
+		return ! isFinal;
 	}
 	
 	@Override
