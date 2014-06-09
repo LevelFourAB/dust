@@ -7,17 +7,22 @@ nav: docs
 
 This is the common namespace, where the default components reside.
 
-{:toc}
+## Table of Contents
+{:.no_toc}
 
-# Components
+* toc
+{:toc max_level=2}
+
+## Components
 
 All of these components are located in the namespace `dust:common`. All of these examples bind `dust:common` to `d` and `dust:parameters` to `p`.
 
-## `if`
+### `if`
 
 Component that will output its content if a certain test passes. Will optionally output some content if the test does not match.
 
-### Example
+#### Example
+{:.no_toc}
 
 {% highlight xml %}
 <d:if test="${test}">
@@ -28,7 +33,8 @@ Component that will output its content if a certain test passes. Will optionally
 </d:if>
 {% endhighlight %}
 
-### Attributes and parameters
+#### Attributes and parameters
+{:.no_toc}
 
 | Name      | Required | Type       | Description |
 |:----------|:---------|:-----------|:------------|
@@ -36,11 +42,12 @@ Component that will output its content if a certain test passes. Will optionally
 | `else`    | No       | Parameter  | Optional markup block to render if the test fails |
 
 
-## `loop`
+### `loop`
 
 Loop over certain values, outputting its content for every value.
 
-### Example
+#### Example
+{:.no_toc}
 
 {% highlight xml %}
 <d:loop source="${values}" value="${value}">
@@ -48,18 +55,20 @@ Loop over certain values, outputting its content for every value.
 </d:loop>
 {% endhighlight %}
 
-### Attributes and parameters
+#### Attributes and parameters
+{:.no_toc}
 
 | Name      | Required | Type       | Description |
 |:----------|:---------|:-----------|:------------|
 | `source`  | Yes      | Array, Iterable or Iterator | The source of values to loop over. |
 | `value`   | Yes      | * | The expression that is set for every value looped over |
 
-## `body`
+### `body`
 
 Output content passed into the body of a component. Can optionally output the contents of a parameter.
 
-### Example
+#### Example
+{:.no_toc}
 
 {% highlight xml %}
 <d:body />
@@ -67,33 +76,37 @@ Output content passed into the body of a component. Can optionally output the co
 <d:body id="param" />
 {% endhighlight %}
 
-### Attributes and parameters
+#### Attributes and parameters
+{:.no_toc}
 
 | Name      | Required | Type       | Description |
 |:----------|:---------|:-----------|:------------|
 | `id`      | No       | String     | Optional identifier of a parameter to output |
 
-## `raw`
+### `raw`
 
 Output some content without escaping it.
 
-### Example
+#### Example
+{:.no_toc}
 
 {% highlight xml %}
 <d:raw value="${someHtml}">
 {% endhighlight %}
 
-### Attributes and parameters
+#### Attributes and parameters
+{:.no_toc}
 
 | Name      | Required | Type       | Description |
 |:----------|:---------|:-----------|:------------|
 | `value`   | Yes      | *          | Value to output |
 
-## `holder`
+### `holder`
 
 Wrap other markup and output it. Used to support components that do not have a single root element.
 
-### Example
+#### Example
+{:.no_toc}
 
 {% highlight xml %}
 <d:holder>
@@ -102,17 +115,19 @@ Wrap other markup and output it. Used to support components that do not have a s
 </d:holder>
 {% endhighlight %}
 
-## `render`
+### `render`
 
 Render an object assuming it is a template.
 
-### Example
+#### Example
+{:.no_toc}
 
 {% highlight xml %}
 <d:render value="${object}" />
 {% endhighlight %}
 
 ### Attributes and parameters
+{:.no_toc}
 
 | Name      | Required | Type       | Description |
 |:----------|:---------|:-----------|:------------|

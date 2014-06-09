@@ -7,7 +7,7 @@ nav: docs
 
 Templates may reference components that live in different <a href="{{ site.baseurl }}/docs/namespaces/">namespaces</a>. 
 
-# Using components
+## Using components
 
 Components are referenced from a template and it's possible to pass attributes and parameters to it.
 
@@ -27,7 +27,7 @@ Parameters are passed via XML-elements in the namespace `dust:parameters`:
 
 <a href="{{ site.baseurl }}/docs/namespaces/common/#components" class="btn btn-lg btn-outline">More about the standard components</a>
 
-# Creating a component
+## Creating a component
 
 Classes are regular classes that are annotated with `@Component`. Components are automatically discovered within registered namespaces.
 
@@ -66,9 +66,9 @@ Calling this component:
 <namespace:hello name="your name here" />
 {% endhighlight %}
 
-# Annotations
+## Annotations
 
-## `@PrepareRender`
+### `@PrepareRender`
 
 Methods annotated with `@PrepareRender` are called just before a component is rendered. If several methods are annotated Dust will select the best one to invoke. This is useful to allow for several ways to use a components, such as follows:
 
@@ -80,6 +80,6 @@ public void prepare(@TemplateParam("names") List<String> name) { /* ... */ }
 public void prepare(@TemplateParam("name") String name) { /* ... */ }
 {% endhighlight %}
 
-## `@TemplateParam(String)`
+### `@TemplateParam(String)`
 
 This annotation is used to receive a value from the calling template. This can either be used with `@PrepareRender` or on a setter method.

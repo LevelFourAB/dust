@@ -114,4 +114,21 @@ article {
 	td, th {
 		padding: 0.5rem 1.5rem 0.5rem 0rem;
 	}
+
+	#markdown-toc {
+		ul {
+			list-style: none;
+			padding: 0;
+			padding-left: 1.5em;
+			margin: 0;
+		}
+
+		list-style: none;
+		padding: 0;
+		margin: 0;
+
+		li {
+			font-size: 14px;
+		}
+	}
 }
