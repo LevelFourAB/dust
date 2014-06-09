@@ -20,15 +20,14 @@ public class BodyComponent
 	@Override
 	public void build(FragmentEncounter encounter)
 	{
-		Attribute param = encounter.getAttribute("parameter");
+		Attribute<String> param = encounter.getAttribute("id", String.class);
 		if(param == null)
 		{
 			encounter.replaceWith(new SimpleBodyEmitter());
 		}
 		else
 		{
-			String paramName = param.getStringValue();
-			encounter.replaceWith(new ParameterEmitter(paramName));
+			encounter.replaceWith(new ParameterEmitter(param));
 		}
 	}
 	
@@ -37,7 +36,6 @@ public class BodyComponent
 	{
 		public SimpleBodyEmitter()
 		{
-			// TODO Auto-generated constructor stub
 		}
 		
 		@Override
@@ -55,9 +53,9 @@ public class BodyComponent
 	private static class ParameterEmitter
 		implements Emittable
 	{
-		private final String name;
+		private final Attribute<String> name;
 
-		public ParameterEmitter(String name)
+		public ParameterEmitter(Attribute<String> name)
 		{
 			this.name = name;
 		}
@@ -66,14 +64,11 @@ public class BodyComponent
 		public void emit(TemplateEmitter emitter, TemplateOutputStream output)
 			throws IOException
 		{
-			TemplateEmitterImpl emitterImpl = (TemplateEmitterImpl) emitter;
-			Emittable e = emitterImpl.getCurrentComponent();
-			if(e == null) return;
-			
-			Emittable param = emitter.getParameter(name);
+			String actualName = name.get(emitter.getContext(), emitter.getObject());
+			Emittable param = emitter.getParameter(actualName);
 			if(param != null)
 			{
-				emitter.emit(e);
+				emitter.emit(param);
 			}
 		}
 	}
