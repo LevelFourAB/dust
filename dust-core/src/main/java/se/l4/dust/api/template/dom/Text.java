@@ -2,6 +2,7 @@ package se.l4.dust.api.template.dom;
 
 import java.io.IOException;
 
+import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateOutputStream;
 
@@ -12,7 +13,7 @@ import se.l4.dust.api.template.TemplateOutputStream;
  *
  */
 public class Text
-	extends AbstractContent
+	implements Emittable
 {
 	private final String text;
 	

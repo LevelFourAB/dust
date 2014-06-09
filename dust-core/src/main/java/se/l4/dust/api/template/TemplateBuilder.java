@@ -3,7 +3,6 @@ package se.l4.dust.api.template;
 import java.util.List;
 
 import se.l4.dust.api.Value;
-import se.l4.dust.api.template.dom.Text;
 import se.l4.dust.api.template.fragment.TemplateFragment;
 import se.l4.dust.api.template.spi.ErrorCollector;
 
@@ -152,8 +151,7 @@ public interface TemplateBuilder
 	TemplateBuilder comment(Iterable<? extends Emittable> content);
 	
 	/**
-	 * Add content to the current element. This is usally instances of
-	 * {@link Text} and results from {@link #createDynamicContent(String, String)}.
+	 * Add content to the current element.
 	 * 
 	 * @param content
 	 * @return

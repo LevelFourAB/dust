@@ -29,6 +29,7 @@ import se.l4.dust.api.template.EmittableValue;
 import se.l4.dust.api.template.TemplateBuilder;
 import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.Templates;
+import se.l4.dust.api.template.dom.Text;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
@@ -66,6 +67,11 @@ public class XmlTemplateParser
 			@Override
 			public Emittable apply(Value<?> input)
 			{
+				if(input instanceof Values.StaticValue && input.getType() == String.class)
+				{
+					return new Text((String) input.get(null, null));
+				}
+				
 				Conversion<?, String> conversion = converter.getDynamicConversion(input.getType(), String.class);
 				return new EmittableValue(input, conversion);
 			}
