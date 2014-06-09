@@ -5,7 +5,7 @@ title: Templates
 nav: docs
 ---
 
-Templates are a central concept in Dust. The template engine is based on XML-input and outputs clean HTML. By default templates share the same name as their class files but ending with `.xml`.
+Templates is how Dust renders pages and components. The template engine is based on XML-input and outputs clean HTML. By default templates share the same name as their class files but ending with `.xml`.
 
 For example the Java-class `org/example/Test.java` would have its template in `org/example/Test.xml`.
 
@@ -18,19 +18,31 @@ A template might look like this:
 </d:loop>
 {% endhighlight %}
 
+With this class to provide its values:
+
+{% highlight java %}
+public class Test {
+	public String[] getValues() {
+		return new String[] { "One", "Two", "Three" };
+	}
+
+	public String getValue() {
+		return values;
+	)
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+}
+{% endhighlight %}
+
 ## Use with JAX-RS
 
 Any JAX-RS resource that returns an object annotated with `@Template` will be rendered via its template.
 
-## Components and fragments
+## Components
 
-Templates can contain fragments from other namespaces. Most of these namespaces are actually components. Dust provides a limited set of fragments and components in `dust:common`. 
+Templates can reference components from other namespaces. Dust provides a standard set of components in <a href="{{ site.baseurl }}/docs/namespaces/common/">dust:common</a>.
 
-Those components are:
+<a href="{{ site.baseurl }}/docs/templates/components/" class="btn btn-lg btn-outline">Read more about components</a>
 
-* `if` - if-statement.
-* `loop` - loop over some values outputing its content for every value.
-* `raw`- outputs its value as raw HTML without any filtering
-* `holder` - wraps some content and outputs it
-* `render` - render an object in the template
-* `body` - outputs the body or a parameter of a component

@@ -8,8 +8,10 @@
 		{% if current == include.context %}
 			<li class="{% if page.url contains entry.url %}expanded{% endif %} {% if page.url == entry.url %}active{% endif %}">
 				<h4><a href="{{ site.baseurl }}{{ entry.url }}">{{ entry.title }}</a></h4>
-				{% assign context = include.context | append: '/' | append: slug %}
-				{% include _nav-sub.html context=context %}
+				{% if page.url contains entry.url %}
+					{% assign context = include.context | append: '/' | append: slug %}
+					{% include _nav-sub.html context=context %}
+				{% endif %}
 			</li>
 		{% endif %}
  

@@ -1,4 +1,4 @@
-<div class="site-cover{% if include.page.url == page.url %} site-cover-large_{% endif %}{% unless include.page.cover_image %}{% if include.page.cover_color or site.info.cover_color %} site-cover-colored{% endif %}{% endunless %}{% unless include.page.cover_image or include.page.cover_color or site.info.cover_color or site.info.cover_image %} site-cover-default{% endunless %}"
+<div class="site-cover{% if include.page.url == page.url %} site-cover-large{% endif %}{% unless include.page.cover_image %}{% if include.page.cover_color or site.info.cover_color %} site-cover-colored{% endif %}{% endunless %}{% unless include.page.cover_image or include.page.cover_color or site.info.cover_color or site.info.cover_image %} site-cover-default{% endunless %}"
 	{% if include.page.cover_image %}style="background-image:url(/images/{{ include.page.cover_image }})"
 	{% elsif include.page.cover_color %}style="background-color:{{ include.page.cover_color }}"
 	{% elsif site.info.cover_image %}style="background-image:url(/images/{{ site.info.cover_image }})"

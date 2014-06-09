@@ -44,7 +44,7 @@ It is now possible to reference any component discovered in the namespace by dec
 
 By default a few namespaces are registered, these are:
 
-* `dust:common` - common template components
-* `dust:parameters` - for passing blocks of markup into components
-* `dust:fragments` - define tiny reusable blocks of markup within a template
-* `dust:messages` - holds localized messages of the current template
+* <a href="{{ site.baseurl }}/docs/namespaces/common/">dust:common</a> - common template components
+* <a href="{{ site.baseurl }}/docs/templates/components/#using-components">dust:parameters</a> - for passing blocks of markup into components
+* dust:fragments - define tiny reusable blocks of markup within a template
+* dust:messages - holds localized messages of the current template

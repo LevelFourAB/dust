@@ -14,6 +14,10 @@ article {
         font-weight: 400;
         margin: 0 0 1.5em;
     }
+
+	table {
+		margin: 0 0 1.5em;
+	}
     
     ol, ul {
         font-weight: 600;
@@ -60,7 +64,7 @@ article {
     }
 
     h4 {
-        font-size: 1.2em;
+        font-size: 1em;
         font-weight: 600;
     }
 
@@ -84,7 +88,7 @@ article {
     pre {
         border: 0;
         padding: 1em 1em;
-        margin: 1em 0 1em -1em;
+        margin: 1em 0 1.5em -1em;
         background: whitesmoke;
         border: 0;
         border-radius: 2px;
@@ -105,5 +109,9 @@ article {
         border-bottom:1px solid #ddd;
         border-radius:2px;
         color:#222;
-    } 
+    }
+
+	td, th {
+		padding: 0.5rem 1.5rem 0.5rem 0rem;
+	}
 }

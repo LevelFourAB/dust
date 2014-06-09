@@ -38,6 +38,15 @@ a {
 		font-size: 18px;
 	}
 
+	h4 {
+		font-size: 15px;
+		font-weight: normal;
+	}
+
+	.expanded > h4 {
+		font-weight: bold;
+	}
+
 	ul {
 		list-style: none;
 		margin: 0;
@@ -70,7 +79,7 @@ a {
 	position: relative;
 	
 	max-height: 460px;
-	min-height: 120px;
+	min-height: 60px;
 
 	overflow: hidden;
 	
@@ -101,7 +110,7 @@ a {
 		vertical-align: middle;
 		text-align: center;
 
-		padding: 40px 0;
+		padding: 15px 0;
 
 		background-color:rgba(0,0,0,0.4);
 		background-image: -o-linear-gradient(bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
@@ -110,17 +119,12 @@ a {
 		background-image: -ms-linear-gradient(bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
 		background-image: linear-gradient(bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
 	}
-	
+
 	h1 {
-		font-size: 2.7em;
+		font-size: 2em;
 		line-height: 1.4em;
 	}
-	
-	h3 {
-		font-size: 1.3em;
-		line-height: 2em;
-	}
-	
+
 	h1, h3, a {
 		color: #fff;
 		margin: 0;
@@ -133,7 +137,20 @@ a {
 }
 
 .site-cover-large {
-	height: 320px;
+	section {
+		padding: 40px 0;
+	}
+
+	h1 {
+		font-size: 2.7em;
+		line-height: 1.4em;
+	}
+	
+	h3 {
+		font-size: 1.3em;
+		line-height: 2em;
+	}
+
 }
 
 
