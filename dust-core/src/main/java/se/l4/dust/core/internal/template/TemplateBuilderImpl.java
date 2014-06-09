@@ -804,6 +804,17 @@ public class TemplateBuilderImpl
 				}
 				
 				@Override
+				public Emittable findParameter(String name, boolean required)
+				{
+					Emittable result = self.getParameter(name);
+					if(required && result == null)
+					{
+						builder.raiseError("Parameter " + name + " must exist");
+					}
+					return result;
+				}
+				
+				@Override
 				public void addParameter(String name, Emittable content)
 				{
 					if(parent != null)

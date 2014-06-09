@@ -105,6 +105,14 @@ public interface FragmentEncounter
 	Emittable findParameter(String name);
 	
 	/**
+	 * Find a parameter with the given name.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	Emittable findParameter(String name, boolean required);
+	
+	/**
 	 * Get content in the body of the fragment.
 	 * 
 	 * @return
