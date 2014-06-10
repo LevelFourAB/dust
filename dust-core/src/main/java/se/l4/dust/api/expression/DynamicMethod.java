@@ -31,6 +31,13 @@ public interface DynamicMethod
 	Class<?> getType();
 	
 	/**
+	 * Get the type of parameters expected by this method.
+	 * 
+	 * @return
+	 */
+	Class<?>[] getParametersType();
+	
+	/**
 	 * Get if this property needs any context. If this method returns
 	 * {@code false} the argument {@code instance} in {@link #invoke(Context, Object, Object...)}
 	 * may be null.

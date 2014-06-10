@@ -44,7 +44,7 @@ public class DynamicPropertyInvoker
 	{
 		try
 		{
-			return property.getValue(context, instance);
+			return property.get(context, instance);
 		}
 		catch(Throwable t)
 		{
@@ -55,7 +55,7 @@ public class DynamicPropertyInvoker
 	@Override
 	public boolean supportsGet()
 	{
-		return true;
+		return property.supportsGet();
 	}
 	
 	@Override
@@ -64,7 +64,7 @@ public class DynamicPropertyInvoker
 	{
 		try
 		{
-			property.setValue(context, instance, value);
+			property.set(context, instance, value);
 		}
 		catch(Throwable t)
 		{
@@ -75,7 +75,7 @@ public class DynamicPropertyInvoker
 	@Override
 	public boolean supportsSet()
 	{
-		return true;
+		return property.supportsSet();
 	}
 	
 	@Override
@@ -84,7 +84,7 @@ public class DynamicPropertyInvoker
 		String id = compiler.addInput(DynamicProperty.class, property);
 		Class<?> t = Primitives.wrap(getReturnClass());
 		return "(" + compiler.unwrap(t, 
-			"(" + compiler.cast(t) + " " + id + ".getValue($1, " + context + "))") 
+			"(" + compiler.cast(t) + " " + id + ".get($1, " + context + "))") 
 			+ ")";
 	}
 	
@@ -92,7 +92,7 @@ public class DynamicPropertyInvoker
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		String id = compiler.addInput(DynamicProperty.class, property);
-		return id + ".setValue($1, " + context + ", $3)"; 
+		return id + ".set($1, " + context + ", $3)"; 
 	}
 
 	@Override

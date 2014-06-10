@@ -20,7 +20,6 @@ import se.l4.dust.api.expression.ExpressionSource;
 import se.l4.dust.core.internal.conversion.ConversionModule;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ErrorHandlerImpl;
-import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ExpressionParser;
 import se.l4.dust.core.internal.expression.ExpressionResolver;
 import se.l4.dust.core.internal.expression.ExpressionsImpl;
@@ -315,14 +314,26 @@ public class ResolverTest
 		}
 
 		@Override
-		public Object getValue(Context context, Object root)
+		public Object get(Context context, Object root)
 		{
 			return 12;
 		}
 		
 		@Override
-		public void setValue(Context context, Object root, Object value)
+		public boolean supportsGet()
 		{
+			return true;
+		}
+		
+		@Override
+		public void set(Context context, Object root, Object value)
+		{
+		}
+		
+		@Override
+		public boolean supportsSet()
+		{
+			return false;
 		}
 
 		@Override
@@ -415,6 +426,12 @@ public class ResolverTest
 		public Class<?> getType()
 		{
 			return String.class;
+		}
+		
+		@Override
+		public Class<?>[] getParametersType()
+		{
+			return new Class[] { String.class };
 		}
 		
 		@Override

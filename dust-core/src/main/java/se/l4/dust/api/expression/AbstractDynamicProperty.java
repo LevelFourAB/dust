@@ -6,8 +6,8 @@ package se.l4.dust.api.expression;
  * @author Andreas Holstenson
  *
  */
-public abstract class AbstractDynamicProperty
-	implements DynamicProperty
+public abstract class AbstractDynamicProperty<T>
+	implements DynamicProperty<T>
 {
 	@Override
 	public boolean needsContext()

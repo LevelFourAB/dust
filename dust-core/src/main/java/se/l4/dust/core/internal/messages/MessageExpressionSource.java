@@ -48,7 +48,7 @@ public class MessageExpressionSource
 	@Override
 	public DynamicMethod getMethod(ExpressionEncounter encounter, String name, Class... parameters)
 	{
-		if("get".equals(name) && encounter.isRoot())
+		if("get".equals(name) && encounter.isRoot() && parameters.length == 1)
 		{
 			return new MessageGetMethod(messageManager, getLocation(encounter));
 		}
@@ -82,16 +82,28 @@ public class MessageExpressionSource
 		}
 		
 		@Override
-		public Object getValue(Context context, Object root)
+		public Object get(Context context, Object root)
 		{
 			MessageCollection messages = getMessages(manager, context, resource);
 			return messages.get(propertyName);
 		}
 		
 		@Override
-		public void setValue(Context context, Object root, Object value)
+		public boolean supportsGet()
+		{
+			return true;
+		}
+		
+		@Override
+		public void set(Context context, Object root, Object value)
 		{
 			throw new UnsupportedOperationException();
+		}
+		
+		@Override
+		public boolean supportsSet()
+		{
+			return false;
 		}
 		
 		@Override
@@ -111,7 +123,7 @@ public class MessageExpressionSource
 		{
 			if("format".equals(name))
 			{
-				return new MessageFormatMethod(manager, resource, propertyName);
+				return new MessageFormatMethod(manager, resource, propertyName, parameters);
 			}
 			
 			return super.getMethod(encounter, name, parameters);
@@ -127,9 +139,9 @@ public class MessageExpressionSource
 		}
 		
 		@Override
-		public Object getValue(Context context, Object root)
+		public Object get(Context context, Object root)
 		{
-			Object result = super.getValue(context, root);
+			Object result = super.get(context, root);
 			if(result == null)
 			{
 				throw new ExpressionException("No text for `" + propertyName + "` could be found");
@@ -151,12 +163,17 @@ public class MessageExpressionSource
 		private final Messages manager;
 		private final ResourceLocation resource;
 		private final String propertyName;
+		private final Class[] parameters;
 
-		public MessageFormatMethod(Messages manager, ResourceLocation resource, String propertyName)
+		public MessageFormatMethod(Messages manager,
+				ResourceLocation resource,
+				String propertyName, 
+				Class[] parameters)
 		{
 			this.manager = manager;
 			this.resource = resource;
 			this.propertyName = propertyName;
+			this.parameters = parameters;
 		}
 		
 		@Override
@@ -180,6 +197,12 @@ public class MessageExpressionSource
 		{
 			return String.class;
 		}
+		
+		@Override
+		public Class<?>[] getParametersType()
+		{
+			return parameters;
+		}
 	
 		@Override
 		public boolean needsContext()
@@ -191,6 +214,8 @@ public class MessageExpressionSource
 	private static class MessageGetMethod
 		implements DynamicMethod
 	{
+		private static final Class<?>[] SINGLE_STRING_PARAMETER = new Class[] { String.class };
+		
 		private final Messages manager;
 		private final ResourceLocation resource;
 	
@@ -211,6 +236,12 @@ public class MessageExpressionSource
 		public Class<?> getType()
 		{
 			return String.class;
+		}
+		
+		@Override
+		public Class<?>[] getParametersType()
+		{
+			return SINGLE_STRING_PARAMETER;
 		}
 	
 		@Override

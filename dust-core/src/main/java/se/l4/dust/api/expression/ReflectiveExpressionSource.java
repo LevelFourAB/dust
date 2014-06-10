@@ -361,7 +361,7 @@ public abstract class ReflectiveExpressionSource
 		}
 
 		@Override
-		public Object getValue(Context context, Object root)
+		public Object get(Context context, Object root)
 		{
 			Object[] arguments = new Object[params.length];
 			for(int i=0, n=arguments.length; i<n; i++)
@@ -386,11 +386,23 @@ public abstract class ReflectiveExpressionSource
 		}
 		
 		@Override
-		public void setValue(Context context, Object root, Object value)
+		public boolean supportsGet()
 		{
-			throw new ExpressionException("setValue is unsupported for this property");
+			return true;
 		}
-
+		
+		@Override
+		public void set(Context context, Object root, Object value)
+		{
+			throw new ExpressionException("set is unsupported for this property");
+		}
+		
+		@Override
+		public boolean supportsSet()
+		{
+			return false;
+		}
+		
 		@Override
 		public Class<?> getType()
 		{
@@ -448,6 +460,12 @@ public abstract class ReflectiveExpressionSource
 		public Class<?> getType()
 		{
 			return method.getReturnType();
+		}
+		
+		@Override
+		public Class<?>[] getParametersType()
+		{
+			return paramTypes;
 		}
 		
 		@Override

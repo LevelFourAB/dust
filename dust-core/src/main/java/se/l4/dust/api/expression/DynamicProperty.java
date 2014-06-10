@@ -1,6 +1,7 @@
 package se.l4.dust.api.expression;
 
 import se.l4.dust.api.Context;
+import se.l4.dust.api.Value;
 
 /**
  * Dynamic property used within an expression.
@@ -8,33 +9,9 @@ import se.l4.dust.api.Context;
  * @author Andreas Holstenson
  *
  */
-public interface DynamicProperty
+public interface DynamicProperty<T>
+	extends Value<T>
 {
-	/**
-	 * Resolve the value of this property.
-	 * 
-	 * @param context
-	 * @param root
-	 * @return
-	 */
-	Object getValue(Context context, Object root);
-	
-	/**
-	 * Set the value of this property.
-	 * 
-	 * @param context
-	 * @param root
-	 * @param value
-	 */
-	void setValue(Context context, Object root, Object value);
-	
-	/**
-	 * Get the type of the result.
-	 * 
-	 * @return
-	 */
-	Class<?> getType();
-	
 	/**
 	 * Get if this property needs any context. If this method returns
 	 * {@code false} the argument {@code root} in {@link #getValue(Context, Object)}
@@ -57,7 +34,7 @@ public interface DynamicProperty
 	 * 		name of the property
 	 * @return
 	 */
-	DynamicProperty getProperty(ExpressionEncounter encounter, String name);
+	DynamicProperty<?> getProperty(ExpressionEncounter encounter, String name);
 	
 	/**
 	 * Resolve a method.

@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -372,7 +373,7 @@ public class ExpressionResolver
 					throw errors.error(node, "There is no method named " + id.getIdentifier() + " in namespace " + ns + "; Used " + source + " for lookup");
 				}
 				
-				return new DynamicMethodInvoker(node, method, actualParams);
+				return createDynamicMethodInvoker(node, method, actualParams);
 			}
 			else
 			{
@@ -388,7 +389,7 @@ public class ExpressionResolver
 					DynamicMethod method = leftProperty.getMethod(encounter, id.getIdentifier(), actualParamTypes);
 					if(method != null)
 					{
-						return new DynamicMethodInvoker(node, method, actualParams);
+						return createDynamicMethodInvoker(node, method, actualParams);
 					}
 				}
 				
@@ -518,6 +519,17 @@ public class ExpressionResolver
 		throw errors.error(node, "Unknown node of type: " + node.getClass());
 	}
 	
+	private Invoker createDynamicMethodInvoker(Node node, DynamicMethod method, Invoker[] actualParams)
+	{
+		Invoker[] params = createInvokers(actualParams, method.getParametersType());
+		if(params == null)
+		{
+			throw errors.error(node, "Could not convert parameters into " + Arrays.toString(method.getParametersType()));
+		}
+		
+		return new DynamicMethodInvoker(node, method, params);
+	}
+
 	private Invoker toConverting(Invoker invoker, Class<?> output)
 	{
 		if(output == int.class && invoker.getReturnClass() == long.class)
@@ -738,7 +750,6 @@ public class ExpressionResolver
 		}
 	
 		// Second pass: Try to convert params
-		_outer:
 		for(ResolvedMethod rm : members.getMemberMethods())
 		{
 			Method m = rm.getRawMember();
@@ -755,33 +766,8 @@ public class ExpressionResolver
 			}
 			
 			// Potentially the correct method
-			Invoker[] newParams = new Invoker[actualParams.length];
-			for(int i=0, n=types.length; i<n; i++)
-			{
-				if(types[i].isAssignableFrom(actualParams[i].getReturnClass()))
-				{
-					newParams[i] = actualParams[i];
-				}
-				else if(converter.canConvertBetween(actualParams[i].getReturnClass(), types[i]))
-				{
-					newParams[i] = toConverting(actualParams[i], types[i]);
-				}
-				else if((actualParams[i].getReturnClass() == void.class || actualParams[i].getReturnClass() == Void.class)
-						&& ! types[i].isPrimitive())
-				{
-					newParams[i] = actualParams[i];
-				}
-				else if(actualParams[i].getReturnClass() == Object.class)
-				{
-					// TODO: Variant return class?
-					newParams[i] = toDynamcConverting(actualParams[i], types[i]);
-				}
-				else
-				{
-					// No conversion found, skip this method
-					continue _outer;
-				}
-			}
+			Invoker[] newParams = createInvokers(actualParams, types);
+			if(newParams == null) continue;
 			
 			return new MethodInvoker(node, rm.getReturnType(), m, newParams);
 		}
@@ -831,6 +817,38 @@ public class ExpressionResolver
 		}
 		
 		throw errors.error(node, builder.toString());
+	}
+	
+	private Invoker[] createInvokers(Invoker[] actualParams, Class<?>[] types)
+	{
+		Invoker[] newParams = new Invoker[actualParams.length];
+		for(int i=0, n=types.length; i<n; i++)
+		{
+			if(types[i].isAssignableFrom(actualParams[i].getReturnClass()))
+			{
+				newParams[i] = actualParams[i];
+			}
+			else if(converter.canConvertBetween(actualParams[i].getReturnClass(), types[i]))
+			{
+				newParams[i] = toConverting(actualParams[i], types[i]);
+			}
+			else if((actualParams[i].getReturnClass() == void.class || actualParams[i].getReturnClass() == Void.class)
+					&& ! types[i].isPrimitive())
+			{
+				newParams[i] = actualParams[i];
+			}
+			else if(actualParams[i].getReturnClass() == Object.class)
+			{
+				// TODO: Variant return class?
+				newParams[i] = toDynamcConverting(actualParams[i], types[i]);
+			}
+			else
+			{
+				// No conversion found, skip this method
+				return null;
+			}
+		}
+		return newParams;
 	}
 
 	private class EncounterImpl

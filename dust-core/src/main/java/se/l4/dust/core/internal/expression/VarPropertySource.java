@@ -48,15 +48,27 @@ public class VarPropertySource
 		}
 		
 		@Override
-		public Object getValue(Context ctx, Object root)
+		public Object get(Context ctx, Object root)
 		{
 			return ctx.getValue(compoundKey);
 		}
 		
 		@Override
-		public void setValue(Context context, Object root, Object value)
+		public boolean supportsGet()
+		{
+			return true;
+		}
+		
+		@Override
+		public void set(Context context, Object root, Object value)
 		{
 			context.putValue(compoundKey, value);
+		}
+		
+		@Override
+		public boolean supportsSet()
+		{
+			return true;
 		}
 	}
 }

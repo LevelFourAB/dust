@@ -55,11 +55,14 @@ public class AssetExpressionSource
 	{
 		private final Assets assets;
 		private final String namespace;
+		private final Class[] parameters;
 
 		public AssetMethod(Assets assets, String namespace)
 		{
 			this.assets = assets;
 			this.namespace = namespace;
+			
+			parameters = new Class[] { String.class };
 		}
 
 		@Override
@@ -73,6 +76,12 @@ public class AssetExpressionSource
 		public Class<?> getType()
 		{
 			return String.class;
+		}
+		
+		@Override
+		public Class<?>[] getParametersType()
+		{
+			return parameters;
 		}
 
 		@Override

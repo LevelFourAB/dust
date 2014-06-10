@@ -8,31 +8,43 @@ import se.l4.dust.api.Context;
  * @author Andreas Holstenson
  *
  */
-public class StaticProperty
-	extends AbstractDynamicProperty
+public class StaticProperty<T>
+	extends AbstractDynamicProperty<T>
 {
-	private final Object value;
+	private final T value;
 
-	public StaticProperty(Object value)
+	public StaticProperty(T value)
 	{
 		this.value = value;
 	}
 
 	@Override
-	public Object getValue(Context context, Object root)
+	public T get(Context context, Object root)
 	{
 		return value;
 	}
 	
 	@Override
-	public void setValue(Context context, Object root, Object value)
+	public boolean supportsGet()
 	{
-		throw new ExpressionException("setValue is unsupported for this property");
+		return true;
+	}
+	
+	@Override
+	public void set(Context context, Object root, Object value)
+	{
+		throw new ExpressionException("set is unsupported for this property");
+	}
+	
+	@Override
+	public boolean supportsSet()
+	{
+		return false;
 	}
 
 	@Override
-	public Class<?> getType()
+	public Class<? extends T> getType()
 	{
-		return value == null ? void.class : value.getClass();
+		return (Class<? extends T>) value.getClass();
 	}
 }
