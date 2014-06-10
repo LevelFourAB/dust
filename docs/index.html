@@ -137,7 +137,7 @@ public class HelloPage {
 {% endhighlight %}
 
 			<p class="align-center">
-				and are easily localizable
+				can easily be localized
 			</p>
 
 {% highlight xml %}
@@ -156,9 +156,21 @@ hello=Hello</code></pre>
 hello=Hej</code></pre>
 			</div>
 		</div>
+
+		<p class="align-center">
+			and come with a great expression language
+		</p>
+
+{% highlight xml %}
+<link href="${m:asset('style.css')}" rel="stylesheet" type="text/css" />
+
+<a href="/${d:urlencode(name.trim())}">${name}</a>
+
+<span d:if="${name.length() lt 5 and name.length() gt 2}">${m:name} ${name}</span>
+{% endhighlight %}
 	</section>
 
 	<div class="align-center">
-		<a href="{{ site.baseurl }}/docs/" class="btn btn-lg btn-outline">Read more!</a>
+		<a href="{{ site.baseurl }}/docs/templates/" class="btn btn-lg btn-outline">More about templates</a>
 	</div>
 </main>

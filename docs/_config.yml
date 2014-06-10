@@ -60,6 +60,6 @@ assets:
   js_compressor: uglifier
   css_compressor: sass
   cachebust: none
-  cache: false
-  gzip: [ text/css, application/javascript ]
+  cache: true
+  #gzip: [ text/css, application/javascript ]
   debug: false

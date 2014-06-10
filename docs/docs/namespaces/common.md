@@ -155,3 +155,43 @@ Render an object assuming it has a template or it is an instance of `Emittable`.
 | `value`   | Yes      | *          | Value to render |
 
 </div>
+
+## Mixins
+
+### `if`
+
+Only output the element if the test passes.
+
+{% highlight xml %}
+<div d:if="${test}">
+	Hello!
+</div>
+{% endhighlight %}
+
+### `attributes`
+
+Mixin attributes used when calling the current component. 
+
+{% highlight xml %}
+<button class="btn-lg" d:attributes="merge">${title}</button>
+{% endhighlight %}
+
+## Expressions
+
+### `urlencode(String)`
+
+Encode the given string for inclusion in a URL.
+
+{% highlight xml %}
+${d:urlencode(name)}
+
+${name.d:urlencode()}
+{% endhighlight %}
+
+### `emit` and `skip`
+
+These two properties are used together with attributes to output an empty attribute or skip an attribute.
+
+{% highlight xml %}
+<input type="checkbox" ... checked="${checked ? d:emit : d:skip}" />
+{% endhighlight %}
