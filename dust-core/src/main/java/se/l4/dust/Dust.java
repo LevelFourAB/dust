@@ -30,7 +30,7 @@ public class Dust
 	/**
 	 * The parameter namespace used to define parameters.
 	 */
-	public static final String NAMESPACE_PARAMETERS = "dust:parameter";
+	public static final String NAMESPACE_PARAMETERS = "dust:parameters";
 	
 	/**
 	 * URI of context namespace, used to refer to files in the webapp context.
