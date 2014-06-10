@@ -20,61 +20,145 @@ layout: base
 </div>
 
 
-<article>
+<main>
 	<section class="container feature">
 		<p class="align-center">
 			Dust is Java-based web framework built around components, templates and JAX-RS.
 		</p>
 	</section>
 
-	<section class="feature">
+	<section class="section-spots">
+		<div class="feature">
+			<div class="row">
+				<div class="col-xs-12 col-sm-6 col-md-4">
+					<div class="feature-spot">
+						<img src="{{ site.baseurl }}/images/recycleable.svg" width="100" height="100">
+						<b>Reusable modules</b>
+						Components, pages and assets all live in reusable <a href="{{ site.baseurl }}/docs/namespaces/">namespaces</a>.
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-6 col-md-4">
+					<div class="feature-spot">
+						<img src="{{ site.baseurl }}/images/templates.svg" width="100" height="100">
+						<b>Your markup, your style</b>
+						<a href="{{ site.baseurl }}/docs/templates/">Templates</a> are fully customizable, with full control over your markup.
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-6 col-md-4">
+					<div class="feature-spot">
+						<img src="{{ site.baseurl }}/images/structure.svg" width="100" height="100">
+						<b>Custom structure</b>
+						You control the URLs of your pages and what HTTP requests they handle.
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-6 col-md-4">
+					<div class="feature-spot">
+						<img src="{{ site.baseurl }}/images/extensible.svg" width="100" height="100">
+						<b>Extensible</b>
+						Extend your app with things such as <a href="{{ site.baseurl }}/docs/templates/components/">components</a>, asset processors and more.
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-6 col-md-4">
+					<div class="feature-spot">
+						<img src="{{ site.baseurl }}/images/speed.svg" width="100" height="100">
+						<b>Built for speed</b>
+						Templates are blazing fast and the rendered markup is automatically minified.
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-6 col-md-4">
+					<div class="feature-spot">
+						<img src="{{ site.baseurl }}/images/devmode.svg" width="100" height="100">
+						<b>Developer friendly</b>
+						The dev mode enables a compile-refresh workflow with early error detection.
+					</div>
+				</div>
+			</div>	
+		</div>
+	</section>
+	<div class="align-center">
+		<a href="{{ site.baseurl }}/quick-start" class="btn btn-lg btn-outline">Quick start</a>
+		or read
+		<a href="{{ site.baseurl }}/docs/getting-started" class="btn btn-lg btn-outline">Getting started</a>
+	</div>
+	<section class="section-templates">
+		<div class="feature">
+		<p class="align-center">
+			Dust lets you combine a page
+		</p>
+{% highlight java %}
+@Path("/hello")
+@Template
+public class HelloPage {
+	private String name;
+
+	@GET
+	public HelloPage get(@QueryParam("name") @DefaultValue("Unknown") String name) {
+		this.name = name;
+		return this;
+	}
+
+	public String getName() { return name; }
+}
+{% endhighlight %}
+
+		<p class="align-center">
+			with a template
+		</p>
+
+{% highlight xml %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Hello ${name}!</title>
+	</head>
+	<body>
+		Hello ${name}! Your name is ${name.length()} characters.
+	</body>
+</html>
+{% endhighlight xml %}
+		<p class="align-center">
+			which would then be accessible at /hello.
+		</p>
+
+		</div>
+	</section>
+	<section>
+		<div class="feature">
+			<p class="align-center">
+				Templates can reference components
+			</p>
+
+{% highlight xml %}
+<body xmlns:d="dust:common">
+	<d:if test="${name == 'Cookie monster'}">
+		Your name is awesome!
+	</d:if>
+</body>
+{% endhighlight %}
+
+			<p class="align-center">
+				and are easily localizable
+			</p>
+
+{% highlight xml %}
+<body xmlns:m="dust:messages">
+	${m:hello} ${name}!
+</body>
+{% endhighlight %}
+
 		<div class="row">
-			<div class="col-xs-12 col-sm-6 col-md-4">
-				<div class="feature-spot">
-					<img src="{{ site.baseurl }}/images/recycleable.svg" width="100" height="100">
-					<b>Reusable modules</b>
-					Components, pages and assets all live in reusable <a href="{{ site.baseurl }}/docs/namespaces/">namespaces</a>.
-				</div>
+			<div class="col-xs-12 col-md-6">
+<pre><code>// TemplateClass.messages - defaults
+hello=Hello</code></pre>
 			</div>
-			<div class="col-xs-12 col-sm-6 col-md-4">
-				<div class="feature-spot">
-					<img src="{{ site.baseurl }}/images/templates.svg" width="100" height="100">
-					<b>Your markup, your style</b>
-					<a href="{{ site.baseurl }}/docs/templates/">Templates</a> are fully customizable, with full control over your markup.
-				</div>
-			</div>
-			<div class="col-xs-12 col-sm-6 col-md-4">
-				<div class="feature-spot">
-					<img src="{{ site.baseurl }}/images/devmode.svg" width="100" height="100">
-					<b>Developer friendly</b>
-					The dev mode lets you to make a change, compile and refresh your browser.
-				</div>
-			</div>
-			<div class="col-xs-12 col-sm-6 col-md-4">
-				<div class="feature-spot">
-					<img src="{{ site.baseurl }}/images/extensible.svg" width="100" height="100">
-					<b>Extensible</b>
-					Extend your app with things such as <a href="{{ site.baseurl }}/docs/templates/components/">components</a>, asset processors and more.
-				</div>
-			</div>
-			<div class="col-xs-12 col-sm-6 col-md-4">
-				<div class="feature-spot">
-					<img src="{{ site.baseurl }}/images/speed.svg" width="100" height="100">
-					<b>Built for speed</b>
-					Templates are blazing fast and the rendered markup is automatically minified.
-				</div>
-			</div>
-			<div class="col-xs-12 col-sm-6 col-md-4">
-				<div class="feature-spot">
-					<img src="{{ site.baseurl }}/images/errors.svg" width="100" height="100">
-					<b>Early error detection</b>
-					Errors are reported as soon as they are found making development more smooth.
-				</div>
+			<div class="col-xs-12 col-md-6">
+<pre><code>// TemplateClass.sv.messages - Swedish
+hello=Hej</code></pre>
 			</div>
 		</div>
+	</section>
+
+	<div class="align-center">
+		<a href="{{ site.baseurl }}/docs/" class="btn btn-lg btn-outline">Read more!</a>
 	</div>
-	</section>
-	<section class="feature align-center">
-		<a href="{{ site.baseurl }}/quick-start" class="btn btn-lg btn-outline">Get started!</a>
-	</section>
-</article>
+</main>

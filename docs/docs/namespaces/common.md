@@ -4,6 +4,7 @@ title: dust:common
 
 nav: docs
 ---
+{::options parse_block_html="true" /}
 
 This is the common namespace, where the default components reside.
 
@@ -16,6 +17,8 @@ This is the common namespace, where the default components reside.
 ## Components
 
 All of these components are located in the namespace `dust:common`. All of these examples bind `dust:common` to `d` and `dust:parameters` to `p`.
+
+<div class="padding-bottom">
 
 ### `if`
 
@@ -41,6 +44,9 @@ Component that will output its content if a certain test passes. Will optionally
 | `test`    | Yes      | Boolean    | The expression to test against. |
 | `else`    | No       | Parameter  | Optional markup block to render if the test fails |
 
+</div>
+
+<div class="padding-bottom">
 
 ### `loop`
 
@@ -63,6 +69,10 @@ Loop over certain values, outputting its content for every value.
 | `source`  | Yes      | Array, Iterable or Iterator | The source of values to loop over. |
 | `value`   | Yes      | * | The expression that is set for every value looped over |
 
+</div>
+
+<div class="padding-bottom">
+
 ### `body`
 
 Output content passed into the body of a component. Can optionally output the contents of a parameter.
@@ -83,6 +93,10 @@ Output content passed into the body of a component. Can optionally output the co
 |:----------|:---------|:-----------|:------------|
 | `id`      | No       | String     | Optional identifier of a parameter to output |
 
+</div>
+
+<div class="padding-bottom">
+
 ### `raw`
 
 Output some content without escaping it.
@@ -101,6 +115,10 @@ Output some content without escaping it.
 |:----------|:---------|:-----------|:------------|
 | `value`   | Yes      | *          | Value to output |
 
+</div>
+
+<div class="padding-bottom">
+
 ### `holder`
 
 Wrap other markup and output it. Used to support components that do not have a single root element.
@@ -115,9 +133,12 @@ Wrap other markup and output it. Used to support components that do not have a s
 </d:holder>
 {% endhighlight %}
 
+</div>
+
+<div class="padding-bottom">
 ### `render`
 
-Render an object assuming it is a template.
+Render an object assuming it has a template or it is an instance of `Emittable`.
 
 #### Example
 {:.no_toc}
@@ -133,3 +154,4 @@ Render an object assuming it is a template.
 |:----------|:---------|:-----------|:------------|
 | `value`   | Yes      | *          | Value to render |
 
+</div>

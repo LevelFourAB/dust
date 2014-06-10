@@ -1,18 +1,10 @@
 article {
     padding: 60px 0;
-    font-size: 18px;
+    font-size: 16px;
 
     header {
         margin-top: 2rem;
         margin-bottom: 4rem;
-    }
-
-    p {
-        font-size: 1em;
-        line-height: 1.5;
-        color: $text;
-        font-weight: 400;
-        margin: 0 0 1.5em;
     }
 
 	table {
@@ -85,50 +77,22 @@ article {
         }
     }
 
-    pre {
-        border: 0;
-        padding: 1em 1em;
-        margin: 1em 0 1.5em -1em;
-        background: whitesmoke;
-        border: 0;
-        border-radius: 2px;
-        border-bottom:1px solid #eee;
-        font-size:0.8em;
-        overflow-x: auto;
-        display: block;
-		-moz-tab-size: 4;
-		tab-size: 4;
-        
-        code {
-            font-size:0.8em;
-            border:0;
-        }
-    }
-    
-    code {
-        border-bottom:1px solid #ddd;
-        border-radius:2px;
-        color:#222;
-    }
+	$padding: 15px;
 
-	td, th {
-		padding: 0.5rem 1.5rem 0.5rem 0rem;
+    pre {
+        padding: $padding 0 $padding $padding;
+        margin: $padding 0 $padding (-$padding);
+    }    
+	
+	table {
+		margin: $padding 0 $padding (-$padding);
 	}
 
-	#markdown-toc {
-		ul {
-			list-style: none;
-			padding: 0;
-			padding-left: 1.5em;
-			margin: 0;
-		}
+	td, th {
+		padding: $padding/2 $padding $padding/2 $padding;
 
-		list-style: none;
-		padding: 0;
-		margin: 0;
-
-		li {
-			font-size: 14px;
+		&:last-child {
+			padding-right: $padding*2;
 		}
 	}
 }

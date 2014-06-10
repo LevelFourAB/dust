@@ -53,11 +53,24 @@ a {
 		padding-left: 0;
 	}
 
+	a {
+		margin-left: -5px;
+		padding: 5px;
+		display: block;
+		color: $text; 
+		line-height: 1.5;
+
+		&:hover {
+			background-color: #eee;
+		}
+	}
+
 	li {
 		margin-bottom: 2rem;
 		font-size: 14px;
 
-		&.active > a {
+		&.active > a, &.active > h4 > a {
+			color: $accent;
 			font-weight: bold;
 		}
 	}
@@ -221,15 +234,25 @@ a {
 	text-align: center;
 	font-size: 18px;
 
-	background-color: #fafafa;
-	padding: 10px;
-	margin-bottom: 10px;
+	padding: 30px 10px;
+	margin-bottom: 30px;
 
 	> b {
 		font-size: 20px;
 		display: block;
 
 		line-height: 2em;
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+}
+
+.feature-spot-dark {
+	color: white; 
+	
+	a {
+		color: white;
+		text-decoration: underline;
 	}
 }
 
@@ -247,4 +270,78 @@ a {
 	margin-right: auto;
 
 	margin-bottom: 60px;
+
+	pre {
+		font-size: 16px;
+	}
+}
+
+article, main {
+	padding: 60px 0;
+    font-size: 16px;
+}
+
+
+p {
+	font-size: 1em;
+	line-height: 1.5;
+	color: $text;
+	font-weight: 400;
+	margin: 0 0 1.5em;
+}
+
+pre {
+	padding: 15px;
+	margin: 0 0 1.5em;
+	background: whitesmoke;
+	border: 0;
+	border-radius: 2px;
+	border-bottom:1px solid #eee;
+	font-size: 1em;
+	overflow-x: auto;
+	display: block;
+	-moz-tab-size: 4;
+	tab-size: 4;
+	
+	code {
+		font-size:0.8em;
+		border:0;
+	}
+}
+
+code {
+	border-bottom:1px solid #ddd;
+	border-radius:2px;
+	color:#222;
+}
+
+table {
+	font-size: 14px;
+
+	width: 100%;
+}
+
+tr:nth-child(even) > td {
+	background-color: lighten($accent, 50%);
+}
+
+#markdown-toc {
+	ul {
+		list-style: none;
+		padding: 0;
+		padding-left: 1.5em;
+		margin: 0;
+	}
+
+	list-style: none;
+	padding: 0;
+	margin: 0;
+
+	li {
+		font-size: 14px;
+	}
+}
+
+.padding-bottom {
+	margin-bottom: 6rem;
 }
