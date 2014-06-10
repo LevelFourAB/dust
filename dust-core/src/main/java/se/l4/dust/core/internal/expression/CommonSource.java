@@ -1,11 +1,10 @@
 package se.l4.dust.core.internal.expression;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 import se.l4.dust.api.expression.ReflectiveExpressionSource;
 import se.l4.dust.api.template.dom.Attribute;
 
+import com.google.common.escape.Escaper;
+import com.google.common.net.UrlEscapers;
 import com.google.inject.Inject;
 import com.google.inject.Stage;
 
@@ -18,10 +17,14 @@ import com.google.inject.Stage;
 public class CommonSource
 	extends ReflectiveExpressionSource
 {
+	private final Escaper urlEscaper;
+
 	@Inject
 	public CommonSource(Stage stage)
 	{
 		super(stage);
+		
+		urlEscaper = UrlEscapers.urlFormParameterEscaper();
 	}
 	
 	@Property
@@ -39,19 +42,12 @@ public class CommonSource
 	@Method
 	public String urlencode(String in)
 	{
-		try
-		{
-			return URLEncoder.encode(in, "UTF-8");
-		}
-		catch(UnsupportedEncodingException e)
-		{
-			throw new AssertionError("UTF-8 unsupported");
-		}
+		return urlEscaper.escape(in);
 	}
 	
 	@Method("urlencode")
 	public String urlencodeInput(@Instance String in)
 	{
-		return urlencode(in);
+		return urlEscaper.escape(in);
 	}
 }
