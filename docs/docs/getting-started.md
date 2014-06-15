@@ -82,11 +82,11 @@ package se.l4.dust.example;
 public static class MyAppModule extends CrayonModule {
 	@Override
 	protected void configure() {
-		// Regular Guice bindings
+		install(new ResteasyModule());
 	}
 
 	@NamespaceBinding
-	public void contributeNamespace(NamespaceManager namespaces) {
+	public void contributeNamespace(Namespaces namespaces) {
 		namespaces.bind("dust:example").add();
 	}
 }
