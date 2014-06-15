@@ -15,6 +15,12 @@ public class MemoryLocation
 	{
 		return null;
 	}
+	
+	@Override
+	public ResourceLocation resolve(String path)
+	{
+		return null;
+	}
 
 	@Override
 	public String getName()

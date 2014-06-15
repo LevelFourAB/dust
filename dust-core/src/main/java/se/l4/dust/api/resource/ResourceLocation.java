@@ -16,6 +16,14 @@ public interface ResourceLocation
 	 * @return
 	 */
 	ResourceLocation withExtension(String newExtension);
+	
+	/**
+	 * Resolve a path relative to this location.
+	 * 
+	 * @param path
+	 * @return
+	 */
+	ResourceLocation resolve(String path);
 
 	/**
 	 * Get the name of this resource.

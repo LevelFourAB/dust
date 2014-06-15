@@ -1,6 +1,7 @@
 package se.l4.dust.api.resource;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import com.google.common.base.Throwables;
@@ -37,6 +38,19 @@ public class UrlLocation
 			return new UrlLocation(new URL(firstPart + "." + newExtension));
 		}
 		catch(MalformedURLException e)
+		{
+			throw Throwables.propagate(e);
+		}
+	}
+	
+	@Override
+	public ResourceLocation resolve(String path)
+	{
+		try
+		{
+			return new UrlLocation(url.toURI().resolve(path).toURL());
+		}
+		catch (MalformedURLException | URISyntaxException e)
 		{
 			throw Throwables.propagate(e);
 		}

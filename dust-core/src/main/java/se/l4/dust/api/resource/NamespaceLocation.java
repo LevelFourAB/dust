@@ -1,5 +1,7 @@
 package se.l4.dust.api.resource;
 
+import java.net.URI;
+
 import se.l4.dust.api.Namespace;
 
 public class NamespaceLocation
@@ -31,6 +33,13 @@ public class NamespaceLocation
 		int idx = name.lastIndexOf('.');
 		String firstPart = idx > 0 ? name.substring(0, idx) : name;
 		return new NamespaceLocation(namespace, firstPart + "." + newExtension);
+	}
+	
+	@Override
+	public ResourceLocation resolve(String path)
+	{
+		String newName = URI.create(name).resolve(path).toString();
+		return new NamespaceLocation(namespace, newName);
 	}
 	
 	@Override
