@@ -313,6 +313,14 @@ public abstract class ReflectiveExpressionSource
 			return m;
 		}
 		
+		for(MethodImpl m : alts)
+		{
+			if(parameters.length == m.paramTypes.length)
+			{
+				return m;
+			}
+		}
+		
 		return null;
 	}
 	
