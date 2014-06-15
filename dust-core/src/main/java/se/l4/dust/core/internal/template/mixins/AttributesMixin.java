@@ -20,7 +20,7 @@ public class AttributesMixin
 		final String type = encounter.getAttribute(Dust.NAMESPACE_COMMON, "attributes").getStringValue();
 		if(! type.equals("merge"))
 		{
-			encounter.error("`attributes` must have the value merge");
+			encounter.raiseError("`attributes` must have the value merge");
 			return;
 		}
 		

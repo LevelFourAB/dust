@@ -244,7 +244,11 @@ public class XmlTemplateParser
 			
 			whitespace.add(currentWhitespace);
 			
-			if(namespaces.isBound(uri))
+			if(isParameterNamespace(uri))
+			{
+				builder.startParameter(localName);
+			}
+			else if(namespaces.isBound(uri))
 			{
 				// This namespace is managed by us, treat as component
 				Templates.TemplateNamespace tpl = templates.getNamespace(uri);
@@ -258,10 +262,6 @@ public class XmlTemplateParser
 					newError("The component %s does not exist in the namespace %s", localName, uri);
 					return;
 				}
-			}
-			else if(isParameterNamespace(uri))
-			{
-				builder.startParameter(localName);
 			}
 			else
 			{
@@ -380,6 +380,10 @@ public class XmlTemplateParser
 		{
 			flushCharacters();
 
+			// Check if this is an internal comment
+			if(length >= 1 && ch[0] == '#') return;
+			
+			// Otherwise parse the text
 			String commentText = new String(ch, start, length);
 			List<Value<?>> content = extractor.parse(
 				errors.getSource(),

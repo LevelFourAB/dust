@@ -21,6 +21,7 @@ import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.TemplateBuilder;
 import se.l4.dust.api.template.TemplateEmitter;
+import se.l4.dust.api.template.TemplateEncounter;
 import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.Templates;
@@ -47,6 +48,8 @@ import se.l4.dust.core.internal.template.dom.Empty;
 import se.l4.dust.core.internal.template.dom.ExpressionWithContext;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 
 /**
@@ -64,7 +67,7 @@ public class TemplateBuilderImpl
 	private final Map<String, String> boundNamespaces;
 	private final Expressions expressions;
 	
-	private final LinkedList<Map<String, AttributeImpl>> mixinAttributes;
+	private final LinkedList<Map<String, Attribute<?>>> mixinAttributes;
 	
 	private final Map<String, Object> values;
 	
@@ -94,9 +97,9 @@ public class TemplateBuilderImpl
 		this.converter = converter;
 		this.id = templates.fetchTemplateId();
 		
-		values = new HashMap<String, Object>();
-		boundNamespaces = new HashMap<String, String>();
-		mixinAttributes = new LinkedList<Map<String, AttributeImpl>>();
+		values = Maps.newHashMap();
+		boundNamespaces = Maps.newHashMap();
+		mixinAttributes = Lists.newLinkedList();
 		
 		stack = new LinkedList<>();
 	}
@@ -189,7 +192,7 @@ public class TemplateBuilderImpl
 		}
 		
 		// Add mixin attributes to the stack
-		mixinAttributes.add(new LinkedHashMap<String, AttributeImpl>());
+		mixinAttributes.add(Maps.<String, Attribute<?>>newLinkedHashMap());
 		
 		Element e = new HtmlElement(name);
 		applyDebugHints(e);
@@ -278,7 +281,7 @@ public class TemplateBuilderImpl
 	public TemplateBuilder startFragment(TemplateFragment fragment)
 	{
 		// Add mixin attributes to the stack
-		LinkedHashMap<String, AttributeImpl> attributes = new LinkedHashMap<>();
+		LinkedHashMap<String, Attribute<?>> attributes = Maps.newLinkedHashMap();
 		mixinAttributes.add(attributes);
 				
 		Element emittable = new FragmentElement(fragment, hasCurrent() ? current() : null, converter, attributes);
@@ -319,10 +322,6 @@ public class TemplateBuilderImpl
 
 			goToParent();
 		}
-		else
-		{
-			mixinAttributes.removeLast();
-		}
 		
 		return this;
 	}
@@ -336,7 +335,7 @@ public class TemplateBuilderImpl
 		}
 		
 		// Add mixin attributes to the stack
-		mixinAttributes.add(new LinkedHashMap<String, AttributeImpl>());
+		mixinAttributes.add(Maps.<String, Attribute<?>>newLinkedHashMap());
 		
 		Element e = new ParameterElement(name);
 		applyDebugHints(e);
@@ -435,7 +434,7 @@ public class TemplateBuilderImpl
 				mixinAttributes.getLast()
 					.put(
 						uri + "|" + name.substring(idx+1), 
-						new AttributeImpl(name, value)
+						new AttributeImpl(name.substring(idx+1), value)
 					);
 				
 				return this;
@@ -519,7 +518,8 @@ public class TemplateBuilderImpl
 	
 	private void applyMixins()
 	{
-		Map<String, AttributeImpl> attrs = mixinAttributes.getLast();
+		Map<String, Attribute<?>> attrs = mixinAttributes.getLast();
+		Set<String> appliedNamespaces = Sets.newHashSet();
 		for(String attr : attrs.keySet())
 		{
 			int index = attr.indexOf('|');
@@ -530,7 +530,15 @@ public class TemplateBuilderImpl
 			if(namespace.hasMixin(name))
 			{
 				TemplateMixin mixin = namespace.getMixin(name);
-				mixin.element(new MixinEncounterImpl(boundNamespaces));
+				mixin.element(new MixinEncounterImpl(current(), attrs, boundNamespaces));
+			}
+			else if(appliedNamespaces.add(nsUri))
+			{
+				TemplateMixin mixin = namespace.getDefaultMixin();
+				if(mixin != null)
+				{
+					mixin.element(new MixinEncounterImpl(current(), attrs, boundNamespaces));
+				}
 			}
 		}
 	}
@@ -556,20 +564,87 @@ public class TemplateBuilderImpl
 		return this;
 	}
 	
-	private class MixinEncounterImpl
-		implements MixinEncounter
+	private class AbstractTemplateEncounter
+		implements TemplateEncounter
 	{
-		private final Map<String, String> boundNamespaces;
-		
-		public MixinEncounterImpl(Map<String, String> ns)
-		{
-			boundNamespaces = new HashMap<String, String>(ns);
-		}
+		protected Element element;
+		private Map<String, Attribute<?>> attributes;
+		private Map<String, String> boundNamespaces;
 
-		@Override
-		public AttributeImpl getAttribute(String namespace, String name)
+		public AbstractTemplateEncounter(
+				Element element, 
+				Map<String, Attribute<?>> attributes,
+				Map<String, String> boundNamespaces)
 		{
-			return mixinAttributes.getLast().get(namespace + "|" + name);
+			this.element = element;
+			this.attributes = attributes;
+			this.boundNamespaces = new HashMap<String, String>(boundNamespaces);
+		}
+		
+		@Override
+		public Attribute<?>[] getAttributes()
+		{
+			return element.getAttributes();
+		}
+		
+		@Override
+		public Attribute<?>[] getAttributesExcluding(String... names)
+		{
+			List<Attribute<?>> attributes = Lists.newArrayList();
+			_outer:
+			for(Attribute<?> a : element.getAttributes())
+			{
+				for(String n : names)
+				{
+					if(n.equals(a.getName())) continue _outer;
+				}
+				
+				attributes.add(a);
+			}
+			return attributes.toArray(new Attribute[attributes.size()]);
+		}
+		
+		@Override
+		public Attribute<?>[] getAttributesExcluding(Set<String> names)
+		{
+			List<Attribute<?>> attributes = Lists.newArrayList();
+			for(Attribute<?> a : element.getAttributes())
+			{
+				if(names.contains(a.getName())) continue;
+				attributes.add(a);
+			}
+			return attributes.toArray(new Attribute[attributes.size()]);
+		}
+		
+		private <T> Attribute<T> bindAttribute(Attribute<?> attr, Class<T> type)
+		{
+			if(attr == null)
+			{
+				return null;
+			}
+			
+			return attr.bindVia(converter, type);
+		}
+		
+		@Override
+		public Attribute<? extends Object>[] getAttributes(String namespace)
+		{
+			String ns = namespace + '|';
+			List<Attribute<?>> result = Lists.newArrayList();
+			for(Map.Entry<String, Attribute<?>> e : attributes.entrySet())
+			{
+				if(e.getKey().startsWith(ns))
+				{
+					result.add(e.getValue());
+				}
+			}
+			return result.toArray(new Attribute[result.size()]);
+		}
+		
+		@Override
+		public Attribute<?> getAttribute(String namespace, String name)
+		{
+			return attributes.get(namespace + '|' + name);
 		}
 		
 		@Override
@@ -581,13 +656,82 @@ public class TemplateBuilderImpl
 		@Override
 		public Attribute<?> getAttribute(String name)
 		{
-			return current().getAttribute(name);
+			return element.getAttribute(name);
 		}
 		
 		@Override
 		public <T> Attribute<T> getAttribute(String name, Class<T> type)
 		{
 			return bindAttribute(getAttribute(name), type);
+		}
+		
+		@Override
+		public Attribute<?> getAttribute(String name, boolean required)
+		{
+			Attribute<?> attribute = element.getAttribute(name);
+			if(attribute == null)
+			{
+				raiseError("The attribute " + name + " is required but was not found");
+			}
+			return attribute;
+		}
+		
+		@Override
+		public <T> Attribute<T> getAttribute(String name, Class<T> type, boolean required)
+		{
+			return bindAttribute(getAttribute(name, required), type);
+		}
+		
+		@Override
+		public Emittable findParameter(String name)
+		{
+			return element.getParameter(name);
+		}
+		
+		@Override
+		public Emittable findParameter(String name, boolean required)
+		{
+			Emittable result = element.getParameter(name);
+			if(required && result == null)
+			{
+				raiseError("Parameter " + name + " must exist");
+			}
+			return result;
+		}
+		
+		@Override
+		public void bindNamespace(String prefix, String uri)
+		{
+			boundNamespaces.put(prefix, uri);
+		}
+		
+		@Override
+		public Value<?> parseExpression(String expression)
+		{
+			return expressions.compile(source, boundNamespaces, expression, context);
+		}
+		
+		@Override
+		public Value<?> parseExpression(String expression, Object context)
+		{
+			Expression expr = expressions.compile(source, boundNamespaces, expression, expressions.resolveType(context));
+			return new ExpressionWithContext(expr, context);
+		}
+		
+		@Override
+		public void raiseError(String message)
+		{
+			errorCollector.newError(element.getLine(), element.getColumn(), message);
+		}
+	}
+	
+	private class MixinEncounterImpl
+		extends AbstractTemplateEncounter
+		implements MixinEncounter
+	{
+		public MixinEncounterImpl(Element element, Map<String, Attribute<?>> attributes, Map<String, String> ns)
+		{
+			super(element, attributes, ns);
 		}
 
 		@Override
@@ -634,54 +778,139 @@ public class TemplateBuilderImpl
 		}
 		
 		@Override
-		public MixinEncounter bindNamespace(String prefix, String uri)
-		{
-			boundNamespaces.put(prefix, uri);
-			return this;
-		}
-		
-		@Override
-		public Value<?> parseExpression(String expression)
-		{
-			return expressions.compile(source, boundNamespaces, expression, context);
-		}
-		
-		@Override
-		public Value<?> parseExpression(String expression, Object context)
-		{
-			Expression expr = expressions.compile(source, boundNamespaces, expression, expressions.resolveType(context));
-			return new ExpressionWithContext(expr, context);
-		}
-		
-		@Override
 		public void setAttribute(String attribute, Value<?> content)
 		{
 			TemplateBuilderImpl.this.setAttribute(attribute, content);
 		}
 		
 		@Override
-		public void error(String error)
+		public void raiseError(String error)
 		{
 			errorCollector.newError(line, column, error);
 		}
 	}
 	
-	private <T> Attribute<T> bindAttribute(Attribute<?> attr, Class<T> type)
+	private class FragmentEncounterImpl
+		extends AbstractTemplateEncounter
+		implements FragmentEncounter
 	{
-		if(attr == null)
+		public FragmentEncounterImpl(FragmentElement element,
+				Map<String, Attribute<?>> attributes,
+				Map<String, String> boundNamespaces)
 		{
-			return null;
+			super(element, attributes, boundNamespaces);
+		}
+	
+		@Override
+		public void addParameter(String name, Emittable content)
+		{
+			Element parent = ((FragmentElement) element).parent;
+			if(parent != null)
+			{
+				parent.addParameter(name, content);
+			}
 		}
 		
-		return attr.bindVia(converter, type);
+		@Override
+		public void putValue(String key, Object value)
+		{
+			TemplateBuilderImpl.this.putValue(key, value);
+		}
+		
+		@Override
+		public <T> T getValue(String key)
+		{
+			return TemplateBuilderImpl.this.getValue(key);
+		}
+		
+		@Override
+		public Emittable[] getBody()
+		{
+			return element.getRawContents();
+		}
+		
+		@Override
+		public Emittable getScopedBody()
+		{
+			return new EmittableContent(new DataContextSwitcher(id, element.getRawContents()));
+		}
+		
+		@Override
+		public void replaceWith(Emittable emittable)
+		{
+			Element content = new EmittableContent(emittable);
+			
+			if(hasCurrent())
+			{
+				current().addContent(content);
+			}
+			else
+			{
+				root = content;
+			}
+			
+			setCurrent(content);
+			
+			((FragmentElement) element).replaced = true;
+		}
+		
+		@Override
+		public void replaceWith(Emittable[] content)
+		{
+			Element root;
+			if(hasCurrent())
+			{
+				root = current();
+			}
+			else
+			{
+				root = TemplateBuilderImpl.this.root = new Empty();
+			}
+			
+			Empty empty = new Empty();
+			root.addContent(empty);
+			for(Emittable c : content)
+			{
+				empty.addContent(c);
+			}
+			
+			setCurrent(empty);
+			
+			((FragmentElement) element).replaced = true;
+		}
+		
+		@Override
+		public void replaceWith(final Iterable<? extends Emittable> content)
+		{
+			Element root;
+			if(hasCurrent())
+			{
+				root = current();
+			}
+			else
+			{
+				root = TemplateBuilderImpl.this.root = new Empty();
+			}
+			
+			Empty empty = new Empty();
+			root.addContent(empty);
+			for(Emittable c : content)
+			{
+				empty.addContent(c);
+			}
+			
+			setCurrent(empty);
+			
+			((FragmentElement) element).replaced = true;
+		}
 	}
 	
-	private static class FragmentElement
+	private class FragmentElement
 		extends Element
 	{
 		private final TemplateFragment fragment;
 		private final Element parent;
-		private final Map<String, AttributeImpl> attributes;
+		private final Map<String, Attribute<?>> attributes;
 		private final TypeConverter converter;
 		
 		private boolean replaced;
@@ -689,7 +918,7 @@ public class TemplateBuilderImpl
 		public FragmentElement(TemplateFragment fragment,
 				Element parent,
 				TypeConverter converter,
-				Map<String, AttributeImpl> attributes)
+				Map<String, Attribute<?>> attributes)
 		{
 			super("internal:fragment:" + fragment.getClass().getSimpleName());
 			
@@ -708,210 +937,7 @@ public class TemplateBuilderImpl
 
 		public void apply(final TemplateBuilderImpl builder)
 		{
-			final Element self = this;
-			fragment.build(new FragmentEncounter()
-			{
-				@Override
-				public Attribute<?>[] getAttributes()
-				{
-					return self.getAttributes();
-				}
-				
-				@Override
-				public Attribute<?>[] getAttributesExcluding(String... names)
-				{
-					List<Attribute<?>> attributes = Lists.newArrayList();
-					_outer:
-					for(Attribute<?> a : self.getAttributes())
-					{
-						for(String n : names)
-						{
-							if(n.equals(a.getName())) continue _outer;
-						}
-						
-						attributes.add(a);
-					}
-					return attributes.toArray(new Attribute[attributes.size()]);
-				}
-				
-				@Override
-				public Attribute<?>[] getAttributesExcluding(Set<String> names)
-				{
-					List<Attribute<?>> attributes = Lists.newArrayList();
-					for(Attribute<?> a : self.getAttributes())
-					{
-						if(names.contains(a.getName())) continue;
-						attributes.add(a);
-					}
-					return attributes.toArray(new Attribute[attributes.size()]);
-				}
-				
-				private <T> Attribute<T> bindAttribute(Attribute<?> attr, Class<T> type)
-				{
-					if(attr == null)
-					{
-						return null;
-					}
-					
-					return attr.bindVia(converter, type);
-				}
-				
-				@Override
-				public Attribute<?> getAttribute(String namespace, String name)
-				{
-					return attributes.get(namespace + '|' + name);
-				}
-				
-				@Override
-				public <T> Attribute<T> getAttribute(String namespace, String name, Class<T> type)
-				{
-					return bindAttribute(getAttribute(namespace, name), type);
-				}
-
-				@Override
-				public Attribute<?> getAttribute(String name)
-				{
-					return self.getAttribute(name);
-				}
-				
-				@Override
-				public <T> Attribute<T> getAttribute(String name, Class<T> type)
-				{
-					return bindAttribute(getAttribute(name), type);
-				}
-				
-				@Override
-				public Attribute<?> getAttribute(String name, boolean required)
-				{
-					Attribute<?> attribute = self.getAttribute(name);
-					if(attribute == null)
-					{
-						raiseError("The attribute " + name + " is required but was not found");
-					}
-					return attribute;
-				}
-				
-				@Override
-				public <T> Attribute<T> getAttribute(String name, Class<T> type, boolean required)
-				{
-					return bindAttribute(getAttribute(name, required), type);
-				}
-				
-				@Override
-				public Emittable findParameter(String name)
-				{
-					return self.getParameter(name);
-				}
-				
-				@Override
-				public Emittable findParameter(String name, boolean required)
-				{
-					Emittable result = self.getParameter(name);
-					if(required && result == null)
-					{
-						builder.raiseError("Parameter " + name + " must exist");
-					}
-					return result;
-				}
-				
-				@Override
-				public void addParameter(String name, Emittable content)
-				{
-					if(parent != null)
-					{
-						parent.addParameter(name, content);
-					}
-				}
-				
-				@Override
-				public void raiseError(String message)
-				{
-					throw builder.raiseError(message);
-				}
-				
-				@Override
-				public Emittable[] getBody()
-				{
-					return getRawContents();
-				}
-				
-				@Override
-				public Emittable getScopedBody()
-				{
-					return new EmittableContent(new DataContextSwitcher(builder.id, self.getRawContents()));
-				}
-				
-				@Override
-				public TemplateBuilder builder()
-				{
-					return builder;
-				}
-				
-				@Override
-				public void replaceWith(Emittable emittable)
-				{
-					Element content = new EmittableContent(emittable);
-					
-					if(builder.hasCurrent())
-					{
-						builder.current().addContent(content);
-					}
-					else
-					{
-						builder.root = content;
-					}
-					
-					builder.setCurrent(content);
-					
-					replaced = true;
-				}
-				
-				@Override
-				public void replaceWith(Emittable[] content)
-				{
-					Element root;
-					if(builder.hasCurrent())
-					{
-						root = builder.current();
-					}
-					else
-					{
-						root = builder.root = new Empty();
-					}
-					
-					for(Emittable c : content)
-					{
-						root.addContent(c);
-					}
-					
-					builder.setCurrent(root);
-					
-					replaced = true;
-				}
-				
-				@Override
-				public void replaceWith(final Iterable<? extends Emittable> content)
-				{
-					Element root;
-					if(builder.hasCurrent())
-					{
-						root = builder.current();
-					}
-					else
-					{
-						root = builder.root = new Empty();
-					}
-					
-					for(Emittable c : content)
-					{
-						root.addContent(c);
-					}
-					
-					builder.setCurrent(root);
-					
-					replaced = true;
-				}
-			});
+			fragment.build(new FragmentEncounterImpl(this, attributes, boundNamespaces));
 		}
 		
 		public boolean wasReplaced()

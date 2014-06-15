@@ -262,9 +262,22 @@ public class TemplatesImpl
 		}
 		
 		@Override
+		public TemplateNamespace addMixin(TemplateMixin mixin)
+		{
+			mixins.put("", mixin);
+			return this;
+		}
+		
+		@Override
 		public TemplateMixin getMixin(String attribute)
 		{
 			return mixins.get(attribute);
+		}
+		
+		@Override
+		public TemplateMixin getDefaultMixin()
+		{
+			return mixins.get("");
 		}
 		
 		@Override

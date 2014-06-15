@@ -23,6 +23,7 @@ import se.l4.dust.core.internal.template.components.RenderComponent;
 import se.l4.dust.core.internal.template.mixins.AttributesMixin;
 import se.l4.dust.core.internal.template.mixins.IfMixin;
 import se.l4.dust.core.internal.template.mixins.RepeatMixin;
+import se.l4.dust.core.internal.template.mixins.SettersMixin;
 
 import com.google.inject.Stage;
 
@@ -78,10 +79,20 @@ public class TemplateModule
 			FragmentDefinition definition,
 			FragmentUse use)
 	{
-		namespaces.bind("dust:fragments").manual().add();
-		manager.getNamespace("dust:fragments")
+		namespaces.bind(Dust.NAMESPACE_FRAGMENTS).manual().add();
+		manager.getNamespace(Dust.NAMESPACE_FRAGMENTS)
 			.addFragment("define", definition)
 			.addFragment("use", use);
+	}
+	
+	@TemplateContribution
+	public void contributeSetters(Namespaces namespaces,
+			Templates manager,
+			SettersMixin mixin)
+	{
+		namespaces.bind(Dust.NAMESPACE_SETTERS).manual().add();
+		manager.getNamespace(Dust.NAMESPACE_SETTERS)
+			.addMixin(mixin);
 	}
 	
 	@Contribution(name="dust-templates")

@@ -33,6 +33,17 @@ public class Dust
 	public static final String NAMESPACE_PARAMETERS = "dust:parameters";
 	
 	/**
+	 * The parameter namespace used to define setters. Setters are a way to
+	 * set values via the template.
+	 */
+	public static final String NAMESPACE_SETTERS = "dust:setters";
+	
+	/**
+	 * Namespace for fragments.
+	 */
+	public static final String NAMESPACE_FRAGMENTS = "dust:fragments";
+	
+	/**
 	 * URI of context namespace, used to refer to files in the webapp context.
 	 */
 	public static final String NAMESPACE_CONTEXT = "dust:context";

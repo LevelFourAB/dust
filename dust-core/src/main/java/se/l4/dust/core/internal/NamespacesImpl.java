@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import se.l4.dust.Dust;
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.NamespacePlugin;
 import se.l4.dust.api.Namespaces;
@@ -48,7 +49,8 @@ public class NamespacesImpl
 		
 		namespaces = Lists.newArrayList();
 		
-		bind("dust:common").add();
+		bind(Dust.NAMESPACE_COMMON).add();
+		bind(Dust.NAMESPACE_PARAMETERS).add();
 	}
 	
 	@Override

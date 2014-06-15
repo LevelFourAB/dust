@@ -23,6 +23,6 @@ public class FragmentDefinition
 		Attribute attribute = encounter.getAttribute("id", true);
 		String id = attribute.getStringValue();
 		
-		encounter.builder().putValue("fragment|" + id, encounter.getBody());
+		encounter.putValue("fragment|" + id, encounter.getBody());
 	}
 }

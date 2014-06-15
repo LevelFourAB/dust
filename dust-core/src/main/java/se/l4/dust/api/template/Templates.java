@@ -100,6 +100,15 @@ public interface Templates
 		TemplateNamespace addMixin(String attribute, TemplateMixin mixin);
 		
 		/**
+		 * Add a mixin that is triggered if any attribute within the namespace
+		 * is present.
+		 * 
+		 * @param mixin
+		 * @return
+		 */
+		TemplateNamespace addMixin(TemplateMixin mixin);
+		
+		/**
 		 * Get if a mixin exists for the given attribute.
 		 * 
 		 * @param attribute
@@ -114,6 +123,14 @@ public interface Templates
 		 * @return
 		 */
 		TemplateMixin getMixin(String attribute);
+		
+		/**
+		 * Get the mixin (if any) that triggers for any attribute in this
+		 * namespace.
+		 * 
+		 * @return
+		 */
+		TemplateMixin getDefaultMixin();
 	}
 	
 	/**
