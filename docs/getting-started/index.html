@@ -1,0 +1,89 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Getting Started — Dust</title><link href="https://fonts.googleapis.com/css?family=Droid+Sans:400,700" rel="stylesheet" type="text/css"><link rel="stylesheet" href="/assets/main.css"><link rel="canonical" href="/docs/getting-started/"><meta property="og:title" content="Getting Started "/><meta property="og:url" content="http://dust.l4.se/docs/getting-started/"/><meta property="og:site_name" content="Dust"></head><body> <script>!function(e,a,n,t,c,s,o){e.GoogleAnalyticsObject=c,e[c]=e[c]||function(){(e[c].q=e[c].q||[]).push(arguments)},e[c].l=1*new Date,s=a.createElement(n),o=a.getElementsByTagName(n)[0],s.async=1,s.src=t,o.parentNode.insertBefore(s,o)}(window,document,"script","//www.google-analytics.com/analytics.js","ga"),ga("create","UA-27022391-3","l4.se"),ga("send","pageview")</script><nav class="navbar navbar-main" role="navigation"><div class="navbar-header"> <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#nav"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button> <a class="navbar-brand" href="http://dust.l4.se/"> <span>Dust</span> </a></div><div class="collapse navbar-collapse" id="nav"><ul class="nav navbar-nav"><li><a href="http://dust.l4.se/quick-start/">Quick Start</a></li><li class="active"><a href="http://dust.l4.se/docs/">Documentation</a></li></ul><div class="navbar-right creator"> <a href="http://levelfour.se"><img src="http://dust.l4.se/images/levelfour.svg" class="levelfour-logo" width="102" height="30" alt="Level Four AB"></a></div></div> </nav><div class="site-cover site-cover-default"> <section><div class="container"><h1><a href="http://dust.l4.se/docs/">Documentation</a></h1></div> </section></div><article><div class="container row"><div class="col-xs-12 col-md-9"> <header><h1>Getting Started</h1> </header> <section><h2 id="getting-the-code">Getting the code</h2><h3 id="via-maven">Via Maven</h3><div class="highlight"><pre><code class="xml"><span class="nt">&lt;dependency&gt;</span>
+	<span class="nt">&lt;groupId&gt;</span>se.l4.dust<span class="nt">&lt;/groupId&gt;</span>
+	<span class="nt">&lt;artifactId&gt;</span>dust-jaxrs-resteasy<span class="nt">&lt;/artifactId&gt;</span>
+	<span class="nt">&lt;version&gt;</span>0.4-SNAPSHOT<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span></code></pre></div><h3 id="from-source">From source</h3><p>Clone the repository using Git:</p><pre><code>git clone https://github.com/LevelFourAB/dust.git dust
+</code></pre><p>Then build via Maven:</p><pre><code>cd dust
+mvn install
+</code></pre><h2 id="configuring-via-webxml">Configuring via web.xml</h2><h3 id="bootstrapping">Bootstrapping</h3><p>Dust uses <a href="https://code.google.com/p/google-guice/">Guice</a> for dependency injection and <a href="https://github.com/LevelFourAB/crayon">Crayon</a> for configuration. Dust needs access to an Injector, which is provided via bootstraping.</p><p>The easiest way is to extend AppBootstrap:</p><div class="highlight"><pre><code class="java"><span class="kn">package</span> <span class="n">se</span><span class="o">.</span><span class="na">l4</span><span class="o">.</span><span class="na">dust</span><span class="o">.</span><span class="na">example</span><span class="o">;</span>
+
+<span class="c1">// ...</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyAppBoostrap</span> <span class="kd">extends</span> <span class="n">AppBoostrap</span> <span class="o">{</span>
+	<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">initialize</span><span class="o">(</span><span class="n">Configurator</span> <span class="n">configurator</span><span class="o">)</span> <span class="o">{</span>
+		<span class="n">configurator</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">MyAppModule</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+	<span class="o">}</span>
+<span class="o">}</span></code></pre></div><p>You can also extend AbstractBootstrap and provide an existing Injector.</p><h3 id="updating-webxml">Updating web.xml</h3><p>To start routing requests to Dust update your web.xml with a new filter and your new bootstrap listener:</p><div class="highlight"><pre><code class="xml"><span class="nt">&lt;filter&gt;</span>
+	<span class="nt">&lt;filter-name&gt;</span>dust<span class="nt">&lt;/filter-name&gt;</span>
+	<span class="nt">&lt;filter-class&gt;</span>se.l4.dust.servlet.DustFilter<span class="nt">&lt;/filter-class&gt;</span>
+<span class="nt">&lt;/filter&gt;</span>
+
+<span class="nt">&lt;filter-mapping&gt;</span>
+    <span class="nt">&lt;filter-name&gt;</span>dust<span class="nt">&lt;/filter-name&gt;</span>
+    <span class="nt">&lt;url-pattern&gt;</span>/*<span class="nt">&lt;/url-pattern&gt;</span>
+<span class="nt">&lt;/filter-mapping&gt;</span>
+
+<span class="nt">&lt;listener&gt;</span>
+    <span class="nt">&lt;listener-class&gt;</span>se.l4.dust.example.MyAppBootstrap<span class="nt">&lt;/listener-class&gt;</span>
+<span class="nt">&lt;/listener&gt;</span></code></pre></div><h2 id="defining-a-namespace">Defining a namespace</h2><p>Namespaces are defined via Guice-modules. Dust will automatically scan for components and JAX-RS resources within a namespace.</p><div class="highlight"><pre><code class="java"><span class="kn">package</span> <span class="n">se</span><span class="o">.</span><span class="na">l4</span><span class="o">.</span><span class="na">dust</span><span class="o">.</span><span class="na">example</span><span class="o">;</span>
+
+<span class="c1">// ...</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">MyAppModule</span> <span class="kd">extends</span> <span class="n">CrayonModule</span> <span class="o">{</span>
+	<span class="nd">@Override</span>
+	<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">()</span> <span class="o">{</span>
+		<span class="n">install</span><span class="o">(</span><span class="k">new</span> <span class="n">ResteasyModule</span><span class="o">());</span>
+	<span class="o">}</span>
+
+	<span class="nd">@NamespaceBinding</span>
+	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">contributeNamespace</span><span class="o">(</span><span class="n">Namespaces</span> <span class="n">namespaces</span><span class="o">)</span> <span class="o">{</span>
+		<span class="n">namespaces</span><span class="o">.</span><span class="na">bind</span><span class="o">(</span><span class="s">"dust:example"</span><span class="o">).</span><span class="na">add</span><span class="o">();</span>
+	<span class="o">}</span>
+<span class="o">}</span></code></pre></div><h2 id="creating-a-page">Creating a page</h2><p>A simple JAX-RS resource can be defined like this:</p><div class="highlight"><pre><code class="java"><span class="kn">package</span> <span class="n">se</span><span class="o">.</span><span class="na">l4</span><span class="o">.</span><span class="na">dust</span><span class="o">.</span><span class="na">example</span><span class="o">.</span><span class="na">pages</span><span class="o">;</span>
+
+<span class="c1">// ...</span>
+
+<span class="nd">@Path</span><span class="o">(</span><span class="s">"/"</span><span class="o">)</span>
+<span class="nd">@Template</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">IndexPage</span> <span class="o">{</span>
+	<span class="nd">@GET</span>
+	<span class="kd">public</span> <span class="n">IndexPage</span> <span class="nf">get</span><span class="o">()</span> <span class="o">{</span>
+		<span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+	<span class="o">}</span>
+
+	<span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+		<span class="k">return</span> <span class="s">"Cookie Monster"</span>
+	<span class="o">}</span>
+<span class="o">}</span></code></pre></div><p>With a template named IndexPage.xml placed in the same package:</p><div class="highlight"><pre><code class="xml"><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html&gt;</span>
+	<span class="nt">&lt;head&gt;</span>
+		<span class="nt">&lt;title&gt;</span>Hello ${name}!<span class="nt">&lt;/title&gt;</span>
+	<span class="nt">&lt;/head&gt;</span>
+	<span class="nt">&lt;body&gt;</span>
+		<span class="nt">&lt;h1&gt;</span>Hello ${name}!<span class="nt">&lt;/h1&gt;</span>
+	<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span></code></pre></div><h2 id="a-first-component">A first component</h2><p>Components are a combination of a class and a template, where the template can access the Java-class when rendering.</p><div class="highlight"><pre><code class="java"><span class="kn">package</span> <span class="n">se</span><span class="o">.</span><span class="na">l4</span><span class="o">.</span><span class="na">dust</span><span class="o">.</span><span class="na">example</span><span class="o">.</span><span class="na">components</span><span class="o">;</span>
+
+<span class="c1">// ...</span>
+
+<span class="nd">@Component</span><span class="o">(</span><span class="s">"hello"</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloComponent</span> <span class="o">{</span>
+	<span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+
+	<span class="nd">@PrepareRender</span>
+	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">prepare</span><span class="o">(</span><span class="nd">@TemplateParam</span><span class="o">(</span><span class="s">"name"</span><span class="o">)</span> <span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+		<span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+	<span class="o">}</span>
+
+	<span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+		<span class="k">return</span> <span class="n">name</span><span class="o">;</span>
+	<span class="o">}</span>
+<span class="o">}</span></code></pre></div><p>And the template named HelloComponent.xml:</p><div class="highlight"><pre><code class="xml"><span class="nt">&lt;h1&gt;</span>Hello ${name}<span class="nt">&lt;/h1&gt;</span></code></pre></div><p>Now update IndexPage.xml:</p><div class="highlight"><pre><code class="xml"><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html&gt;</span>
+	<span class="nt">&lt;head&gt;</span>
+		<span class="nt">&lt;title&gt;</span>Hello ${name}!<span class="nt">&lt;/title&gt;</span>
+	<span class="nt">&lt;/head&gt;</span>
+	<span class="nt">&lt;body</span> <span class="na">xmlns:e=</span><span class="s">"dust:example"</span><span class="nt">&gt;</span>
+		<span class="nt">&lt;e:hello</span> <span class="na">name=</span><span class="s">"${name}"</span> <span class="nt">/&gt;</span>
+	<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span></code></pre></div></section></div><div class="col-xs-12 col-md-3"> <aside class="page-nav"><h2>Contents</h2><ul><li class="expanded active"><h4><a href="http://dust.l4.se/docs/getting-started/">Getting Started</a></h4><ul></ul></li><li class=""><h4><a href="http://dust.l4.se/docs/namespaces/">Namespaces</a></h4></li><li class=""><h4><a href="http://dust.l4.se/docs/templates/">Templates</a></h4></li></ul></aside></div></div> </article><script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script><script src="/assets/main.js"></script></body></html>
