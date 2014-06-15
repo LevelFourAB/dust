@@ -379,15 +379,14 @@ public class ComponentTemplateFragment
 				}
 				
 				Annotation[][] annotations = m.getParameterAnnotations();
-				_annotations:
-				for(int i=0, n=annotations.length; i<n; i++)
+				if(annotations.length == 1)
 				{
-					for(Annotation a : annotations[i])
+					for(Annotation a : annotations[0])
 					{
 						if(a instanceof TemplateParam)
 						{
 							invocations.add(new MethodDef(m));
-							break _annotations;
+							break;
 						}
 					}
 				}
