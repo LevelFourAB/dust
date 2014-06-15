@@ -363,6 +363,12 @@ public class ResourceVariantManagerImpl
 		}
 		
 		@Override
+		public ResourceVariantResolution withResource(Resource resource)
+		{
+			return new Value(resource, path, finalVariant);
+		}
+		
+		@Override
 		public String toString()
 		{
 			return getClass().getSimpleName() + "{name=" + path + ", variant=" + finalVariant + ", resource=" + resource + "}";

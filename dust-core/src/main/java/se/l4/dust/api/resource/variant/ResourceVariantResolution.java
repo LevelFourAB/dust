@@ -24,4 +24,12 @@ public interface ResourceVariantResolution
 	 * @return
 	 */
 	ResourceVariant getVariant();
+	
+	/**
+	 * Create a new resolution but using the given resource instead.
+	 * 
+	 * @param resource
+	 * @return
+	 */
+	ResourceVariantResolution withResource(Resource resource);
 }
