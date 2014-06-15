@@ -35,7 +35,6 @@
 		<module>dust-js-closure</module>
 		<module>dust-js-coffeescript</module>
 
-		<module>dust-css-sprites</module>
 		<module>dust-css-less</module>
 
 		<module>dust-yui</module>
