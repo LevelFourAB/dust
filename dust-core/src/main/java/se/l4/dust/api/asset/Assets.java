@@ -1,7 +1,5 @@
 package se.l4.dust.api.asset;
 
-import javax.xml.stream.events.Namespace;
-
 import se.l4.dust.api.Context;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.resource.Resource;
@@ -41,57 +39,6 @@ import se.l4.dust.api.resource.Resources;
  */
 public interface Assets
 {
-	/**
-	 * Builder for merged assets.
-	 * 
-	 * @author Andreas Holstenson
-	 *
-	 */
-	interface AssetBuilder
-	{
-		/**
-		 * Add the specified asset to this builder, assuming the same
-		 * namespace as the built asset. See {@link #add(Namespace, String)}
-		 * for details.
-		 * 
-		 * @param ns
-		 * @param pathToFile
-		 * @return
-		 */
-		AssetBuilder add(String pathToFile);
-		
-		/**
-		 * Add the specified asset to this builder. Each asset added will be
-		 * treated as a regular asset and transformed before it is combined
-		 * into a new asset.
-		 * 
-		 * @param ns
-		 * @param pathToFile
-		 * @return
-		 */
-		AssetBuilder add(String ns, String pathToFile);
-		
-		/**
-		 * Indicate that the built asset should be processed.
-		 * 
-		 * @return
-		 */
-		AssetBuilder process(Class<? extends AssetProcessor> processor);
-		
-		/**
-		 * Indicate that the built asset should be processed with the specified
-		 * processor.
-		 * 
-		 * @param processor
-		 * @return
-		 */
-		AssetBuilder process(AssetProcessor processor);
-		
-		/**
-		 * Create the asset.
-		 */
-		void create();
-	}
 	/**
 	 * Attempt to locate the given asset by traversing all of the registered
 	 * sources and returning the first match.
@@ -145,4 +92,19 @@ public interface Assets
 	 * @return
 	 */
 	AssetBuilder define(String namespace, String pathToFile);
+	
+	/**
+	 * Start creating a new {@link AssetPipeline asset pipeline}.
+	 * 
+	 * @return
+	 */
+	AssetPipelineBuilder newPipeline();
+	
+	/**
+	 * Create a new pipeline with the given processors.
+	 * 
+	 * @param processors
+	 * @return
+	 */
+	AssetPipeline pipeline(AssetProcessor... processors);
 }

@@ -11,8 +11,11 @@ import se.l4.dust.api.Context;
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.Asset;
+import se.l4.dust.api.asset.AssetBuilder;
 import se.l4.dust.api.asset.AssetCache;
 import se.l4.dust.api.asset.AssetException;
+import se.l4.dust.api.asset.AssetPipeline;
+import se.l4.dust.api.asset.AssetPipelineBuilder;
 import se.l4.dust.api.asset.AssetProcessor;
 import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.resource.AbstractResource;
@@ -37,7 +40,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
 
@@ -162,6 +164,33 @@ public class AssetsImpl
 		return new AssetBuilderImpl(parent, namespace, pathToFile);
 	}
 	
+	@Override
+	public AssetPipeline pipeline(AssetProcessor... processors)
+	{
+		return new AssetPipelineImpl(processors);
+	}
+	
+	@Override
+	public AssetPipelineBuilder newPipeline()
+	{
+		final List<AssetProcessor> processors = Lists.newArrayList();
+		return new AssetPipelineBuilder()
+		{
+			@Override
+			public AssetPipeline build()
+			{
+				return new AssetPipelineImpl(processors.toArray(new AssetProcessor[processors.size()]));
+			}
+			
+			@Override
+			public AssetPipelineBuilder add(AssetProcessor processor)
+			{
+				processors.add(processor);
+				return this;
+			}
+		};
+	}
+	
 	/**
 	 * Builder implementation for defining combined assets.
 	 * 
@@ -176,8 +205,8 @@ public class AssetsImpl
 		private final String namespace;
 		private final String pathToFile;
 		
-		private final List<ResourceLocation> resources;
-		private final List<Provider<? extends AssetProcessor>> processors;
+		private final List<ResourceDef> resources;
+		private final List<AssetProcessor> processors;
 
 		public AssetBuilderImpl(AssetNamespace parent, String namespace, String pathToFile)
 		{
@@ -194,27 +223,42 @@ public class AssetsImpl
 		{
 			return add(namespace, pathToFile);
 		}
+		
+		@Override
+		public AssetBuilder add(String pathToFile, AssetPipeline pipeline)
+		{
+			return add(namespace, pathToFile, pipeline);
+		}
 
 		@Override
 		public AssetBuilder add(String ns, String pathToFile)
 		{
-			resources.add(new NamespaceLocation(manager.getNamespaceByURI(ns), pathToFile));
-			
+			return add(ns, pathToFile, null);
+		}
+		
+		@Override
+		public AssetBuilder add(String ns, String pathToFile, AssetPipeline pipeline)
+		{
+			return add(new NamespaceLocation(manager.getNamespaceByURI(ns), pathToFile), pipeline);
+		}
+		
+		@Override
+		public AssetBuilder add(ResourceLocation location)
+		{
+			return add(location, null);
+		}
+		
+		@Override
+		public AssetBuilder add(ResourceLocation location, AssetPipeline pipeline)
+		{
+			resources.add(new ResourceDef(location, pipeline));
 			return this;
 		}
 
 		@Override
-		public AssetBuilder process(Class<? extends AssetProcessor> processor)
+		public AssetBuilder process(AssetProcessor processor)
 		{
-			processors.add(injector.getProvider(processor));
-			
-			return this;
-		}
-		
-		@Override
-		public AssetBuilder process(final AssetProcessor processor)
-		{
-			processors.add(new InstanceProvider<AssetProcessor>(processor));
+			processors.add(processor);
 			
 			return this;
 		}
@@ -228,14 +272,34 @@ public class AssetsImpl
 	
 	private static class AssetDef
 	{
-		private final List<ResourceLocation> resources;
-		private final List<Provider<? extends AssetProcessor>> processors;
+		private final List<ResourceDef> resources;
+		private final List<ResourceLocation> locations;
+		private final AssetPipeline pipeline;
 		
-		public AssetDef(List<ResourceLocation> resources,
-				List<Provider<? extends AssetProcessor>> processors)
+		public AssetDef(List<ResourceDef> resources, AssetPipeline pipeline)
 		{
 			this.resources = resources;
-			this.processors = processors;
+			this.pipeline = pipeline;
+			locations = Lists.transform(resources, new Function<ResourceDef, ResourceLocation>()
+			{
+				@Override
+				public ResourceLocation apply(ResourceDef input)
+				{
+					return input.location;
+				}
+			});
+		}
+	}
+	
+	private static class ResourceDef
+	{
+		private final ResourceLocation location;
+		private final AssetPipeline pipeline;
+		
+		public ResourceDef(ResourceLocation location, AssetPipeline pipeline)
+		{
+			this.location = location;
+			this.pipeline = pipeline;
 		}
 	}
 	
@@ -267,14 +331,15 @@ public class AssetsImpl
 		 * @throws IOException 
 		 */
 		public void defineResource(String pathToFile,
-				List<ResourceLocation> resourceLocations,
-				List<Provider<? extends AssetProcessor>> processors)
+				List<ResourceDef> resourceLocations,
+				List<AssetProcessor> processors)
 		{
 			// Register a default one with the resources
 			Resource[] resolvedResources = new Resource[resourceLocations.size()];
 			int idx = 0;
-			for(ResourceLocation location : resourceLocations)
+			for(ResourceDef def : resourceLocations)
 			{
+				ResourceLocation location = def.location;
 				try
 				{
 					Resource resource = resources.locate(location);
@@ -282,7 +347,9 @@ public class AssetsImpl
 					{
 						throw new AssetException("Unable to define " + pathToFile + " in " + namespace.getUri() + "; Resource " + location + " does not exist");
 					}
-					resolvedResources[idx++] = wrapResource(resource);
+					resolvedResources[idx++] = def.pipeline == null 
+						? wrapResource(resource)
+						: process(resource, def.pipeline);
 				}
 				catch(IOException e)
 				{
@@ -290,7 +357,8 @@ public class AssetsImpl
 				}
 			}
 			
-			AssetDef def = new AssetDef(resourceLocations, processors);
+			AssetPipeline pipeline = new AssetPipelineImpl(processors.toArray(new AssetProcessor[processors.size()]));
+			AssetDef def = new AssetDef(resourceLocations, pipeline);
 			builtAssets.put(pathToFile, def);
 			
 			try
@@ -299,7 +367,7 @@ public class AssetsImpl
 					new NamespaceLocation(namespace, pathToFile),
 					resolvedResources
 				);
-				processAndRegister(pathToFile, merged, processors);
+				processAndRegister(pathToFile, merged, pipeline);
 			}
 			catch(IOException e)
 			{
@@ -349,12 +417,17 @@ public class AssetsImpl
 				{
 					try
 					{
-						List<ResourceLocation> defs = builtAssets.get(path).resources;
+						List<ResourceDef> defs = builtAssets.get(path).resources;
 						
 						List<ResourceVariantResolution> actualResources = Lists.newArrayListWithCapacity(defs.size());
-						for(ResourceLocation def : defs)
+						for(ResourceDef def : defs)
 						{
-							actualResources.add(variants.resolve(context, def));
+							ResourceVariantResolution resolved = variants.resolve(context, def.location);
+							if(def.pipeline != null)
+							{
+								resolved = resolved.withResource(process(resolved.getResource(), def.pipeline));
+							}
+							actualResources.add(resolved);
 						}
 						
 						return actualResources;
@@ -369,7 +442,7 @@ public class AssetsImpl
 			Resource resource = builtAssetLocator.locate(namespace.getUri(), result.getName());
 			if(resource == null)
 			{
-				resource = processAndRegister(result.getName(), result.getResource(), builtAssets.get(path).processors);
+				resource = processAndRegister(result.getName(), result.getResource(), builtAssets.get(path).pipeline);
 			}
 			
 			return createAsset(result.getName(), resource);
@@ -380,36 +453,20 @@ public class AssetsImpl
 			return resource;
 		}
 		
-		protected Resource processAndRegister(String pathToFile, Resource resource, List<Provider<? extends AssetProcessor>> processors)
+		protected Resource processAndRegister(String pathToFile, Resource resource, AssetPipeline pipeline)
 			throws IOException
 		{
-			resource = process(resource, processors);
+			resource = process(resource, pipeline);
 			builtAssetLocator.add(namespace.getUri(), pathToFile, resource);
 			return resource;
 		}
 		
-		protected Resource process(Resource in, List<Provider<? extends AssetProcessor>> processors)
+		protected Resource process(Resource in, AssetPipeline pipeline)
 			throws IOException
 		{
 			try
 			{
-				String name = in.getLocation().getName();
-				Resource current = in;
-				
-				for(Provider<? extends AssetProcessor> provider : processors)
-				{
-					AssetEncounterImpl encounter = new AssetEncounterImpl(production, current, namespace, name, assetCache);
-					
-					AssetProcessor processor = provider.get();
-					processor.process(encounter);
-					
-					if(encounter.isReplaced())
-					{
-						current = encounter.getReplacedWith();
-					}
-				}
-				
-				return current;
+				return pipeline.process(in);
 			}
 			catch(AssetException e)
 			{
@@ -454,10 +511,10 @@ public class AssetsImpl
 			super(namespace);
 		}
 		
-		protected Resource process0(Resource in, List<Provider<? extends AssetProcessor>> processors)
+		protected Resource process0(Resource in, AssetPipeline pipeline)
 			throws IOException
 		{
-			return super.process(in, processors);
+			return super.process(in, pipeline);
 		}
 		
 		@Override
@@ -516,7 +573,7 @@ public class AssetsImpl
 		}
 		
 		@Override
-		protected Resource process(Resource in, final List<Provider<? extends AssetProcessor>> processors)
+		protected Resource process(Resource in, final AssetPipeline pipeline)
 			throws IOException
 		{
 			return new ReloadingResource(in, Suppliers.ofInstance(in), new Function<Resource, Resource>()
@@ -526,7 +583,7 @@ public class AssetsImpl
 				{
 					try
 					{
-						return process0(input, processors);
+						return process0(input, pipeline);
 					}
 					catch(IOException e)
 					{
@@ -630,20 +687,35 @@ public class AssetsImpl
 		}
 	}
 	
-	private static class InstanceProvider<T>
-		implements Provider<T>
+	private class AssetPipelineImpl
+		implements AssetPipeline
 	{
-		private final T instance;
+		private final AssetProcessor[] processors;
 		
-		public InstanceProvider(T instance)
+		public AssetPipelineImpl(AssetProcessor[] processors)
 		{
-			this.instance = instance;
+			this.processors = processors;
 		}
 		
 		@Override
-		public T get()
+		public Resource process(Resource in)
+			throws IOException
 		{
-			return instance;
+			Resource current = in;
+			
+			for(AssetProcessor processor : processors)
+			{
+				AssetEncounterImpl encounter = new AssetEncounterImpl(production, current, assetCache);
+				
+				processor.process(encounter);
+				
+				if(encounter.isReplaced())
+				{
+					current = encounter.getReplacedWith();
+				}
+			}
+			
+			return current;
 		}
 	}
 }

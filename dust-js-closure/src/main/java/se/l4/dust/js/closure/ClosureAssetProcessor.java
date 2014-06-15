@@ -69,6 +69,7 @@ public class ClosureAssetProcessor
 		this.languageMode = languageMode;
 	}
 
+	@Override
 	public void process(AssetEncounter encounter)
 		throws IOException
 	{
@@ -121,7 +122,7 @@ public class ClosureAssetProcessor
 		}
 		
 		JSModule module = new JSModule("result");
-		module.add(SourceFile.fromInputStream(encounter.getPath(), encounter.getResource().openStream()));
+		module.add(SourceFile.fromInputStream(encounter.getLocation().getName(), encounter.getResource().openStream()));
 		Result result = compiler.compileModules(externs, ImmutableList.of(module), options);
 		if(false == result.success)
 		{

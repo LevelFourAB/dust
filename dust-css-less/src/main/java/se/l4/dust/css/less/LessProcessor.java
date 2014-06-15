@@ -11,14 +11,13 @@ import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
-import se.l4.dust.api.DefaultContext;
-import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.AssetEncounter;
 import se.l4.dust.api.asset.AssetException;
 import se.l4.dust.api.asset.AssetProcessor;
-import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.resource.MemoryResource;
 import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.ResourceLocation;
+import se.l4.dust.api.resource.Resources;
 import se.l4.dust.js.env.JavascriptEnvironment;
 
 import com.google.common.base.Charsets;
@@ -38,12 +37,12 @@ public class LessProcessor
 	implements AssetProcessor
 {
 	private final boolean development;
-	private final Assets assets;
+	private final Resources resources;
 
 	@Inject
-	public LessProcessor(Stage stage, Assets assets)
+	public LessProcessor(Stage stage, Resources resources)
 	{
-		this.assets = assets;
+		this.resources = resources;
 		
 		development = stage != Stage.PRODUCTION;
 	}
@@ -59,15 +58,12 @@ public class LessProcessor
 			return;
 		}
 		
-		String path = encounter.getPath();
+		String path = encounter.getLocation().getName();
 		if(path.endsWith(".less"))
 		{
 			// Rewrite path to end with .css
 			path = path.substring(0, path.length() - 5) + ".css";
 		}
-		
-		int idx = path.lastIndexOf('/');
-		String folder = idx > 0 ? path.substring(0, idx+1) : "";
 		
 		Resource resource = encounter.getResource();
 		InputStream stream = resource.openStream();
@@ -92,7 +88,7 @@ public class LessProcessor
 		{
 			Object result = new JavascriptEnvironment(getClass().getName())
 				.define("development", development)
-				.define("importer", new Importer(assets, encounter.getNamespace().getUri(), folder))
+				.define("importer", new Importer(resources, encounter.getLocation()))
 				.add(LessProcessor.class.getResource("env.js"))
 				.add(LessProcessor.class.getResource("less-1.5.0.js"))
 				.add(LessProcessor.class.getResource("processor.js"))
@@ -182,27 +178,26 @@ public class LessProcessor
 	
 	public static class Importer
 	{
-		private final Assets assets;
-		private final String namespace;
-		private final String folder;
+		private final Resources resources;
+		private final ResourceLocation location;
 
-		public Importer(Assets assets, String namespace, String folder)
+		public Importer(Resources resources, ResourceLocation location)
 		{
-			this.namespace = namespace;
-			this.assets = assets;
-			this.folder = folder;
+			this.location = location;
+			this.resources = resources;
 		}
 		
 		public Object read(String name)
 			throws IOException
 		{
-			Asset asset = assets.locate(new DefaultContext(), namespace, folder + "" + name);
-			if(asset == null)
+			ResourceLocation newLocation = location.resolve(name);
+			Resource resource = resources.locate(newLocation);
+			if(resource == null)
 			{
-				throw new AssetException("Unable to process, " + name + " was not found in " + namespace);
+				throw new AssetException("Unable to process, " + newLocation + " was not found");
 			}
 			
-			InputStream stream = asset.getResource().openStream();
+			InputStream stream = resource.openStream();
 			try
 			{
 				byte[] data = ByteStreams.toByteArray(stream);

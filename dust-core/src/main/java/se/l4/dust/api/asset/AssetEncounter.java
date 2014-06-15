@@ -1,7 +1,7 @@
 package se.l4.dust.api.asset;
 
-import se.l4.dust.api.Namespace;
 import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.ResourceLocation;
 
 /**
  * Encounter with a {@link Resource} for creating an asset. Used by
@@ -13,25 +13,18 @@ import se.l4.dust.api.resource.Resource;
 public interface AssetEncounter
 {
 	/**
+	 * Get the original location.
+	 * 
+	 * @return
+	 */
+	ResourceLocation getLocation();
+	
+	/**
 	 * Get the resource of the asset.
 	 * 
 	 * @return
 	 */
 	Resource getResource();
-	
-	/**
-	 * Get the namespace as an object.
-	 * 
-	 * @return
-	 */
-	Namespace getNamespace();
-	
-	/**
-	 * Get the path of the asset.
-	 * 
-	 * @return
-	 */
-	String getPath();
 	
 	/**
 	 * Get if the system is in production mode.

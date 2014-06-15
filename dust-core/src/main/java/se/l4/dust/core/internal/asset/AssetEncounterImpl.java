@@ -3,12 +3,12 @@ package se.l4.dust.core.internal.asset;
 import java.io.IOException;
 import java.io.InputStream;
 
-import se.l4.dust.api.Namespace;
 import se.l4.dust.api.asset.AssetCache;
 import se.l4.dust.api.asset.AssetEncounter;
 import se.l4.dust.api.asset.AssetException;
 import se.l4.dust.api.resource.MemoryLocation;
 import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.ResourceLocation;
 
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
@@ -25,8 +25,6 @@ public class AssetEncounterImpl
 {
 	private final boolean production;
 	private final Resource in;
-	private final Namespace namespace;
-	private final String path;
 	
 	private final AssetCache cache;
 	private String cacheKey;
@@ -36,15 +34,17 @@ public class AssetEncounterImpl
 	public AssetEncounterImpl(
 			boolean production,
 			Resource in, 
-			Namespace namespace, 
-			String path,
 			AssetCache cache)
 	{
 		this.production = production;
 		this.in = in;
-		this.namespace = namespace;
-		this.path = path;
 		this.cache = cache;
+	}
+	
+	@Override
+	public ResourceLocation getLocation()
+	{
+		return in.getLocation();
 	}
 
 	@Override
@@ -53,18 +53,6 @@ public class AssetEncounterImpl
 		return in;
 	}
 
-	@Override
-	public Namespace getNamespace()
-	{
-		return namespace;
-	}
-
-	@Override
-	public String getPath()
-	{
-		return path;
-	}
-	
 	@Override
 	public boolean isProduction()
 	{

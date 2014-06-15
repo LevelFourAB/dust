@@ -6,11 +6,11 @@ import org.junit.Test;
 
 import se.l4.crayon.Crayon;
 import se.l4.crayon.CrayonModule;
-import se.l4.dust.api.Namespace;
 import se.l4.dust.api.NamespaceBinding;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.AssetEncounter;
 import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.resource.UrlResource;
 
 import com.google.inject.Guice;
@@ -43,21 +43,15 @@ public class CoffeeScriptTest
 			}
 			
 			@Override
+			public ResourceLocation getLocation()
+			{
+				return resource.getLocation();
+			}
+			
+			@Override
 			public Resource getResource()
 			{
 				return resource;
-			}
-			
-			@Override
-			public String getPath()
-			{
-				return "test.coffee";
-			}
-			
-			@Override
-			public Namespace getNamespace()
-			{
-				return null;
 			}
 			
 			@Override
