@@ -268,6 +268,7 @@ public class TemplateEmitterImpl
 		throws IOException
 	{
 		ElementWrapper wrapper = we.getWrapper();
+		Element oldWrapped = encounter.wrapped;
 		encounter.wrapped = we.getElement();
 		encounter.skip = false;
 		wrapper.beforeElement(encounter);
@@ -279,6 +280,7 @@ public class TemplateEmitterImpl
 		
 		wrapper.afterElement(encounter);
 		encounter.reset();
+		encounter.wrapped = oldWrapped;
 	}
 	
 	private class ElementEncounterImpl
