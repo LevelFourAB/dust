@@ -42,6 +42,7 @@ public class TemplateRendererImpl
 		Scopes.setActiveContext(ctx);
 		try
 		{
+			ctx.putValue(RenderingContext.INITIAL, template.getLocation());
 			TemplateEmitterImpl emitter = new TemplateEmitterImpl(template, ctx, data);
 			emitter.process(out);
 		}

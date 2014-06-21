@@ -17,6 +17,8 @@ import se.l4.dust.api.Context;
 public interface RenderingContext
 	extends Context
 {
+	static final String INITIAL = "dust:initialTemplate";
+	
 	/**
 	 * Resolve a URI for the given object.
 	 * 
