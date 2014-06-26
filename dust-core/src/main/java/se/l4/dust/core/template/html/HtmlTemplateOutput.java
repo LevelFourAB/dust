@@ -33,15 +33,26 @@ public class HtmlTemplateOutput
 			.add("img")
 			.add("link")
 			.add("meta")
+			.add("input")
+			.add("area")
+			.add("base")
+			.add("col")
+			.add("command")
+			.add("embed")
+			.add("keygen")
+			.add("param")
+			.add("source")
+			.add("track")
+			.add("wbr")
 			.build();
 	}
 	
-	private final Writer writer;
-	private boolean inComment;
+	protected final Writer writer;
+	protected boolean inComment;
 	private boolean written;
 	
 	private final List<Boolean> preserveWhitespace;
-	private boolean currentPreserveWhitespace;
+	protected boolean currentPreserveWhitespace;
 	private boolean lastWhitespace;
 
 	public HtmlTemplateOutput(OutputStream stream)
