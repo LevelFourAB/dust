@@ -160,11 +160,18 @@ public class TemplateCacheImpl
 		}
 	}
 	
+	public void clear()
+	{
+		inner.clear();
+	}
+	
 	private interface InnerCache
 	{
 		ParsedTemplate getTemplate(Context context, Class<?> ctx, ResourceLocation location);
 		
 		ContextKey getTemplateLocation(Class<?> ctx);
+		
+		void clear();
 	}
 	
 	private class ProductionCache
@@ -228,6 +235,11 @@ public class TemplateCacheImpl
 				throw new TemplateException("Unable to get location for " + ctx + "; " + e.getCause().getMessage(), e.getCause());
 			}
 		}
+		
+		@Override
+		public void clear()
+		{
+		}
 	}
 	
 	private class DevelopmentCache
@@ -274,6 +286,12 @@ public class TemplateCacheImpl
 		public ContextKey getTemplateLocation(Class<?> ctx)
 		{
 			return findTemplateLocation(ctx);
+		}
+		
+		@Override
+		public void clear()
+		{
+			templates.invalidateAll();
 		}
 	}
 	
