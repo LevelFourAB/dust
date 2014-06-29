@@ -787,6 +787,7 @@ public class TemplateBuilderImpl
 		public void raiseError(String error)
 		{
 			errorCollector.newError(line, column, error);
+			throw errorCollector.raiseException();
 		}
 	}
 	
