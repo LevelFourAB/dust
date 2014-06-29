@@ -6,13 +6,11 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.dom.AttributeImpl;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableSet;
 
 /**
  * Template output that will output its contents as HTML.
@@ -23,37 +21,13 @@ import com.google.common.collect.ImmutableSet;
 public class HtmlTemplateOutput
 	implements TemplateOutputStream
 {
-	private static final Set<String> singleTags;
-	
-	static
-	{
-		singleTags = ImmutableSet.<String>builder()
-			.add("br")
-			.add("hr")
-			.add("img")
-			.add("link")
-			.add("meta")
-			.add("input")
-			.add("area")
-			.add("base")
-			.add("col")
-			.add("command")
-			.add("embed")
-			.add("keygen")
-			.add("param")
-			.add("source")
-			.add("track")
-			.add("wbr")
-			.build();
-	}
-	
 	protected final Writer writer;
 	protected boolean inComment;
-	private boolean written;
+	protected boolean written;
 	
 	private final List<Boolean> preserveWhitespace;
 	protected boolean currentPreserveWhitespace;
-	private boolean lastWhitespace;
+	protected boolean lastWhitespace;
 
 	public HtmlTemplateOutput(OutputStream stream)
 	{
@@ -110,13 +84,6 @@ public class HtmlTemplateOutput
 	public void startElement(String name, String[] attributes)
 		throws IOException
 	{
-		startElement(name, attributes, false);
-	}
-
-	@Override
-	public void startElement(String name, String[] attributes, boolean close)
-		throws IOException
-	{
 		lastWhitespace = false;
 		written = true;
 		writer.write('<');
@@ -159,8 +126,6 @@ public class HtmlTemplateOutput
 		}
 		preserveWhitespace.add(currentPreserveWhitespace);
 		
-		if(close) writer.write('/');
-		
 		writer.write('>');
 	}
 
@@ -169,11 +134,6 @@ public class HtmlTemplateOutput
 		throws IOException
 	{
 		lastWhitespace = false;
-		
-		if(singleTags.contains(name))
-		{
-			return;
-		}
 		
 		writer.write("</");
 		writer.write(name);
@@ -184,6 +144,48 @@ public class HtmlTemplateOutput
 		{
 			currentPreserveWhitespace = preserveWhitespace.get(preserveWhitespace.size() - 1);
 		}
+	}
+	
+	@Override
+	public void element(String name, String[] attributes)
+		throws IOException
+	{
+		written = true;
+		writer.write('<');
+		writer.write(name);
+		
+		if(attributes.length > 0)
+		{
+			for(int i=0, n=attributes.length; i<n; i+=2)
+			{
+				String k = attributes[i];
+				String v = attributes[i+1];
+				if(k == null)
+				{
+					break;
+				}
+				
+				if(v == AttributeImpl.ATTR_EMIT)
+				{
+					writer.write(' ');
+					writer.write(k);
+				}
+				else if(v != AttributeImpl.ATTR_SKIP)
+				{
+					writer.write(' ');
+					writer.write(k);
+					
+					if(v != null)
+					{
+						writer.write("=\"");
+						escape(v);
+						writer.write("\"");
+					}
+				}
+			}
+		}
+		
+		writer.write('>');
 	}
 
 	@Override

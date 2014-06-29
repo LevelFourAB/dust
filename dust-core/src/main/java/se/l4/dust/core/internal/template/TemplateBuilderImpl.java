@@ -19,6 +19,7 @@ import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.expression.Expressions;
 import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.Emittable;
+import se.l4.dust.api.template.HTML;
 import se.l4.dust.api.template.TemplateBuilder;
 import se.l4.dust.api.template.TemplateEmitter;
 import se.l4.dust.api.template.TemplateEncounter;
@@ -34,6 +35,7 @@ import se.l4.dust.api.template.dom.DocType;
 import se.l4.dust.api.template.dom.Element;
 import se.l4.dust.api.template.dom.HtmlElement;
 import se.l4.dust.api.template.dom.ParsedTemplate;
+import se.l4.dust.api.template.dom.SingleHtmlElement;
 import se.l4.dust.api.template.dom.Text;
 import se.l4.dust.api.template.dom.WrappedElement;
 import se.l4.dust.api.template.fragment.FragmentEncounter;
@@ -194,7 +196,7 @@ public class TemplateBuilderImpl
 		// Add mixin attributes to the stack
 		mixinAttributes.add(Maps.<String, Attribute<?>>newLinkedHashMap());
 		
-		Element e = new HtmlElement(name);
+		Element e = HTML.isSingle(name) ? new SingleHtmlElement(name) : new HtmlElement(name);
 		applyDebugHints(e);
 		
 		for(int i=0, n=attributes.length; i<n; i+=2)
@@ -442,7 +444,7 @@ public class TemplateBuilderImpl
 		}
 		
 		Attribute<?> attr = new AttributeImpl(name, value);
-		if(current.getClass() == HtmlElement.class)
+		if(HtmlElement.class.isAssignableFrom(current.getClass()))
 		{
 			attr = attr.bindVia(converter, String.class);
 		}

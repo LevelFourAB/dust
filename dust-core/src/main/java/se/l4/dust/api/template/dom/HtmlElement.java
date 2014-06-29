@@ -21,7 +21,7 @@ public class HtmlElement
 		Emittable[] content = getRawContents();
 		String[] attrs = emitter.createAttributes((Attribute<String>[]) getAttributes());
 		
-		output.startElement(name, attrs, false);
+		output.startElement(name, attrs);
 		
 		emitter.emit(content);
 		

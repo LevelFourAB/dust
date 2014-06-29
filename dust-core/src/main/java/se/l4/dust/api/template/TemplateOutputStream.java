@@ -36,18 +36,7 @@ public interface TemplateOutputStream
 	 */
 	void startElement(String name, String[] attributes)
 		throws IOException;
-	
-	/**
-	 * Output a new element.
-	 * 
-	 * @param name
-	 * @param attributes
-	 * @param close
-	 * @throws IOException
-	 */
-	void startElement(String name, String[] attributes, boolean close)
-		throws IOException;
-		
+			
 	/**
 	 * End the current element.
 	 * 
@@ -55,6 +44,18 @@ public interface TemplateOutputStream
 	 * @throws IOException
 	 */
 	void endElement(String name)
+		throws IOException;
+	
+	/**
+	 * Output a new element without any content. This is used will emit a
+	 * single tag.
+	 * 
+	 * @param name
+	 * @param attributes
+	 * @param close
+	 * @throws IOException
+	 */
+	void element(String name, String[] attributes)
 		throws IOException;
 	
 	/**
