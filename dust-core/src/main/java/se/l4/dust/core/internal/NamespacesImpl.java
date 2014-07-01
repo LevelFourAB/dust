@@ -119,7 +119,7 @@ public class NamespacesImpl
 	@Override
 	public Namespace findNamespaceFor(Class<?> c)
 	{
-		String pkg = c.getPackage().getName();
+		String pkg = c.getName();
 		while(true)
 		{
 			Namespace ns = packages.get(pkg);

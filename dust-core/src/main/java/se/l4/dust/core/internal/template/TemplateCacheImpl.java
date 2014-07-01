@@ -131,7 +131,10 @@ public class TemplateCacheImpl
 		}
 		else
 		{
-			String relativePkg = c.getPackage().getName().substring(ns.getPackage().length() + 1);
+			
+			String className = c.getName();
+			String pkg = className.substring(0, className.lastIndexOf('.'));
+			String relativePkg = pkg.substring(ns.getPackage().length() + 1);
 			String resourceName = relativePkg.replace('.', '/') + '/' + name;
 			return new ContextKey(c, new NamespaceLocation(ns, resourceName));
 		}
