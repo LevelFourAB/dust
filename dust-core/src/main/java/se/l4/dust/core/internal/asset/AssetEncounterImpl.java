@@ -2,11 +2,15 @@ package se.l4.dust.core.internal.asset;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import se.l4.dust.api.asset.AssetCache;
 import se.l4.dust.api.asset.AssetEncounter;
 import se.l4.dust.api.asset.AssetException;
 import se.l4.dust.api.resource.MemoryLocation;
+import se.l4.dust.api.resource.MergedResource;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.ResourceLocation;
 
@@ -51,6 +55,14 @@ public class AssetEncounterImpl
 	public Resource getResource()
 	{
 		return in;
+	}
+	
+	@Override
+	public List<Resource> getResources()
+	{
+		return in instanceof MergedResource
+			? Arrays.asList(((MergedResource) in).getResources())
+			: Collections.singletonList(in);
 	}
 
 	@Override

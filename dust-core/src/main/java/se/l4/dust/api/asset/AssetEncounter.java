@@ -1,5 +1,7 @@
 package se.l4.dust.api.asset;
 
+import java.util.List;
+
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.ResourceLocation;
 
@@ -20,11 +22,18 @@ public interface AssetEncounter
 	ResourceLocation getLocation();
 	
 	/**
-	 * Get the resource of the asset.
+	 * Get the combined resource of the asset.
 	 * 
 	 * @return
 	 */
 	Resource getResource();
+	
+	/**
+	 * Get the resources of this asset.
+	 * 
+	 * @return
+	 */
+	List<Resource> getResources();
 	
 	/**
 	 * Get if the system is in production mode.

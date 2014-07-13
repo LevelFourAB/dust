@@ -1,6 +1,8 @@
 package se.l4.dust.js.coffeescript;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -52,6 +54,12 @@ public class CoffeeScriptTest
 			public Resource getResource()
 			{
 				return resource;
+			}
+			
+			@Override
+			public List<Resource> getResources()
+			{
+				return Collections.<Resource>singletonList(resource);
 			}
 			
 			@Override
