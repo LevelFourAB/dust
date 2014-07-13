@@ -191,6 +191,11 @@ public class ComponentTemplateFragment
 					}
 				}
 				
+				if(bestMethod == null)
+				{
+					throw new TemplateException("None of the @" + PrepareRender.class.getSimpleName() + " methods matched for " + o);
+				}
+				
 				// Actually invoke the method
 				root = bestMethod.invoke(ctx, data, o);
 				if(root == null)
