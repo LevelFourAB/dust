@@ -101,6 +101,31 @@ public class DefaultTypeConverter
 		list.add(nonGeneric);
 	}
 	
+	@Override
+	public <I, O> void add(final Class<I> in, final Class<O> out, final Conversion<I, O> conversion)
+	{
+		add(new NonGenericConversion<I, O>()
+		{
+			@Override
+			public O convert(I in)
+			{
+				return conversion.convert(in);
+			}
+			
+			@Override
+			public Class<I> getInput()
+			{
+				return in;
+			}
+			
+			@Override
+			public Class<O> getOutput()
+			{
+				return out;
+			}
+		});
+	}
+	
 	private <I, O> NonGenericConversion<I, O> toNonGeneric(Conversion<I, O> conversion)
 	{
 		if(conversion instanceof NonGenericConversion)

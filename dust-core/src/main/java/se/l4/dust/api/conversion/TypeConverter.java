@@ -35,6 +35,15 @@ public interface TypeConverter
 	void add(Conversion<?, ?> conversion);
 	
 	/**
+	 * Add a conversion between two types.
+	 * 
+	 * @param in
+	 * @param out
+	 * @param conversion
+	 */
+	<I, O> void add(Class<I> in, Class<O> out, Conversion<I, O> conversion);
+	
+	/**
 	 * Check if a conversion is supported.
 	 * 
 	 * @param in
