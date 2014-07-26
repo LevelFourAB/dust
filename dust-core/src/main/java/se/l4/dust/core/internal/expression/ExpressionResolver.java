@@ -644,8 +644,8 @@ public class ExpressionResolver
 				continue;
 			}
 				
-			String lowerName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, name);
-			if(lowerName.equals(node.getIdentifier()))
+			if(name.equals(node.getIdentifier())
+				|| CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, name).equals(node.getIdentifier()))
 			{
 				Method setter = null;
 				try
