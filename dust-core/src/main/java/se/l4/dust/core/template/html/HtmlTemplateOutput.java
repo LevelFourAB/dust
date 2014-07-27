@@ -150,6 +150,7 @@ public class HtmlTemplateOutput
 	public void element(String name, String[] attributes)
 		throws IOException
 	{
+		lastWhitespace = false;
 		written = true;
 		writer.write('<');
 		writer.write(name);
