@@ -746,12 +746,16 @@ public class TemplateBuilderImpl
 				// Special case, wrapping the root element
 				Empty empty = new Empty();
 				empty.addContent(wrapped);
-				root = current = empty;
+				root = empty;
+				stack.removeLast();
+				stack.add(wrapped);
 			}
 			else
 			{
 				Element parent = stack.get(stack.size() - 2);
 				parent.replaceContent(current, wrapped);
+				stack.removeLast();
+				stack.add(wrapped);
 			}
 		}
 		
