@@ -125,6 +125,10 @@ public class MessageExpressionSource
 			{
 				return new MessageFormatMethod(manager, resource, propertyName, parameters);
 			}
+			else if("get".equals(name) && parameters.length == 1)
+			{
+				return new MessageGetLocalMethod(manager, resource, propertyName);
+			}
 			
 			return super.getMethod(encounter, name, parameters);
 		}
@@ -230,6 +234,48 @@ public class MessageExpressionSource
 		{
 			MessageCollection messages = getMessages(manager, context, resource);
 			return messages.get(parameters[0].toString());
+		}
+	
+		@Override
+		public Class<?> getType()
+		{
+			return String.class;
+		}
+		
+		@Override
+		public Class<?>[] getParametersType()
+		{
+			return SINGLE_STRING_PARAMETER;
+		}
+	
+		@Override
+		public boolean needsContext()
+		{
+			return false;
+		}
+	}
+	
+	private static class MessageGetLocalMethod
+		implements DynamicMethod
+	{
+		private static final Class<?>[] SINGLE_STRING_PARAMETER = new Class[] { String.class };
+		
+		private final Messages manager;
+		private final ResourceLocation resource;
+		private final String propertyName;
+	
+		public MessageGetLocalMethod(Messages manager, ResourceLocation resource, String propertyName)
+		{
+			this.manager = manager;
+			this.resource = resource;
+			this.propertyName = propertyName;
+		}
+		
+		@Override
+		public Object invoke(Context context, Object instance, Object... parameters)
+		{
+			MessageCollection messages = getMessages(manager, context, resource);
+			return messages.get(propertyName + '.' + parameters[0].toString());
 		}
 	
 		@Override
