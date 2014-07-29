@@ -177,6 +177,23 @@ public class ResolverTest
 	}
 	
 	@Test
+	public void testCommonPropertyWithSubAndMethodResoultion()
+		throws Exception
+	{
+		test("t:emit.sub.format('kaka')", Person.class, new ChainInvoker(
+			null,
+			new DynamicPropertyInvoker(null, new Property("emit")),
+			new ChainInvoker(
+				null,
+				new DynamicPropertyInvoker(null, new Property("sub")),
+				new DynamicMethodInvoker(null, new TestMethod("format"), new Invoker[] {
+					new ConstantInvoker(null, "kaka")
+				})
+			)
+		));
+	}
+	
+	@Test
 	public void testGenericMethod()
 	{
 		resolve("get('red').bytes", TestMap.class);

@@ -170,7 +170,7 @@ public class ExpressionResolver
 			// Resolve a chain of other nodes
 			ChainNode chain = (ChainNode) node;
 			
-			Invoker leftInvoker = resolve0(encounter, chain.getLeft(), root, context, typeContext, null);
+			Invoker leftInvoker = resolve0(encounter, chain.getLeft(), root, context, typeContext, left);
 			Invoker rightInvoker = resolve(encounter, chain.getRight(), root, leftInvoker.getReturnClass(), leftInvoker.getReturnType(), leftInvoker);
 			if(rightInvoker instanceof DynamicPropertyInvoker && ! ((DynamicPropertyInvoker) rightInvoker).getProperty().needsContext())
 			{

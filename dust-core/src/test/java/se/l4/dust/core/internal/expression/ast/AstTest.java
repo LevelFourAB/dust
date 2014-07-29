@@ -161,6 +161,15 @@ public class AstTest
 	}
 	
 	@Test
+	public void testChainedMethodWithMultiProperties()
+	{
+		test("prop1.prop2.action()", chain(
+			id(null, "prop1"), 
+			chain(id(null, "prop2"), invoke(id(null, "action"), Collections.<Node>emptyList()))
+		));
+	}
+	
+	@Test
 	public void testSimpleChain()
 	{
 		test("prop1.prop2", chain(
