@@ -199,4 +199,10 @@ public abstract class Element
 		
 		parameters.put(name, content);
 	}
+	
+
+	public void adoptParameters(Element e)
+	{
+		parameters = e.parameters;
+	}
 }

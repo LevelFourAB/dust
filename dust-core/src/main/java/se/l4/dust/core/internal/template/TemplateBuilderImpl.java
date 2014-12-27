@@ -367,6 +367,7 @@ public class TemplateBuilderImpl
 		}
 		
 		Element actualContent = new EmittableContent(new DataContextSwitcher(id, current.getRawContents()));
+		((EmittableContent) actualContent).adoptParameters(current);
 		setCurrent(actualContent);
 		
 		// Apply the mixins
@@ -839,7 +840,9 @@ public class TemplateBuilderImpl
 		@Override
 		public Emittable getScopedBody()
 		{
-			return new EmittableContent(new DataContextSwitcher(id, element.getRawContents()));
+			EmittableContent result = new EmittableContent(new DataContextSwitcher(id, element.getRawContents()));
+			result.adoptParameters(element);
+			return result;
 		}
 		
 		@Override
