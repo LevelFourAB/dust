@@ -32,6 +32,21 @@ public interface TemplateEmitter
 	 * @return
 	 */
 	String[] createAttributes(Attribute<String>[] attributes);
+	
+	/**
+	 * Create an array of attributes for the given single attribute.
+	 * 
+	 * @param attr1
+	 * @param value1
+	 * @return
+	 */
+	String[] createAttributes(String attr1, Object value1);
+	
+	String[] createAttributes(String attr1, Object value1, String attr2, Object value2);
+	
+	String[] createAttributes(String attr1, Object value1,
+			String attr2, Object value2,
+			String attr3, Object value3);
 
 	/**
 	 * Get an active parameter.

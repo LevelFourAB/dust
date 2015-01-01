@@ -146,6 +146,46 @@ public class TemplateEmitterImpl
 	}
 	
 	@Override
+	public String[] createAttributes(String attr1, Object value1)
+	{
+		String[] attrs = attrsCache;
+		attrs[0] = attr1;
+		attrs[1] = String.valueOf(value1);
+		attrs[2] = null;
+		return attrs;
+	}
+	
+	@Override
+	public String[] createAttributes(String attr1, Object value1,
+			String attr2, Object value2)
+	{
+		String[] attrs = attrsCache;
+		attrs[0] = attr1;
+		attrs[1] = String.valueOf(value1);
+		attrs[2] = attr2;
+		attrs[3] = String.valueOf(value2);
+		attrs[4] = null;
+		return attrs;
+	}
+	
+	@Override
+	public String[] createAttributes(String attr1, Object value1,
+			String attr2, Object value2,
+			String attr3, Object value3)
+	{
+		String[] attrs = attrsCache;
+		attrs[0] = attr1;
+		attrs[1] = String.valueOf(value1);
+		attrs[2] = attr2;
+		attrs[3] = String.valueOf(value2);
+		attrs[4] = attr3;
+		attrs[5] = String.valueOf(value3);
+		attrs[6] = null;
+		return attrs;
+	}
+	
+	
+	@Override
 	public Emittable getParameter(String name)
 	{
 		if(currentComponent instanceof Element)
@@ -254,7 +294,7 @@ public class TemplateEmitterImpl
 		return old;
 	}
 
-	public Integer switchComponent(Integer id, Element data)
+	public Integer switchComponent(Integer id, Emittable data)
 	{
 		Integer old = currentComponentId;
 		componentMap.put(id, data);
