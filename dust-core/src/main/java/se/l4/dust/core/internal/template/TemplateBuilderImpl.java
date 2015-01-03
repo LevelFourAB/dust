@@ -672,7 +672,7 @@ public class TemplateBuilderImpl
 		public Attribute<?> getAttribute(String name, boolean required)
 		{
 			Attribute<?> attribute = element.getAttribute(name);
-			if(attribute == null)
+			if(required && attribute == null)
 			{
 				raiseError("The attribute " + name + " is required but was not found");
 			}
