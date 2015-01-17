@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
@@ -57,7 +58,8 @@ public class NamespaceDiscoveryImpl
 		configuration.setUrls(urls);
 		configuration.filterInputsBy(builder);
 		configuration.setScanners(
-			new TypeAnnotationsScanner()
+			new TypeAnnotationsScanner(),
+			new SubTypesScanner()
 		);
 		
 		Reflections reflections = new Reflections(configuration);

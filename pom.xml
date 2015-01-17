@@ -55,7 +55,7 @@
 	</build>
 	
 	<properties>
-		<resteasy-version>3.0.8.Final</resteasy-version>
+		<resteasy-version>3.0.10.Final</resteasy-version>
 		<crayon-version>0.6</crayon-version>
 	</properties>
 	

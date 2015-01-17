@@ -709,7 +709,7 @@ public class ExpressionResolver
 		// First pass: Look for exact matches
 		if(typeContext instanceof ResolvedRecursiveType)
 		{
-			typeContext = typeResolver.resolve(typeContext.getErasedType(), typeContext.getTypeBindings());
+			typeContext = typeResolver.resolve(typeContext.getTypeBindings(), typeContext.getErasedType());
 		}
 		
 		ResolvedType type = typeContext == null ? typeResolver.resolve(context) : typeContext;
