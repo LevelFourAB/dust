@@ -6,6 +6,12 @@ import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
+
+import com.google.common.cache.Cache;
+import com.google.common.collect.Maps;
+import com.google.common.io.Closeables;
+import com.google.inject.Inject;
 
 import se.l4.dust.api.Context;
 import se.l4.dust.api.messages.MessageCollection;
@@ -15,11 +21,6 @@ import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.api.resource.variant.ResourceVariantResolution;
 import se.l4.dust.core.internal.Caches;
-
-import com.google.common.cache.Cache;
-import com.google.common.collect.Maps;
-import com.google.common.io.Closeables;
-import com.google.inject.Inject;
 
 /**
  * Source of property based messages.
@@ -98,6 +99,12 @@ public class PropertyMessagesSource
 		public String get(String property)
 		{
 			return messages.get(property);
+		}
+		
+		@Override
+		public Set<String> keys()
+		{
+			return messages.keySet();
 		}
 	}
 }

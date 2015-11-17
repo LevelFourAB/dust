@@ -1,12 +1,12 @@
 package se.l4.dust.core.internal.messages;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+
+import com.google.common.collect.Sets;
 
 import se.l4.dust.api.messages.MessageCollection;
-import se.l4.dust.api.resource.variant.ResourceVariant;
-import se.l4.dust.core.internal.resource.MergedResourceVariant;
 
 /**
  * Implementation of {@link MessageCollection} that delegates everything to other
@@ -38,6 +38,17 @@ public class DelegatingMessages
 		}
 		
 		return null;
+	}
+	
+	@Override
+	public Set<String> keys()
+	{
+		Set<String> allKeys = Sets.newHashSet();
+		for(MessageCollection m : other)
+		{
+			allKeys.addAll(m.keys());
+		}
+		return allKeys;
 	}
 	
 	@Override

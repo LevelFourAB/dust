@@ -1,5 +1,7 @@
 package se.l4.dust.api.messages;
 
+import java.util.Set;
+
 /**
  * Support for messages.
  * 
@@ -15,4 +17,11 @@ public interface MessageCollection
 	 * @return
 	 */
 	String get(String property);
+	
+	/**
+	 * Get all of the available message keys.
+	 * 
+	 * @return
+	 */
+	Set<String> keys();
 }

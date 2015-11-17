@@ -4,6 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
+import java.util.Set;
+
+import com.google.common.base.Charsets;
+import com.google.common.cache.Cache;
+import com.google.common.collect.Maps;
+import com.google.common.io.Closeables;
+import com.google.inject.Inject;
 
 import se.l4.dust.api.Context;
 import se.l4.dust.api.messages.MessageCollection;
@@ -14,12 +21,6 @@ import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.api.resource.variant.ResourceVariantResolution;
 import se.l4.dust.core.internal.Caches;
 import se.l4.dust.core.internal.messages.MessageInput.Token;
-
-import com.google.common.base.Charsets;
-import com.google.common.cache.Cache;
-import com.google.common.collect.Maps;
-import com.google.common.io.Closeables;
-import com.google.inject.Inject;
 
 public class CustomMessagesSource
 	implements MessageSource
@@ -123,6 +124,12 @@ public class CustomMessagesSource
 		public String get(String property)
 		{
 			return messages.get(property);
+		}
+		
+		@Override
+		public Set<String> keys()
+		{
+			return messages.keySet();
 		}
 	}
 }
