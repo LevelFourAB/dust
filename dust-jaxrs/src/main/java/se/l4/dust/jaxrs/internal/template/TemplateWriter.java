@@ -33,7 +33,7 @@ import com.google.inject.Inject;
  *
  */
 @Provider
-@Produces({ "text/html; charset=utf-8", MediaType.TEXT_XML })
+@Produces({ MediaType.TEXT_HTML })
 public class TemplateWriter
 	implements MessageBodyWriter<Object>
 {
@@ -64,14 +64,6 @@ public class TemplateWriter
 	public boolean isWriteable(Class<?> type, Type genericType,
 			Annotation[] annotations, MediaType mediaType)
 	{
-		for(Annotation a : annotations)
-		{
-			if(a instanceof Template)
-			{
-				return true;
-			}
-		}
-		
 		while(type != Object.class)
 		{
 			if(type.getAnnotation(Template.class) != null || type.getAnnotation(Component.class) != null)
