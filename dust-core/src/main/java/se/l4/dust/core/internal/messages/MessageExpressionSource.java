@@ -3,6 +3,9 @@ package se.l4.dust.core.internal.messages;
 import java.text.MessageFormat;
 import java.util.Locale;
 
+import com.google.inject.Inject;
+import com.google.inject.Stage;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.api.expression.AbstractDynamicProperty;
 import se.l4.dust.api.expression.DynamicMethod;
@@ -14,9 +17,6 @@ import se.l4.dust.api.messages.MessageCollection;
 import se.l4.dust.api.messages.Messages;
 import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.resource.variant.ResourceVariant;
-
-import com.google.inject.Inject;
-import com.google.inject.Stage;
 
 public class MessageExpressionSource
 	implements ExpressionSource
@@ -129,7 +129,10 @@ public class MessageExpressionSource
 			{
 				return new MessageGetLocalMethod(manager, resource, propertyName);
 			}
-			
+			else if("asCollection".equals(name) && parameters.length == 0)
+			{
+				return new MessageCollectionMethod(manager, resource, propertyName);
+			}
 			return super.getMethod(encounter, name, parameters);
 		}
 	}
@@ -282,6 +285,48 @@ public class MessageExpressionSource
 		public Class<?> getType()
 		{
 			return String.class;
+		}
+		
+		@Override
+		public Class<?>[] getParametersType()
+		{
+			return SINGLE_STRING_PARAMETER;
+		}
+	
+		@Override
+		public boolean needsContext()
+		{
+			return false;
+		}
+	}
+	
+	private static class MessageCollectionMethod
+		implements DynamicMethod
+	{
+		private static final Class<?>[] SINGLE_STRING_PARAMETER = new Class[0];
+		
+		private final Messages manager;
+		private final ResourceLocation resource;
+		private final String propertyName;
+	
+		public MessageCollectionMethod(Messages manager, ResourceLocation resource, String propertyName)
+		{
+			this.manager = manager;
+			this.resource = resource;
+			this.propertyName = propertyName;
+		}
+		
+		@Override
+		public Object invoke(Context context, Object instance, Object... parameters)
+		{
+			MessageCollection messages = getMessages(manager, context, resource);
+			return new ScopedMessageCollection(messages, propertyName);
+		}
+	
+		@Override
+		public Class<?> getType()
+		{
+			return MessageCollection.class;
 		}
 		
 		@Override
