@@ -1,5 +1,9 @@
 package se.l4.dust.core.internal.asset;
 
+import java.net.URI;
+
+import com.google.inject.Inject;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.Assets;
@@ -8,8 +12,6 @@ import se.l4.dust.api.expression.DynamicProperty;
 import se.l4.dust.api.expression.ExpressionEncounter;
 import se.l4.dust.api.expression.ExpressionSource;
 import se.l4.dust.api.template.RenderingContext;
-
-import com.google.inject.Inject;
 
 /**
  * Property source for binding assets for use in templates.
@@ -75,7 +77,7 @@ public class AssetExpressionSource
 		@Override
 		public Class<?> getType()
 		{
-			return String.class;
+			return URI.class;
 		}
 		
 		@Override
