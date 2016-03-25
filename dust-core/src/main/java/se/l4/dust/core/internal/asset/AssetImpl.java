@@ -33,7 +33,7 @@ public class AssetImpl
 		this.resource = resource;
 		this.protect = protect;
 		
-		this.checksum = protect ? createChecksum() : null;
+		this.checksum = resource == null ? null : createChecksum();
 	}
 	
 	private String createChecksum()

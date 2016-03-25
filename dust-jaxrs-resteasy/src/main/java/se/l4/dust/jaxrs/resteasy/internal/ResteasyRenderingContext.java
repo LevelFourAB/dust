@@ -7,9 +7,10 @@ import java.lang.reflect.Type;
 import org.jboss.resteasy.spi.InjectorFactory;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
-import se.l4.dust.servlet.WebRenderingContext;
-
 import com.google.inject.Inject;
+import com.google.inject.Stage;
+
+import se.l4.dust.servlet.WebRenderingContext;
 
 /**
  * Extension to {@link WebRenderingContext} for Resteasy specific 
@@ -24,8 +25,10 @@ public class ResteasyRenderingContext
 	private final InjectorFactory injectorFactory;
 
 	@Inject
-	public ResteasyRenderingContext(ResteasyProviderFactory factory)
+	public ResteasyRenderingContext(Stage stage, ResteasyProviderFactory factory)
 	{
+		super(stage);
+		
 		injectorFactory = factory.getInjectorFactory();
 	}
 

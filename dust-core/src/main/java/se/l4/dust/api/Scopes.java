@@ -56,10 +56,12 @@ public class Scopes
 	 */
 	public static final Scope CONTEXT = new Scope()
 	{
+		@Override
 		public <T> Provider<T> scope(final Key<T> key, final Provider<T> p)
 		{
 			return new Provider<T>()
 			{
+				@Override
 				@SuppressWarnings("unchecked")
 				public T get()
 				{

@@ -4,6 +4,9 @@ import java.net.URI;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.inject.Inject;
+import com.google.inject.Stage;
+
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.resource.variant.ResourceVariant;
@@ -21,6 +24,14 @@ import se.l4.dust.api.template.TemplateException;
 public class WebRenderingContext
 	extends DefaultRenderingContext
 {
+	private final Stage stage;
+
+	@Inject
+	public WebRenderingContext(Stage stage)
+	{
+		this.stage = stage;
+	}
+
 	/**
 	 * Setup this rendering request for the given servlet request.
 	 * 
@@ -58,9 +69,16 @@ public class WebRenderingContext
 				name = name.substring(0, idx) + "." + checksum + "." + extension; 
 			}
 			
-			String version = ns.getVersion();
-			
-			return URI.create("/asset/" + prefix + "/" + version + "/" + name);
+			if(stage == Stage.PRODUCTION)
+			{
+				String version = ns.getVersion();
+				
+				return URI.create("/asset/" + prefix + "/" + name + "?" + version);
+			}
+			else
+			{
+				return URI.create("/asset/" + prefix + "/" + name);
+			}
 		}
 		
 		throw new TemplateException("Unable to resolve " + asset);

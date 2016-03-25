@@ -9,15 +9,15 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.Asset;
 import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.resource.Resource;
-
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * Provider that servers asset files via a special URL beginning with 
@@ -58,13 +58,12 @@ public class AssetProvider
 	}
 	
 	@HEAD
-	@Path("{ns}/{version}/{path:.+}")
+	@Path("{ns}/{path:.+}")
 	public Object head(
 			@PathParam("ns") String prefix, 
-			@PathParam("version") String version, 
 			@PathParam("path") String path)
 	{
-		Object result = serve(prefix, version, path, null);
+		Object result = serve(prefix, path, null);
 		if(result instanceof Asset)
 		{
 			Asset asset = (Asset) result;
@@ -80,10 +79,9 @@ public class AssetProvider
 	}
 	
 	@GET
-	@Path("{ns}/{version}/{path:.+}")
+	@Path("{ns}/{path:.+}")
 	public Object serve(
 			@PathParam("ns") String prefix, 
-			@PathParam("version") String version, 
 			@PathParam("path") String path,
 			@HeaderParam("If-Modified-Since") Date ifModifiedSince)
 	{
