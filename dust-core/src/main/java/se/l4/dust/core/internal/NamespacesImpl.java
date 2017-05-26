@@ -9,19 +9,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import se.l4.dust.Dust;
-import se.l4.dust.api.Namespace;
-import se.l4.dust.api.NamespacePlugin;
-import se.l4.dust.api.Namespaces;
-import se.l4.dust.api.resource.Resource;
-import se.l4.dust.api.resource.Resources;
-
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Singleton;
+
+import se.l4.dust.Dust;
+import se.l4.dust.api.Namespace;
+import se.l4.dust.api.NamespacePlugin;
+import se.l4.dust.api.Namespaces;
+import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.Resources;
 
 @Singleton
 public class NamespacesImpl
@@ -43,9 +43,9 @@ public class NamespacesImpl
 	{
 		this.injector = injector;
 		this.resources = resources;
-		packages = new ConcurrentHashMap<String, Namespace>();
-		prefixes = new ConcurrentHashMap<String, Namespace>();
-		uris = new ConcurrentHashMap<String, Namespace>();
+		packages = new ConcurrentHashMap<>();
+		prefixes = new ConcurrentHashMap<>();
+		uris = new ConcurrentHashMap<>();
 		
 		namespaces = Lists.newArrayList();
 		
@@ -326,11 +326,11 @@ public class NamespacesImpl
 		public ClassLoaderLocator(ClassLoader loader, String base, String resourceReference)
 		{
 			this.loader = loader;
-			this.base = base.replace('.', '/') + "/";
+			this.base = base.replace('.', '/');
 			
 			if(resourceReference != null)
 			{
-				URL resource = loader.getResource(this.base + resourceReference);
+				URL resource = loader.getResource(resolve(this.base, resourceReference));
 				if(resource != null)
 				{
 					try
@@ -353,6 +353,18 @@ public class NamespacesImpl
 			}
 		}
 		
+		private static String resolve(String base, String path)
+		{
+			if(path.startsWith("/"))
+			{
+				return base + path;
+			}
+			else
+			{
+				return base + '/' + path;
+			}
+		}
+		
 		@Override
 		public URI resolveResource(String path)
 		{
@@ -362,7 +374,7 @@ public class NamespacesImpl
 		@Override
 		public URL locateResource(String path)
 		{
-			return loader.getResource(base + path);
+			return loader.getResource(resolve(base, path));
 		}
 	}
 	
