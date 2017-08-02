@@ -1,7 +1,9 @@
 package se.l4.dust.core.internal.messages;
 
+import com.google.inject.name.Named;
+
+import se.l4.crayon.Contribution;
 import se.l4.crayon.CrayonModule;
-import se.l4.crayon.annotation.Contribution;
 import se.l4.dust.api.NamespaceBinding;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.expression.Expressions;
@@ -10,7 +12,7 @@ import se.l4.dust.api.template.TemplateContribution;
 
 /**
  * Module for message support.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -24,7 +26,8 @@ public class MessagesModule
 		bind(Messages.class).to(MessagesImpl.class);
 	}
 
-	@Contribution(name="dust-messages")
+	@Contribution
+	@Named("dust-messages")
 	public void contributeDefaultMessageSources(Messages manager,
 			PropertyMessagesSource properties,
 			CustomMessagesSource messages)
@@ -32,13 +35,13 @@ public class MessagesModule
 		manager.addSource(properties);
 		manager.addSource(messages);
 	}
-	
+
 	@NamespaceBinding
 	public void bindNamespace(Namespaces manager)
 	{
 		manager.bind("dust:messages").manual().add();
 	}
-	
+
 	@TemplateContribution
 	public void bindExpressionSource(Expressions expressions,
 			MessageExpressionSource source)

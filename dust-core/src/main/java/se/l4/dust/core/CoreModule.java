@@ -1,8 +1,11 @@
 package se.l4.dust.core;
 
+import com.google.inject.Provider;
+import com.google.inject.name.Named;
+
+import se.l4.crayon.Contribution;
 import se.l4.crayon.Contributions;
 import se.l4.crayon.CrayonModule;
-import se.l4.crayon.annotation.Contribution;
 import se.l4.dust.api.Context;
 import se.l4.dust.api.ContextScoped;
 import se.l4.dust.api.NamespaceBinding;
@@ -19,11 +22,9 @@ import se.l4.dust.core.internal.messages.MessagesModule;
 import se.l4.dust.core.internal.resource.ResourceModule;
 import se.l4.dust.core.internal.template.TemplateModule;
 
-import com.google.inject.Provider;
-
 /**
  * Module containing core functionality.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -40,13 +41,13 @@ public class CoreModule
 		install(new ConversionModule());
 		install(new ExpressionModule());
 		install(new MessagesModule());
-		
+
 		bind(Namespaces.class).to(NamespacesImpl.class);
 		bindContributions(NamespaceBinding.class);
 		bind(NamespaceDiscovery.class).to(NamespaceDiscoveryImpl.class);
-		
+
 		bindScope(ContextScoped.class, Scopes.CONTEXT);
-		
+
 		bind(Context.class).toProvider(new Provider<Context>()
 		{
 			@Override
@@ -57,11 +58,12 @@ public class CoreModule
 		});
 	}
 
-	@Contribution(name="dust-namespaces")
+	@Contribution
+	@Named("dust-namespaces")
 	public void bindNamespaces(@NamespaceBinding Contributions contributions)
 	{
 		InternalContributions.add(contributions);
-		
+
 		contributions.run();
 	}
 }

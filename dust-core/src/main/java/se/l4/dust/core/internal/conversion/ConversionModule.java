@@ -1,7 +1,9 @@
 package se.l4.dust.core.internal.conversion;
 
+import com.google.inject.Scopes;
+
+import se.l4.crayon.Contribution;
 import se.l4.crayon.CrayonModule;
-import se.l4.crayon.annotation.Contribution;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.core.internal.conversion.standard.BooleanLongConversion;
 import se.l4.dust.core.internal.conversion.standard.BooleanStringConversion;
@@ -28,12 +30,10 @@ import se.l4.dust.core.internal.conversion.standard.VoidDoubleConversion;
 import se.l4.dust.core.internal.conversion.standard.VoidLongConversion;
 import se.l4.dust.core.internal.conversion.standard.VoidStringConversion;
 
-import com.google.inject.Scopes;
-
 /**
  * Module for type converter, contributes implementation and default
  * conversions.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -47,11 +47,11 @@ public class ConversionModule
 			to(DefaultTypeConverter.class)
 			.in(Scopes.SINGLETON);
 	}
-	
+
 	/**
 	 * Register the default converters with {@link TypeConverter}. This
 	 * includes conversion to/from strings and between numbers.
-	 * 
+	 *
 	 * @param converter
 	 */
 	@Contribution
@@ -59,36 +59,36 @@ public class ConversionModule
 	{
 		converter.add(new IntegerLongConversion());
 		converter.add(new LongIntegerConversion());
-		
+
 		converter.add(new DoubleFloatConversion());
 		converter.add(new FloatDoubleConversion());
-		
+
 		converter.add(new ShortLongConversion());
 		converter.add(new LongShortConversion());
-		
+
 		converter.add(new ByteLongConversion());
 		converter.add(new LongByteConversion());
-		
+
 		converter.add(new DoubleStringConversion());
 		converter.add(new StringDoubleConversion());
-		
+
 		converter.add(new LongStringConversion());
 		converter.add(new StringLongConversion());
-		
+
 		converter.add(new BooleanLongConversion());
 		converter.add(new LongBooleanConversion());
-		
+
 		converter.add(new DoubleLongConversion());
 		converter.add(new LongDoubleConversion());
-		
+
 		converter.add(new BooleanStringConversion());
 		converter.add(new StringBooleanConversion());
-		
+
 		converter.add(new VoidDoubleConversion());
 		converter.add(new VoidBooleanConversion());
 		converter.add(new VoidLongConversion());
 		converter.add(new VoidStringConversion());
-		
+
 		converter.add(new NumberLongConversion());
 		converter.add(new NumberIntegerConversion());
 	}

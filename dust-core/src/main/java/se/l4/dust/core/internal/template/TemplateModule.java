@@ -1,9 +1,12 @@
 package se.l4.dust.core.internal.template;
 
+import com.google.inject.Stage;
+import com.google.inject.name.Named;
+
+import se.l4.crayon.Contribution;
 import se.l4.crayon.Contributions;
 import se.l4.crayon.CrayonModule;
-import se.l4.crayon.annotation.Contribution;
-import se.l4.crayon.annotation.Order;
+import se.l4.crayon.Order;
 import se.l4.dust.Dust;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.discovery.NamespaceDiscovery;
@@ -25,12 +28,10 @@ import se.l4.dust.core.internal.template.mixins.IfMixin;
 import se.l4.dust.core.internal.template.mixins.RepeatMixin;
 import se.l4.dust.core.internal.template.mixins.SettersMixin;
 
-import com.google.inject.Stage;
-
 /**
  * Module that activates template functions. Binds they default implementations
  * and add common components.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -41,14 +42,14 @@ public class TemplateModule
 	public void configure()
 	{
 		bind(Templates.class).to(TemplatesImpl.class);
-		
+
 		bind(TemplateCache.class).to(TemplateCacheImpl.class);
-		
+
 		bind(TemplateRenderer.class).to(TemplateRendererImpl.class);
-		
+
 		bindContributions(TemplateContribution.class);
 	}
-	
+
 	@TemplateContribution
 	public void contributeCommonComponents(Templates manager,
 			BodyComponent body,
@@ -72,7 +73,7 @@ public class TemplateModule
 			.addMixin("repeat", repeatM)
 			.addMixin("attributes", attributesM);
 	}
-	
+
 	@TemplateContribution
 	public void contributeFragmentComponents(Namespaces namespaces,
 			Templates manager,
@@ -84,7 +85,7 @@ public class TemplateModule
 			.addFragment("define", definition)
 			.addFragment("use", use);
 	}
-	
+
 	@TemplateContribution
 	public void contributeSetters(Namespaces namespaces,
 			Templates manager,
@@ -94,24 +95,27 @@ public class TemplateModule
 		manager.getNamespace(Dust.NAMESPACE_SETTERS)
 			.addMixin(mixin);
 	}
-	
-	@Contribution(name="dust-templates")
+
+	@Contribution
+	@Named("dust-templates")
 	@Order("after:dust-namespaces")
 	public void bindNamespaces(@TemplateContribution Contributions contributions)
 	{
 		InternalContributions.add(contributions);
-		
+
 		contributions.run();
 	}
-	
-	@Contribution(name="dust-discovery-components")
+
+	@Contribution
+	@Named("dust-discovery-components")
 	public void contributeComponentsDiscovery(NamespaceDiscovery discovery,
 			ComponentDiscoveryHandler handler)
 	{
 		discovery.addHandler(handler);
 	}
-	
-	@Contribution(name="dust-discovery-template-loading")
+
+	@Contribution
+	@Named("dust-discovery-template-loading")
 	@Order("after:dust-discovery-components")
 	public void contributePreloadingDiscovery(NamespaceDiscovery discovery,
 			Stage stage,

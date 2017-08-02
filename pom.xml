@@ -51,7 +51,7 @@
 	
 	<properties>
 		<resteasy-version>3.0.10.Final</resteasy-version>
-		<crayon-version>0.6</crayon-version>
+		<crayon-version>0.7</crayon-version>
 	</properties>
 	
 	<dependencyManagement>

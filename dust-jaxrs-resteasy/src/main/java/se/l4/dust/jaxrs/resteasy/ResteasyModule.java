@@ -19,9 +19,13 @@ import org.jboss.resteasy.plugins.providers.StringTextStar;
 import org.jboss.resteasy.spi.Registry;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import com.google.inject.name.Named;
+
+import se.l4.crayon.Contribution;
 import se.l4.crayon.CrayonModule;
-import se.l4.crayon.annotation.Contribution;
-import se.l4.crayon.annotation.Order;
+import se.l4.crayon.Order;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.jaxrs.JaxrsConfiguration;
 import se.l4.dust.jaxrs.JaxrsModule;
@@ -32,12 +36,9 @@ import se.l4.dust.jaxrs.resteasy.internal.ResteasyRenderingContext;
 import se.l4.dust.servlet.ContextContribution;
 import se.l4.dust.servlet.ServletBinder;
 
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
-
 /**
  * Module for that activates Resteasy.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -49,40 +50,41 @@ public class ResteasyModule
 	protected void configure()
 	{
 		install(new JaxrsModule());
-		
+
 		// Bind a Resteasy factory
 		ResteasyProviderFactory factory = new ResteasyProviderFactory();
 		bind(ResteasyProviderFactory.class).toInstance(factory);
 		ResteasyProviderFactory.setInstance(factory);
-		
+
 		// Bind the dispatcher
 		bind(Dispatcher.class).toInstance(new SynchronousDispatcher(factory));
-		
-		// Bind SPI interfaces 
+
+		// Bind SPI interfaces
 		bind(JaxrsConfiguration.class).to(ResteasyConfiguration.class);
 		bind(RenderingContext.class).to(ResteasyRenderingContext.class);
 	}
-	
+
 	@Provides
 	@Singleton
 	public Registry provideRegistry(Dispatcher dispatcher)
 	{
 		return dispatcher.getRegistry();
 	}
-	
+
 	@Provides
 	public UriInfo provideUriInfo()
 	{
 		return ResteasyProviderFactory.getContextData(UriInfo.class);
 	}
-	
+
 	@Provides
 	public Request provideRequest()
 	{
 		return ResteasyProviderFactory.getContextData(Request.class);
 	}
-	
-	@Contribution(name="jax-rs-providers")
+
+	@Contribution
+	@Named("jax-rs-providers")
 	public void contributeDefaultMessageProviders(ResteasyProviderFactory factory,
 			ByteArrayProvider p1,
 			DefaultTextPlain p2,
@@ -107,10 +109,10 @@ public class ResteasyModule
 		factory.registerProviderInstance(p10);
 		factory.registerProviderInstance(new ServerFormUrlEncodedProvider(false));
 	}
-	
+
 	@ContextContribution
 	@Order("last")
-	public void setupResteasy(ServletContext ctx, 
+	public void setupResteasy(ServletContext ctx,
 			ResteasyProviderFactory factory,
 			Dispatcher dispatcher,
 			Registry registry,
