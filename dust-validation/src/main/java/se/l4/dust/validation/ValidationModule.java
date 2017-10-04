@@ -32,9 +32,9 @@ public class ValidationModule
 	extends CrayonModule
 {
 	public static final String NAMESPACE = "dust:validation";
-	public static final String CTX_FIELD = "dust:valdiation:field";
+	public static final String CTX_FIELD = "dust:validation:field";
 	public static final String TPL_FIELD = "field";
-	public static final String CTX_VIOLATION = "dust:valdiation:violation";
+	public static final String CTX_VIOLATION = "dust:validation:violation";
 	public static final String CTX_ERRORS = "dust:validation:errors";
 	public static final String TPL_VIOLATIONS = "violations";
 
