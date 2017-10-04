@@ -20,11 +20,13 @@ public class DynamicPropertyInvoker
 {
 	private final Node node;
 	private final DynamicProperty property;
+	private final Class<?> context;
 
-	public DynamicPropertyInvoker(Node node, DynamicProperty property)
+	public DynamicPropertyInvoker(Node node, DynamicProperty property, Class<?> context)
 	{
 		this.node = node;
 		this.property = property;
+		this.context = context;
 	}
 
 	@Override
@@ -84,7 +86,7 @@ public class DynamicPropertyInvoker
 		String id = compiler.addInput(DynamicProperty.class, property);
 		Class<?> t = Primitives.wrap(getReturnClass());
 		return "(" + compiler.unwrap(t,
-			"(" + compiler.cast(t) + " " + id + ".get($1, " + context + "))")
+			"(" + compiler.cast(t) + " " + id + ".get($1, " + compiler.wrap(this.context, context) + "))")
 			+ ")";
 	}
 
@@ -92,7 +94,7 @@ public class DynamicPropertyInvoker
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		String id = compiler.addInput(DynamicProperty.class, property);
-		return id + ".set($1, " + context + ", $3)";
+		return id + ".set($1, " + compiler.wrap(this.context, context) + ", $3)";
 	}
 
 	@Override

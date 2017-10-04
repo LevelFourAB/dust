@@ -148,7 +148,7 @@ public class ResolverTest
 	public void testCommonProperty()
 		throws Exception
 	{
-		test("t:emit", Person.class, new DynamicPropertyInvoker(null, new Property("emit")));
+		test("t:emit", Person.class, new DynamicPropertyInvoker(null, new Property("emit"), Person.class));
 	}
 
 	@Test
@@ -157,8 +157,8 @@ public class ResolverTest
 	{
 		test("t:emit.sub", Person.class, new ChainInvoker(
 			null,
-			new DynamicPropertyInvoker(null, new Property("emit")),
-			new DynamicPropertyInvoker(null, new Property("sub"))
+			new DynamicPropertyInvoker(null, new Property("emit"), Person.class),
+			new DynamicPropertyInvoker(null, new Property("sub"), DynamicProperty.class)
 		));
 	}
 
@@ -168,7 +168,7 @@ public class ResolverTest
 	{
 		test("t:emit.format('kaka')", Person.class, new ChainInvoker(
 			null,
-			new DynamicPropertyInvoker(null, new Property("emit")),
+			new DynamicPropertyInvoker(null, new Property("emit"), Person.class),
 			new DynamicMethodInvoker(null, new TestMethod("format"), Person.class, new Invoker[] {
 				new ConstantInvoker(null, "kaka")
 			})
@@ -181,10 +181,10 @@ public class ResolverTest
 	{
 		test("t:emit.sub.format('kaka')", Person.class, new ChainInvoker(
 			null,
-			new DynamicPropertyInvoker(null, new Property("emit")),
+			new DynamicPropertyInvoker(null, new Property("emit"), Person.class),
 			new ChainInvoker(
 				null,
-				new DynamicPropertyInvoker(null, new Property("sub")),
+				new DynamicPropertyInvoker(null, new Property("sub"), DynamicProperty.class),
 				new DynamicMethodInvoker(null, new TestMethod("format"), Person.class, new Invoker[] {
 					new ConstantInvoker(null, "kaka")
 				})

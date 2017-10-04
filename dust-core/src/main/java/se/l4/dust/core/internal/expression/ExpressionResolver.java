@@ -582,6 +582,8 @@ public class ExpressionResolver
 	 */
 	private Invoker resolveIdentifier(EncounterImpl encounter, IdentifierNode node, Class<?> classContext, ResolvedType typeContext, Invoker left)
 	{
+		ResolvedType type = typeContext == null ? typeResolver.resolve(classContext) : typeContext;
+
 		if(node.getNamespace() != null)
 		{
 			// First resolve the namespace
@@ -603,7 +605,7 @@ public class ExpressionResolver
 				throw errors.error(node, "There is no property named " + node.getIdentifier() + " in namespace " + ns + "; Used " + source + " for lookup");
 			}
 
-			return new DynamicPropertyInvoker(node, property);
+			return new DynamicPropertyInvoker(node, property, type.getErasedType());
 		}
 
 		// First try resolving this as a custom property
@@ -613,12 +615,11 @@ public class ExpressionResolver
 			DynamicProperty property = leftProperty.getProperty(encounter, node.getIdentifier());
 			if(property != null)
 			{
-				return new DynamicPropertyInvoker(node, property);
+				return new DynamicPropertyInvoker(node, property, type.getErasedType());
 			}
 		}
 
 		// Then go through properties
-		ResolvedType type = typeContext == null ? typeResolver.resolve(classContext) : typeContext;
 		ResolvedTypeWithMembers members = memberResolver.resolve(type, null, null);
 		for(ResolvedMethod rm : members.getMemberMethods())
 		{

@@ -462,13 +462,25 @@ public class CompilerTest
 	}
 
 	@Test
-	public void testExpressionSourceIntegerAsContext()
+	public void testExpressionMethodIntegerAsContext()
 	{
 
 		Person p = new Person();
 		p.setAge(29);
 
 		Object o = compileAndRun("age.t:format()", p);
+		Assert.assertEquals("29", o);
+	}
+
+
+	@Test
+	public void testExpressionPropertyIntegerAsContext()
+	{
+
+		Person p = new Person();
+		p.setAge(29);
+
+		Object o = compileAndRun("age.t:asString", p);
 		Assert.assertEquals("29", o);
 	}
 
@@ -533,6 +545,12 @@ public class CompilerTest
 		public ExpressionSourceImpl()
 		{
 			super(Stage.PRODUCTION);
+		}
+
+		@Property
+		public String asString(@Instance int d)
+		{
+			return String.valueOf(d);
 		}
 
 		@Method
