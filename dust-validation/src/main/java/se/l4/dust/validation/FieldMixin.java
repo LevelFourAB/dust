@@ -9,7 +9,7 @@ import se.l4.dust.api.template.mixin.TemplateMixin;
 
 /**
  * Mixin for exposing the current field name (around any other element).
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -38,12 +38,12 @@ public class FieldMixin
 		public void beforeElement(ElementEncounter encounter)
 		{
 			RenderingContext ctx = encounter.getContext();
-			
+
 			Object value = field.get(
-				ctx, 
+				ctx,
 				encounter.getObject()
 			);
-			
+
 			ctx.putValue(ValidationModule.CTX_FIELD, value);
 		}
 
@@ -54,7 +54,7 @@ public class FieldMixin
 			ctx.putValue(ValidationModule.CTX_FIELD, null);
 			ctx.putValue(ValidationModule.CTX_VIOLATION, null);
 		}
-		
+
 	}
 
 }

@@ -17,7 +17,7 @@ import com.fasterxml.classmate.TypeResolver;
 
 /**
  * Tests for type resolving.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -29,7 +29,7 @@ public class TypeResolvingTest
 	{
 		resolver = new TypeResolver();
 	}
-	
+
 	@Test
 	public void testBAndC()
 	{
@@ -38,7 +38,7 @@ public class TypeResolvingTest
 			new Class[] { A.class }
 		);
 	}
-	
+
 	@Test
 	public void testBAndD()
 	{
@@ -47,7 +47,7 @@ public class TypeResolvingTest
 			new Class[] { B.class, A.class }
 		);
 	}
-	
+
 	@Test
 	public void testCAndD()
 	{
@@ -56,7 +56,7 @@ public class TypeResolvingTest
 			new Class[] { A.class }
 		);
 	}
-	
+
 	@Test
 	public void testI1AndI2()
 	{
@@ -65,7 +65,7 @@ public class TypeResolvingTest
 			new Class[] { }
 		);
 	}
-	
+
 	@Test
 	public void testInterfaceBubbling()
 	{
@@ -74,29 +74,29 @@ public class TypeResolvingTest
 			new Class[] { E.class, I2.class }
 		);
 	}
-	
+
 	private static class A {}
 	private static class B extends A {}
 	private static class C extends A {}
 	private static class D extends B implements I1 {}
 	private static class E implements I2 {}
-	
+
 	private static interface I1 {}
 	private static interface I2 {}
-	
+
 	private void testCommon(Class<?>[] types, Class<?>[] expected)
 	{
 		List<Class<?>> resolved = resolveCommonNonGeneric(types);
-		
+
 		List<Class<?>> actuallyExpected = new ArrayList<Class<?>>();
 		for(Class<?> c : expected) actuallyExpected.add(c);
-		
+
 		Collections.sort(resolved, COMPARATOR);
 		Collections.sort(actuallyExpected, COMPARATOR);
-		
+
 		assertThat(resolved, is(actuallyExpected));
 	}
-	
+
 	private List<ResolvedType> resolveCommon(Class<?>... types)
 	{
 		List<ResolvedType> input = new ArrayList<ResolvedType>();
@@ -104,23 +104,23 @@ public class TypeResolvingTest
 		{
 			input.add(resolver.resolve(c));
 		}
-		
+
 		return TypeResolving.findCommonTypes(input);
 	}
-	
+
 	private List<Class<?>> resolveCommonNonGeneric(Class<?>... types)
 	{
 		List<ResolvedType> items = resolveCommon(types);
 		List<Class<?>> result = new ArrayList<Class<?>>();
-		
+
 		for(ResolvedType rt : items)
 		{
 			result.add(rt.getErasedType());
 		}
-		
+
 		return result;
 	}
-	
+
 	private final Comparator<Class> COMPARATOR = new Comparator<Class>()
 	{
 		@Override

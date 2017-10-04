@@ -13,7 +13,7 @@ public class StringLongConversion
 		{
 			return 0l;
 		}
-		
+
 		try
 		{
 			return Long.parseLong(in);
@@ -21,7 +21,7 @@ public class StringLongConversion
 		catch(NumberFormatException e)
 		{
 			throw new ConversionException("Can not convert input to long; "
-				+ e.getMessage(), e); 
+				+ e.getMessage(), e);
 		}
 	}
 

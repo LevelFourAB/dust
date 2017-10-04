@@ -9,7 +9,7 @@ import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker that handles the this keyword.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -24,57 +24,57 @@ public class ThisInvoker
 		this.node = node;
 		this.context = context;
 	}
-	
+
 	@Override
 	public Node getNode()
 	{
 		return node;
 	}
-	
+
 	@Override
 	public Class<?> getReturnClass()
 	{
 		return context;
 	}
-	
+
 	@Override
 	public ResolvedType getReturnType()
 	{
 		return null;
 	}
-	
+
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
 		return root;
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
 		return true;
 	}
-	
+
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		// $2 is the second parameter which is the instance
 		return "$2";
 	}
-	
+
 	@Override
 	public void set(ErrorHandler errors, Context context, Object root,
 			Object instance, Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
 	}
-	
+
 	@Override
 	public boolean supportsSet()
 	{
 		return false;
 	}
-	
+
 	@Override
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{

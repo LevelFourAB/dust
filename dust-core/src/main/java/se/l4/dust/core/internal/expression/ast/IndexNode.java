@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 /**
  * Node representing indexed access.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -20,12 +20,12 @@ public class IndexNode
 		this.left = left;
 		this.indexes = indexes;
 	}
-	
+
 	public Node getLeft()
 	{
 		return left;
 	}
-	
+
 	public Node[] getIndexes()
 	{
 		return indexes;
@@ -62,7 +62,7 @@ public class IndexNode
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString()
 	{

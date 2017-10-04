@@ -20,7 +20,7 @@ import com.google.common.io.Closeables;
 
 /**
  * Implementation of {@link AssetEncounter}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -29,22 +29,22 @@ public class AssetEncounterImpl
 {
 	private final boolean production;
 	private final Resource in;
-	
+
 	private final AssetCache cache;
 	private String cacheKey;
-	
+
 	private Resource replacedWith;
 
 	public AssetEncounterImpl(
 			boolean production,
-			Resource in, 
+			Resource in,
 			AssetCache cache)
 	{
 		this.production = production;
 		this.in = in;
 		this.cache = cache;
 	}
-	
+
 	@Override
 	public ResourceLocation getLocation()
 	{
@@ -56,7 +56,7 @@ public class AssetEncounterImpl
 	{
 		return in;
 	}
-	
+
 	@Override
 	public List<Resource> getResources()
 	{
@@ -75,7 +75,7 @@ public class AssetEncounterImpl
 	public AssetEncounter replaceWith(Resource resource)
 	{
 		replacedWith = resource;
-		
+
 		return this;
 	}
 
@@ -83,7 +83,7 @@ public class AssetEncounterImpl
 	public AssetEncounter cache(String id, Resource resource)
 	{
 		if(cache == null) return this;
-		
+
 		cacheKey = id + "/" + hashInput();
 		try
 		{
@@ -93,15 +93,15 @@ public class AssetEncounterImpl
 		{
 			throw new AssetException("Unable to cache " + in + "; " + e.getMessage(), e);
 		}
-		
+
 		return this;
 	}
-	
+
 	@Override
 	public Resource getCached(String id)
 	{
 		if(cache == null) return null;
-		
+
 		String cacheKey = id + "/" + hashInput();
 		try
 		{
@@ -113,7 +113,7 @@ public class AssetEncounterImpl
 			throw new AssetException("Unable to use cache " + in + "; " + e.getMessage(), e);
 		}
 	}
-	
+
 	private String hashInput()
 	{
 		Hasher hasher = Hashing.murmur3_128().newHasher();
@@ -127,7 +127,7 @@ public class AssetEncounterImpl
 			{
 				hasher.putBytes(buf, 0, len);
 			}
-			
+
 			return hasher.hash().toString();
 		}
 		catch(IOException e)
@@ -144,7 +144,7 @@ public class AssetEncounterImpl
 	{
 		return replacedWith;
 	}
-	
+
 	public boolean isReplaced()
 	{
 		return replacedWith != null;

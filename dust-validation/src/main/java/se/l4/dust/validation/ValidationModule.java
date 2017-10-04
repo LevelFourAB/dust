@@ -24,7 +24,7 @@ import com.google.inject.Singleton;
 /**
  * Module for validation support. When this module is included it is possible
  * to use bean validation in templates.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -42,7 +42,7 @@ public class ValidationModule
 	protected void configure()
 	{
 	}
-	
+
 	@Provides
 	@Singleton
 	public ConfigurationState provideConfigState(
@@ -51,7 +51,7 @@ public class ValidationModule
 			final Injector injector)
 	{
 		ApacheValidationProvider provider = new ApacheValidationProvider();
-		
+
 		ConfigurationImpl config = new ConfigurationImpl(null, provider);
 		config.messageInterpolator(interpolator);
 		config.traversableResolver(resolver);
@@ -63,26 +63,26 @@ public class ValidationModule
 				return injector.getInstance(key);
 			}
 		});
-		
+
 		return config;
 	}
-	
+
 	@Provides
 	@Singleton
 	public ValidatorFactory provideFactory(ConfigurationState state)
 	{
 		return new ApacheValidationProvider().buildValidatorFactory(state);
 	}
-	
+
 	@Provides
 	@Singleton
 	public Validator provideValidator(ValidatorFactory factory)
 	{
 		return factory.getValidator();
 	}
-	
+
 	@NamespaceBinding
-	public void bindNamespace(Namespaces manager, 
+	public void bindNamespace(Namespaces manager,
 			Templates templates,
 			ViolationsMixin mixin1,
 			FieldMixin mixin2,
@@ -91,11 +91,11 @@ public class ValidationModule
 	{
 		manager.bind(NAMESPACE)
 			.add();
-		
+
 		templates.getNamespace(NAMESPACE)
 			.addMixin(TPL_VIOLATIONS, mixin1)
 			.addMixin(TPL_FIELD, mixin2);
-		
+
 		exprs.addSource(NAMESPACE, source);
 	}
 }

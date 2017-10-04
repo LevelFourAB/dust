@@ -11,10 +11,10 @@ import se.l4.dust.api.ContextScoped;
 /**
  * Indicate that a method should be run after a component has been rendered.
  * This is useful to perform clean up if needed.
- * 
+ *
  * <p>
  * This is usually needed when the component is {@link ContextScoped}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */

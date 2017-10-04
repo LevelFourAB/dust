@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Builder for creating a JavaScript environment that is suitable for running
  * scripts designed to be run in a browser.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -28,28 +28,28 @@ public class JavascriptEnvironment
 		void evaluate(Context context, Scriptable scope)
 			throws IOException;
 	}
-	
+
 	private List<Fragment> fragments;
 	private boolean hasEvaluated;
-	
+
 	public JavascriptEnvironment()
 	{
 		this(null);
 	}
-	
+
 	public JavascriptEnvironment(String name)
 	{
 		fragments = new ArrayList<Fragment>();
-		Logger logger = name == null 
+		Logger logger = name == null
 			? LoggerFactory.getLogger(JavascriptEnvironment.class)
 			: LoggerFactory.getLogger(name);
-				
+
 		define("console", new JavascriptConsole(logger));
 	}
-	
+
 	/**
 	 * Add a url that should be evaluated as part of this environment.
-	 * 
+	 *
 	 * @param url
 	 * @return
 	 */
@@ -78,13 +78,13 @@ public class JavascriptEnvironment
 				}
 			}
 		});
-		
+
 		return this;
 	}
-	
+
 	/**
 	 * Add a JavaScript string fragment that should be evaluated.
-	 * 
+	 *
 	 * @param fragment
 	 * @return
 	 */
@@ -98,13 +98,13 @@ public class JavascriptEnvironment
 				context.evaluateString(scope, fragment, "<fragment>", 1, null);
 			}
 		});
-		
+
 		return this;
 	}
-	
+
 	/**
 	 * Add a JavaScript string fragment that should be evaluated.
-	 * 
+	 *
 	 * @param fragment
 	 * @return
 	 */
@@ -118,13 +118,13 @@ public class JavascriptEnvironment
 				context.evaluateString(scope, fragment, id, 1, null);
 			}
 		});
-		
+
 		return this;
 	}
-	
+
 	/**
 	 * Define a variable that can be accessed in the scripts.
-	 * 
+	 *
 	 * @param variable
 	 * @param value
 	 * @return
@@ -140,13 +140,13 @@ public class JavascriptEnvironment
 				ScriptableObject.putProperty(scope, variable, wrappedOut);
 			}
 		});
-		
+
 		return this;
 	}
-	
+
 	/**
 	 * Evaluate and return the result of the given fragment.
-	 * 
+	 *
 	 * @param fragment
 	 * @return
 	 */
@@ -163,9 +163,9 @@ public class JavascriptEnvironment
 				holder.value = context.evaluateString(scope, fragment, "<fragment>", 1, null);
 			}
 		});
-		
+
 		evaluate();
-		
+
 		return holder.value;
 	}
 
@@ -173,19 +173,19 @@ public class JavascriptEnvironment
 		throws IOException
 	{
 		if(hasEvaluated) return;
-		
+
 		Context cx = Context.enter();
 		cx.setOptimizationLevel(4);
 		cx.setLanguageVersion(Context.VERSION_1_8);
 		try
 		{
 			Scriptable scope = cx.initStandardObjects();
-		
+
 			for(Fragment fragment : fragments)
 			{
 				fragment.evaluate(cx, scope);
 			}
-			
+
 			hasEvaluated = true;
 		}
 		finally
@@ -193,7 +193,7 @@ public class JavascriptEnvironment
 			Context.exit();
 		}
 	}
-	
+
 	public Object execute()
 	{
 		return null;

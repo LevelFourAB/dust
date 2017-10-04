@@ -21,7 +21,7 @@ import com.google.inject.Stage;
 
 /**
  * Implementation of {@link Expressions}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -33,14 +33,14 @@ public class ExpressionsImpl
 	private final ConcurrentMap<String, ExpressionSource> sources;
 	private final boolean production;
 	private final Cache<Key, Expression> cachedExpressions;
-	
+
 	@Inject
 	public ExpressionsImpl(TypeConverter converter, Stage stage)
 	{
 		this.converter = converter;
 		production = stage != Stage.DEVELOPMENT;
 		sources = new ConcurrentHashMap<String, ExpressionSource>();
-		
+
 		cachedExpressions = CacheBuilder.newBuilder()
 			.build();
 	}
@@ -53,18 +53,18 @@ public class ExpressionsImpl
 		{
 			source = new ExpressionSourceChain(existing, source);
 		}
-		
+
 		sources.put(namespace, source);
 	}
-	
+
 	public ExpressionSource getSource(String namespace)
 	{
 		return sources.get(namespace);
 	}
-	
+
 	/**
 	 * Attempt to resolve a suitable type for the given object.
-	 * 
+	 *
 	 * @param context
 	 * @return
 	 */
@@ -95,20 +95,20 @@ public class ExpressionsImpl
 		{
 			return result;
 		}
-		
+
 		if(production)
 		{
 			ErrorHandler errors = new ErrorHandlerImpl(expression);
 			Node node = ExpressionParser.parse(expression);
 			Invoker invoker = new ExpressionResolver(
-				converter, 
+				converter,
 				this,
 				source,
 				namespaces,
-				errors, 
+				errors,
 				node
 			).resolve(localContext);
-			
+
 			ExpressionCompiler compiler = new ExpressionCompiler(errors, expression, localContext, invoker);
 			result =  compiler.compile();
 		}
@@ -116,16 +116,16 @@ public class ExpressionsImpl
 		{
 			result = new ExpressionDebugger(converter, this, source, namespaces, expression, localContext);
 		}
-		
+
 		cachedExpressions.put(key, result);
 		return result;
 	}
-	
+
 	private static class Key
 	{
 		private final String expression;
 		private final Class<?> context;
-		
+
 		public Key(String expression, Class<?> context)
 		{
 			this.expression = expression;

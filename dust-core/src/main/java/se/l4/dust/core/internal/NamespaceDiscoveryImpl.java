@@ -48,11 +48,11 @@ public class NamespaceDiscoveryImpl
 		for(Namespace ns : namespaces.list())
 		{
 			if(ns.getPackage() == null || ns.getPackage().isEmpty()) continue;
-			
+
 			urls.addAll(ClasspathHelper.forPackage(ns.getPackage()));
 			builder.include(FilterBuilder.prefix(ns.getPackage() + "."));
 		}
-		
+
 		ConfigurationBuilder configuration = new ConfigurationBuilder();
 
 		configuration.setUrls(urls);
@@ -61,7 +61,7 @@ public class NamespaceDiscoveryImpl
 			new TypeAnnotationsScanner(),
 			new SubTypesScanner()
 		);
-		
+
 		Reflections reflections = new Reflections(configuration);
 		DiscoveryEncounterImpl encounter = new DiscoveryEncounterImpl(reflections);
 		for(DiscoveryHandler handler : handlers)
@@ -88,12 +88,12 @@ public class NamespaceDiscoveryImpl
 	{
 		private final Reflections reflections;
 		private Predicate<Class<?>> filter;
-		
+
 		public DiscoveryEncounterImpl(Reflections reflections)
 		{
 			this.reflections = reflections;
 		}
-		
+
 		public void setPackage(String pkg)
 		{
 			final String pkgFilter = pkg + ".";
@@ -106,7 +106,7 @@ public class NamespaceDiscoveryImpl
 				}
 			};
 		}
-		
+
 		@Override
 		public Collection<Class<?>> getAnnotatedWith(Class<? extends Annotation> annotation)
 		{

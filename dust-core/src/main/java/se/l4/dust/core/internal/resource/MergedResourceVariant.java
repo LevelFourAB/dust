@@ -8,7 +8,7 @@ import com.google.common.base.Objects;
 
 /**
  * Merged resource variant.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -28,10 +28,10 @@ public class MergedResourceVariant
 			{
 				id.append('.');
 			}
-			
+
 			id.append(variants[i].getIdentifier());
 		}
-		
+
 		this.id = id.toString();
 	}
 
@@ -51,13 +51,13 @@ public class MergedResourceVariant
 	{
 		return id;
 	}
-	
+
 	@Override
 	public boolean isMoreSpecific(ResourceVariant current)
 	{
 		return false;
 	}
-	
+
 	@Override
 	public int hashCode()
 	{
@@ -107,10 +107,10 @@ public class MergedResourceVariant
 				}
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	@Override
 	public String toString()
 	{

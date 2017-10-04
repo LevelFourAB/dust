@@ -7,7 +7,7 @@ import se.l4.dust.api.expression.ExpressionSource;
 
 /**
  * Chaining of two {@link ExpressionSource}s.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -16,7 +16,7 @@ public class ExpressionSourceChain
 {
 	private final ExpressionSource left;
 	private final ExpressionSource right;
-	
+
 	public ExpressionSourceChain(ExpressionSource left, ExpressionSource right)
 	{
 		this.left = left;
@@ -28,7 +28,7 @@ public class ExpressionSourceChain
 	{
 		DynamicProperty property = left.getProperty(encounter, name);
 		if(property != null) return property;
-		
+
 		return right.getProperty(encounter, name);
 	}
 
@@ -37,7 +37,7 @@ public class ExpressionSourceChain
 	{
 		DynamicMethod method = left.getMethod(encounter, name, parameters);
 		if(method != null) return method;
-		
+
 		return right.getMethod(encounter, name, parameters);
 	}
 

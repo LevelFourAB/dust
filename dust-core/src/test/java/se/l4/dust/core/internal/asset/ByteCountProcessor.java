@@ -10,7 +10,7 @@ import se.l4.dust.api.resource.Resource;
 
 /**
  * Processor that will return the size of the input asset as text.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -31,7 +31,7 @@ public class ByteCountProcessor
 			while(stream.read() != -1) length++;
 			stream.close();
 		}
-		
+
 		byte[] data = String.valueOf(length).getBytes();
 		encounter.replaceWith(new MemoryResource(null, null, data));
 	}

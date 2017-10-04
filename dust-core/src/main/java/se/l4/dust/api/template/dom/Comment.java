@@ -10,7 +10,7 @@ import se.l4.dust.api.template.TemplateOutputStream;
 
 /**
  * Comment as found in a template.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -18,17 +18,17 @@ public class Comment
 	extends AbstractContent
 {
 	private static final Content[] EMTPY_CONTENT = new Content[0];
-	
+
 	private Emittable[] contents;
 
 	public Comment()
 	{
 		contents = EMTPY_CONTENT;
 	}
-	
+
 	/**
 	 * Add content to this element, see {@link #addContent(Content)}.
-	 * 
+	 *
 	 * @param objects
 	 * @return
 	 */
@@ -39,12 +39,12 @@ public class Comment
 		{
 			result.add(e);
 		}
-		
+
 		for(Emittable e : objects)
 		{
 			result.add(e);
 		}
-		
+
 		contents = result.toArray(new Emittable[result.size()]);
 	}
 
@@ -52,15 +52,15 @@ public class Comment
 	{
 		return contents;
 	}
-	
+
 	@Override
 	public void emit(TemplateEmitter emitter, TemplateOutputStream output)
 		throws IOException
 	{
 		output.startComment();
-		
+
 		emitter.emit(contents);
-		
+
 		output.endComment();
 	}
 }

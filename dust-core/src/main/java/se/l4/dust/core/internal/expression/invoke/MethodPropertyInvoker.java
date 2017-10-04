@@ -3,17 +3,17 @@ package se.l4.dust.core.internal.expression.invoke;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.fasterxml.classmate.ResolvedType;
+import com.google.common.primitives.Primitives;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
 
-import com.fasterxml.classmate.ResolvedType;
-import com.google.common.primitives.Primitives;
-
 /**
  * Invoker for a property method.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -29,23 +29,23 @@ public class MethodPropertyInvoker
 	{
 		this.node = node;
 		this.type = type;
-		
+
 		this.getter = getter;
 		this.setter = setter;
 	}
-	
+
 	@Override
 	public Class<?> getReturnClass()
 	{
 		return type.getErasedType();
 	}
-	
+
 	@Override
 	public ResolvedType getReturnType()
 	{
 		return type;
 	}
-	
+
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
@@ -53,7 +53,7 @@ public class MethodPropertyInvoker
 		{
 			throw errors.error(node, "Object is null, can't fetch a property on a null object");
 		}
-		
+
 		try
 		{
 			return getter.invoke(instance);
@@ -67,13 +67,13 @@ public class MethodPropertyInvoker
 			throw errors.error(node, e + "; Object is: " + instance);
 		}
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
 		return getter != null;
 	}
-	
+
 	@Override
 	public void set(ErrorHandler errors, Context context, Object root,
 			Object instance, Object value)
@@ -82,12 +82,12 @@ public class MethodPropertyInvoker
 		{
 			throw errors.error(node, "No setter available matching getter " + getter.getName());
 		}
-		
+
 		if(instance == null)
 		{
 			throw errors.error(node, "Object is null, can't set a property on a null object");
 		}
-		
+
 		try
 		{
 			setter.invoke(instance, value);
@@ -101,13 +101,13 @@ public class MethodPropertyInvoker
 			throw errors.error(node, "Error executing: " + e.getMessage(), e);
 		}
 	}
-	
+
 	@Override
 	public boolean supportsSet()
 	{
 		return setter != null;
 	}
-	
+
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
@@ -120,15 +120,15 @@ public class MethodPropertyInvoker
 			.append(".")
 			.append(getter.getName())
 			.append("())");
-		
+
 		return builder.toString();
 	}
-	
+
 	@Override
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		if(setter == null) return null;
-		
+
 		Class<?> in = setter.getParameterTypes()[0];
 		if(in.isPrimitive())
 		{
@@ -140,7 +140,7 @@ public class MethodPropertyInvoker
 			return context + "." + setter.getName() + "( " + compiler.cast(in) + " $3)";
 		}
 	}
-	
+
 	@Override
 	public Node getNode()
 	{

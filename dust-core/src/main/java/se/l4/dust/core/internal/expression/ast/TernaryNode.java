@@ -2,7 +2,7 @@ package se.l4.dust.core.internal.expression.ast;
 
 /**
  * Node for a ternary if operation.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -16,31 +16,31 @@ public class TernaryNode
 	public TernaryNode(int line, int position, Node test, Node left, Node right)
 	{
 		super(line, position);
-		
+
 		this.test = test;
 		this.left = left;
 		this.right = right;
 	}
-	
+
 	public Node getTest()
 	{
 		return test;
 	}
-	
+
 	public Node getLeft()
 	{
 		return left;
 	}
-	
+
 	public Node getRight()
 	{
 		return right;
 	}
-	
+
 	@Override
 	public String toString()
 	{
-		return getClass().getSimpleName() + "[test=" + test + ", true=" + left + ", false=" + right + "]"; 
+		return getClass().getSimpleName() + "[test=" + test + ", true=" + left + ", false=" + right + "]";
 	}
 
 	@Override

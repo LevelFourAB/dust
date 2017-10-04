@@ -14,7 +14,7 @@ import com.google.inject.Stage;
 /**
  * Source of properties and methods that can be used together with the
  * validation mixins.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -33,31 +33,31 @@ public class ValidationExpressionSource
 	{
 		return find(ctx) != null;
 	}
-	
+
 	@Property
 	public String message(@Bind Context ctx)
 	{
 		ConstraintViolation<?> cv = find(ctx);
 		return cv == null ? null : cv.getMessage();
 	}
-	
+
 	private ConstraintViolation<?> find(Context ctx)
 	{
 		ConstraintViolation<?> stored = ctx.getValue(ValidationModule.CTX_VIOLATION);
 		if(stored != null) return stored;
-		
+
 		String field = ctx.getValue(ValidationModule.CTX_FIELD);
 		if(field == null)
 		{
 			throw new IllegalArgumentException("No field has been bound, did you forget to use the mixin " + ValidationModule.TPL_FIELD + "?");
 		}
-		
+
 		Set<ConstraintViolation<?>> violations = ctx.getValue(ValidationModule.CTX_ERRORS);
 		if(violations == null || violations.isEmpty())
 		{
 			return null;
 		}
-		
+
 		for(ConstraintViolation<?> cv : violations)
 		{
 			if(matches(field, cv.getPropertyPath()))
@@ -66,10 +66,10 @@ public class ValidationExpressionSource
 				return cv;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	private static boolean matches(String name, Path path)
 	{
 		int idx = name.indexOf('.');
@@ -90,12 +90,12 @@ public class ValidationExpressionSource
 			{
 				return false;
 			}
-			
+
 			lastIdx = idx;
 			idx = name.indexOf('.', idx+1);
 			hasMore = idx > 0;
 		}
-		
+
 		return ! hasMore;
 	}
 }

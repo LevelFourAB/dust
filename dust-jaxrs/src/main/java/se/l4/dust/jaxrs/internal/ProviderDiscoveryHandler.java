@@ -23,7 +23,7 @@ public class ProviderDiscoveryHandler
 	implements DiscoveryHandler
 {
 	private static final Logger logger = LoggerFactory.getLogger(ProviderDiscoveryHandler.class);
-	
+
 	private final Injector injector;
 	private final JaxrsConfiguration config;
 
@@ -46,26 +46,26 @@ public class ProviderDiscoveryHandler
 				if(instance == null) instance = injector.getInstance(provider);
 				config.addMessageBodyReader((MessageBodyReader<?>) instance);
 			}
-			
+
 			if(MessageBodyWriter.class.isAssignableFrom(provider))
 			{
 				if(instance == null) instance = injector.getInstance(provider);
 				config.addMessageBodyWriter((MessageBodyWriter<?>) instance);
 			}
-			
+
 			if(ExceptionMapper.class.isAssignableFrom(provider))
 			{
 				if(instance == null) instance = injector.getInstance(provider);
 				config.addExceptionMapper((ExceptionMapper<?>) instance);
 			}
-			
+
 			if(ParamConverterProvider.class.isAssignableFrom(provider))
 			{
 				if(instance == null) instance = injector.getInstance(provider);
 				config.addParamConverterProvider((ParamConverterProvider) instance);
 			}
 		}
-		
+
 		logger.debug("{}: Found {} providers", ns.getUri(), providers.size());
 	}
 

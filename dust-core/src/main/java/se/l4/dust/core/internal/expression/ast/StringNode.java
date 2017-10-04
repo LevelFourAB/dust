@@ -3,7 +3,7 @@ package se.l4.dust.core.internal.expression.ast;
 
 /**
  * Node that holds a static string value.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -15,18 +15,18 @@ public class StringNode
 	public StringNode(int line, int position, String value)
 	{
 		super(line, position);
-		
+
 		this.value = value;
 	}
-	
+
 	public String getValue()
 	{
 		return value;
 	}
-	
+
 	/**
 	 * Decode a string that contains escape characters.
-	 * 
+	 *
 	 * @param in
 	 * @return
 	 */
@@ -70,7 +70,7 @@ public class StringNode
 						// Unicode, read 4 chars and treat as hex
 						if(i + 4 >= n)
 							throw new IllegalArgumentException("Invalid escape sequence");
-						
+
 						String s = in.substring(i+1, i+5);
 						result.append((char) Integer.parseInt(s, 16));
 						i += 4;
@@ -82,10 +82,10 @@ public class StringNode
 				result.append(c);
 			}
 		}
-		
+
 		return result.toString();
 	}
-	
+
 	@Override
 	public String toString()
 	{

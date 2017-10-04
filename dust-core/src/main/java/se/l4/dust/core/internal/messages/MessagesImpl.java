@@ -16,7 +16,7 @@ import com.google.inject.Singleton;
 
 /**
  * Implementation of {@link Messages}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -25,12 +25,12 @@ public class MessagesImpl
 	implements Messages
 {
 	private final List<MessageSource> sources;
-	
+
 	public MessagesImpl()
 	{
 		sources = new CopyOnWriteArrayList<MessageSource>();
 	}
-	
+
 	@Override
 	public void addSource(MessageSource source)
 	{
@@ -46,7 +46,7 @@ public class MessagesImpl
 		{
 			return msgs;
 		}
-		
+
 		List<MessageCollection> messages = new ArrayList<MessageCollection>();
 		for(MessageSource s : sources)
 		{
@@ -63,7 +63,7 @@ public class MessagesImpl
 				throw new TemplateException("Unable to load messages; " + e.getMessage(), e);
 			}
 		}
-		
+
 		if(messages.size() == 1)
 		{
 			msgs = messages.get(0);
@@ -72,7 +72,7 @@ public class MessagesImpl
 		{
 			msgs = new DelegatingMessages(messages);
 		}
-		
+
 		context.putValue(key, msgs);
 		return msgs;
 	}

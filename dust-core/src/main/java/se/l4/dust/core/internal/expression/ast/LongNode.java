@@ -2,7 +2,7 @@ package se.l4.dust.core.internal.expression.ast;
 
 /**
  * Node holding a {@code long} value.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -10,14 +10,14 @@ public class LongNode
 	extends AbstractNode
 {
 	private final long value;
-	
+
 	public LongNode(int line, int position, long value)
 	{
 		super(line, position);
-		
+
 		this.value = value;
 	}
-	
+
 	public long getValue()
 	{
 		return value;

@@ -2,7 +2,7 @@ package se.l4.dust.api.conversion;
 
 /**
  * Runtime exception to indicate that an error occurred during a conversion.
- * 
+ *
  * @author Andreas Holstenson
  *
  */

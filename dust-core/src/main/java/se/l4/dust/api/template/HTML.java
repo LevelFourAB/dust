@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableSet;
 
 /**
  * Utilities for HTML tags.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -14,7 +14,7 @@ public class HTML
 {
 	private static final Set<String> singleTags;
 	private static final Set<String> inlineTags;
-	
+
 	static
 	{
 		singleTags = ImmutableSet.<String>builder()
@@ -35,7 +35,7 @@ public class HTML
 			.add("track")
 			.add("wbr")
 			.build();
-		
+
 		inlineTags = ImmutableSet.<String>builder()
 			.add("b").add("big").add("i").add("small").add("tt")
 			.add("abbr").add("acronym").add("cite").add("code").add("dfn")
@@ -45,12 +45,12 @@ public class HTML
 			.add("button").add("input").add("label").add("select").add("textarea")
 			.build();
 	}
-	
+
 	public static boolean isSingle(String tagName)
 	{
 		return singleTags.contains(tagName.toLowerCase());
 	}
-	
+
 	public static boolean isInline(String tagName)
 	{
 		return inlineTags.contains(tagName.toLowerCase());

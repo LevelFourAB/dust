@@ -10,7 +10,7 @@ import se.l4.dust.api.Context;
 /**
  * Context of a template rendering. The context is used to resolve links,
  * assets and to store temporary variables.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -18,18 +18,18 @@ public interface RenderingContext
 	extends Context
 {
 	static final String INITIAL = "dust:initialTemplate";
-	
+
 	/**
 	 * Resolve a URI for the given object.
-	 * 
+	 *
 	 * @param object
 	 * @return
 	 */
 	URI resolveURI(Object object);
-	
+
 	/**
 	 * Resolve an object of the specified type.
-	 * 
+	 *
 	 * @param parameter
 	 * 		the parameter the object is for (if any)
 	 * @param type

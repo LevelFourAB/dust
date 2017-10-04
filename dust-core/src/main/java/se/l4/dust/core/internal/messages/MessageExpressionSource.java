@@ -35,7 +35,7 @@ public class MessageExpressionSource
 	{
 		return encounter.getSource();
 	}
-	
+
 	@Override
 	public DynamicProperty getProperty(ExpressionEncounter encounter, String name)
 	{
@@ -52,15 +52,15 @@ public class MessageExpressionSource
 		{
 			return new MessageGetMethod(messageManager, getLocation(encounter));
 		}
-		
+
 		return null;
 	}
-	
+
 	private static MessageCollection getMessages(Messages manager, Context context, ResourceLocation location)
 	{
 		return manager.getMessages(context, location);
 	}
-	
+
 	private static class MessageProperty
 		extends AbstractDynamicProperty
 	{
@@ -74,50 +74,50 @@ public class MessageExpressionSource
 			this.resource = resource;
 			this.propertyName = propertyName;
 		}
-		
+
 		@Override
 		public Class<?> getType()
 		{
 			return String.class;
 		}
-		
+
 		@Override
 		public Object get(Context context, Object root)
 		{
 			MessageCollection messages = getMessages(manager, context, resource);
 			return messages.get(propertyName);
 		}
-		
+
 		@Override
 		public boolean supportsGet()
 		{
 			return true;
 		}
-		
+
 		@Override
 		public void set(Context context, Object root, Object value)
 		{
 			throw new UnsupportedOperationException();
 		}
-		
+
 		@Override
 		public boolean supportsSet()
 		{
 			return false;
 		}
-		
+
 		@Override
 		public boolean needsContext()
 		{
 			return false;
 		}
-		
+
 		@Override
 		public DynamicProperty getProperty(ExpressionEncounter encounter, String name)
 		{
 			return new MessageProperty(manager, resource, propertyName + "." + name);
 		}
-		
+
 		@Override
 		public DynamicMethod getMethod(ExpressionEncounter encounter, String name, Class... parameters)
 		{
@@ -136,7 +136,7 @@ public class MessageExpressionSource
 			return super.getMethod(encounter, name, parameters);
 		}
 	}
-	
+
 	private static class DebuggingMessageProperty
 		extends MessageProperty
 	{
@@ -144,7 +144,7 @@ public class MessageExpressionSource
 		{
 			super(manager, resource, propertyName);
 		}
-		
+
 		@Override
 		public Object get(Context context, Object root)
 		{
@@ -153,17 +153,17 @@ public class MessageExpressionSource
 			{
 				throw new ExpressionException("No text for `" + propertyName + "` could be found");
 			}
-			
+
 			return result;
 		}
-		
+
 		@Override
 		public DynamicProperty getProperty(ExpressionEncounter encounter, String name)
 		{
 			return new DebuggingMessageProperty(manager, resource, propertyName + "." + name);
 		}
 	}
-	
+
 	private static class MessageFormatMethod
 		implements DynamicMethod
 	{
@@ -174,7 +174,7 @@ public class MessageExpressionSource
 
 		public MessageFormatMethod(Messages manager,
 				ResourceLocation resource,
-				String propertyName, 
+				String propertyName,
 				Class[] parameters)
 		{
 			this.manager = manager;
@@ -182,7 +182,7 @@ public class MessageExpressionSource
 			this.propertyName = propertyName;
 			this.parameters = parameters;
 		}
-		
+
 		@Override
 		public Object invoke(Context context, Object instance, Object... parameters)
 		{
@@ -195,7 +195,7 @@ public class MessageExpressionSource
 				format = new MessageFormat(message, locale);
 				context.putValue(message, format);
 			}
-			
+
 			return format.format(parameters);
 		}
 
@@ -204,137 +204,137 @@ public class MessageExpressionSource
 		{
 			return String.class;
 		}
-		
+
 		@Override
 		public Class<?>[] getParametersType()
 		{
 			return parameters;
 		}
-	
+
 		@Override
 		public boolean needsContext()
 		{
 			return false;
 		}
 	}
-	
+
 	private static class MessageGetMethod
 		implements DynamicMethod
 	{
 		private static final Class<?>[] SINGLE_STRING_PARAMETER = new Class[] { String.class };
-		
+
 		private final Messages manager;
 		private final ResourceLocation resource;
-	
+
 		public MessageGetMethod(Messages manager, ResourceLocation resource)
 		{
 			this.manager = manager;
 			this.resource = resource;
 		}
-		
+
 		@Override
 		public Object invoke(Context context, Object instance, Object... parameters)
 		{
 			MessageCollection messages = getMessages(manager, context, resource);
 			return messages.get(parameters[0].toString());
 		}
-	
+
 		@Override
 		public Class<?> getType()
 		{
 			return String.class;
 		}
-		
+
 		@Override
 		public Class<?>[] getParametersType()
 		{
 			return SINGLE_STRING_PARAMETER;
 		}
-	
+
 		@Override
 		public boolean needsContext()
 		{
 			return false;
 		}
 	}
-	
+
 	private static class MessageGetLocalMethod
 		implements DynamicMethod
 	{
 		private static final Class<?>[] SINGLE_STRING_PARAMETER = new Class[] { String.class };
-		
+
 		private final Messages manager;
 		private final ResourceLocation resource;
 		private final String propertyName;
-	
+
 		public MessageGetLocalMethod(Messages manager, ResourceLocation resource, String propertyName)
 		{
 			this.manager = manager;
 			this.resource = resource;
 			this.propertyName = propertyName;
 		}
-		
+
 		@Override
 		public Object invoke(Context context, Object instance, Object... parameters)
 		{
 			MessageCollection messages = getMessages(manager, context, resource);
 			return messages.get(propertyName + '.' + parameters[0].toString());
 		}
-	
+
 		@Override
 		public Class<?> getType()
 		{
 			return String.class;
 		}
-		
+
 		@Override
 		public Class<?>[] getParametersType()
 		{
 			return SINGLE_STRING_PARAMETER;
 		}
-	
+
 		@Override
 		public boolean needsContext()
 		{
 			return false;
 		}
 	}
-	
+
 	private static class MessageCollectionMethod
 		implements DynamicMethod
 	{
 		private static final Class<?>[] SINGLE_STRING_PARAMETER = new Class[0];
-		
+
 		private final Messages manager;
 		private final ResourceLocation resource;
 		private final String propertyName;
-	
+
 		public MessageCollectionMethod(Messages manager, ResourceLocation resource, String propertyName)
 		{
 			this.manager = manager;
 			this.resource = resource;
 			this.propertyName = propertyName;
 		}
-		
+
 		@Override
 		public Object invoke(Context context, Object instance, Object... parameters)
 		{
 			MessageCollection messages = getMessages(manager, context, resource);
 			return new ScopedMessageCollection(messages, propertyName);
 		}
-	
+
 		@Override
 		public Class<?> getType()
 		{
 			return MessageCollection.class;
 		}
-		
+
 		@Override
 		public Class<?>[] getParametersType()
 		{
 			return SINGLE_STRING_PARAMETER;
 		}
-	
+
 		@Override
 		public boolean needsContext()
 		{

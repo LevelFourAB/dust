@@ -14,7 +14,7 @@ import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker for numeric operations.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -28,7 +28,7 @@ public class NumericOperationInvoker
 		DIVIDE,
 		MULTIPLY,
 		MODULO;
-		
+
 		public double calculateFp(Number in, Number out)
 		{
 			switch(this)
@@ -44,10 +44,10 @@ public class NumericOperationInvoker
 				case SUBTRACT:
 					return in.doubleValue() - out.doubleValue();
 			}
-			
+
 			throw new AssertionError("Unknown operation: " + this);
 		}
-		
+
 		public long calculate(Number in, Number out)
 		{
 			switch(this)
@@ -63,10 +63,10 @@ public class NumericOperationInvoker
 				case SUBTRACT:
 					return in.longValue() - out.longValue();
 			}
-			
+
 			throw new AssertionError("Unknown operation: " + this);
 		}
-		
+
 		public String getOperator()
 		{
 			switch(this)
@@ -82,7 +82,7 @@ public class NumericOperationInvoker
 				case SUBTRACT:
 					return "-";
 			}
-			
+
 			throw new AssertionError("Unknown operation: " + this);
 		}
 	}
@@ -98,7 +98,7 @@ public class NumericOperationInvoker
 		this.left = left;
 		this.right = right;
 		this.floatingPoint = floatingPoint;
-		
+
 		if(node instanceof AddNode)
 		{
 			operation = Operation.ADD;
@@ -124,25 +124,25 @@ public class NumericOperationInvoker
 			throw new AssertionError("Unknown node " + node);
 		}
 	}
-	
+
 	@Override
 	public Node getNode()
 	{
 		return node;
 	}
-	
+
 	@Override
 	public Class<?> getReturnClass()
 	{
 		return floatingPoint ? double.class : long.class;
 	}
-	
+
 	@Override
 	public ResolvedType getReturnType()
 	{
 		return null;
 	}
-	
+
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
@@ -150,12 +150,12 @@ public class NumericOperationInvoker
 		{
 			Number lv = (Number) left.get(errors, context, root, instance);
 			Number rv = (Number) right.get(errors, context, root, instance);
-			
+
 			if(floatingPoint)
 			{
 				return operation.calculateFp(lv, rv);
 			}
-			
+
 			return operation.calculate(lv, rv);
 		}
 		catch(Throwable t)
@@ -163,13 +163,13 @@ public class NumericOperationInvoker
 			throw errors.error(node, t);
 		}
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
 		return true;
 	}
-	
+
 	@Override
 	public void set(ErrorHandler errors, Context context, Object root,
 			Object instance, Object value)
@@ -182,19 +182,19 @@ public class NumericOperationInvoker
 	{
 		return false;
 	}
-	
+
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		String lj = left.toJavaGetter(errors, compiler, context);
 		String rj = right.toJavaGetter(errors, compiler, context);
-		
-		return "(" + compiler.unwrap(left.getReturnClass(), lj) 
+
+		return "(" + compiler.unwrap(left.getReturnClass(), lj)
 			+ " " + operation.getOperator() + " " +
-			compiler.unwrap(right.getReturnClass(), rj) 
+			compiler.unwrap(right.getReturnClass(), rj)
 			+ ")";
 	}
-	
+
 	@Override
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{

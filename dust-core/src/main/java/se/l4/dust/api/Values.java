@@ -6,12 +6,12 @@ public class Values
 	private Values()
 	{
 	}
-	
+
 	public static <T> Value<T> of(T value)
 	{
 		return new StaticValue<T>(value);
 	}
-	
+
 	public static class StaticValue<T>
 		implements Value<T>
 	{
@@ -21,31 +21,31 @@ public class Values
 		{
 			this.value = value;
 		}
-		
+
 		@Override
 		public T get(Context context, Object data)
 		{
 			return value;
 		}
-		
+
 		@Override
 		public boolean supportsGet()
 		{
 			return true;
 		}
-		
+
 		@Override
 		public void set(Context context, Object data, Object value)
 		{
 			throw new UnsupportedOperationException();
 		}
-		
+
 		@Override
 		public boolean supportsSet()
 		{
 			return false;
 		}
-		
+
 		@Override
 		public Class<? extends T> getType()
 		{

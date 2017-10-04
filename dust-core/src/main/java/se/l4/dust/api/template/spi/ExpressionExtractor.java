@@ -13,7 +13,7 @@ import com.google.common.collect.Lists;
 /**
  * Extractor of expressions within a larger text mass. This is used by template
  * parsers to extract variables and expressions.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -32,11 +32,11 @@ public class ExpressionExtractor
 		this.builder = builder;
 		this.errors = errors;
 	}
-	
+
 	/**
 	 * Parse a sequence of characters that have started on the current line
 	 * and column.
-	 * 
+	 *
 	 * @param line
 	 * @param column
 	 * @param value
@@ -45,9 +45,9 @@ public class ExpressionExtractor
 	public List<Value<?>> parse(ResourceLocation source, int line, int column, CharSequence value)
 	{
 		List<Value<?>> content = Lists.newArrayList();
-		
+
 		ParserState state = ParserState.WAITING;
-		
+
 		StringBuilder buffer = new StringBuilder();
 
 		int currentExpressionStart = column;
@@ -64,7 +64,7 @@ public class ExpressionExtractor
 			{
 				column++;
 			}
-			
+
 			switch(state)
 			{
 				case WAITING:
@@ -75,14 +75,14 @@ public class ExpressionExtractor
 						int jump = startToken.length() - 1;
 						i += jump;
 						column += jump;
-						
+
 						state = ParserState.MAIN;
-								
+
 						if(buffer.length() > 0)
 						{
 							content.add(Values.of(buffer.toString()));
 						}
-								
+
 						buffer.setLength(0);
 					}
 					else
@@ -90,14 +90,14 @@ public class ExpressionExtractor
 						buffer.append(c);
 					}
 					break;
-					
+
 				case MAIN:
 					if(isLocatedAt(value, i, endToken))
 					{
 						int jump = endToken.length() - 1;
 						i += jump;
 						column += jump;
-						
+
 						try
 						{
 							Value<?> v = builder.createDynamicContent(buffer.toString());
@@ -121,7 +121,7 @@ public class ExpressionExtractor
 					break;
 			}
 		}
-		
+
 		if(state != ParserState.WAITING)
 		{
 			errors.newError(currentExpressionStartLine, currentExpressionStart, "Unclosed expression");
@@ -133,19 +133,19 @@ public class ExpressionExtractor
 				content.add(Values.of(buffer.toString()));
 			}
 		}
-		
+
 		return content;
 	}
-	
+
 	private boolean isLocatedAt(CharSequence sequence, int index, String token)
 	{
 		int tokenLength = token.length();
-		
+
 		if(index < 0 || (index > sequence.length() - tokenLength))
 		{
 			return false;
 		}
-		
+
 		int offset = 0;
 		while(--tokenLength >= 0)
 		{
@@ -154,10 +154,10 @@ public class ExpressionExtractor
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	private enum ParserState
 	{
 		WAITING,

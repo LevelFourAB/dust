@@ -12,7 +12,7 @@ import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker that will create an array.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -31,25 +31,25 @@ public class ArrayInvoker
 		arrayType = Array.newInstance(componentType, 0).getClass();
 		this.values = values;
 	}
-	
+
 	@Override
 	public Node getNode()
 	{
 		return node;
 	}
-	
+
 	@Override
 	public Class<?> getReturnClass()
 	{
 		return arrayType;
 	}
-	
+
 	@Override
 	public ResolvedType getReturnType()
 	{
 		return null;
 	}
-	
+
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
@@ -59,29 +59,29 @@ public class ArrayInvoker
 			Object v = values[i].get(errors, context, root, root);
 			Array.set(result, i, v);
 		}
-		
+
 		return result;
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
 		return true;
 	}
-	
+
 	@Override
 	public void set(ErrorHandler errors, Context context, Object root,
 			Object instance, Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
 	}
-	
+
 	@Override
 	public boolean supportsSet()
 	{
 		return true;
 	}
-	
+
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
@@ -90,15 +90,15 @@ public class ArrayInvoker
 			.append("(new ")
 			.append(compiler.castNoParens(getReturnClass()))
 			.append(" {");
-		
+
 		for(int i=0, n=values.length; i<n; i++)
 		{
 			if(i > 0) builder.append(", ");
-			
+
 			Invoker value = values[i];
-			
+
 			String getter = value.toJavaGetter(errors, compiler, compiler.getRootContext());
-			
+
 			if(value.getReturnClass().isPrimitive() && ! componentType.isPrimitive())
 			{
 				// Wrap if non-primitive array with primitive input
@@ -106,25 +106,25 @@ public class ArrayInvoker
 			}
 			else
 			{
-				builder.append(getter);				
+				builder.append(getter);
 			}
 		}
-		
+
 		builder.append("})");
 		return builder.toString();
 	}
-	
+
 	@Override
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		return null;
 	}
-	
+
 	@Override
 	public String toString()
 	{
-		return getClass().getSimpleName() + "[componentType=" + componentType 
-			+ ", arrayType=" + arrayType + ", values=" + Arrays.toString(values) 
+		return getClass().getSimpleName() + "[componentType=" + componentType
+			+ ", arrayType=" + arrayType + ", values=" + Arrays.toString(values)
 			+ "]";
 	}
 

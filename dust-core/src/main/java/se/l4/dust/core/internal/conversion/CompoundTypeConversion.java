@@ -1,6 +1,6 @@
 /*
  * Copyright 2008 Andreas Holstenson
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import se.l4.dust.api.conversion.NonGenericConversion;
 
 /**
  * Compound conversion used for chaining two type conversions together.
- *  
+ *
  * @author Andreas Holstenson
  *
  */
@@ -28,25 +28,25 @@ public class CompoundTypeConversion
 {
 	private final NonGenericConversion<Object, Object> in;
 	private final NonGenericConversion<Object, Object> out;
-	
+
 	public CompoundTypeConversion(
-		NonGenericConversion<Object, Object> in, 
+		NonGenericConversion<Object, Object> in,
 		NonGenericConversion<Object, Object> out)
 	{
 		this.in = in;
 		this.out = out;
 	}
-	
+
 	public NonGenericConversion<Object, Object> getIn()
 	{
 		return in;
 	}
-	
+
 	public NonGenericConversion<Object, Object> getOut()
 	{
 		return out;
 	}
-	
+
 	public Object convert(Object in)
 	{
 		Object firstPass = this.in.convert(in);

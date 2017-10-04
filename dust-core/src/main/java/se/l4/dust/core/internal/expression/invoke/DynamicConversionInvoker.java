@@ -12,7 +12,7 @@ import com.google.common.primitives.Primitives;
 /**
  * Invoker that will attempt to use a dynamic conversion from the return
  * type of the wrapped invoker to a predetermined type.
- *  
+ *
  * @author Andreas Holstenson
  *
  */
@@ -57,7 +57,7 @@ public class DynamicConversionInvoker
 			throw errors.error(node, t);
 		}
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
@@ -69,7 +69,7 @@ public class DynamicConversionInvoker
 	{
 		throw errors.error(node, "Can not set value of this expression");
 	}
-	
+
 	@Override
 	public boolean supportsSet()
 	{
@@ -86,13 +86,13 @@ public class DynamicConversionInvoker
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		String in = compiler.addInput(TypeConverter.class, converter);
-		
+
 		Class<?> upper = Primitives.wrap(type);
-		String expr = "(" + compiler.cast(upper) + " " 
-			+ in + ".convert(" 
+		String expr = "(" + compiler.cast(upper) + " "
+			+ in + ".convert("
 			+ compiler.wrap(wrapped.getReturnClass(), wrapped.toJavaGetter(errors, compiler, context))
 			+ ", " + type.getName() + ".class))";
-		
+
 		if(type.isPrimitive())
 		{
 			return compiler.unwrap(upper, expr);

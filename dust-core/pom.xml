@@ -7,25 +7,25 @@
 		<artifactId>dust-base</artifactId>
 		<version>0.5-SNAPSHOT</version>
 	</parent>
-	
+
 	<artifactId>dust-core</artifactId>
 	<packaging>jar</packaging>
 	<name>${project.artifactId}</name>
-	
+
 
 	<dependencies>
 		<dependency>
- 			<groupId>se.l4.crayon</groupId>
- 			<artifactId>crayon-core</artifactId>
- 			<version>${crayon-version}</version>
- 		</dependency>
-		
+			<groupId>se.l4.crayon</groupId>
+			<artifactId>crayon-core</artifactId>
+			<version>${crayon-version}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>18.0</version>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.antlr</groupId>
 			<artifactId>antlr-runtime</artifactId>
@@ -47,42 +47,42 @@
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.10</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 			<version>0.9.9</version>
-			
+
 			<exclusions>
 				<exclusion>
 					<groupId>javassist</groupId>
 					<artifactId>javassist</artifactId>
 				</exclusion>
-				
+
 				<exclusion>
 					<groupId>com.google.guava</groupId>
-  					<artifactId>guava</artifactId>
+					<artifactId>guava</artifactId>
 				</exclusion>
 			</exclusions>
-        </dependency>
-        
-        <dependency>
-		    <groupId>org.javassist</groupId>
-		    <artifactId>javassist</artifactId>
-		    <version>3.19.0-GA</version>
-		</dependency>
-        
-        <dependency>
-		    <groupId>com.fasterxml</groupId>
-		    <artifactId>classmate</artifactId>
-		    <version>1.1.0</version>
+	</dependency>
+
+	<dependency>
+		<groupId>org.javassist</groupId>
+		<artifactId>javassist</artifactId>
+		<version>3.19.0-GA</version>
 		</dependency>
 
-		 <dependency>
-		 	<groupId>junit</groupId>
-		 	<artifactId>junit</artifactId>
-		 	<scope>test</scope>
-		 </dependency>
+	<dependency>
+		<groupId>com.fasterxml</groupId>
+		<artifactId>classmate</artifactId>
+		<version>1.1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -102,4 +102,3 @@
 		</plugins>
 	</build>
 </project>
-

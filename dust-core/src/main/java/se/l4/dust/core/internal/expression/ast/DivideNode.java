@@ -2,7 +2,7 @@ package se.l4.dust.core.internal.expression.ast;
 
 /**
  * Node for division between a left and a right part.
- * 
+ *
  * @author Andreas Holstenson
  *
  */

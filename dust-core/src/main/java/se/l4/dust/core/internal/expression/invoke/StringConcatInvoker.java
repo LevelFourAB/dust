@@ -26,7 +26,7 @@ public class StringConcatInvoker
 	{
 		return String.class;
 	}
-	
+
 	@Override
 	public ResolvedType getReturnType()
 	{
@@ -47,7 +47,7 @@ public class StringConcatInvoker
 			throw errors.error(node, t);
 		}
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
@@ -60,19 +60,19 @@ public class StringConcatInvoker
 	{
 		throw errors.error(node, "Can not set value of this expression");
 	}
-	
+
 	@Override
 	public boolean supportsSet()
 	{
 		return false;
 	}
-	
+
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		return "(" + left.toJavaGetter(errors, compiler, context) + " + " + right.toJavaGetter(errors, compiler, context) + ")";
 	}
-	
+
 	@Override
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{

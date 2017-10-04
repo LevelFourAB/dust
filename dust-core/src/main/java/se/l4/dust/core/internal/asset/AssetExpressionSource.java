@@ -15,7 +15,7 @@ import se.l4.dust.api.template.RenderingContext;
 
 /**
  * Property source for binding assets for use in templates.
- * 
+ *
  * @author andreas
  *
  */
@@ -23,13 +23,13 @@ public class AssetExpressionSource
 	implements ExpressionSource
 {
 	private final AssetMethod assetMethod;
-	
+
 	@Inject
 	public AssetExpressionSource(Assets assets, String namespace)
 	{
 		assetMethod = new AssetMethod(assets, namespace);
 	}
-	
+
 	@Override
 	public DynamicMethod getMethod(ExpressionEncounter encounter, String name, Class... parameters)
 	{
@@ -39,19 +39,19 @@ public class AssetExpressionSource
 			{
 				encounter.error("The " + name + " method takes one argument");
 			}
-			
+
 			return assetMethod;
 		}
-		
+
 		return null;
 	}
-	
+
 	@Override
 	public DynamicProperty getProperty(ExpressionEncounter encounter, String name)
 	{
 		return null;
 	}
-	
+
 	private class AssetMethod
 		implements DynamicMethod
 	{
@@ -63,7 +63,7 @@ public class AssetExpressionSource
 		{
 			this.assets = assets;
 			this.namespace = namespace;
-			
+
 			parameters = new Class[] { String.class };
 		}
 
@@ -79,7 +79,7 @@ public class AssetExpressionSource
 		{
 			return URI.class;
 		}
-		
+
 		@Override
 		public Class<?>[] getParametersType()
 		{

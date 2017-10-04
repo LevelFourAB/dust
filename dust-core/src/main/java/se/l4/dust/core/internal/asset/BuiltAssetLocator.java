@@ -15,7 +15,7 @@ public class BuiltAssetLocator
 	implements ResourceLocator
 {
 	private final Cache<Key, Resource> registered;
-	
+
 	@Inject
 	public BuiltAssetLocator()
 	{
@@ -33,17 +33,17 @@ public class BuiltAssetLocator
 	{
 		registered.put(new Key(ns, path), resource);
 	}
-	
+
 	public boolean contains(String ns, String path)
 	{
 		return registered.getIfPresent(new Key(ns, path)) != null;
 	}
-	
+
 	private static class Key
 	{
 		private final String namespace;
 		private final String path;
-		
+
 		public Key(String ns, String path)
 		{
 			this.namespace = ns;

@@ -18,7 +18,7 @@ import se.l4.dust.js.env.JavascriptEnvironment;
 /**
  * Processor that runs UglifyJS on JavaScript files and compresses them. This
  * processor can be used together with asset merging for maximum effect.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -37,7 +37,7 @@ public class UglifyProcessor
 		throws IOException
 	{
 		if(! encounter.isProduction()) return;
-		
+
 		Resource resource = encounter.getResource();
 		InputStream stream = resource.openStream();
 		ByteArrayOutputStream out = new ByteArrayOutputStream(resource.getContentLength());
@@ -54,9 +54,9 @@ public class UglifyProcessor
 		{
 			stream.close();
 		}
-		
+
 		String value = new String(out.toByteArray(), resource.getContentEncoding() != null ? resource.getContentEncoding() : "UTF-8");
-		
+
 		try
 		{
 			Object result = new JavascriptEnvironment()
@@ -65,7 +65,7 @@ public class UglifyProcessor
 				.add(UglifyProcessor.class.getResource("uglify-js.js"))
 				.define("jsSource", value)
 				.evaluate("uglify(jsSource, {});");
-			
+
 			MemoryResource res = new MemoryResource("text/css", "UTF-8", ((String) result).getBytes("UTF-8"));
 			encounter.replaceWith(res);
 		}

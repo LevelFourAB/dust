@@ -5,7 +5,7 @@ package se.l4.dust.api.conversion;
  * actual type conversions. To use this class the implementor must specify
  * the types properly as generic parameters to the class. If that is not
  * possible use {@link NonGenericConversion}.
- * 
+ *
  * @author Andreas Holstenson
  *
  * @param <I>
@@ -17,7 +17,7 @@ public interface Conversion<I, O>
 {
 	/**
 	 * Convert the given input.
-	 * 
+	 *
 	 * @param in
 	 * 		input
 	 * @return

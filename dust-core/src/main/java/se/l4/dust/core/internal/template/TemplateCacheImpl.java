@@ -33,7 +33,7 @@ import com.google.inject.Stage;
 
 /**
  * Implementation of {@link TemplateCache}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -45,13 +45,13 @@ public class TemplateCacheImpl
 
 	private final Namespaces namespaces;
 	private final ResourceVariantManager variants;
-	
+
 	private final Provider<TemplateBuilderImpl> templateBuilders;
 	private final XmlTemplateParser parser;
-	
+
 	private final InnerCache inner;
 
-	
+
 	@Inject
 	public TemplateCacheImpl(
 			Namespaces namespaces,
@@ -64,18 +64,18 @@ public class TemplateCacheImpl
 		this.variants = variants;
 		this.parser = parser;
 		this.templateBuilders = templateBuilders;
-		
-		inner = stage == Stage.DEVELOPMENT 
+
+		inner = stage == Stage.DEVELOPMENT
 			? new DevelopmentCache()
 			: new ProductionCache();
-		
+
 		logger.info("Template cache is in " + stage + " mode");
 	}
-	
+
 	/**
 	 * Resolve a template based on a class and possibly an annotation. This
 	 * is used internally to resolve a URL which used to load the template.
-	 * 
+	 *
 	 * @param c
 	 * @param annotation
 	 * @return
@@ -88,7 +88,7 @@ public class TemplateCacheImpl
 		ContextKey tpl = inner.getTemplateLocation(c);
 		return getTemplate(context, tpl.ctx, tpl.location);
 	}
-	
+
 	private ContextKey findTemplateLocation(Class<?> c)
 	{
 		Class<?> current = c;
@@ -99,10 +99,10 @@ public class TemplateCacheImpl
 			{
 				return findTemplateLocation(current, t);
 			}
-			
+
 			current = current.getSuperclass();
 		}
-		
+
 		return findTemplateLocation(c, "");
 	}
 
@@ -110,14 +110,14 @@ public class TemplateCacheImpl
 	{
 		return findTemplateLocation(c, annotation.value());
 	}
-	
+
 	private ContextKey findTemplateLocation(Class<?> c, String name)
 	{
 		if(name.equals(""))
 		{
-			name = c.getSimpleName() + ".xml"; 
+			name = c.getSimpleName() + ".xml";
 		}
-		
+
 		Namespace ns = namespaces.findNamespaceFor(c);
 		if(ns == null)
 		{
@@ -126,12 +126,12 @@ public class TemplateCacheImpl
 			{
 				throw new TemplateException("Could not find template " + name + " besides class " + c);
 			}
-			
+
 			return new ContextKey(c, new UrlLocation(url));
 		}
 		else
 		{
-			
+
 			String className = c.getName();
 			String pkg = className.substring(0, className.lastIndexOf('.'));
 			String relativePkg = ns.getPackage().equals(pkg) ? "" : pkg.substring(ns.getPackage().length() + 1);
@@ -139,13 +139,13 @@ public class TemplateCacheImpl
 			return new ContextKey(c, new NamespaceLocation(ns, resourceName));
 		}
 	}
-	
+
 	@Override
 	public ParsedTemplate getTemplate(Context context, Class<?> dataContext, ResourceLocation location)
 	{
 		return inner.getTemplate(context, dataContext, location);
 	}
-	
+
 	private ParsedTemplate loadTemplate(Class<?> dataContext, Resource resource)
 	{
 		try
@@ -154,35 +154,35 @@ public class TemplateCacheImpl
 			builder.setContext(resource.getLocation(), dataContext);
 
 			parser.parse(resource, builder);
-			
-			return builder.getTemplate(); 
+
+			return builder.getTemplate();
 		}
 		catch(IOException e)
 		{
 			throw new TemplateException("Unable to load " + resource + "; " + e.getMessage(), e);
 		}
 	}
-	
+
 	public void clear()
 	{
 		inner.clear();
 	}
-	
+
 	private interface InnerCache
 	{
 		ParsedTemplate getTemplate(Context context, Class<?> ctx, ResourceLocation location);
-		
+
 		ContextKey getTemplateLocation(Class<?> ctx);
-		
+
 		void clear();
 	}
-	
+
 	private class ProductionCache
 		implements InnerCache
 	{
 		private final Cache<Key, ParsedTemplate> templates;
 		private final LoadingCache<Class<?>, ContextKey> urlCache;
-		
+
 		public ProductionCache()
 		{
 			templates = CacheBuilder.newBuilder().build();
@@ -196,7 +196,7 @@ public class TemplateCacheImpl
 					}
 				});
 		}
-		
+
 		@Override
 		public ParsedTemplate getTemplate(Context context, Class<?> ctx, ResourceLocation location)
 		{
@@ -208,14 +208,14 @@ public class TemplateCacheImpl
 				{
 					throw new TemplateException("Unable to load " + location + "; Resource could not be found");
 				}
-				
+
 				Key key = new Key(ctx, resource.getLocation());
 				ParsedTemplate template = templates.getIfPresent(key);
 				if(template != null) return template;
-				
+
 				template = loadTemplate(ctx, resource);
 				templates.put(key, template);
-				
+
 				return template;
 			}
 			catch(IOException e)
@@ -223,7 +223,7 @@ public class TemplateCacheImpl
 				throw new TemplateException("Unable to load " + location + "; " + e.getMessage(), e);
 			}
 		}
-		
+
 		@Override
 		public ContextKey getTemplateLocation(Class<?> ctx)
 		{
@@ -238,23 +238,23 @@ public class TemplateCacheImpl
 				throw new TemplateException("Unable to get location for " + ctx + "; " + e.getCause().getMessage(), e.getCause());
 			}
 		}
-		
+
 		@Override
 		public void clear()
 		{
 		}
 	}
-	
+
 	private class DevelopmentCache
 		implements InnerCache
 	{
 		private final Cache<Key, DevParsedTemplate> templates;
-		
+
 		public DevelopmentCache()
 		{
 			templates = CacheBuilder.newBuilder().build();
 		}
-		
+
 		@Override
 		public ParsedTemplate getTemplate(Context context, Class<?> ctx, ResourceLocation location)
 		{
@@ -266,17 +266,17 @@ public class TemplateCacheImpl
 				{
 					throw new TemplateException("Unable to load " + location + "; Resource could not be found");
 				}
-				
+
 				Key key = new Key(ctx, resource.getLocation());
 				DevParsedTemplate template = templates.getIfPresent(key);
-				
+
 				if(template == null || template.resource.getLastModified() < resource.getLastModified())
 				{
 					// Modified, reload the template
 					template = new DevParsedTemplate(loadTemplate(ctx, resource), resource);
 					templates.put(key, template);
 				}
-				
+
 				return template;
 			}
 			catch(IOException e)
@@ -284,20 +284,20 @@ public class TemplateCacheImpl
 				throw new TemplateException("Unable to load " + location + "; " + e.getMessage(), e);
 			}
 		}
-		
+
 		@Override
 		public ContextKey getTemplateLocation(Class<?> ctx)
 		{
 			return findTemplateLocation(ctx);
 		}
-		
+
 		@Override
 		public void clear()
 		{
 			templates.invalidateAll();
 		}
 	}
-	
+
 	private static class DevParsedTemplate
 		extends ParsedTemplate
 	{
@@ -306,11 +306,11 @@ public class TemplateCacheImpl
 		public DevParsedTemplate(ParsedTemplate tpl, Resource resource)
 		{
 			super(tpl.getLocation(), tpl.getName(), tpl.getDocType(), tpl.getRoot(), tpl.getRawId());
-			
+
 			this.resource = resource;
 		}
 	}
-	
+
 	public static class Key
 	{
 		private final Class<?> context;
@@ -321,7 +321,7 @@ public class TemplateCacheImpl
 			this.context = context;
 			this.location = location;
 		}
-		
+
 		@Override
 		public int hashCode()
 		{
@@ -367,10 +367,10 @@ public class TemplateCacheImpl
 			return "Key{context=" + context + ", location=" + location + "}";
 		}
 	}
-	
+
 	/**
 	 * Key used to lookup URLs for classes.
-	 * 
+	 *
 	 * @author Andreas Holstenson
 	 *
 	 */

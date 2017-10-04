@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 /**
  * Indicate that a class is actually a component and can be used in templates.
  * This annotation is only required if using automated component discovery.
- * 
+ *
  * @author Andreas Holstenson
  *
  */

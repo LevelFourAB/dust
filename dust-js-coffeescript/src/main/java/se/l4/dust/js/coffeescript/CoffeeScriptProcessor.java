@@ -14,7 +14,7 @@ import se.l4.dust.js.env.JavascriptEnvironment;
 
 /**
  * Processor of CoffeeScripts.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -33,7 +33,7 @@ public class CoffeeScriptProcessor
 			encounter.replaceWith(cached);
 			return;
 		}
-		
+
 		Resource resource = encounter.getResource();
 		InputStream stream = resource.openStream();
 		ByteArrayOutputStream out = new ByteArrayOutputStream(resource.getContentLength());
@@ -50,9 +50,9 @@ public class CoffeeScriptProcessor
 		{
 			stream.close();
 		}
-		
+
 		String value = new String(out.toByteArray(), resource.getContentEncoding() != null ? resource.getContentEncoding() : "UTF-8");
-		
+
 		try
 		{
 			Object result = new JavascriptEnvironment()
@@ -60,7 +60,7 @@ public class CoffeeScriptProcessor
 				.add(CoffeeScriptProcessor.class.getResource("coffee-script.js"))
 				.define("code", value)
 				.evaluate("compileResource(code);");
-			
+
 			MemoryResource res = new MemoryResource("text/javascript", "UTF-8", ((String) result).getBytes("UTF-8"));
 			encounter
 				.cache("coffeescript", res)

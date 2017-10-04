@@ -32,7 +32,7 @@ public class IfMixin
 					encounter.skip();
 				}
 			}
-			
+
 			@Override
 			public void afterElement(ElementEncounter encounter)
 			{

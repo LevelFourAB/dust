@@ -4,7 +4,7 @@ import java.io.IOException;
 
 /**
  * Source of assets, used to support pluggable asset implementations.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -13,7 +13,7 @@ public interface ResourceLocator
 	/**
 	 * Attempt to locate a file within a given namespace, returning {@code null}
 	 * if no such asset could be found.
-	 *  
+	 *
 	 * @param ns
 	 * 		namespace of asset
 	 * @param pathToFile
@@ -23,6 +23,6 @@ public interface ResourceLocator
 	 */
 	Resource locate(String ns, String pathToFile)
 		throws IOException;
-	
-	
+
+
 }

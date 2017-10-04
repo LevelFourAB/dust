@@ -2,7 +2,7 @@ package se.l4.dust.api.expression;
 
 /**
  * Exception that indicates that a parse error has occurred.
- * 
+ *
  * @author Andreas Holstenson
  *
  */

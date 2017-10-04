@@ -29,7 +29,7 @@ import com.google.inject.Stage;
 /**
  * Processor of LESS style sheets. This processor will convert LESS files into
  * pure CSS files on the fly.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -43,7 +43,7 @@ public class LessProcessor
 	public LessProcessor(Stage stage, Resources resources)
 	{
 		this.resources = resources;
-		
+
 		development = stage != Stage.PRODUCTION;
 	}
 
@@ -57,14 +57,14 @@ public class LessProcessor
 			encounter.replaceWith(cached);
 			return;
 		}
-		
+
 		String path = encounter.getLocation().getName();
 		if(path.endsWith(".less"))
 		{
 			// Rewrite path to end with .css
 			path = path.substring(0, path.length() - 5) + ".css";
 		}
-		
+
 		Resource resource = encounter.getResource();
 		InputStream stream = resource.openStream();
 		ByteArrayOutputStream out = new ByteArrayOutputStream(resource.getContentLength());
@@ -81,9 +81,9 @@ public class LessProcessor
 		{
 			stream.close();
 		}
-		
+
 		String value = new String(out.toByteArray(), resource.getContentEncoding() != null ? resource.getContentEncoding() : "UTF-8");
-		
+
 		try
 		{
 			Object result = new JavascriptEnvironment(getClass().getName())
@@ -94,13 +94,13 @@ public class LessProcessor
 				.add(LessProcessor.class.getResource("processor.js"))
 				.define("css", value)
 				.evaluate("compileResource(css);");
-			
+
 			MemoryResource res = new MemoryResource("text/css", "UTF-8", ((String) result).getBytes("UTF-8"));
 			if(! development)
 			{
 				encounter.cache("lesscss", res);
 			}
-			
+
 			encounter.replaceWith(res);
 		}
 		catch(JavaScriptException e)
@@ -108,12 +108,12 @@ public class LessProcessor
 			throw processError(value, e);
 		}
 	}
-	
+
 	/**
 	 * Attempt to get a bit better output from the processor when a syntax
 	 * error occurs for the LESS file.
-	 * @param value2 
-	 * 
+	 * @param value2
+	 *
 	 * @param e
 	 * @return
 	 */
@@ -135,20 +135,20 @@ public class LessProcessor
 		{
 			return new IOException(e.getMessage());
 		}
-		
-		
+
+
 		int line = hasProperty(value, "line")
 			? ((Double) ScriptableObject.getProperty(value, "line")).intValue()
 			: -1;
-			
+
 		int column = hasProperty(value, "column")
 			? ((Double) ScriptableObject.getProperty(value, "column")).intValue()
 			: -1;
-			
+
 		CharSequence message = hasProperty(value, "message")
 			? (CharSequence) ScriptableObject.getProperty(value, "message")
 			: "Error during LESS processing";
-		
+
 		// Extract the line
 		int current = 0;
 		String text = null;
@@ -166,16 +166,16 @@ public class LessProcessor
 		catch(IOException e0)
 		{
 		}
-		
+
 		return new IOException(name + ": " + message + " (line " + line + ", column " + column + ")\n\n\t" + text);
 	}
-	
+
 	private boolean hasProperty(Scriptable obj, String prop)
 	{
 		return ScriptableObject.hasProperty(obj, prop)
 			&& ScriptableObject.getProperty(obj, prop) != null;
 	}
-	
+
 	public static class Importer
 	{
 		private final Resources resources;
@@ -186,7 +186,7 @@ public class LessProcessor
 			this.location = location;
 			this.resources = resources;
 		}
-		
+
 		public Object read(String name)
 			throws IOException
 		{
@@ -196,7 +196,7 @@ public class LessProcessor
 			{
 				throw new AssetException("Unable to process, " + newLocation + " was not found");
 			}
-			
+
 			InputStream stream = resource.openStream();
 			try
 			{

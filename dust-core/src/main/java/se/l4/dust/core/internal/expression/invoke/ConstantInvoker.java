@@ -10,7 +10,7 @@ import com.google.common.primitives.Primitives;
 
 /**
  * Invoker that holds a constant value.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -25,50 +25,50 @@ public class ConstantInvoker
 		this.node = node;
 		this.value = value;
 	}
-	
+
 	@Override
 	public Node getNode()
 	{
 		return node;
 	}
-	
+
 	@Override
 	public Class<?> getReturnClass()
 	{
 		return value == null ? void.class : Primitives.unwrap(value.getClass());
 	}
-	
+
 	@Override
 	public ResolvedType getReturnType()
 	{
 		return null;
 	}
-	
+
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
 		return value;
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
 		return true;
 	}
-	
+
 	@Override
 	public void set(ErrorHandler errors, Context context, Object root,
 			Object instance, Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
 	}
-	
+
 	@Override
 	public boolean supportsSet()
 	{
 		return false;
 	}
-	
+
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
@@ -96,7 +96,7 @@ public class ConstantInvoker
 			return compiler.addInput((Class) value.getClass(), value);
 		}
 	}
-	
+
 	@Override
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
@@ -131,7 +131,7 @@ public class ConstantInvoker
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString()
 	{

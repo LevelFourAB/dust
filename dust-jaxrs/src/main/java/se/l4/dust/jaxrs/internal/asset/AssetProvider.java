@@ -20,9 +20,9 @@ import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.resource.Resource;
 
 /**
- * Provider that servers asset files via a special URL beginning with 
+ * Provider that servers asset files via a special URL beginning with
  * {@code /asset}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -33,22 +33,22 @@ public class AssetProvider
 	private final Assets manager;
 	private final Namespaces namespaces;
 	private final Context context;
-	
+
 	@Inject
 	public AssetProvider(
-			Namespaces namespaces, 
+			Namespaces namespaces,
 			Assets manager)
 	{
 		this.namespaces = namespaces;
 		this.manager = manager;
-		
+
 		context = new Context()
 		{
 			@Override
 			public void putValue(Object key, Object value)
 			{
 			}
-			
+
 			@Override
 			public <T> T getValue(Object key)
 			{
@@ -56,11 +56,11 @@ public class AssetProvider
 			}
 		};
 	}
-	
+
 	@HEAD
 	@Path("{ns}/{path:.+}")
 	public Object head(
-			@PathParam("ns") String prefix, 
+			@PathParam("ns") String prefix,
 			@PathParam("path") String path)
 	{
 		Object result = serve(prefix, path, null);
@@ -68,20 +68,20 @@ public class AssetProvider
 		{
 			Asset asset = (Asset) result;
 			Resource resource = asset.getResource();
-			
+
 			return Response.ok()
 				.lastModified(new Date(resource.getLastModified()))
 				.type(AssetWriter.getMimeType(asset))
 				.build();
 		}
-		
+
 		return result;
 	}
-	
+
 	@GET
 	@Path("{ns}/{path:.+}")
 	public Object serve(
-			@PathParam("ns") String prefix, 
+			@PathParam("ns") String prefix,
 			@PathParam("path") String path,
 			@HeaderParam("If-Modified-Since") Date ifModifiedSince)
 	{
@@ -90,7 +90,7 @@ public class AssetProvider
 		{
 			return Response.status(404).build();
 		}
-		
+
 		int idx = path.lastIndexOf('.');
 		String checksum = null;
 		if(idx >= 0)
@@ -104,23 +104,23 @@ public class AssetProvider
 				path = path.substring(0, idx2) + "." + extension;
 			}
 		}
-		
+
 		Asset a = manager.locate(context, ns.getUri(), path);
 		if(a == null)
 		{
 			return Response.status(404).build();
 		}
-		
+
 		if(checksum != null && false == checksum.equals(a.getChecksum()))
 		{
 			return Response.status(404).build();
 		}
-		
+
 		if(ifModifiedSince != null && ifModifiedSince.getTime() > a.getResource().getLastModified())
 		{
 			return Response.status(304).build();
 		}
-		
+
 		return a;
 	}
 }

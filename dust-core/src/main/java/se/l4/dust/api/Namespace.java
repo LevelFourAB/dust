@@ -7,7 +7,7 @@ import se.l4.dust.api.resource.Resource;
 
 /**
  * Information about a namespace.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -15,38 +15,38 @@ public interface Namespace
 {
 	/**
 	 * Get the prefix of the namespace.
-	 * 
+	 *
 	 * @return
 	 */
 	String getPrefix();
-	
+
 	/**
 	 * Get the URI of the namespace.
-	 * 
+	 *
 	 * @return
 	 */
 	String getUri();
-	
+
 	/**
 	 * Get the version of the namespace.
-	 * 
+	 *
 	 * @return
 	 */
 	String getVersion();
-	
+
 	/**
 	 * Attempt to locate a resource within the given namespace.
-	 * 
+	 *
 	 * @param resource
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	Resource getResource(String resource)
 		throws IOException;
-	
+
 	/**
 	 * Attempt to locate a resource within the classpath of the namespace.
-	 * 
+	 *
 	 * @param resource
 	 * @return
 	 */
@@ -54,7 +54,7 @@ public interface Namespace
 
 	/**
 	 * Get the Java package of this namespace.
-	 * 
+	 *
 	 * @return
 	 */
 	String getPackage();

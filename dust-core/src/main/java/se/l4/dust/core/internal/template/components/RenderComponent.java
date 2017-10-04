@@ -26,7 +26,7 @@ public class RenderComponent
 	{
 		this.cache = cache;
 	}
-	
+
 	@Override
 	public void build(FragmentEncounter encounter)
 	{
@@ -39,32 +39,32 @@ public class RenderComponent
 			{
 				TemplateEmitterImpl emitter = (TemplateEmitterImpl) emitter_;
 				RenderingContext ctx = emitter.getContext();
-				
+
 				Object root = attr.get(ctx, emitter.getCurrentData());
 				if(root instanceof Emittable)
 				{
 					emitter.emit((Emittable) root);
 					return;
 				}
-				
-				// Process the template of the component 
+
+				// Process the template of the component
 				ParsedTemplate template = cache.getTemplate(ctx, root.getClass());
-				
+
 				// Switch to new context
 				Object current = emitter.getCurrentData();
 				Integer old = emitter.switchData(template.getRawId(), root);
-				
+
 				Integer oldComponent = emitter.switchComponent(template.getRawId(), null);
-				
+
 				DocType docType = template.getDocType();
 				if(docType != null)
 				{
 					output.docType(docType.getName(), docType.getPublicId(), docType.getSystemId());
 				}
-				
+
 				Emittable templateRoot = template.getRoot();
 				emitter.emit(templateRoot);
-				
+
 				// Switch context back
 				emitter.switchData(old, current);
 				emitter.switchComponent(oldComponent);

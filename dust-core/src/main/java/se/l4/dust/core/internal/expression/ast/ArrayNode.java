@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 /**
  * Node for an operation that creates an array.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -16,20 +16,20 @@ public class ArrayNode
 	public ArrayNode(int line, int position, Node[] values)
 	{
 		super(line, position);
-		
+
 		this.values = values;
 	}
 
 	/**
 	 * Get the values of this array.
-	 * 
+	 *
 	 * @return
 	 */
 	public Node[] getValues()
 	{
 		return values;
 	}
-	
+
 	@Override
 	public String toString()
 	{

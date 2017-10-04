@@ -15,18 +15,18 @@ public class NamespaceLocation
 		this.namespace = namespace;
 		this.name = name;
 	}
-	
+
 	public Namespace getNamespace()
 	{
 		return namespace;
 	}
-	
+
 	@Override
 	public String getName()
 	{
 		return name;
 	}
-	
+
 	@Override
 	public ResourceLocation withExtension(String newExtension)
 	{
@@ -34,14 +34,14 @@ public class NamespaceLocation
 		String firstPart = idx > 0 ? name.substring(0, idx) : name;
 		return new NamespaceLocation(namespace, firstPart + "." + newExtension);
 	}
-	
+
 	@Override
 	public ResourceLocation resolve(String path)
 	{
 		String newName = URI.create(name).resolve(path).toString();
 		return new NamespaceLocation(namespace, newName);
 	}
-	
+
 	@Override
 	public String toString()
 	{

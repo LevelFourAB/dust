@@ -34,7 +34,7 @@ import com.google.inject.Stage;
  * in code and allow them to be injected via Guice. This filter is not required
  * for the use of Dust and should not be included if you intend to declare
  * filters and servlets in your web.xml.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -42,29 +42,29 @@ public class DustFilter
 	implements Filter
 {
 	private Production impl;
-	
+
 	public DustFilter()
 	{
 	}
-	
+
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain)
 		throws IOException, ServletException
 	{
 		impl.doFilter(request, response, chain);
 	}
-	
+
 	public void init(FilterConfig filterConfig)
 		throws ServletException
 	{
 		// Get our needed services
 		ServletContext ctx = filterConfig.getServletContext();
 		Injector injector = (Injector) ctx.getAttribute(Injector.class.getName());
-		
+
 		// Create the real implementation
 		Stage stage = injector.getInstance(Stage.class);
 		impl = injector.getInstance(stage == Stage.PRODUCTION ? Production.class : Development.class);
-		
+
 		// Initialize all filters and servlets
 		impl.doInit();
 	}
@@ -73,22 +73,22 @@ public class DustFilter
 	{
 		impl.destroy();
 	}
-	
+
 	private static class Production
 	{
 		protected final ServletBinderImpl binder;
 		protected final ServletContext ctx;
 		protected final Provider<RenderingContext> contexts;
-		
+
 		@Inject
-		public Production(ServletBinderImpl binder, ServletContext ctx, 
+		public Production(ServletBinderImpl binder, ServletContext ctx,
 				Provider<RenderingContext> contexts)
 		{
 			this.binder = binder;
 			this.ctx = ctx;
 			this.contexts = contexts;
 		}
-		
+
 		public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException
 		{
@@ -99,10 +99,10 @@ public class DustFilter
 					chain
 				)
 			);
-			
+
 			runChain(innerChain, request, response);
 		}
-		
+
 		protected void runChain(FilterChain chain, ServletRequest request, ServletResponse response)
 			throws IOException, ServletException
 		{
@@ -114,23 +114,23 @@ public class DustFilter
 				{
 					((WebRenderingContext) context).setup((HttpServletRequest) request);
 				}
-				
+
 				WebScopes.init((HttpServletRequest) request, (HttpServletResponse) response);
-				
+
 				chain.doFilter(request, response);
 			}
 			finally
 			{
 				WebScopes.clear();
-				
+
 				Scopes.clearActiveContext();
 			}
 		}
-		
+
 		public void destroy()
 		{
 			Set<Object> destroyed = new HashSet<Object>();
-			
+
 			for(FilterEntry e : binder.getFilters())
 			{
 				if(destroyed.add(e.getFilter()))
@@ -138,7 +138,7 @@ public class DustFilter
 					e.destroy();
 				}
 			}
-			
+
 			for(ServletEntry e : binder.getServlets())
 			{
 				if(destroyed.add(e.getServlet()))
@@ -147,12 +147,12 @@ public class DustFilter
 				}
 			}
 		}
-		
+
 		public void doInit()
 			throws ServletException
 		{
 			Set<Object> inited = new HashSet<Object>();
-			
+
 			for(FilterEntry e : binder.getFilters())
 			{
 				if(inited.add(e.getFilter()))
@@ -160,7 +160,7 @@ public class DustFilter
 					e.init(ctx);
 				}
 			}
-			
+
 			for(ServletEntry e : binder.getServlets())
 			{
 				if(inited.add(e.getServlet()))
@@ -170,7 +170,7 @@ public class DustFilter
 			}
 		}
 	}
-	
+
 	private static class Development
 		extends Production
 	{
@@ -184,13 +184,13 @@ public class DustFilter
 			super(binder, ctx, contexts);
 			this.discovery = discovery;
 		}
-		
+
 		@Override
 		public void doFilter(final ServletRequest request, final ServletResponse response, FilterChain chain)
 			throws IOException, ServletException
 		{
 			DevelopmentReloadChain reload = new DevelopmentReloadChain(discovery, chain);
-			
+
 			final FilterChainImpl innerChain = new FilterChainImpl(
 				binder.getFilters(),
 				new ServletChain(
@@ -198,29 +198,29 @@ public class DustFilter
 					reload
 				)
 			);
-			
+
 			reload.self = innerChain;
-			
+
 			runChain(innerChain, request, response);
 		}
 	}
-	
+
 	private static class DevelopmentReloadChain
 		implements FilterChain
 	{
 		private final NamespaceDiscovery discovery;
 		private final FilterChain chain;
-		
+
 		private FilterChain self;
 		private boolean first;
-		
+
 		public DevelopmentReloadChain(NamespaceDiscovery discovery, FilterChain chain)
 		{
 			this.discovery = discovery;
 			this.chain = chain;
 			first = true;
 		}
-		
+
 		@Override
 		public void doFilter(ServletRequest request, ServletResponse response)
 			throws IOException, ServletException
@@ -228,13 +228,13 @@ public class DustFilter
 			if(first)
 			{
 				first = false;
-				
+
 				/*
 				 * If we are the first attempt and nothing can be found
-				 * try to reindex all namespaces. 
+				 * try to reindex all namespaces.
 				 */
 				discovery.performDiscovery();
-				
+
 				self.doFilter(request, response);
 			}
 			else
@@ -243,5 +243,5 @@ public class DustFilter
 			}
 		}
 	}
-	
+
 }

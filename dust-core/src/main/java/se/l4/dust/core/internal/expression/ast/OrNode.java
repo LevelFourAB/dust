@@ -2,7 +2,7 @@ package se.l4.dust.core.internal.expression.ast;
 
 /**
  * Node for a logical or operation.
- * 
+ *
  * @author Andreas Holstenson
  *
  */

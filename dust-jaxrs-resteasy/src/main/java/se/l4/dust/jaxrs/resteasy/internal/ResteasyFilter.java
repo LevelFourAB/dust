@@ -30,7 +30,7 @@ import com.google.inject.Singleton;
 /**
  * Filter that specifically works with Resteasy. This filter will push the
  * proper objects onto the Resteasy stack.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -40,23 +40,23 @@ public class ResteasyFilter
 {
 	private ServletContainerDispatcher servletContainerDispatcher;
 	private ServletContext servletContext;
-	
+
 	public ResteasyFilter()
 	{
 	}
-	
+
 	public void init(FilterConfig filterConfig)
 		throws ServletException
 	{
 		servletContext = filterConfig.getServletContext();
-		
+
 		servletContainerDispatcher = new ServletContainerDispatcher();
 		FilterBootstrap bootstrap = new FilterBootstrap(filterConfig);
 		servletContainerDispatcher.init(filterConfig.getServletContext(), bootstrap, this, this);
 		servletContainerDispatcher.getDispatcher().getDefaultContextObjects().put(FilterConfig.class, filterConfig);
 	}
 
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) 
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 		throws IOException, ServletException
 	{
 		try
@@ -64,7 +64,7 @@ public class ResteasyFilter
 			servletContainerDispatcher.service(
 				((HttpServletRequest) request).getMethod(),
 				(HttpServletRequest) request,
-				(HttpServletResponse) response, 
+				(HttpServletResponse) response,
 				false
 			);
 		}
@@ -78,7 +78,7 @@ public class ResteasyFilter
 	{
 		servletContainerDispatcher.destroy();
 	}
-	
+
 	public HttpRequest createResteasyHttpRequest(String httpMethod,
 			HttpServletRequest request, ResteasyHttpHeaders headers,
 			ResteasyUriInfo uriInfo, HttpResponse theResponse,

@@ -15,7 +15,7 @@ public class RawComponent
 	public RawComponent()
 	{
 	}
-	
+
 	@Override
 	public void build(FragmentEncounter encounter)
 	{

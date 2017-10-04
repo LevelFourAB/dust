@@ -12,7 +12,7 @@ import com.google.common.collect.Maps;
 /**
  * Element abstraction. This is used to represent tags and components in the
  * parsed template.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -21,27 +21,27 @@ public abstract class Element
 {
 	private static final Content[] EMPTY_OBJECTS = new Content[0];
 	private static final Attribute<?>[] EMPTY_ATTRS = new Attribute[0];
-	
+
 	protected final String name;
-	
+
 	protected Attribute<?>[] attributes;
 	protected Emittable[] contents;
-	
+
 	private Map<String, Emittable> parameters;
-	
+
 	public Element(String name)
 	{
 		this.name = name;
-		
+
 		contents = EMPTY_OBJECTS;
-		
+
 		this.attributes = EMPTY_ATTRS;
 	}
-	
+
 	/**
 	 * Add content to this element, content may be anything that implements
 	 * {@link Content}.
-	 * 
+	 *
 	 * @param object
 	 * @return
 	 */
@@ -50,13 +50,13 @@ public abstract class Element
 		Emittable[] result = new Emittable[contents.length + 1];
 		System.arraycopy(contents, 0, result, 0, contents.length);
 		result[contents.length] = object;
-		
+
 		contents = result;
 	}
-	
+
 	/**
 	 * Add content to this element, see {@link #addContent(Content)}.
-	 * 
+	 *
 	 * @param objects
 	 * @return
 	 */
@@ -67,18 +67,18 @@ public abstract class Element
 		{
 			result.add(e);
 		}
-		
+
 		for(Emittable e : objects)
 		{
 			result.add(e);
 		}
-		
+
 		contents = result.toArray(new Emittable[result.size()]);
 	}
-	
+
 	/**
 	 * Prepend content to this element.
-	 * 
+	 *
 	 * @param objects
 	 * @return
 	 */
@@ -86,16 +86,16 @@ public abstract class Element
 	{
 		Emittable[] result = new Emittable[contents.length + objects.size()];
 		System.arraycopy(contents, 0, result, objects.size(), contents.length);
-		
+
 		int index = 0;
 		for(Emittable o : objects)
 		{
 			result[index++] = o;
 		}
-		
+
 		contents = result;
 	}
-	
+
 	public void replaceContent(Emittable existing, Emittable newContent)
 	{
 		for(int i=0, n=contents.length; i<n; i++)
@@ -106,15 +106,15 @@ public abstract class Element
 				return;
 			}
 		}
-		
+
 		throw new IllegalArgumentException("No such content");
 	}
-	
+
 	public void setContents(Content[] newContent)
 	{
 		this.contents = newContent;
 	}
-	
+
 	public void addAttribute(Attribute<?> attribute)
 	{
 		// Check for existing attribute
@@ -127,35 +127,35 @@ public abstract class Element
 				return;
 			}
 		}
-		
+
 		// New attribute
 		Attribute[] result = new Attribute[attributes.length + 1];
 		System.arraycopy(attributes, 0, result, 0, attributes.length);
 		result[attributes.length] = attribute;
 		attributes = result;
 	}
-	
+
 	public String getName()
 	{
 		return name;
 	}
-	
+
 	public Attribute<?>[] getAttributes()
 	{
 		return attributes;
 	}
-	
+
 	public Emittable[] getRawContents()
 	{
 		return contents;
 	}
-	
+
 	@Override
 	public String toString()
 	{
 		return "Element[" + name + "]";
 	}
-	
+
 	public Attribute<?> getAttribute(String name)
 	{
 		for(Attribute<?> a : attributes)
@@ -165,7 +165,7 @@ public abstract class Element
 				return a;
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -173,33 +173,33 @@ public abstract class Element
 //	{
 //		this.attributes = attributes;
 //	}
-	
+
 	@Override
 	public int getLine()
 	{
 		return line;
 	}
-	
+
 	@Override
 	public int getColumn()
 	{
 		return column;
 	}
-	
+
 	public Emittable getParameter(String name)
 	{
 		if(parameters == null) return null;
-		
+
 		return parameters.get(name);
 	}
-	
+
 	public void addParameter(String name, Emittable content)
 	{
 		if(parameters == null) parameters = Maps.newHashMap();
-		
+
 		parameters.put(name, content);
 	}
-	
+
 
 	public void adoptParameters(Element e)
 	{

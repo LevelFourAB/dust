@@ -30,7 +30,7 @@ import com.google.javascript.jscomp.SourceFile;
 /**
  * The actual processor used for Closure compilation, do not use directly,
  * instead use {@link Closure}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -41,7 +41,7 @@ public class ClosureAssetProcessor
 	private final boolean multiThreaded;
 	private final boolean activeInDevelopment;
 	private final LanguageMode languageMode;
-	
+
 	private static final List<String> DEFAULT_EXTERNS_NAMES = ImmutableList.of(
 		"es3.js", "es5.js", "w3c_event.js", "w3c_event3.js",
 		"gecko_event.js", "ie_event.js", "webkit_event.js",
@@ -58,8 +58,8 @@ public class ClosureAssetProcessor
 	);
 
 	public ClosureAssetProcessor(
-			CompilationLevel level, 
-			boolean multiThreaded, 
+			CompilationLevel level,
+			boolean multiThreaded,
 			boolean activeInDevelopment,
 			LanguageMode languageMode)
 	{
@@ -78,33 +78,33 @@ public class ClosureAssetProcessor
 			// Not running in production and not set to active
 			return;
 		}
-		
+
 		Resource cached = encounter.getCached("closure");
 		if(cached != null)
 		{
 			encounter.replaceWith(cached);
 			return;
 		}
-		
+
 		Compiler.setLoggingLevel(Level.WARNING);
-		
+
 		Compiler compiler = new Compiler();
-		
+
 		if(! multiThreaded)
 		{
 			// Threading is disabled, servlet environment is usually single-threaded
 			compiler.disableThreads();
 		}
-		
+
 		CompilerOptions options = new CompilerOptions();
 		level.setOptionsForCompilationLevel(options);
-		
+
 		if(languageMode != null)
 		{
 			options.setLanguageIn(languageMode);
 			options.setLanguageOut(languageMode);
 		}
-		
+
 		InputStream input = CommandLineRunner.class.getResourceAsStream("/externs.zip");
 
 		ZipInputStream zip = new ZipInputStream(input);
@@ -114,13 +114,13 @@ public class ClosureAssetProcessor
 			BufferedInputStream entryStream = new BufferedInputStream(ByteStreams.limit(zip, entry.getSize()));
 			externsMap.put(entry.getName(), SourceFile.fromInputStream("externs.zip//" + entry.getName(), entryStream));
 		}
-		
+
 		List<SourceFile> externs = new ArrayList<SourceFile>();
 		for(String key : DEFAULT_EXTERNS_NAMES)
 		{
 			externs.add(externsMap.get(key));
 		}
-		
+
 		JSModule module = new JSModule("result");
 		module.add(SourceFile.fromInputStream(encounter.getLocation().getName(), encounter.getResource().openStream()));
 		Result result = compiler.compileModules(externs, ImmutableList.of(module), options);
@@ -128,9 +128,9 @@ public class ClosureAssetProcessor
 		{
 			throw new IOException("Unable to convert; Please check log");
 		}
-		
+
 		String source = compiler.toSource();
-		
+
 		MemoryResource mr = new MemoryResource("text/javascript", "UTF-8", source.getBytes("UTF-8"));
 		encounter
 			.cache("closure", mr)

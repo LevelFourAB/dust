@@ -2,7 +2,7 @@ package se.l4.dust.core.internal.expression.ast;
 
 /**
  * Node that represents a static keyword such as {@code true} of {@code false}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -18,19 +18,19 @@ public class KeywordNode
 		NULL,
 		THIS
 	}
-	
+
 	public KeywordNode(int line, int position, Type type)
 	{
 		super(line, position);
-		
+
 		this.type = type;
 	}
-	
+
 	public Type getType()
 	{
 		return type;
 	}
-	
+
 	@Override
 	public String toString()
 	{

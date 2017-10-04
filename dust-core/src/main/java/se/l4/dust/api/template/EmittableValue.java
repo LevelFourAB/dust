@@ -16,7 +16,7 @@ public class EmittableValue<T>
 		this.value = value;
 		this.conversion = conversion;
 	}
-	
+
 	@Override
 	public void emit(TemplateEmitter emitter, TemplateOutputStream output)
 		throws IOException

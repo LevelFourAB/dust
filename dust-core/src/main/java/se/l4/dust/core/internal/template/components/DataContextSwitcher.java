@@ -18,7 +18,7 @@ public class DataContextSwitcher
 		this.id = id;
 		this.content = content;
 	}
-	
+
 	@Override
 	public void emit(TemplateEmitter emitter, TemplateOutputStream out)
 		throws IOException
@@ -26,13 +26,13 @@ public class DataContextSwitcher
 		TemplateEmitterImpl emitterImpl = (TemplateEmitterImpl) emitter;
 		Integer old = emitterImpl.switchData(id);
 		Integer oldC = emitterImpl.switchComponent(id);
-		
+
 		emitterImpl.emit(content);
-		
+
 		emitterImpl.switchComponent(oldC);
 		emitterImpl.switchData(old);
 	}
-	
+
 	@Override
 	public String toString()
 	{

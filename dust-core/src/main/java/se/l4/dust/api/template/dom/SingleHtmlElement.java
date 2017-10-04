@@ -28,7 +28,7 @@ public class SingleHtmlElement
 	{
 		throw new TemplateException("<" + name + "> can not have any contents");
 	}
-	
+
 	@Override
 	public void addContent(Iterable<? extends Emittable> objects)
 	{

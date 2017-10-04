@@ -11,7 +11,7 @@ import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker that gets a specific index from an array.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -54,7 +54,7 @@ public class ArrayIndexInvoker
 			throw errors.error(node, t);
 		}
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
@@ -67,19 +67,19 @@ public class ArrayIndexInvoker
 	{
 		throw errors.error(node, "Can not set value of this expression");
 	}
-	
+
 	@Override
 	public boolean supportsSet()
 	{
 		return false;
 	}
-	
+
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		return context + "[" + index.toJavaGetter(errors, compiler, context) + "]";
 	}
-	
+
 	@Override
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{

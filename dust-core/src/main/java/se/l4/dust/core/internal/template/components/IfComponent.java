@@ -18,17 +18,17 @@ public class IfComponent
 	public IfComponent()
 	{
 	}
-	
+
 	@Override
 	public void build(FragmentEncounter encounter)
 	{
 		Value<Boolean> test = encounter.getAttribute("test", Boolean.class, true);
 		Emittable elseContents = encounter.findParameter("else");
-		
+
 		encounter.replaceWith(new Component(test, elseContents, encounter.getBody()));
 	}
-	
-	
+
+
 	public static class Component
 		implements Emittable
 	{
@@ -44,14 +44,14 @@ public class IfComponent
 			this.content = content;
 			this.elseContents = elseContents;
 		}
-		
+
 		@Override
 		public void emit(TemplateEmitter emitter, TemplateOutputStream output)
 			throws IOException
 		{
 			Object data = emitter.getObject();
 			Boolean value = test.get(emitter.getContext(), data);
-			
+
 			if(Boolean.TRUE.equals(value))
 			{
 				emitter.emit(content);

@@ -16,7 +16,7 @@ import com.google.common.io.Closeables;
 
 /**
  * Processor that will compress CSS resources.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -32,18 +32,18 @@ public class CssCompressProcessor
 		try
 		{
 			CssCompressor compressor = new CssCompressor(new InputStreamReader(stream, Charsets.UTF_8));
-			
+
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			OutputStreamWriter writer = new OutputStreamWriter(out, Charsets.UTF_8);
 			compressor.compress(writer, -1);
 			writer.flush();
-			
+
 			MemoryResource res = new MemoryResource(
-				resource.getContentType(), 
-				resource.getContentEncoding(), 
+				resource.getContentType(),
+				resource.getContentEncoding(),
 				out.toByteArray()
 			);
-			
+
 			encounter.replaceWith(res);
 		}
 		finally

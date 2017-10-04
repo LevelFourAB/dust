@@ -22,7 +22,7 @@ import se.l4.dust.api.resource.variant.ResourceVariantResolution;
 
 /**
  * Test for the {@link ResourceVariantManager}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -34,11 +34,11 @@ public class ResourceVariantTest
 	public void before()
 	{
 		ResourcesImpl resources = new ResourcesImpl();
-		
+
 		manager = new ResourceVariantManagerImpl(resources);
 		manager.addSource(new LocaleVariantSource());
 	}
-	
+
 	@Test
 	public void testNoLocale()
 		throws IOException
@@ -47,7 +47,7 @@ public class ResourceVariantTest
 		ResourceVariantResolution result = manager.resolve(ctx, new NamespaceLocation(createFakeNamespace(), "test.html"));
 		assertThat(result.getName(), is("test.html"));
 	}
-	
+
 	@Test
 	public void testWithLocale()
 		throws IOException
@@ -57,7 +57,7 @@ public class ResourceVariantTest
 		ResourceVariantResolution result = manager.resolve(ctx, new NamespaceLocation(createFakeNamespace(), "test.html"));
 		assertThat(result.getName(), is("test.en.html"));
 	}
-	
+
 	private Namespace createFakeNamespace()
 	{
 		return new Namespace()
@@ -67,32 +67,32 @@ public class ResourceVariantTest
 			{
 				return null;
 			}
-			
+
 			@Override
 			public String getUri()
 			{
 				return null;
 			}
-			
+
 			@Override
 			public Resource getResource(String resource)
 				throws IOException
 			{
 				return new MemoryResource("", "", (byte[]) null);
 			}
-			
+
 			@Override
 			public String getPrefix()
 			{
 				return null;
 			}
-			
+
 			@Override
 			public String getPackage()
 			{
 				return null;
 			}
-			
+
 			@Override
 			public URL getClasspathResource(String resource)
 			{

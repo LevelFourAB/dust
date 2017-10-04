@@ -28,7 +28,7 @@ public class CoffeeScriptTest
 		Injector injector = Guice.createInjector(Stage.DEVELOPMENT, new TestModule());
 		injector.getInstance(Crayon.class).start();
 		CoffeeScriptProcessor processor = injector.getInstance(CoffeeScriptProcessor.class);
-		
+
 		final UrlResource resource = new UrlResource(null, getClass().getResource("test.coffee"));
 		processor.process(new AssetEncounter()
 		{
@@ -37,37 +37,37 @@ public class CoffeeScriptTest
 			{
 				return this;
 			}
-			
+
 			@Override
 			public boolean isProduction()
 			{
 				return false;
 			}
-			
+
 			@Override
 			public ResourceLocation getLocation()
 			{
 				return resource.getLocation();
 			}
-			
+
 			@Override
 			public Resource getResource()
 			{
 				return resource;
 			}
-			
+
 			@Override
 			public List<Resource> getResources()
 			{
 				return Collections.<Resource>singletonList(resource);
 			}
-			
+
 			@Override
 			public AssetEncounter cache(String id, Resource resource)
 			{
 				return this;
 			}
-			
+
 			@Override
 			public Resource getCached(String id)
 			{
@@ -75,7 +75,7 @@ public class CoffeeScriptTest
 			}
 		});
 	}
-	
+
 	public static class TestModule
 		extends CrayonModule
 	{
@@ -83,7 +83,7 @@ public class CoffeeScriptTest
 		protected void configure()
 		{
 		}
-		
+
 		@NamespaceBinding
 		public void bindNamespace(Namespaces manager)
 		{

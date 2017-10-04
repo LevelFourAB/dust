@@ -4,7 +4,7 @@ import se.l4.dust.api.conversion.Conversion;
 
 /**
  * Conversion between a number and a long.
- * 
+ *
  * @author Andreas Holstenson
  *
  */

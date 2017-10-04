@@ -6,7 +6,7 @@ import se.l4.dust.api.resource.UrlLocation;
 
 /**
  * Exception thrown when loading of an asset fails.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -34,18 +34,18 @@ public class AssetException
 	{
 		super(cause);
 	}
-	
+
 	public AssetException withLocation(ResourceLocation location)
 	{
 		this.location = location;
 		return this;
 	}
-	
+
 	public ResourceLocation getLocation()
 	{
 		return location;
 	}
-	
+
 	@Override
 	public String getMessage()
 	{
@@ -53,7 +53,7 @@ public class AssetException
 		{
 			return super.getMessage();
 		}
-		
+
 		if(location instanceof NamespaceLocation)
 		{
 			NamespaceLocation nl = (NamespaceLocation) location;
@@ -63,8 +63,8 @@ public class AssetException
 		{
 			return location.getName() + ": " + super.getMessage();
 		}
-		
+
 		return location + ": " + super.getMessage();
 	}
-	
+
 }

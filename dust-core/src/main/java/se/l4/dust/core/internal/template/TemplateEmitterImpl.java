@@ -21,9 +21,9 @@ import se.l4.dust.api.template.mixin.ElementWrapper;
 import com.google.common.collect.Maps;
 
 /**
- * Emitter of templates. Takes a {@link ParsedTemplate} and processes it 
+ * Emitter of templates. Takes a {@link ParsedTemplate} and processes it
  * sending the results to {@link TemplateOutputStream}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -36,50 +36,50 @@ public class TemplateEmitterImpl
 	private final String[] attrsCache;
 	private final HashMap<Integer, Emittable> componentMap;
 	private final HashMap<Integer, Object> dataMap;
-	
+
 	private final ElementEncounterImpl encounter;
-	
+
 	private Object current;
 	private Integer currentId;
-	
+
 	private TemplateOutputStream out;
-	
+
 	private Emittable currentComponent;
 	private Integer currentComponentId;
-	
+
 	private Map<String, String> extraAttributes;
-	
+
 	public TemplateEmitterImpl(ParsedTemplate template, RenderingContext ctx, Object data)
 	{
 		this.template = template;
 		this.ctx = ctx;
-		
+
 		dataMap = new HashMap<>(32);
 		componentMap = new HashMap<>(32);
-		
+
 		current = data;
 		currentId = template.getRawId();
 		dataMap.put(currentId, current);
-		
+
 		componentMap.put(currentId, template.getRoot());
 		attrsCache = new String[20*2];
-		
+
 		encounter = new ElementEncounterImpl();
 		extraAttributes = Maps.newHashMap();
 	}
-	
+
 	public void process(TemplateOutputStream out)
 		throws IOException
 	{
 		this.out = out;
-		
+
 		DocType docType = template.getDocType();
 		if(docType != null)
 		{
 			// Emit the document type
 			out.docType(docType.getName(), docType.getPublicId(), docType.getSystemId());
 		}
-		
+
 		emit(template.getRoot());
 	}
 
@@ -88,7 +88,7 @@ public class TemplateEmitterImpl
 	{
 		return createAttributes(attributes, current);
 	}
-	
+
 	private String[] createAttributes(Attribute<String>[] attributes, Object data)
 	{
 		String[] attrs;
@@ -101,13 +101,13 @@ public class TemplateEmitterImpl
 			attrs = attrsCache;
 			attrs[attributes.length * 2] = null;
 		}
-		
+
 		for(int i=0, n=attributes.length*2; i<n; i+=2)
 		{
 			Attribute<String> attr = attributes[i/2];
 			attrs[i] = attr.getName();
 			String value = attr.get(ctx, data);
-			
+
 			String extra = extraAttributes.remove(attr.getName());
 			if(extra != null)
 			{
@@ -121,10 +121,10 @@ public class TemplateEmitterImpl
 					value += ' ' + extra;
 				}
 			}
-			
+
 			attrs[i+1] = value;
 		}
-		
+
 		if(! extraAttributes.isEmpty())
 		{
 			int i = attributes.length;
@@ -132,7 +132,7 @@ public class TemplateEmitterImpl
 			{
 				attrs = Arrays.copyOf(attrs, i + extraAttributes.size()*2);
 			}
-			
+
 			for(Map.Entry<String, String> e : extraAttributes.entrySet())
 			{
 				attrs[i] = e.getKey();
@@ -141,10 +141,10 @@ public class TemplateEmitterImpl
 			}
 		}
 		extraAttributes.clear();
-		
+
 		return attrs;
 	}
-	
+
 	@Override
 	public String[] createAttributes(String attr1, Object value1)
 	{
@@ -154,7 +154,7 @@ public class TemplateEmitterImpl
 		attrs[2] = null;
 		return attrs;
 	}
-	
+
 	@Override
 	public String[] createAttributes(String attr1, Object value1,
 			String attr2, Object value2)
@@ -167,7 +167,7 @@ public class TemplateEmitterImpl
 		attrs[4] = null;
 		return attrs;
 	}
-	
+
 	@Override
 	public String[] createAttributes(String attr1, Object value1,
 			String attr2, Object value2,
@@ -183,8 +183,8 @@ public class TemplateEmitterImpl
 		attrs[6] = null;
 		return attrs;
 	}
-	
-	
+
+
 	@Override
 	public Emittable getParameter(String name)
 	{
@@ -192,7 +192,7 @@ public class TemplateEmitterImpl
 		{
 			return ((Element) currentComponent).getParameter(name);
 		}
-		
+
 		return null;
 	}
 
@@ -210,11 +210,11 @@ public class TemplateEmitterImpl
 			{
 				throw ((TemplateException) e).withDebugInfo(c);
 			}
-			
+
 			throw new TemplateException(e.getMessage(), e).withDebugInfo(c);
 		}
 	}
-	
+
 	@Override
 	public void emit(Emittable[] emittables)
 		throws IOException
@@ -234,44 +234,44 @@ public class TemplateEmitterImpl
 			{
 				throw ((TemplateException) e).withDebugInfo(emittables[i]);
 			}
-			
+
 			throw new TemplateException(e.getMessage(), e).withDebugInfo(emittables[i]);
 		}
 	}
-	
+
 	@Override
 	public RenderingContext getContext()
 	{
 		return ctx;
 	}
-	
+
 	@Override
 	public Object getObject()
 	{
 		return current;
 	}
-	
+
 	public Emittable getCurrentComponent()
 	{
 		return currentComponent;
 	}
-	
+
 	public Integer getCurrentDataId()
 	{
 		return currentId;
 	}
-	
+
 	public Object getCurrentData()
 	{
 		return current;
 	}
-	
+
 	public Integer switchData(Integer id)
 	{
 		Integer old = currentId;
 		current = dataMap.get(id);
 		currentId = id;
-		
+
 		return old;
 	}
 
@@ -281,7 +281,7 @@ public class TemplateEmitterImpl
 		dataMap.put(id, data);
 		current = data;
 		currentId = id;
-		
+
 		return old;
 	}
 
@@ -290,7 +290,7 @@ public class TemplateEmitterImpl
 		Integer old = currentComponentId;
 		currentComponent = componentMap.get(id);
 		currentComponentId = id;;
-		
+
 		return old;
 	}
 
@@ -300,7 +300,7 @@ public class TemplateEmitterImpl
 		componentMap.put(id, data);
 		currentComponent = data;
 		currentComponentId = id;
-		
+
 		return old;
 	}
 
@@ -312,41 +312,41 @@ public class TemplateEmitterImpl
 		encounter.wrapped = we.getElement();
 		encounter.skip = false;
 		wrapper.beforeElement(encounter);
-		
+
 		if(! encounter.skip)
 		{
 			emit(encounter.wrapped);
 		}
-		
+
 		wrapper.afterElement(encounter);
 		encounter.reset();
 		encounter.wrapped = oldWrapped;
 	}
-	
+
 	private class ElementEncounterImpl
 		implements ElementEncounter
 	{
 		private boolean skip;
 		private Element wrapped;
-		
+
 		@Override
 		public RenderingContext getContext()
 		{
 			return TemplateEmitterImpl.this.getContext();
 		}
-		
+
 		@Override
 		public Object getObject()
 		{
 			return TemplateEmitterImpl.this.getObject();
 		}
-		
+
 		@Override
 		public void skip()
 		{
 			skip = true;
 		}
-		
+
 		@Override
 		public void emit()
 			throws IOException
@@ -354,19 +354,19 @@ public class TemplateEmitterImpl
 			skip = true;
 			TemplateEmitterImpl.this.emit(wrapped);
 		}
-		
+
 		@Override
 		public TemplateOutputStream getOutput()
 		{
 			return out;
 		}
-		
+
 		@Override
 		public void pushAttribute(String name, String value)
 		{
 			extraAttributes.put(name, value);
 		}
-		
+
 		public void reset()
 		{
 			extraAttributes.clear();

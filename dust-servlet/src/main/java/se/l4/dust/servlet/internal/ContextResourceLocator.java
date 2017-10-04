@@ -19,7 +19,7 @@ import com.google.inject.Provider;
 
 /**
  * Asset source that works on the {@link ServletContext}.
- * 
+ *
  * @author andreas
  *
  */
@@ -36,7 +36,7 @@ public class ContextResourceLocator
 		this.ctx = ctx;
 		this.namespaces = namespaces;
 	}
-	
+
 	@Override
 	public Resource locate(String ns, String pathToFile)
 		throws IOException
@@ -47,18 +47,18 @@ public class ContextResourceLocator
 			{
 				throw new TemplateException("Trying to use assets from the webapp context, but the namespace " + Dust.NAMESPACE_CONTEXT + " has not been bound");
 			}
-			
+
 			try
 			{
 				URL url = ctx.get().getResource("/" + pathToFile);
-				
+
 				return url == null ? null : new UrlResource(new NamespaceLocation(namespaces.getNamespaceByURI(ns), pathToFile), url) ;
 			}
 			catch(MalformedURLException e)
 			{
 			}
 		}
-		
+
 		return null;
 	}
 

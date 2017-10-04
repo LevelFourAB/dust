@@ -7,7 +7,7 @@ import java.io.Reader;
 /**
  * Input for JSON. Based of {@link JsonInput} but supports things as skipping
  * quotes for keys and values.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -20,29 +20,29 @@ public class MessageInput
 		KEY,
 		VALUE
 	}
-	
+
 	private static final char NULL = 0;
 
 	private final Reader in;
-	
+
 	private final char[] buffer;
 	private int position;
 	private int limit;
-	
+
 	private final boolean[] lists;
 	private int level;
-	
+
 	private Token token;
 	private Object value;
-	
+
 	public MessageInput(Reader in)
 	{
 		this.in = in;
-		
+
 		lists = new boolean[20];
 		buffer = new char[1024];
 	}
-	
+
 	private void readWhitespace()
 		throws IOException
 	{
@@ -55,7 +55,7 @@ public class MessageInput
 					return;
 				}
 			}
-			
+
 			char c = buffer[position];
 			if(Character.isWhitespace(c) || c == ',')
 			{
@@ -72,7 +72,7 @@ public class MessageInput
 			}
 		}
 	}
-	
+
 	private void readUntilEndOfLine()
 		throws IOException
 	{
@@ -85,7 +85,7 @@ public class MessageInput
 					return;
 				}
 			}
-			
+
 			char c = buffer[position];
 			if(c == '\n' || c == '\r')
 			{
@@ -97,15 +97,15 @@ public class MessageInput
 			}
 		}
 	}
-	
+
 	private char readNext()
 		throws IOException
 	{
 		readWhitespace();
-		
+
 		return read();
 	}
-	
+
 	private char read()
 		throws IOException
 	{
@@ -116,10 +116,10 @@ public class MessageInput
 				throw new EOFException();
 			}
 		}
-		
+
 		return buffer[position++];
 	}
-	
+
 	private boolean read(int minChars)
 		throws IOException
 	{
@@ -138,24 +138,24 @@ public class MessageInput
 			System.arraycopy(buffer, position, buffer, 0, stop);
 			limit = stop;
 		}
-		
+
 		int read = in.read(buffer, limit, buffer.length - limit);
 		position = 0;
 		limit = read;
-		
+
 		if(read == -1)
 		{
 			return false;
 		}
-		
+
 		if(read < minChars)
 		{
 			throw new IOException("Needed " + minChars + " but got " + read);
 		}
-		
+
 		return true;
 	}
-	
+
 	private Token toToken(int position)
 		throws IOException
 	{
@@ -163,9 +163,9 @@ public class MessageInput
 		{
 			return null;
 		}
-		
+
 		char c = buffer[position];
-				
+
 		switch(c)
 		{
 			case '{':
@@ -173,15 +173,15 @@ public class MessageInput
 			case '}':
 				return Token.OBJECT_END;
 		}
-		
+
 		if(token != Token.KEY && ! lists[level])
 		{
 			return Token.KEY;
 		}
-		
+
 		return Token.VALUE;
 	}
-	
+
 	private Object readNextValue()
 		throws IOException
 	{
@@ -198,7 +198,7 @@ public class MessageInput
 			while(true)
 			{
 				value.append(c);
-				
+
 				c = peekChar(false);
 				switch(c)
 				{
@@ -207,14 +207,14 @@ public class MessageInput
 					case NULL: // EOF
 						break _outer;
 				}
-				
+
 				read();
 			}
-			
+
 			return value.toString().trim();
 		}
 	}
-	
+
 	private String readString(boolean readStart)
 		throws IOException
 	{
@@ -225,7 +225,7 @@ public class MessageInput
 			if(c != '"') throw new IOException("Expected \", but got " + c);
 			c = read();
 		}
-		
+
 		while(c != '"')
 		{
 			if(c == '\\')
@@ -236,13 +236,13 @@ public class MessageInput
 			{
 				key.append(c);
 			}
-			
+
 			c = read();
 		}
-		
+
 		return key.toString();
 	}
-	
+
 	private String readKey()
 		throws IOException
 	{
@@ -258,7 +258,7 @@ public class MessageInput
 			{
 				key.append(c);
 			}
-			
+
 			// Peek to see if we should end reading
 			c = peekChar();
 			if(c == '{')
@@ -266,11 +266,11 @@ public class MessageInput
 				// Next is object or list, break
 				break;
 			}
-			
+
 			// Read the actual character
 			c = read();
 		}
-		
+
 		return key.toString();
 	}
 
@@ -327,7 +327,7 @@ public class MessageInput
 		}
 		return t;
 	}
-	
+
 	public Token next()
 		throws IOException
 	{
@@ -338,7 +338,7 @@ public class MessageInput
 			case OBJECT_END:
 				readNext();
 				level--;
-				return this.token = token; 
+				return this.token = token;
 			case OBJECT_START:
 				readNext();
 				level++;
@@ -350,7 +350,7 @@ public class MessageInput
 				if(peeked == '"')
 				{
 					key = readString(true);
-					
+
 					char next = peekChar();
 					if(next == ':' || next == '=')
 					{
@@ -370,37 +370,37 @@ public class MessageInput
 					// Case where keys do not include quotes
 					key = readKey();
 				}
-				
+
 				value = key;
 				return this.token = token;
 			}
 			case VALUE:
 			{
 				value = readNextValue();
-				
+
 				// Check for trailing commas
 				readWhitespace();
 				char c = peekChar();
 				if(c == ',') read();
-				
+
 				return this.token = token;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	private char peekChar()
 		throws IOException
 	{
 		return peekChar(true);
 	}
-	
+
 	private char peekChar(boolean ws)
 		throws IOException
 	{
 		if(ws) readWhitespace();
-		
+
 		if(limit - position < 1)
 		{
 			if(false == read(1))
@@ -408,33 +408,33 @@ public class MessageInput
 				return NULL;
 			}
 		}
-		
+
 		if(limit - position > 0)
 		{
 			return buffer[position];
 		}
-		
+
 		return NULL;
 	}
-	
+
 	public Token peek()
 		throws IOException
 	{
 		readWhitespace();
-		
+
 		if(limit - position < 1)
 		{
 			if(false == read(1)) return null;
 		}
-		
+
 		if(limit - position > 0)
 		{
 			return toToken(position);
 		}
-		
+
 		return null;
 	}
-	
+
 	public String getString()
 	{
 		return String.valueOf(value);

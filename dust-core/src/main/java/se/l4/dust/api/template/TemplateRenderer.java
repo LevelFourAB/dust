@@ -7,8 +7,8 @@ import se.l4.dust.api.template.dom.ParsedTemplate;
 
 /**
  * Template renderer, performs rendering of a template into a
- * {@link TemplateOutputStream}. 
- * 
+ * {@link TemplateOutputStream}.
+ *
  * @author Andreas Holstenson
  *
  */
@@ -16,7 +16,7 @@ public interface TemplateRenderer
 {
 	/**
 	 * Render the template document using the given object as the root.
-	 * 
+	 *
 	 * @param ctx
 	 * 		the context to use
 	 * @param url
@@ -24,14 +24,14 @@ public interface TemplateRenderer
 	 * @param data
 	 * 		data to use as template root
 	 * @return
-	 * @throws JDOMException 
+	 * @throws JDOMException
 	 */
 	void render(RenderingContext ctx, ParsedTemplate template, Object data, TemplateOutputStream out)
 		throws IOException;
-	
+
 	/**
 	 * Render the template document using the given object as the root.
-	 * 
+	 *
 	 * @param ctx
 	 * @param data
 	 * @param out
@@ -39,10 +39,10 @@ public interface TemplateRenderer
 	 */
 	void render(RenderingContext ctx, Object data, TemplateOutputStream out)
 		throws IOException;
-	
+
 	/**
 	 * Render the template document using the given object as the root.
-	 * 
+	 *
 	 * @param ctx
 	 * @param data
 	 * @param out

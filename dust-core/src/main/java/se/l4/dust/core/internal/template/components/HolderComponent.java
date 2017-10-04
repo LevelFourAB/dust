@@ -9,7 +9,7 @@ public class HolderComponent
 	public HolderComponent()
 	{
 	}
-	
+
 	@Override
 	public void build(FragmentEncounter encounter)
 	{

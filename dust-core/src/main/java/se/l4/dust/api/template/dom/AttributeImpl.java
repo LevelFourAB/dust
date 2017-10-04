@@ -21,18 +21,18 @@ public class AttributeImpl
 		this.name = name;
 		this.values = value;
 	}
-	
+
 	@Override
 	public String getName()
 	{
 		return name;
 	}
-	
+
 	public Value<?>[] getValue()
 	{
 		return values;
 	}
-	
+
 	@Override
 	public Object get(Context ctx, Object root)
 	{
@@ -47,11 +47,11 @@ public class AttributeImpl
 			{
 				result.append(c.get(ctx, root));
 			}
-			
+
 			return result.toString();
 		}
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
@@ -59,10 +59,10 @@ public class AttributeImpl
 		{
 			if(! v.supportsGet()) return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	@Override
 	public Class<? extends Object> getType()
 	{
@@ -70,7 +70,7 @@ public class AttributeImpl
 		{
 			return values[0].getType();
 		}
-		
+
 		return String.class;
 	}
 
@@ -85,7 +85,7 @@ public class AttributeImpl
 			{
 				return (String) v.get(null, null);
 			}
-			
+
 			return "";
 		}
 		else
@@ -98,11 +98,11 @@ public class AttributeImpl
 					builder.append(v.get(null, null));
 				}
 			}
-			
+
 			return builder.toString();
 		}
 	}
-	
+
 	@Override
 	public void set(Context ctx, Object root, Object value)
 	{
@@ -110,28 +110,28 @@ public class AttributeImpl
 		{
 			throw new TemplateException("Unable to set value of attribute " + name + ", contains more than one expression");
 		}
-		
+
 		Value<?> c = this.values[0];
 		c.set(ctx, root, value);
 	}
-	
+
 	@Override
 	public boolean supportsSet()
 	{
 		if(this.values.length != 1) return false;
-		
+
 		return values[0].supportsSet();
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Value<String> convertToString(final Value<?> value, TypeConverter converter)
 	{
 		if(value.getType() == String.class) return (Value) value;
-		
+
 		final Conversion<Object, String> conversion = converter.getDynamicConversion(value.getType(), String.class);
 		return new StringValue(value, conversion);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> Attribute<T> bindVia(TypeConverter converter, Class<T> output)
@@ -146,113 +146,113 @@ public class AttributeImpl
 				Value<?> v = this.values[i];
 				newValues[i] = convertToString(v, converter);
 			}
-			
+
 			return (Attribute<T>) new AttributeImpl(name, newValues);
 		}
-		
+
 		// If we are binding to the same type
 		if(output == getType()) return (Attribute<T>) this;
-		
-		NonGenericConversion<Object, T> get = supportsGet() 
+
+		NonGenericConversion<Object, T> get = supportsGet()
 			? converter.getDynamicConversion(getType(), output)
 			: null;
-		NonGenericConversion<Object, ? extends Object> set = supportsSet() 
+		NonGenericConversion<Object, ? extends Object> set = supportsSet()
 			? converter.getDynamicConversion(output, getType())
 			: null;
-			
+
 		return (Attribute<T>) new BoundAttribute<T>(name, values, output, get, set);
 	}
-	
+
 	@Override
 	public String toString()
 	{
 		return getClass().getSimpleName() + "{name=" + name + ", content=" + Arrays.toString(values) + "}";
 	}
-	
+
 	private static class StringValue
 		implements Value<String>
 	{
 		private final Value<?> value;
 		private final Conversion<Object, String> conversion;
-	
+
 		private StringValue(Value<?> value, Conversion<Object, String> conversion)
 		{
 			this.value = value;
 			this.conversion = conversion;
 		}
-	
+
 		@Override
 		public Class<? extends String> getType()
 		{
 			return String.class;
 		}
-	
+
 		@Override
 		public String get(Context context, Object data)
 		{
 			Object object = value.get(context, data);
 			return conversion.convert(object);
 		}
-		
+
 		@Override
 		public boolean supportsGet()
 		{
 			return true;
 		}
-	
+
 		@Override
 		public void set(Context context, Object data, Object value)
 		{
 			throw new UnsupportedOperationException();
 		}
-		
+
 		@Override
 		public boolean supportsSet()
 		{
 			return false;
 		}
 	}
-	
+
 	private static class BoundAttribute<T>
 		extends AttributeImpl
 	{
 		private final Class<T> type;
 		private final Conversion<Object, T> get;
 		private final Conversion<Object, ?> set;
-	
+
 		private BoundAttribute(String name,
 				Value<?>[] values,
 				Class<T> type,
 				Conversion<Object, T> get,
-				Conversion<Object, ?> set) 
+				Conversion<Object, ?> set)
 		{
 			super(name, values);
-			
+
 			this.type = type;
 			this.get = get;
 			this.set = set;
 		}
-	
+
 		@Override
 		public T get(Context context, Object data)
 		{
 			Object value = super.get(context, data);
 			return get.convert(value);
 		}
-	
+
 		@Override
 		public void set(Context context, Object data, Object value)
 		{
 			Object object = set.convert(value);
 			super.set(context, data, object);
 		}
-	
+
 		@Override
 		public Class<T> getType()
 		{
 			return type;
 		}
-	
+
 		@Override
 		public <T> Attribute<T> bindVia(TypeConverter converter, Class<T> output)
 		{

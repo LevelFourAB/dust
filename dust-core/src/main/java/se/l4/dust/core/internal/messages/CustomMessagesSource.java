@@ -42,16 +42,16 @@ public class CustomMessagesSource
 		ResourceLocation location = resource.withExtension("messages");
 		ResourceVariantResolution variant = variants.resolve(context, location);
 		if(variant.getResource() == null) return null;
-		
+
 		Resource toLoad = variant.getResource();
 		MessageCollection collection = cache.getIfPresent(toLoad.getLocation());
 		if(collection != null) return collection;
-		
+
 		MessageCollection result = load(toLoad);
 		cache.put(toLoad.getLocation(), result);
 		return result;
 	}
-	
+
 	private MessageCollection load(Resource resource)
 		throws IOException
 	{
@@ -66,7 +66,7 @@ public class CustomMessagesSource
 			{
 				Token token = in.next(Token.KEY);
 				String key = in.getString();
-				
+
 				token = in.next();
 				switch(token)
 				{
@@ -78,7 +78,7 @@ public class CustomMessagesSource
 						break;
 				}
 			}
-			
+
 			return new Collection(result);
 		}
 		finally
@@ -95,7 +95,7 @@ public class CustomMessagesSource
 		{
 			in.next(Token.KEY);
 			String key = parent + "." + in.getString();
-			
+
 			switch(in.next())
 			{
 				case OBJECT_START:
@@ -106,10 +106,10 @@ public class CustomMessagesSource
 					break;
 			}
 		}
-		
+
 		in.next(Token.OBJECT_END);
 	}
-	
+
 	private static class Collection
 		implements MessageCollection
 	{
@@ -119,13 +119,13 @@ public class CustomMessagesSource
 		{
 			this.messages = messages;
 		}
-		
+
 		@Override
 		public String get(String property)
 		{
 			return messages.get(property);
 		}
-		
+
 		@Override
 		public Set<String> keys()
 		{

@@ -13,9 +13,9 @@ import se.l4.dust.api.resource.ResourceLocation;
 
 
 /**
- * Resource that will lookup merges assets together and will check with 
- * {@link Assets} for updates. 
- * 
+ * Resource that will lookup merges assets together and will check with
+ * {@link Assets} for updates.
+ *
  * @author Andreas Holstenson
  *
  */
@@ -29,12 +29,12 @@ public class MergedAssetResource
 	public MergedAssetResource(ResourceLocation location, Assets manager, Context context, Asset... assets)
 	{
 		super(location);
-		
+
 		this.manager = manager;
 		this.context = context;
 		this.assets = assets;
 	}
-	
+
 	@Override
 	public String getContentType()
 	{
@@ -48,10 +48,10 @@ public class MergedAssetResource
 		for(Asset asset : assets)
 		{
 			asset = manager.locate(context, asset.getNamespace().getUri(), asset.getName());
-			
+
 			length += asset.getResource().getContentLength();
 		}
-		
+
 		return length;
 	}
 
@@ -69,7 +69,7 @@ public class MergedAssetResource
 		{
 			last = Math.max(asset.getResource().getLastModified(), last);
 		}
-		
+
 		return last;
 	}
 
@@ -82,7 +82,7 @@ public class MergedAssetResource
 		{
 			resources[i] = assets[i].getResource();
 		}
-		
+
 		return new MergedResource.MergedInputStream(resources);
 	}
 }

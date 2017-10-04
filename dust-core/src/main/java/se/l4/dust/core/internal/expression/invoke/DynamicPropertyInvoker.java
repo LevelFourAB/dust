@@ -11,7 +11,7 @@ import com.google.common.primitives.Primitives;
 
 /**
  * Invoker that wraps {@link DynamicProperty}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -32,7 +32,7 @@ public class DynamicPropertyInvoker
 	{
 		return property.getType();
 	}
-	
+
 	@Override
 	public ResolvedType getReturnType()
 	{
@@ -51,13 +51,13 @@ public class DynamicPropertyInvoker
 			throw errors.error(node, t);
 		}
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
 		return property.supportsGet();
 	}
-	
+
 	@Override
 	public void set(ErrorHandler errors, Context context, Object root,
 			Object instance, Object value)
@@ -71,28 +71,28 @@ public class DynamicPropertyInvoker
 			throw errors.error(node, t);
 		}
 	}
-	
+
 	@Override
 	public boolean supportsSet()
 	{
 		return property.supportsSet();
 	}
-	
+
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		String id = compiler.addInput(DynamicProperty.class, property);
 		Class<?> t = Primitives.wrap(getReturnClass());
-		return "(" + compiler.unwrap(t, 
-			"(" + compiler.cast(t) + " " + id + ".get($1, " + context + "))") 
+		return "(" + compiler.unwrap(t,
+			"(" + compiler.cast(t) + " " + id + ".get($1, " + context + "))")
 			+ ")";
 	}
-	
+
 	@Override
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		String id = compiler.addInput(DynamicProperty.class, property);
-		return id + ".set($1, " + context + ", $3)"; 
+		return id + ".set($1, " + context + ", $3)";
 	}
 
 	@Override
@@ -130,12 +130,12 @@ public class DynamicPropertyInvoker
 			return false;
 		return true;
 	}
-	
+
 	public DynamicProperty getProperty()
 	{
 		return property;
 	}
-	
+
 	@Override
 	public String toString()
 	{

@@ -11,22 +11,22 @@ public class ServletChain
 {
 	private final ServletEntry[] entries;
 	private final FilterChain fallback;
-	
+
 	private int index;
 
 	public ServletChain(ServletEntry[] entries, FilterChain fallback)
 	{
 		this.entries = entries;
 		this.fallback = fallback;
-		
+
 		index = -1;
 	}
-	
+
 	public void service(ServletRequest request, ServletResponse response)
 		throws IOException, ServletException
 	{
 		index++;
-		
+
 		if(index < entries.length)
 		{
 			ServletEntry entry = entries[index];

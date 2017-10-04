@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableSet;
 
 /**
  * Template output that will output its contents as HTML.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -23,24 +23,24 @@ public class FormattedHtmlTemplateOutput
 	private static final Set<String> SINGLE_LINE = ImmutableSet.of(
 		"h1", "h2", "h3", "h4", "h5", "h6", "title", "link", "meta", "script"
 	);
-	
+
 	private static final Set<String> EXTRA_BLOCKS = ImmutableSet.of(
 		"script", "meta"
 	);
-	
+
 	private int level;
 	private boolean previousNewline;
-	
+
 	public FormattedHtmlTemplateOutput(OutputStream stream)
 	{
 		this(new OutputStreamWriter(stream, Charsets.UTF_8));
 	}
-	
+
 	public FormattedHtmlTemplateOutput(Writer writer)
 	{
 		super(writer);
 	}
-	
+
 	private void writeIndentation(boolean newline)
 		throws IOException
 	{
@@ -49,15 +49,15 @@ public class FormattedHtmlTemplateOutput
 		{
 			writer.write('\n');
 		}
-		
+
 		for(int i=0; i<level; i++)
 		{
 			writer.write('\t');
 		}
-		
+
 		lastWhitespace = true;
 	}
-	
+
 	@Override
 	public void startElement(String name, String[] attributes)
 		throws IOException
@@ -67,9 +67,9 @@ public class FormattedHtmlTemplateOutput
 		{
 			writeIndentation(! previousNewline);
 		}
-		
+
 		super.startElement(name, attributes);
-		
+
 		if(block && ! SINGLE_LINE.contains(name.toLowerCase()))
 		{
 			level++;
@@ -81,7 +81,7 @@ public class FormattedHtmlTemplateOutput
 			previousNewline = false;
 		}
 	}
-	
+
 	@Override
 	public void endElement(String name)
 		throws IOException
@@ -92,9 +92,9 @@ public class FormattedHtmlTemplateOutput
 			level--;
 			writeIndentation(true);
 		}
-		
+
 		super.endElement(name);
-		
+
 		if(block)
 		{
 			writeIndentation(true);
@@ -105,7 +105,7 @@ public class FormattedHtmlTemplateOutput
 			previousNewline = false;
 		}
 	}
-	
+
 	@Override
 	public void element(String name, String[] attributes)
 		throws IOException
@@ -115,17 +115,17 @@ public class FormattedHtmlTemplateOutput
 		{
 			writeIndentation(! previousNewline);
 		}
-		
+
 		super.element(name, attributes);
 		previousNewline = false;
 	}
-	
+
 	@Override
 	public void text(String text)
 		throws IOException
 	{
 		super.text(text);
-		
+
 		if(previousNewline)
 		{
 			for(int i=0, n=text.length(); i<n; i++)
@@ -139,7 +139,7 @@ public class FormattedHtmlTemplateOutput
 			}
 		}
 	}
-	
+
 	@Override
 	public void startComment()
 		throws IOException
@@ -148,12 +148,12 @@ public class FormattedHtmlTemplateOutput
 		{
 			writeIndentation(! previousNewline);
 		}
-		
+
 		super.startComment();
-		
+
 		previousNewline = true;
 	}
-	
+
 	@Override
 	public void endComment()
 		throws IOException
@@ -161,7 +161,7 @@ public class FormattedHtmlTemplateOutput
 		previousNewline = false;
 		super.endComment();
 	}
-	
+
 	private boolean isBlock(String name)
 	{
 		return EXTRA_BLOCKS.contains(name.toLowerCase()) || ! HTML.isInline(name);

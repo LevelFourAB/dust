@@ -28,8 +28,8 @@ import com.google.inject.Stage;
 /**
  * Implementation of {@link Templates}. The implementation keeps track
  * of registered component classes, namespaces, property sources and filters.
- * Namespaces are automatically registered based on calls to addComponent. 
- * 
+ * Namespaces are automatically registered based on calls to addComponent.
+ *
  * @author Andreas Holstenson
  *
  */
@@ -40,16 +40,16 @@ public class TemplatesImpl
 	private final Injector injector;
 	private final LoadingCache<String, TemplateNamespaceImpl> namespaces;
 	private final AtomicInteger counter;
-	
+
 	@Inject
-	public TemplatesImpl(Injector injector_, 
+	public TemplatesImpl(Injector injector_,
 			final Stage stage,
 			final NamespaceDiscovery discovery)
 	{
 		this.injector = injector_;
-		
+
 		counter = new AtomicInteger();
-		
+
 		namespaces = CacheBuilder.newBuilder()
 			.build(new CacheLoader<String, TemplateNamespaceImpl>()
 			{
@@ -61,7 +61,7 @@ public class TemplatesImpl
 				}
 			});
 	}
-	
+
 	@Override
 	public TemplateNamespace getNamespace(String nsUri)
 	{
@@ -80,55 +80,55 @@ public class TemplatesImpl
 	{
 		return counter.incrementAndGet();
 	}
-	
+
 	private static class TemplateNamespaceImpl
 		implements TemplateNamespace
 	{
 		private final TemplatesImpl templates;
-		
+
 		private final Logger logger;
 		private final Injector injector;
-		
+
 		private final String namespace;
 		private final Map<String, TemplateFragment> fragments;
 		private final Map<String, TemplateMixin> mixins;
-		
+
 		private final boolean dev;
 		private final NamespaceDiscovery discovery;
-		
+
 		public TemplateNamespaceImpl(TemplatesImpl templates, Injector injector, String namespace, NamespaceDiscovery discovery, boolean dev)
 		{
 			this.templates = templates;
 			this.injector = injector;
 			this.dev = dev;
 			logger = LoggerFactory.getLogger(TemplateNamespace.class.getName() + " [" + namespace + "]");
-			
+
 			this.namespace = namespace;
 			this.discovery = discovery;
-			
+
 			fragments = new ConcurrentHashMap<>();
-			
+
 			mixins = new ConcurrentHashMap<String, TemplateMixin>();
 		}
-		
+
 		@Override
 		public TemplateNamespace addComponent(Class<?> component)
 		{
 			String[] names = null;
-			
+
 			Component annotation = component.getAnnotation(Component.class);
 			if(annotation != null)
 			{
 				names = annotation.value();
 			}
-			
+
 			if(names == null || names.length == 0)
 			{
 				names = new String[] { component.getSimpleName() };
 			}
-			
+
 			addComponent(component, names);
-			
+
 			return this;
 		}
 
@@ -144,20 +144,20 @@ public class TemplatesImpl
 			{
 				fragment = new ComponentTemplateFragment(injector, component);
 			}
-			
+
 			for(String name : names)
 			{
 				fragments.put(name.toLowerCase(), fragment);
 			}
-			
+
 			return this;
 		}
-		
+
 		@Override
 		public TemplateNamespace addFragment(String name, TemplateFragment fragment)
 		{
 			fragments.put(name, fragment);
-			
+
 			return this;
 		}
 
@@ -169,7 +169,7 @@ public class TemplatesImpl
 			{
 				throw new ComponentException("Unknown component " + name + " in " + namespace);
 			}
-			
+
 			return o;
 		}
 
@@ -181,23 +181,23 @@ public class TemplatesImpl
 			{
 				return true;
 			}
-			
+
 			if(dev)
 			{
 				logger.info("Attempting to discover new template fragment named " + name + " in " + namespace);
-				
+
 				/*
 				 * Reindex if we have discovery functions, we might find
 				 * the class this time.
 				 */
 				discovery.performDiscovery();
-				
+
 				return fragments.containsKey(name);
 			}
-			
+
 			return false;
 		}
-		
+
 		@Override
 		public String getComponentName(Class<?> component)
 		{
@@ -210,76 +210,76 @@ public class TemplatesImpl
 					return names[0];
 				}
 			}
-			
+
 			return component.getSimpleName().toLowerCase();
 		}
-		
+
 		@Override
 		public TemplateNamespace addComponentOverride(String namespace, Class<?> originalComponent, Class<?> newComponent)
 		{
 			Component annotation = originalComponent.getAnnotation(Component.class);
 			if(annotation == null)
 			{
-				throw new ComponentException("Unable to override " + 
+				throw new ComponentException("Unable to override " +
 					originalComponent.getSimpleName() + " in " +
-					namespace + "; It is not annotated with @" + 
+					namespace + "; It is not annotated with @" +
 					Component.class.getSimpleName());
 			}
-			
+
 			String[] names = annotation.value();
 			if(names == null || names.length == 0)
 			{
 				names = new String[] { originalComponent.getSimpleName() };
 			}
-			
+
 			// TODO: Verify that no extra methods exist
-			
+
 			if(! originalComponent.isAssignableFrom(newComponent))
 			{
-				throw new ComponentException("Unable to override " + 
+				throw new ComponentException("Unable to override " +
 					originalComponent.getSimpleName() + " in " +
 					namespace + "; New component does not overide old one");
 			}
-			
+
 			TemplateNamespaceImpl other = (TemplateNamespaceImpl) templates.getNamespace(namespace);
 			if(! other.fragments.containsKey(names[0]))
 			{
-				throw new ComponentException("Unable to override " + 
+				throw new ComponentException("Unable to override " +
 					originalComponent.getSimpleName() + " in " +
 					namespace + "; Old component does not seem to be registered");
 			}
-			
+
 			other.addComponent(newComponent, names);
-			
+
 			return this;
 		}
-		
+
 		@Override
 		public TemplateNamespace addMixin(String attribute, TemplateMixin mixin)
 		{
 			mixins.put(attribute, mixin);
 			return this;
 		}
-		
+
 		@Override
 		public TemplateNamespace addMixin(TemplateMixin mixin)
 		{
 			mixins.put("", mixin);
 			return this;
 		}
-		
+
 		@Override
 		public TemplateMixin getMixin(String attribute)
 		{
 			return mixins.get(attribute);
 		}
-		
+
 		@Override
 		public TemplateMixin getDefaultMixin()
 		{
 			return mixins.get("");
 		}
-		
+
 		@Override
 		public boolean hasMixin(String attribute)
 		{

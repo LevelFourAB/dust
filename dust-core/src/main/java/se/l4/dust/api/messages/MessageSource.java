@@ -7,7 +7,7 @@ import se.l4.dust.api.resource.ResourceLocation;
 
 /**
  * Source of data for {@link MessageCollection}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -16,7 +16,7 @@ public interface MessageSource
 	/**
 	 * Attempt to load any message besides the given resource. The URL will
 	 * be the location of a resource, such as a template.
-	 * 
+	 *
 	 * @param context
 	 * 		the current context
 	 * @param resource

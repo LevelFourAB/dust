@@ -2,7 +2,7 @@ package se.l4.dust.servlet.internal.routing;
 
 /**
  * Matcher that matches against the syntax used in web.xml.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -15,10 +15,10 @@ public class NormalMatcher
 		BEGIN,
 		END
 	}
-	
+
 	private final Match match;
 	private final String path;
-	
+
 	public NormalMatcher(String path)
 	{
 		if(path.startsWith("*"))
@@ -48,6 +48,6 @@ public class NormalMatcher
 				return path.startsWith(this.path);
 			default:
 				return path.equals(this.path);
-		}		
+		}
 	}
 }

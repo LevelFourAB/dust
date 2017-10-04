@@ -11,7 +11,7 @@ import com.google.inject.ScopeAnnotation;
 /**
  * Indicate that a class is tied to a request and only one instance may exist
  * for any one request.
- * 
+ *
  * @author Andreas Holstenson
  *
  */

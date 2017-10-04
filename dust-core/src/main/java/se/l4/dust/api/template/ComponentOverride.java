@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * template. A component that is overridden is rendered with its own template,
  * but must extend the original component class and can not provide any
  * custom {@link PrepareRender}-methods or {@link TemplateParam}-setters.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -22,14 +22,14 @@ public @interface ComponentOverride
 {
 	/**
 	 * Get the namespace that is being overridden.
-	 * 
+	 *
 	 * @return
 	 */
 	String namespace();
-	
+
 	/**
 	 * Get the class of the component that is being overridden.
-	 * 
+	 *
 	 * @return
 	 */
 	Class<?> component();

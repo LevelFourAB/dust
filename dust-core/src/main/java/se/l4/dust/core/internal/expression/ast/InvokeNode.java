@@ -6,7 +6,7 @@ import java.util.List;
  * Node representing an invokation of a method. The id of the method is
  * stored in the node while the context of the invocation is given by its
  * container.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -19,21 +19,21 @@ public class InvokeNode
 	public InvokeNode(int line, int position, IdentifierNode id, List<Node> parameters)
 	{
 		super(line, position);
-		
+
 		this.id = id;
 		this.parameters = parameters;
 	}
-	
+
 	public IdentifierNode getId()
 	{
 		return id;
 	}
-	
+
 	public List<Node> getParameters()
 	{
 		return parameters;
 	}
-	
+
 	@Override
 	public String toString()
 	{

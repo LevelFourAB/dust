@@ -9,7 +9,7 @@ import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker for a chain of properties or methods.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -26,7 +26,7 @@ public class ChainInvoker
 		this.left = left;
 		this.right = right;
 	}
-	
+
 	@Override
 	public Class<?> getReturnClass()
 	{
@@ -38,7 +38,7 @@ public class ChainInvoker
 	{
 		return right.getReturnType();
 	}
-	
+
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
@@ -52,13 +52,13 @@ public class ChainInvoker
 			throw errors.error(node, t);
 		}
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
 		return left.supportsGet() && right.supportsGet();
 	}
-	
+
 	@Override
 	public void set(ErrorHandler errors, Context context, Object root, Object instance, Object value)
 	{
@@ -72,27 +72,27 @@ public class ChainInvoker
 			throw errors.error(node, t);
 		}
 	}
-	
+
 	@Override
 	public boolean supportsSet()
 	{
 		return left.supportsGet() && right.supportsSet();
 	}
-	
+
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		context = left.toJavaGetter(errors, compiler, context);
 		return right.toJavaGetter(errors, compiler, context);
 	}
-	
+
 	@Override
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		context = left.toJavaGetter(errors, compiler, context);
 		return right.toJavaSetter(errors, compiler, context);
 	}
-	
+
 	@Override
 	public Node getNode()
 	{
@@ -135,17 +135,17 @@ public class ChainInvoker
 			return false;
 		return true;
 	}
-	
+
 	public Invoker getLeft()
 	{
 		return left;
 	}
-	
+
 	public Invoker getRight()
 	{
 		return right;
 	}
-	
+
 	@Override
 	public String toString()
 	{

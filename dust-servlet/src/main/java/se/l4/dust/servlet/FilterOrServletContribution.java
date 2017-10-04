@@ -10,7 +10,7 @@ import com.google.inject.BindingAnnotation;
 
 /**
  * Marker for contributions that contribute filters.
- * 
+ *
  * @author Andreas Holstenson
  *
  */

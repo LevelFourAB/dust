@@ -10,7 +10,7 @@ import com.google.common.base.Supplier;
 
 /**
  * Manager for working with resource variants.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -18,22 +18,22 @@ public interface ResourceVariantManager
 {
 	/**
 	 * Add a new source of variants.
-	 * 
+	 *
 	 * @param source
 	 */
 	void addSource(ResourceVariantSource source);
-	
+
 	/**
 	 * Get the variants for the given context.
-	 * 
+	 *
 	 * @param context
 	 * @return
 	 */
 	List<ResourceVariant> getVariants(Context context);
-	
+
 	/**
 	 * Get the initial contexts to use for caching.
-	 * 
+	 *
 	 * @return
 	 */
 	List<Context> getInitialContexts();
@@ -41,52 +41,52 @@ public interface ResourceVariantManager
 	/**
 	 * Get a cache object suitable for storing data related to the specified
 	 * context.
-	 * 
+	 *
 	 * @param context
 	 * @return
 	 */
 	Object[] getCacheObject(Context context);
-	
+
 	/**
 	 * Try creating a more specific URL based on the variants active in the
 	 * given context.
-	 * 
+	 *
 	 * @param context
 	 * @param location
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	ResourceVariantResolution resolve(Context context, ResourceLocation location)
 		throws IOException;
-	
+
 	/**
 	 * Try creating a more specific URL based on the variants active in the
 	 * given context.
-	 * 
+	 *
 	 * @param context
 	 * @param location
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	ResourceVariantResolution resolveNoCache(Context context, ResourceLocation location)
 		throws IOException;
-	
+
 	/**
 	 * Create a new combined resource. This method will resolve a combined
 	 * {@link ResourceVariant} and the returned result will reflect the
 	 * actual name of the resource.
-	 * 
+	 *
 	 * @param result
 	 * @param location
 	 * @return
 	 */
 	ResourceVariantResolution createCombined(List<ResourceVariantResolution> result, ResourceLocation location);
-	
+
 	/**
 	 * Create a new combined resource. This method will resolve a combined
 	 * {@link ResourceVariant} and the returned result will reflect the
 	 * actual name of the resource.
-	 * 
+	 *
 	 * @param result
 	 * @param location
 	 * @return

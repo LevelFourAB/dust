@@ -7,12 +7,12 @@ public class DefaultContext
 	implements Context
 {
 	private final Map<Object, Object> values;
-	
+
 	public DefaultContext()
 	{
 		values = new HashMap<Object, Object>();
 	}
-	
+
 	@Override
 	public void putValue(Object key, Object value)
 	{

@@ -14,7 +14,7 @@ import com.google.common.base.Objects;
 /**
  * Source of variants based on locale. This will produce variants that may be
  * tried with decreasing importance.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -28,49 +28,49 @@ public class LocaleVariantSource
 		if(value instanceof Locale)
 		{
 			Locale locale = (Locale) value;
-			
+
 			List<ResourceVariant> result = new ArrayList<ResourceVariant>(3);
-			
+
 			// With variant (three parts)
 			if(locale.getVariant() != null && ! locale.getVariant().isEmpty())
 			{
 				String identifier = locale.getLanguage()
 					+ "_" + locale.getCountry()
 					+ "_" + locale.getVariant();
-				
+
 				result.add(new LocaleVariant(locale, identifier));
 			}
-			
+
 			// With country (two parts)
 			if(locale.getCountry() != null && ! locale.getCountry().isEmpty())
 			{
 				String identifier = locale.getLanguage()
 					+ "_" + locale.getCountry();
-			
+
 				result.add(new LocaleVariant(locale, identifier));
 			}
-			
+
 			// Only country part
 			result.add(new LocaleVariant(locale, locale.getLanguage()));
-			
+
 			return result;
 		}
-		
+
 		return Collections.emptyList();
 	}
-	
+
 	@Override
 	public Object getCacheValue(Context ctx)
 	{
 		return ctx.getValue(ResourceVariant.LOCALE);
 	}
-	
+
 	@Override
 	public Class<? extends ResourceVariant> getVariantClass()
 	{
 		return LocaleVariant.class;
 	}
-	
+
 	private static class LocaleVariant
 		implements ResourceVariant
 	{
@@ -82,19 +82,19 @@ public class LocaleVariantSource
 			this.locale = locale;
 			this.identifier = identifier;
 		}
-		
+
 		@Override
 		public Object getCacheValue()
 		{
 			return locale;
 		}
-		
+
 		@Override
 		public String getIdentifier()
 		{
 			return identifier;
 		}
-		
+
 		@Override
 		public boolean isMoreSpecific(ResourceVariant current)
 		{
@@ -141,7 +141,7 @@ public class LocaleVariantSource
 				return false;
 			return true;
 		}
-		
+
 		@Override
 		public String toString()
 		{

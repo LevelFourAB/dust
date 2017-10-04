@@ -10,7 +10,7 @@ import com.google.common.base.Defaults;
 
 /**
  * Invoker for ternary ifs.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -29,13 +29,13 @@ public class TernaryInvoker
 		this.left = left;
 		this.right = right;
 	}
-	
+
 	@Override
 	public Node getNode()
 	{
 		return node;
 	}
-	
+
 	@Override
 	public Class<?> getReturnClass()
 	{
@@ -51,11 +51,11 @@ public class TernaryInvoker
 		{
 			return right.getReturnClass();
 		}
-		
+
 		// TODO: Better guessing for the return type
 		return Object.class;
 	}
-	
+
 	@Override
 	public ResolvedType getReturnType()
 	{
@@ -71,11 +71,11 @@ public class TernaryInvoker
 		{
 			return right.getReturnType();
 		}
-		
+
 		// TODO: Better guessing for the return type
 		return null;
 	}
-	
+
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
@@ -100,41 +100,41 @@ public class TernaryInvoker
 			throw errors.error(node, t);
 		}
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
 		return true;
 	}
-	
+
 	@Override
 	public void set(ErrorHandler errors, Context context, Object root,
 			Object instance, Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
 	}
-	
+
 	@Override
 	public boolean supportsSet()
 	{
 		return false;
 	}
-	
+
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		Class<?> type = getReturnClass();
-		return "(" + compiler.cast(type) + " (" 
+		return "(" + compiler.cast(type) + " ("
 			+ test.toJavaGetter(errors, compiler, context)
 			+ " ? "
 			+ compiler.castOrWrap(type, left.toJavaGetter(errors, compiler, context), left.getReturnClass())
-			+ " : " 
-			+ (right == null ? String.valueOf(Defaults.defaultValue(type)) : 
+			+ " : "
+			+ (right == null ? String.valueOf(Defaults.defaultValue(type)) :
 				compiler.castOrWrap(type, right.toJavaGetter(errors, compiler, context), right.getReturnClass())
 			)
 			+ "))";
 	}
-	
+
 	@Override
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{

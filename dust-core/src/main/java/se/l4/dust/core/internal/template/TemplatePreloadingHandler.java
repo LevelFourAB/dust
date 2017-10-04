@@ -23,7 +23,7 @@ public class TemplatePreloadingHandler
 	implements DiscoveryHandler
 {
 	private static final Logger logger = LoggerFactory.getLogger(DiscoveryHandler.class);
-	
+
 	private final TemplateCache cache;
 
 	@Inject
@@ -36,7 +36,7 @@ public class TemplatePreloadingHandler
 	public void handle(Namespace ns, DiscoveryEncounter encounter)
 	{
 		Context context = new DefaultContext();
-		
+
 		try
 		{
 			Collection<Class<?>> components = encounter.getAnnotatedWith(Component.class);
@@ -47,13 +47,13 @@ public class TemplatePreloadingHandler
 					cache.getTemplate(context, c);
 				}
 			}
-			
+
 			Collection<Class<?>> templates = encounter.getAnnotatedWith(Template.class);
 			for(Class<?> c : templates)
 			{
 				cache.getTemplate(context, c);
 			}
-			
+
 			logger.info("{}: Loaded {} templates", ns.getUri(), components.size() + templates.size());
 		}
 		catch(IOException e)

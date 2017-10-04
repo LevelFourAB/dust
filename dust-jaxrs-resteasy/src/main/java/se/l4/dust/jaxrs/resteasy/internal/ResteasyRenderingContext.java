@@ -13,9 +13,9 @@ import com.google.inject.Stage;
 import se.l4.dust.servlet.WebRenderingContext;
 
 /**
- * Extension to {@link WebRenderingContext} for Resteasy specific 
+ * Extension to {@link WebRenderingContext} for Resteasy specific
  * injections.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -28,12 +28,12 @@ public class ResteasyRenderingContext
 	public ResteasyRenderingContext(Stage stage, ResteasyProviderFactory factory)
 	{
 		super(stage);
-		
+
 		injectorFactory = factory.getInjectorFactory();
 	}
 
 	@Override
-	public Object resolveObject(AccessibleObject parameter, Type type, 
+	public Object resolveObject(AccessibleObject parameter, Type type,
 			Annotation[] annotations, Object instance)
 	{
 		return null;

@@ -43,29 +43,29 @@ public class ComponentTemplateFragment
 	private final Injector injector;
 	private final TemplateCache cache;
 	private final TypeConverter converter;
-	
+
 	private final Class<?> type;
 	private final Provider<?> instance;
-	
+
 	private final MethodDef[] prepare;
 	private final MethodDef[] afterRender;
 	private final MethodDef[] setters;
-	
+
 	private final Set<String> attributesUsed;
-	
+
 	private final boolean dev;
 
 	public ComponentTemplateFragment(Injector injector0, Class<?> type0)
 	{
 		this.injector = injector0;
 		this.type = type0;
-		
+
 		Stage stage = injector.getInstance(Stage.class);
 		dev = stage == Stage.DEVELOPMENT;
-		
+
 		cache = injector.getInstance(TemplateCache.class);
 		converter = injector.getInstance(TypeConverter.class);
-		
+
 		if(dev)
 		{
 			instance = new Provider()
@@ -77,7 +77,7 @@ public class ComponentTemplateFragment
 				}
 			};
 			prepare = afterRender = setters = null;
-			
+
 			attributesUsed = getAttributesUsed(createMethodInvocations(), createSetMethodInvocations());
 		}
 		else
@@ -86,11 +86,11 @@ public class ComponentTemplateFragment
 			prepare = createMethodInvocations();
 			afterRender = createAfterRenderInvocations();
 			setters = createSetMethodInvocations();
-			
+
 			attributesUsed = getAttributesUsed(prepare, setters);
 		}
 	}
-	
+
 	@Override
 	public void build(FragmentEncounter encounter)
 	{
@@ -103,7 +103,7 @@ public class ComponentTemplateFragment
 		}
 		encounter.replaceWith(new ComponentEmittable(methods, encounter.getScopedBody(), extraAttributes));
 	}
-	
+
 	private Set<String> getAttributesUsed(MethodDef prepare[], MethodDef[] setters)
 	{
 		Set<String> result = Sets.newHashSet();
@@ -111,7 +111,7 @@ public class ComponentTemplateFragment
 		handle(result, setters);
 		return result;
 	}
-	
+
 	private void handle(Set<String> result, MethodDef[] methodInvocations)
 	{
 		for(MethodDef mi : methodInvocations)
@@ -139,18 +139,18 @@ public class ComponentTemplateFragment
 			this.scopedBody = scopedBody;
 			this.extraAttributes = extraAttributes;
 		}
-		
+
 		@Override
 		public void emit(TemplateEmitter emitter, TemplateOutputStream out)
 			throws IOException
 		{
 			Object o = instance.get();
-			
+
 			Object data = emitter.getObject();
 			Object root;
-			
+
 			RenderingContext ctx = emitter.getContext();
-			
+
 			// Run all set methods
 			for(MethodInvocation m : methods.getSetters())
 			{
@@ -159,7 +159,7 @@ public class ComponentTemplateFragment
 					m.invoke(ctx, data, o);
 				}
 			}
-			
+
 			// Run all methods for prepare render
 			MethodInvocation[] prepareMethods = methods.getPrepare();
 			if(prepareMethods.length == 0)
@@ -190,12 +190,12 @@ public class ComponentTemplateFragment
 						}
 					}
 				}
-				
+
 				if(bestMethod == null)
 				{
 					throw new TemplateException("None of the @" + PrepareRender.class.getSimpleName() + " methods matched for " + o);
 				}
-				
+
 				// Actually invoke the method
 				root = bestMethod.invoke(ctx, data, o);
 				if(root == null)
@@ -212,34 +212,34 @@ public class ComponentTemplateFragment
 			{
 				TemplateEmitterImpl emitterImpl = (TemplateEmitterImpl) emitter;
 				ctx.putValue("dust:extraAttributes", extraAttributes);
-				
-				// Process the template of the component 
+
+				// Process the template of the component
 				ParsedTemplate template = cache.getTemplate(ctx, root.getClass());
-				
+
 				// Switch to new context
 				Object current = emitterImpl.getCurrentData();
 				Integer old = emitterImpl.switchData(template.getRawId(), root);
-				
+
 				Emittable content = scopedBody;
 				Element element = content instanceof Element
 					? (Element) content
-					: (content instanceof WrappedElement ? ((WrappedElement) content).getElement() : null); 
+					: (content instanceof WrappedElement ? ((WrappedElement) content).getElement() : null);
 				Integer oldComponent = emitterImpl.switchComponent(template.getRawId(), element);
-				
+
 				DocType docType = template.getDocType();
 				if(docType != null)
 				{
 					out.docType(docType.getName(), docType.getPublicId(), docType.getSystemId());
 				}
-				
+
 				Emittable templateRoot = template.getRoot();
 				emitterImpl.emit(templateRoot);
-				
+
 				// Switch context back
 				emitterImpl.switchData(old, current);
 				emitterImpl.switchComponent(oldComponent);
 			}
-			
+
 			// Run all methods for after render
 			for(MethodInvocation i : methods.getAfterRender())
 			{
@@ -247,7 +247,7 @@ public class ComponentTemplateFragment
 			}
 		}
 	}
-	
+
 	private MethodInvocation[] bind(MethodDef[] defs, FragmentEncounter encounter)
 	{
 		MethodInvocation[] result = new MethodInvocation[defs.length];
@@ -257,49 +257,49 @@ public class ComponentTemplateFragment
 		}
 		return result;
 	}
-	
+
 	private interface Methods
 	{
 		MethodInvocation[] getPrepare();
-		
+
 		MethodInvocation[] getAfterRender();
-		
+
 		MethodInvocation[] getSetters();
 	}
-	
+
 	private class ProductionMethods
 		implements Methods
 	{
 		private final MethodInvocation[] boundPrepare;
 		private final MethodInvocation[] boundSetters;
 		private final MethodInvocation[] boundAfterRender;
-		
+
 		public ProductionMethods(FragmentEncounter encounter)
 		{
 			boundPrepare = bind(prepare, encounter);
 			boundSetters = bind(setters, encounter);
 			boundAfterRender = bind(afterRender, encounter);
 		}
-		
+
 		@Override
 		public MethodInvocation[] getAfterRender()
 		{
 			return boundAfterRender;
 		}
-		
+
 		@Override
 		public MethodInvocation[] getPrepare()
 		{
 			return boundPrepare;
 		}
-		
+
 		@Override
 		public MethodInvocation[] getSetters()
 		{
 			return boundSetters;
 		}
 	}
-	
+
 	private class DevMethods
 		implements Methods
 	{
@@ -309,26 +309,26 @@ public class ComponentTemplateFragment
 		{
 			this.encounter = encounter;
 		}
-		
+
 		@Override
 		public MethodInvocation[] getPrepare()
 		{
 			return bind(createMethodInvocations(), encounter);
 		}
-		
+
 		@Override
 		public MethodInvocation[] getSetters()
 		{
 			return bind(createSetMethodInvocations(), encounter);
 		}
-		
+
 		@Override
 		public MethodInvocation[] getAfterRender()
 		{
 			return bind(createAfterRenderInvocations(), encounter);
 		}
 	}
-	
+
 	private MethodDef[] createMethodInvocations()
 	{
 		Class<?> type = this.type;
@@ -342,13 +342,13 @@ public class ComponentTemplateFragment
 					invocations.add(new MethodDef(m));
 				}
 			}
-			
+
 			type = type.getSuperclass();
 		}
-		
+
 		return invocations.toArray(new MethodDef[invocations.size()]);
 	}
-	
+
 	private MethodDef[] createAfterRenderInvocations()
 	{
 		Class<?> type = this.type;
@@ -362,13 +362,13 @@ public class ComponentTemplateFragment
 					invocations.add(new MethodDef(m));
 				}
 			}
-			
+
 			type = type.getSuperclass();
 		}
-		
+
 		return invocations.toArray(new MethodDef[invocations.size()]);
 	}
-	
+
 	private MethodDef[] createSetMethodInvocations()
 	{
 		Class<?> type = this.type;
@@ -382,7 +382,7 @@ public class ComponentTemplateFragment
 					// Skip rendering methods
 					continue;
 				}
-				
+
 				Annotation[][] annotations = m.getParameterAnnotations();
 				if(annotations.length == 1)
 				{
@@ -396,13 +396,13 @@ public class ComponentTemplateFragment
 					}
 				}
 			}
-			
+
 			type = type.getSuperclass();
 		}
-		
+
 		return invocations.toArray(new MethodDef[invocations.size()]);
 	}
-	
+
 	private class MethodInvocation
 	{
 		private final Method method;
@@ -416,7 +416,7 @@ public class ComponentTemplateFragment
 
 		/**
 		 * Score the invocation.
-		 * 
+		 *
 		 * @return
 		 */
 		public int score()
@@ -429,19 +429,19 @@ public class ComponentTemplateFragment
 					score++;
 				}
 			}
-			
+
 			return score;
 		}
-		
+
 		public int maxScore()
 		{
 			return arguments.length;
 		}
-		
+
 		public boolean valid()
 		{
 			if(arguments.length == 0) return true;
-			
+
 			for(Argument arg : arguments)
 			{
 				if(! arg.canBeInjected())
@@ -449,10 +449,10 @@ public class ComponentTemplateFragment
 					return false;
 				}
 			}
-			
+
 			return true;
 		}
-		
+
 		public Object invoke(RenderingContext ctx, Object root, Object self)
 		{
 			Object[] data = null;
@@ -465,7 +465,7 @@ public class ComponentTemplateFragment
 					value = converter.convert(value, arguments[i].def.typeClass);
 					data[i] = value;
 				}
-				
+
 				return method.invoke(self, data);
 			}
 			catch(InvocationTargetException e)
@@ -475,18 +475,18 @@ public class ComponentTemplateFragment
 				{
 					throw (RuntimeException) e2;
 				}
-				
-				throw new TemplateException("Unable to invoke method " + method 
+
+				throw new TemplateException("Unable to invoke method " + method
 					+ "; " + e2.getMessage() + "\nArguments were: " + Arrays.toString(data), e2);
 			}
 			catch(Exception e)
 			{
-				throw new TemplateException("Unable to invoke method " + method 
+				throw new TemplateException("Unable to invoke method " + method
 					+ "; " + e.getMessage() + "\nArguments were: " + Arrays.toString(data), e);
 			}
 		}
 	}
-	
+
 	private class Argument
 	{
 		private final ArgumentDef def;
@@ -497,7 +497,7 @@ public class ComponentTemplateFragment
 			this.def = def;
 			this.attribute = attribute;
 		}
-		
+
 		public boolean canBeInjected()
 		{
 			if(def.binding != null)
@@ -516,7 +516,7 @@ public class ComponentTemplateFragment
 				return true;
 			}
 		}
-		
+
 		public Object getValue(RenderingContext ctx, Object root)
 		{
 			if(attribute != null)
@@ -533,25 +533,25 @@ public class ComponentTemplateFragment
 			}
 		}
 	}
-	
+
 	private class MethodDef
 	{
 		private final Method method;
 		private final ArgumentDef[] arguments;
-		
+
 		public MethodDef(Method m)
 		{
 			this.method = m;
-			
+
 			ArgumentDef[] result = new ArgumentDef[m.getParameterTypes().length];
 			for(int i=0, n=result.length; i<n; i++)
 			{
 				result[i] = new ArgumentDef(m, i);
 			}
-			
+
 			arguments = result;
 		}
-		
+
 		public MethodInvocation bind(FragmentEncounter encounter)
 		{
 			Argument[] boundArguments = new Argument[arguments.length];
@@ -562,7 +562,7 @@ public class ComponentTemplateFragment
 			return new MethodInvocation(method, boundArguments);
 		}
 	}
-	
+
 	private class ArgumentDef
 	{
 		private final Method method;
@@ -571,26 +571,26 @@ public class ComponentTemplateFragment
 		private final String attribute;
 		private final Class<?> typeClass;
 		private final Binding binding;
-		
+
 		public ArgumentDef(Method m, int index)
 		{
 			method = m;
 			annotations = m.getParameterAnnotations()[index];
 			type = m.getGenericParameterTypes()[index];
 			typeClass = m.getParameterTypes()[index];
-			
+
 			attribute = findAttribute(m, annotations);
 			binding = attribute == null ? findBinding() : null;
 		}
-		
+
 		private Binding findBinding()
 		{
 			TypeLiteral literal = TypeLiteral.get(type);
-			
+
 			for(Binding b : (List<Binding>) injector.findBindingsByType(literal))
 			{
 				Key key = b.getKey();
-				
+
 				if(key.getAnnotation() != null)
 				{
 					for(Annotation a : annotations)
@@ -601,16 +601,16 @@ public class ComponentTemplateFragment
 						}
 					}
 				}
-				
+
 				if(key.getAnnotation() == null)
 				{
 					return b;
 				}
 			}
-			
+
 			return null;
 		}
-		
+
 		private String findAttribute(Method m, Annotation[] annotations)
 		{
 			for(Annotation a : annotations)
@@ -620,10 +620,10 @@ public class ComponentTemplateFragment
 					return ((TemplateParam) a).value();
 				}
 			}
-			
+
 			return null;
 		}
-		
+
 		private Argument bind(FragmentEncounter encounter)
 		{
 			Attribute<?> attr = null;
@@ -631,7 +631,7 @@ public class ComponentTemplateFragment
 			{
 				attr = encounter.getAttribute(attribute);
 			}
-			
+
 			return new Argument(this, attr);
 		}
 	}

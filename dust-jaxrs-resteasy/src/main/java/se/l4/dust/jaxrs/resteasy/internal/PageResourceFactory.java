@@ -9,10 +9,10 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import com.google.inject.Provider;
 
 /**
- * {@link ResourceFactory} that creates resources for RESTeasy based on 
+ * {@link ResourceFactory} that creates resources for RESTeasy based on
  * {@link PageProvider}s. This is how we can use Guice for creation of pages,
  * which allows our pages to have different scopes.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -21,23 +21,23 @@ public class PageResourceFactory
 {
 	private final Provider<Object> provider;
 	private final Class<?> type;
-	
+
 	private PropertyInjector propertyInjector;
-	
+
 	public PageResourceFactory(Provider<Object> provider, Class<?> type)
 	{
 		this.provider = provider;
 		this.type = type;
 	}
-	
+
 	public Object createResource(HttpRequest request, HttpResponse response,
 			ResteasyProviderFactory factory)
 	{
 		Object o = provider.get();
-		
+
 		// Inject properties
 		propertyInjector.inject(request, response, o);
-		
+
 		return o;
 	}
 

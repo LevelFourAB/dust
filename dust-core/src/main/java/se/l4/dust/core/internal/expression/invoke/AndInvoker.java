@@ -7,7 +7,7 @@ import se.l4.dust.core.internal.expression.ast.Node;
 
 /**
  * Invoker for and operations.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -27,7 +27,7 @@ public class AndInvoker
 		Boolean rb = castRightNotNull(errors, right);
 		return lb && rb;
 	}
-	
+
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
@@ -40,7 +40,7 @@ public class AndInvoker
 				Object rv = right.get(errors, context, root, instance);
 				return check(errors, lv, rv);
 			}
-			
+
 			return false;
 		}
 		catch(Throwable t)
@@ -48,15 +48,15 @@ public class AndInvoker
 			throw errors.error(node, t);
 		}
 	}
-	
+
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		String lj = left.toJavaGetter(errors, compiler, context);
 		String rj = right.toJavaGetter(errors, compiler, context);
-		
-		return "(" + compiler.unwrap(left.getReturnClass(), lj) 
-			+ " && " 
+
+		return "(" + compiler.unwrap(left.getReturnClass(), lj)
+			+ " && "
 			+ compiler.unwrap(right.getReturnClass(), rj) + ")";
 	}
 }

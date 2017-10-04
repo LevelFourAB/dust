@@ -9,7 +9,7 @@ import com.google.inject.BindingAnnotation;
 
 /**
  * Annotation used for adding combined assets or registering asset conversions.
- * 
+ *
  * <p>
  * Example:
  * <pre>
@@ -22,7 +22,7 @@ import com.google.inject.BindingAnnotation;
  *			.create();
  * }
  * </pre>
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -33,7 +33,7 @@ public @interface AssetContribution
 {
 	/**
 	 * Name of the method, can be used if ordering is required.
-	 * 
+	 *
 	 * @return
 	 */
 	String name() default "";

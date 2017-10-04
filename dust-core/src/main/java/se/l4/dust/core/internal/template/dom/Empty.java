@@ -13,7 +13,7 @@ public class Empty
 	{
 		super("");
 	}
-	
+
 	@Override
 	public void emit(TemplateEmitter emitter, TemplateOutputStream output)
 		throws IOException

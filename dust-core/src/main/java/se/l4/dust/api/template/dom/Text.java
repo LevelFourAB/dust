@@ -8,7 +8,7 @@ import se.l4.dust.api.template.TemplateOutputStream;
 
 /**
  * Text content.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -16,7 +16,7 @@ public class Text
 	implements Emittable
 {
 	private final String text;
-	
+
 	public Text(String text)
 	{
 		this.text = text;
@@ -26,14 +26,14 @@ public class Text
 	{
 		return text;
 	}
-	
+
 	@Override
 	public void emit(TemplateEmitter emitter, TemplateOutputStream output)
 		throws IOException
 	{
 		output.text(text);
 	}
-	
+
 	@Override
 	public String toString()
 	{

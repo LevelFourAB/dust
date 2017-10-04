@@ -8,10 +8,10 @@ public interface Attribute<T>
 {
 	static final String ATTR_EMIT = "##emit";
 	static final String ATTR_SKIP = "##skip";
-	
+
 	String getName();
 
 	String getStringValue();
-	
+
 	<N> Attribute<N> bindVia(TypeConverter converter, Class<N> output);
 }

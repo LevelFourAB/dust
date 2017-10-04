@@ -15,18 +15,18 @@ public class UrlLocation
 	{
 		this.url = url;
 	}
-	
+
 	public URL getUrl()
 	{
 		return url;
 	}
-	
+
 	@Override
 	public String getName()
 	{
 		return url.toString();
 	}
-	
+
 	@Override
 	public ResourceLocation withExtension(String newExtension)
 	{
@@ -42,7 +42,7 @@ public class UrlLocation
 			throw Throwables.propagate(e);
 		}
 	}
-	
+
 	@Override
 	public ResourceLocation resolve(String path)
 	{
@@ -55,7 +55,7 @@ public class UrlLocation
 			throw Throwables.propagate(e);
 		}
 	}
-	
+
 	@Override
 	public String toString()
 	{

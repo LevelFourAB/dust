@@ -43,7 +43,7 @@ import com.google.inject.Stage;
 /**
  * Expression resolution tests. Tests that the resolver will handle expressions
  * in the correct way.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -61,11 +61,11 @@ public class ResolverTest
 		tc = injector.getInstance(TypeConverter.class);
 		expressions = new ExpressionsImpl(tc, Stage.DEVELOPMENT);
 		expressions.addSource("dust:test", new TestSource());
-		
+
 		namespaces = new HashMap<String, String>();
 		namespaces.put("t", "dust:test");
 	}
-	
+
 	@Test
 	public void testProperty()
 		throws Exception
@@ -73,28 +73,28 @@ public class ResolverTest
 		Method m = Person.class.getMethod("getName");
 		test("name", Person.class, new MethodPropertyInvoker(null, null, m, null));
 	}
-	
+
 	@Test
 	public void testLong()
 		throws Exception
 	{
 		test("12", Person.class, new ConstantInvoker(null, 12l));
 	}
-	
+
 	@Test
 	public void testDouble()
 		throws Exception
 	{
 		test("12.0", Person.class, new ConstantInvoker(null, 12.0));
 	}
-	
+
 	@Test
 	public void testString()
 		throws Exception
 	{
 		test("'string'", Person.class, new ConstantInvoker(null, "string"));
 	}
-	
+
 	@Test
 	public void testKeywords()
 		throws Exception
@@ -104,19 +104,19 @@ public class ResolverTest
 		test("true", Person.class, new ConstantInvoker(null, true));
 		test("null", Person.class, new ConstantInvoker(null, null));
 	}
-	
+
 	@Test
 	public void testSimpleChain()
 		throws Exception
 	{
 		Method m1 = Person.class.getMethod("getName");
 		Method m2 = String.class.getMethod("getClass");
-		test("name.class", Person.class, new ChainInvoker(null, 
+		test("name.class", Person.class, new ChainInvoker(null,
 			new MethodPropertyInvoker(null, null, m1, null),
 			new MethodPropertyInvoker(null, null, m2, null)
 		));
 	}
-	
+
 	@Test
 	public void testMethod()
 		throws Exception
@@ -128,7 +128,7 @@ public class ResolverTest
 			new Invoker[0]
 		));
 	}
-	
+
 	@Test
 	public void testMethodChain()
 		throws Exception
@@ -144,14 +144,14 @@ public class ResolverTest
 			new MethodPropertyInvoker(null, null, m2, null)
 		));
 	}
-	
+
 	@Test
 	public void testCommonProperty()
 		throws Exception
 	{
 		test("t:emit", Person.class, new DynamicPropertyInvoker(null, new Property("emit")));
 	}
-	
+
 	@Test
 	public void testCommonPropertyWithSubResoultion()
 		throws Exception
@@ -162,7 +162,7 @@ public class ResolverTest
 			new DynamicPropertyInvoker(null, new Property("sub"))
 		));
 	}
-	
+
 	@Test
 	public void testCommonPropertyWithMethodResoultion()
 		throws Exception
@@ -175,7 +175,7 @@ public class ResolverTest
 			})
 		));
 	}
-	
+
 	@Test
 	public void testCommonPropertyWithSubAndMethodResoultion()
 		throws Exception
@@ -192,19 +192,19 @@ public class ResolverTest
 			)
 		));
 	}
-	
+
 	@Test
 	public void testGenericMethod()
 	{
 		resolve("get('red').bytes", TestMap.class);
 	}
-	
+
 	@Test
 	public void testIndexedMethod()
 	{
 		resolve("map['string']", IndexContainer.class);
 	}
-	
+
 	@Test
 	public void testMethodNullParam()
 		throws Exception
@@ -216,7 +216,7 @@ public class ResolverTest
 			new Invoker[] { new ConstantInvoker(null, null) }
 		));
 	}
-	
+
 	@Test
 	public void testMethodConstantParam()
 		throws Exception
@@ -228,7 +228,7 @@ public class ResolverTest
 			new Invoker[] { new ConstantInvoker(null, "value") }
 		));
 	}
-	
+
 	@Test
 	public void testExposedProperty()
 		throws Exception
@@ -236,7 +236,7 @@ public class ResolverTest
 		Field f = Person.class.getDeclaredField("verified");
 		test("verified", Person.class, new FieldPropertyInvoker(null, null, f));
 	}
-	
+
 	@Test
 	public void testLongArray()
 		throws Exception
@@ -246,7 +246,7 @@ public class ResolverTest
 			new ConstantInvoker(null, 2l),
 		}));
 	}
-	
+
 	@Test
 	public void testStringArray()
 		throws Exception
@@ -256,7 +256,7 @@ public class ResolverTest
 			new ConstantInvoker(null, ""),
 		}));
 	}
-	
+
 	@Test
 	public void testArrayWithProperty()
 		throws Exception
@@ -266,7 +266,7 @@ public class ResolverTest
 			new MethodPropertyInvoker(null, null, m, null)
 		}));
 	}
-	
+
 	public static class IndexContainer
 	{
 		public Map<String, String> getMap()
@@ -274,16 +274,16 @@ public class ResolverTest
 			return null;
 		}
 	}
-	
+
 	public static class TestMap
 		extends HashMap<String, String>
 	{
 	}
-	
+
 	private void test(String expr, Class<?> context, Invoker expectedResult)
 	{
 		Invoker invoker = resolve(expr, context);
-		
+
 		Assert.assertEquals("Resolved result does not match", expectedResult, invoker);
 	}
 
@@ -292,16 +292,16 @@ public class ResolverTest
 		ErrorHandler errors = new ErrorHandlerImpl(expr);
 		Node node = ExpressionParser.parse(expr);
 		Invoker invoker = new ExpressionResolver(
-				tc, 
+				tc,
 				expressions,
 				null,
 				namespaces,
-				errors, 
+				errors,
 				node
 			).resolve(context);
 		return invoker;
 	}
-	
+
 	private static class TestSource
 		implements ExpressionSource
 	{
@@ -317,9 +317,9 @@ public class ResolverTest
 		{
 			return null;
 		}
-		
+
 	}
-	
+
 	private static class Property
 		implements DynamicProperty
 	{
@@ -335,18 +335,18 @@ public class ResolverTest
 		{
 			return 12;
 		}
-		
+
 		@Override
 		public boolean supportsGet()
 		{
 			return true;
 		}
-		
+
 		@Override
 		public void set(Context context, Object root, Object value)
 		{
 		}
-		
+
 		@Override
 		public boolean supportsSet()
 		{
@@ -358,13 +358,13 @@ public class ResolverTest
 		{
 			return Integer.class;
 		}
-		
+
 		@Override
 		public boolean needsContext()
 		{
 			return true;
 		}
-		
+
 		@Override
 		public DynamicProperty getProperty(ExpressionEncounter encounter, String name)
 		{
@@ -372,10 +372,10 @@ public class ResolverTest
 			{
 				return new Property(name);
 			}
-			
+
 			return null;
 		}
-		
+
 		@Override
 		public DynamicMethod getMethod(ExpressionEncounter encounter, String name, Class... parameters)
 		{
@@ -383,7 +383,7 @@ public class ResolverTest
 			{
 				return new TestMethod(name);
 			}
-			
+
 			return null;
 		}
 
@@ -415,14 +415,14 @@ public class ResolverTest
 				return false;
 			return true;
 		}
-		
+
 		@Override
 		public String toString()
 		{
 			return "TestProperty{name=" + name + "}";
 		}
 	}
-	
+
 	private static class TestMethod
 		implements DynamicMethod
 	{
@@ -444,13 +444,13 @@ public class ResolverTest
 		{
 			return String.class;
 		}
-		
+
 		@Override
 		public Class<?>[] getParametersType()
 		{
 			return new Class[] { String.class };
 		}
-		
+
 		@Override
 		public boolean needsContext()
 		{
@@ -485,7 +485,7 @@ public class ResolverTest
 				return false;
 			return true;
 		}
-		
+
 		@Override
 		public String toString()
 		{

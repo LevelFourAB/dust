@@ -8,7 +8,7 @@ import se.l4.dust.api.template.fragment.TemplateFragment;
 
 /**
  * Usage of a previously defined fragment.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -20,14 +20,14 @@ public class FragmentUse
 	public void build(FragmentEncounter encounter)
 	{
 		Attribute<?> attribute = encounter.getAttribute("id", true);
-		
+
 		String id = attribute.getStringValue();
 		Emittable[] content = encounter.getValue("fragment|" + id);
 		if(content == null)
 		{
 			throw new TemplateException("The fragment `" + id + "` must be defined before it can be used");
 		}
-		
+
 		encounter.replaceWith(content);
 	}
 }

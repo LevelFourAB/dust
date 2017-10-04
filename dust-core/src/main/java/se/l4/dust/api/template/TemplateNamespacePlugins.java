@@ -16,7 +16,7 @@ import com.google.inject.Stage;
 /**
  * A collection of plugins for {@link Namespaces.NamespaceBinder} that
  * works together with the template engine.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -25,12 +25,12 @@ public class TemplateNamespacePlugins
 	private TemplateNamespacePlugins()
 	{
 	}
-	
+
 	/**
 	 * Register an expression source for the namespace. Calls
 	 * {@link Expressions#addSource(String, ExpressionSource)} with the
 	 * given source.
-	 * 
+	 *
 	 * @param source
 	 * @return
 	 */
@@ -45,11 +45,11 @@ public class TemplateNamespacePlugins
 			}
 		};
 	}
-	
+
 	/**
 	 * Register the namespace to resolve messages from the file
 	 * {@code namespace(.messages)} relative to its package.
-	 * 
+	 *
 	 * @return
 	 */
 	public static NamespacePlugin messages()
@@ -60,7 +60,7 @@ public class TemplateNamespacePlugins
 	/**
 	 * Register the namespace to resolve messages from the given relative file
 	 * to its package.
-	 * 
+	 *
 	 * @param relativeFileWithoutExtension
 	 * @return
 	 */
@@ -77,15 +77,15 @@ public class TemplateNamespacePlugins
 					ns,
 					relativeFileWithoutExtension
 				);
-				
+
 				injector.getInstance(Expressions.class).addSource(ns.getUri(), source);
 			}
 		};
 	}
-	
+
 	/**
 	 * Register the namespace so that assets can be resolved in templates.
-	 * 
+	 *
 	 * @return
 	 */
 	public static NamespacePlugin assets()
@@ -96,17 +96,17 @@ public class TemplateNamespacePlugins
 			public void register(Injector injector, Namespace ns)
 			{
 				Assets assets = injector.getInstance(Assets.class);
-				
+
 				injector.getInstance(Expressions.class)
 					.addSource(ns.getUri(), new AssetExpressionSource(assets, ns.getUri()));
 			}
 		};
 	}
-	
+
 	/**
 	 * Register so that the namespace resolved assets that are registered in
 	 * another namespace.
-	 * 
+	 *
 	 * @param namespace
 	 * @return
 	 */
@@ -118,7 +118,7 @@ public class TemplateNamespacePlugins
 			public void register(Injector injector, Namespace ns)
 			{
 				Assets assets = injector.getInstance(Assets.class);
-				
+
 				injector.getInstance(Expressions.class)
 					.addSource(ns.getUri(), new AssetExpressionSource(assets, namespace));
 			}

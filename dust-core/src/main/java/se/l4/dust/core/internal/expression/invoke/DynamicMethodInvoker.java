@@ -12,7 +12,7 @@ import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker for {@link DynamicMethod}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -29,7 +29,7 @@ public class DynamicMethodInvoker
 		this.method = method;
 		this.params = params;
 	}
-	
+
 	public DynamicMethod getMethod()
 	{
 		return method;
@@ -54,7 +54,7 @@ public class DynamicMethodInvoker
 		{
 			throw errors.error(node, "Object is null, can't invoke a method on a null object");
 		}
-		
+
 		try
 		{
 			Object[] values = new Object[params.length];
@@ -62,7 +62,7 @@ public class DynamicMethodInvoker
 			{
 				values[i] = params[i].get(errors, context, root, root);
 			}
-			
+
 			return method.invoke(context, instance, values);
 		}
 		catch(Throwable t)
@@ -70,7 +70,7 @@ public class DynamicMethodInvoker
 			throw errors.error(node, t);
 		}
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
@@ -83,18 +83,18 @@ public class DynamicMethodInvoker
 	{
 		throw errors.error(node, "Can not set value of this expression");
 	}
-	
+
 	@Override
 	public boolean supportsSet()
 	{
 		return false;
 	}
-	
+
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		String in = compiler.addInput(DynamicMethod.class, method);
-		
+
 		StringBuilder builder = new StringBuilder();
 		builder.append("(")
 			.append(compiler.cast(getReturnClass()))
@@ -102,7 +102,7 @@ public class DynamicMethodInvoker
 			.append(in)
 			.append(".invoke($1, ")
 			.append(context);
-		
+
 		if(params.length == 0)
 		{
 			builder.append(", null");
@@ -110,25 +110,25 @@ public class DynamicMethodInvoker
 		else
 		{
 			builder.append(", new java.lang.Object[] { ");
-		
+
 			for(int i=0, n=params.length; i<n; i++)
 			{
 				if(i > 0) builder.append(", ");
-				
+
 				String v = params[i].toJavaGetter(errors, compiler, context);
 				builder.append(
 					compiler.wrap(params[i].getReturnClass(), v)
 				);
 			}
-			
+
 			builder.append(" }");
 		}
-		
+
 		builder.append("))");
-		
+
 		return builder.toString();
 	}
-	
+
 	@Override
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
@@ -140,7 +140,7 @@ public class DynamicMethodInvoker
 	{
 		return node;
 	}
-	
+
 	@Override
 	public int hashCode()
 	{

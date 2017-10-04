@@ -12,7 +12,7 @@ import com.fasterxml.classmate.ResolvedType;
 /**
  * Special invoker that will use {@link Conversion} to convert the return
  * value of another invoker.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -37,7 +37,7 @@ public class ConvertingInvoker
 	{
 		return output;
 	}
-	
+
 	@Override
 	public ResolvedType getReturnType()
 	{
@@ -57,38 +57,38 @@ public class ConvertingInvoker
 			throw errors.error(node, t);
 		}
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
 		return wrapped.supportsGet();
 	}
-	
+
 	@Override
 	public void set(ErrorHandler errors, Context context, Object root,
 			Object instance, Object value)
 	{
 		wrapped.set(errors, context, root, instance, value);
 	}
-	
+
 	@Override
 	public boolean supportsSet()
 	{
 		return wrapped.supportsSet();
 	}
-	
+
 	@Override
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		return null;
 	}
-	
+
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		String expr = wrapped.toJavaGetter(errors, compiler, context);
 		String id = compiler.addInput(Conversion.class, conversion);
-		
+
 		expr = id + ".convert(" + compiler.wrap(wrapped.getReturnClass(), expr) + ")";
 		return compiler.castOrWrap(output, expr, conversion.getOutput());
 	}

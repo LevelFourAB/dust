@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 /**
  * Indicate that a parameter in the calling template should be given
  * to this component.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -20,7 +20,7 @@ public @interface TemplateParam
 {
 	/**
 	 * The name of the parameter.
-	 * 
+	 *
 	 * @return
 	 */
 	String value();

@@ -15,7 +15,7 @@ public class EmittableContent
 	public EmittableContent(Emittable emittable)
 	{
 		super("internal:emittable:" + emittable.getClass().getSimpleName());
-		
+
 		this.emittable = emittable;
 	}
 
@@ -23,7 +23,7 @@ public class EmittableContent
 	{
 		return emittable;
 	}
-	
+
 	@Override
 	public void emit(TemplateEmitter emitter, TemplateOutputStream output)
 		throws IOException

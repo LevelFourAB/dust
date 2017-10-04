@@ -7,7 +7,7 @@ import java.io.OutputStream;
 /**
  * Cache interface for asset files, can be tied up the application using
  * Dust to enable caching for asset transformations.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -16,7 +16,7 @@ public interface AssetCache
 	/**
 	 * Get an output stream to use for storing a file the given name. The
 	 * file use a forward slash (/) as its separator.
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */
@@ -25,7 +25,7 @@ public interface AssetCache
 
 	/**
 	 * Get an object from the cache.
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */

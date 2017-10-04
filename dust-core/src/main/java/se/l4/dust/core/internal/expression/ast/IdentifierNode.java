@@ -3,7 +3,7 @@ package se.l4.dust.core.internal.expression.ast;
 
 /**
  * Node representing an identifier, with an optional namespace.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -16,30 +16,30 @@ public class IdentifierNode
 	public IdentifierNode(int line, int position, String namespace, String identifier)
 	{
 		super(line, position);
-		
+
 		this.namespace = namespace;
 		this.identifier = identifier;
 	}
-	
+
 	public String getNamespace()
 	{
 		return namespace;
 	}
-	
+
 	public String getIdentifier()
 	{
 		return identifier;
 	}
-	
+
 	public String toHumanReadable()
 	{
 		return namespace == null ? identifier : namespace + ":" + identifier;
 	}
-	
+
 	@Override
 	public String toString()
 	{
-		return getClass().getSimpleName() + "[ns=" + namespace + ", id=" + identifier + "]"; 
+		return getClass().getSimpleName() + "[ns=" + namespace + ", id=" + identifier + "]";
 	}
 
 	@Override

@@ -18,7 +18,7 @@ import com.google.inject.Singleton;
 
 /**
  * Renderer of templates, delegates most of its work to {@link TemplateEmitterImpl}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -33,7 +33,7 @@ public class TemplateRendererImpl
 	{
 		this.cache = cache;
 	}
-	
+
 	@Override
 	public void render(RenderingContext ctx, ParsedTemplate template, Object data, TemplateOutputStream out)
 		throws IOException
@@ -51,7 +51,7 @@ public class TemplateRendererImpl
 			Scopes.setActiveContext(previous);
 		}
 	}
-	
+
 	@Override
 	public void render(RenderingContext ctx, Object data, TemplateOutputStream out)
 		throws IOException
@@ -61,17 +61,17 @@ public class TemplateRendererImpl
 		{
 			throw new IllegalArgumentException("Object of type " + c + " does not have a @" + Template.class.getSimpleName() + " annotation");
 		}
-		
+
 		ParsedTemplate tpl = cache.getTemplate(ctx, c);
 		render(ctx, tpl, data, out);
 	}
-	
+
 	@Override
 	public void render(RenderingContext ctx, Object data, ResourceLocation template, TemplateOutputStream out)
 		throws IOException
 	{
 		Class<?> c = data.getClass();
-		
+
 		ParsedTemplate tpl = cache.getTemplate(ctx, c, template);
 		render(ctx, tpl, data, out);
 	}

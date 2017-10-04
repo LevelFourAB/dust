@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * Expose information from a class for use in expressions. This annotation
  * can be placed on private fields to make them usable in expression without
  * writing getters or setters.
- * 
+ *
  * @author Andreas Holstenson
  *
  */

@@ -3,7 +3,7 @@ package se.l4.dust.core.internal.expression.ast;
 /**
  * Abstract node implementation, contains shared information such as position
  * information.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -18,13 +18,13 @@ public class AbstractNode
 		this.line = line;
 		this.position = position;
 	}
-	
+
 	@Override
 	public int getLine()
 	{
 		return line;
 	}
-	
+
 	@Override
 	public int getPositionInLine()
 	{

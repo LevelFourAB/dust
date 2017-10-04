@@ -14,7 +14,7 @@ import com.google.common.base.Charsets;
 
 /**
  * Template output that will output its contents as HTML.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -24,7 +24,7 @@ public class HtmlTemplateOutput
 	protected final Writer writer;
 	protected boolean inComment;
 	protected boolean written;
-	
+
 	private final List<Boolean> preserveWhitespace;
 	protected boolean currentPreserveWhitespace;
 	protected boolean lastWhitespace;
@@ -33,14 +33,14 @@ public class HtmlTemplateOutput
 	{
 		this(new OutputStreamWriter(stream, Charsets.UTF_8));
 	}
-	
+
 	public HtmlTemplateOutput(Writer writer)
 	{
 		this.writer = writer;
 		preserveWhitespace = new ArrayList<Boolean>(20);
 		lastWhitespace = false;
 	}
-	
+
 	private void escape(String in)
 		throws IOException
 	{
@@ -79,7 +79,7 @@ public class HtmlTemplateOutput
 		writer.write(Integer.toString(c, 10));
 		writer.write(';');
 	}
-	
+
 	@Override
 	public void startElement(String name, String[] attributes)
 		throws IOException
@@ -88,7 +88,7 @@ public class HtmlTemplateOutput
 		written = true;
 		writer.write('<');
 		writer.write(name);
-		
+
 		if(attributes.length > 0)
 		{
 			for(int i=0, n=attributes.length; i<n; i+=2)
@@ -99,7 +99,7 @@ public class HtmlTemplateOutput
 				{
 					break;
 				}
-				
+
 				if(v == AttributeImpl.ATTR_EMIT)
 				{
 					writer.write(' ');
@@ -109,7 +109,7 @@ public class HtmlTemplateOutput
 				{
 					writer.write(' ');
 					writer.write(k);
-					
+
 					if(v != null)
 					{
 						writer.write("=\"");
@@ -119,13 +119,13 @@ public class HtmlTemplateOutput
 				}
 			}
 		}
-		
+
 		if("textarea".equals(name) || "pre".equals(name))
 		{
 			currentPreserveWhitespace = Boolean.TRUE;
 		}
 		preserveWhitespace.add(currentPreserveWhitespace);
-		
+
 		writer.write('>');
 	}
 
@@ -134,18 +134,18 @@ public class HtmlTemplateOutput
 		throws IOException
 	{
 		lastWhitespace = false;
-		
+
 		writer.write("</");
 		writer.write(name);
 		writer.write('>');
-		
+
 		preserveWhitespace.remove(preserveWhitespace.size() - 1);
 		if(! preserveWhitespace.isEmpty())
 		{
 			currentPreserveWhitespace = preserveWhitespace.get(preserveWhitespace.size() - 1);
 		}
 	}
-	
+
 	@Override
 	public void element(String name, String[] attributes)
 		throws IOException
@@ -154,7 +154,7 @@ public class HtmlTemplateOutput
 		written = true;
 		writer.write('<');
 		writer.write(name);
-		
+
 		if(attributes.length > 0)
 		{
 			for(int i=0, n=attributes.length; i<n; i+=2)
@@ -165,7 +165,7 @@ public class HtmlTemplateOutput
 				{
 					break;
 				}
-				
+
 				if(v == AttributeImpl.ATTR_EMIT)
 				{
 					writer.write(' ');
@@ -175,7 +175,7 @@ public class HtmlTemplateOutput
 				{
 					writer.write(' ');
 					writer.write(k);
-					
+
 					if(v != null)
 					{
 						writer.write("=\"");
@@ -185,7 +185,7 @@ public class HtmlTemplateOutput
 				}
 			}
 		}
-		
+
 		writer.write('>');
 	}
 
@@ -215,13 +215,13 @@ public class HtmlTemplateOutput
 			writer.write("null");
 			return;
 		}
-		
+
 		if(inComment)
 		{
 			for(int i=0, n=text.length(); i<n; i++)
 			{
 				char c = text.charAt(i);
-				
+
 				if(c == '-' && i < n - 1 && text.charAt(i+1) == '-')
 				{
 					// Escape this character
@@ -249,43 +249,43 @@ public class HtmlTemplateOutput
 				if(whitespace)
 				{
 					if(lastWhitespace) continue;
-					
+
 					writer.write(' ');
 				}
 				else
 				{
 					escape(c);
 				}
-				
+
 				lastWhitespace = whitespace;
 			}
 		}
 	}
-	
+
 	@Override
 	public void raw(String text)
 		throws IOException
 	{
 		writer.write(text);
 	}
-	
+
 	@Override
 	public void docType(String name, String publicId, String systemId)
 		throws IOException
 	{
 		// Do not output if illegal
 		if(written) return;
-		
+
 		writer.write("<!DOCTYPE ");
 		writer.write(name);
-		
+
 		if(publicId != null)
 		{
 			writer.write(" PUBLIC \"");
 			writer.write(publicId);
 			writer.write('"');
 		}
-		
+
 		if(systemId != null)
 		{
 			if(publicId == null) writer.write(" SYSTEM");
@@ -293,9 +293,9 @@ public class HtmlTemplateOutput
 			writer.write(systemId);
 			writer.write('"');
 		}
-		
+
 		writer.write('>');
-		
+
 		written = true;
 	}
 

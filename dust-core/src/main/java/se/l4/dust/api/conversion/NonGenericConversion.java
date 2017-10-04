@@ -3,7 +3,7 @@ package se.l4.dust.api.conversion;
 /**
  * Conversion between two types, used by the {@link TypeConverter} to perform
  * actual type conversions. If possible use {@link Conversion} instead.
- * 
+ *
  * @author Andreas Holstenson
  *
  * @param <I>
@@ -16,16 +16,15 @@ public interface NonGenericConversion<I, O>
 {
 	/**
 	 * Get class of input (should match {@code <I>} parameter).
-	 * 
+	 *
 	 * @return
 	 */
 	Class<I> getInput();
-	
+
 	/**
 	 * Get class of output (should match {@code <O>} parameter).
-	 * 
+	 *
 	 * @return
 	 */
 	Class<O> getOutput();
 }
-

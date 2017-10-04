@@ -10,7 +10,7 @@ import com.google.inject.BindingAnnotation;
 /**
  * Annotation for binding contributions to the template engine, such as
  * mixins and property sources.
- * 
+ *
  * <p>
  * Example:
  * <pre>
@@ -20,7 +20,7 @@ import com.google.inject.BindingAnnotation;
  * 		.addMixin("mixin", mixinObject);
  * }
  * </pre>
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -31,7 +31,7 @@ public @interface TemplateContribution
 {
 	/**
 	 * Define the name of the binding, if needed for ordering.
-	 * 
+	 *
 	 * @return
 	 */
 	String name() default "";

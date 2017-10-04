@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * Resource that consists of several other resources.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -16,19 +16,19 @@ public class MergedResource
 	extends AbstractResource
 {
 	private final Resource[] resources;
-	
+
 	public MergedResource(ResourceLocation location, List<Resource> resources)
 	{
 		this(location, resources.toArray(new Resource[resources.size()]));
 	}
-	
+
 	public MergedResource(ResourceLocation location, Resource... resources)
 	{
 		super(location);
-		
+
 		this.resources = resources;
 	}
-	
+
 	@Override
 	public String getContentType()
 	{
@@ -43,7 +43,7 @@ public class MergedResource
 		{
 			length += r.getContentLength();
 		}
-		
+
 		return length;
 	}
 
@@ -61,7 +61,7 @@ public class MergedResource
 		{
 			last = Math.max(r.getLastModified(), last);
 		}
-		
+
 		return last;
 	}
 
@@ -71,13 +71,13 @@ public class MergedResource
 	{
 		return new MergedInputStream(resources);
 	}
-	
+
 	@Override
 	public String toString()
 	{
 		return getClass().getSimpleName() + "{location=" + getLocation() + ", resources=" + Arrays.toString(resources) + "}";
 	}
-	
+
 	public Resource[] getResources()
 	{
 		return resources;
@@ -85,7 +85,7 @@ public class MergedResource
 
 	/**
 	 * Input stream that merges several resources into one.
-	 * 
+	 *
 	 * @author Andreas Holstenson
 	 *
 	 */
@@ -96,19 +96,19 @@ public class MergedResource
 		private final Resource[] resources;
 		private int currentResource;
 		private InputStream currentStream;
-		
+
 		public MergedInputStream(Resource[] resources)
 		{
 			this.resources = resources;
-			
+
 			currentResource = -1;
 		}
-		
+
 		/**
 		 * Open the next resource for reading.
-		 * 
+		 *
 		 * @return
-		 * @throws IOException 
+		 * @throws IOException
 		 */
 		private boolean openNext()
 			throws IOException
@@ -119,10 +119,10 @@ public class MergedResource
 				// No more resources to try
 				return false;
 			}
-			
+
 			Resource resource = resources[currentResource];
 			currentStream = resource.openStream();
-			
+
 			return true;
 		}
 
@@ -137,7 +137,7 @@ public class MergedResource
 					return -1;
 				}
 			}
-			
+
 			while(true)
 			{
 				int read = currentStream.read();
@@ -145,13 +145,13 @@ public class MergedResource
 				{
 					// Check if we can open another stream, and if so read again
 					if(openNext()) continue;
-					
+
 					return -1;
 				}
-				
+
 				return read;
 			}
 		}
-		
+
 	}
 }

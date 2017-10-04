@@ -25,7 +25,7 @@ import com.google.common.primitives.Primitives;
 /**
  * Implementation of {@link TypeConverter}, supports chaining of conversions
  * to reach the desired output type.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -40,7 +40,7 @@ public class DefaultTypeConverter
 			return null;
 		}
 	};
-	
+
 	private static final Conversion<?, ?> NO_CONVERSION = new Conversion<Object, Object>()
 		{
 			@Override
@@ -49,7 +49,7 @@ public class DefaultTypeConverter
 				return in;
 			}
 		};
-		
+
 	private static final Conversion<?, ?> STRING_CONVERSION = new Conversion<Object, Object>()
 		{
 			@Override
@@ -58,10 +58,10 @@ public class DefaultTypeConverter
 				return String.valueOf(in);
 			}
 		};
-	
+
 	private final LoadingCache<Class<?>, List<Conversion<?, ?>>> conversions;
 	private final Map<CacheKey, Conversion<?, ?>> cache;
-	
+
 	public DefaultTypeConverter()
 	{
 		conversions = CacheBuilder.newBuilder()
@@ -74,10 +74,10 @@ public class DefaultTypeConverter
 					return new CopyOnWriteArrayList<Conversion<?,?>>();
 				}
 			});
-		
+
 		cache = new ConcurrentHashMap<CacheKey, Conversion<?,?>>();
 	}
-	
+
 	private List<Conversion<?, ?>> getListFor(Class<?> c)
 	{
 		synchronized(conversions)
@@ -88,11 +88,11 @@ public class DefaultTypeConverter
 				list = new LinkedList<Conversion<?,?>>();
 				conversions.put(c, list);
 			}
-			
+
 			return list;
 		}
 	}
-	
+
 	@Override
 	public void add(Conversion<?, ?> conversion)
 	{
@@ -100,7 +100,7 @@ public class DefaultTypeConverter
 		List<Conversion<?, ?>> list = conversions.getUnchecked(nonGeneric.getInput());
 		list.add(nonGeneric);
 	}
-	
+
 	@Override
 	public <I, O> void add(final Class<I> in, final Class<O> out, final Conversion<I, O> conversion)
 	{
@@ -111,13 +111,13 @@ public class DefaultTypeConverter
 			{
 				return conversion.convert(in);
 			}
-			
+
 			@Override
 			public Class<I> getInput()
 			{
 				return in;
 			}
-			
+
 			@Override
 			public Class<O> getOutput()
 			{
@@ -125,17 +125,17 @@ public class DefaultTypeConverter
 			}
 		});
 	}
-	
+
 	private <I, O> NonGenericConversion<I, O> toNonGeneric(Conversion<I, O> conversion)
 	{
 		if(conversion instanceof NonGenericConversion)
 		{
 			return (NonGenericConversion<I, O>) conversion;
 		}
-		
+
 		return new ConversionWrapper<I, O>(conversion);
 	}
-	
+
 	private Class<?> getType(Class<?> in, Class<?> output)
 	{
 		Class<?> type;
@@ -154,24 +154,24 @@ public class DefaultTypeConverter
 		{
 			type = in;
 		}
-		
+
 		return type;
 	}
-	
+
 	private Conversion<?, ?> getConversion0(Class<?> in, Class<?> output)
 	{
 		if(in == null) return NULL;
-		
+
 		if(in == output || output.isAssignableFrom(in))
 		{
 			// If the same type or output is assignable from input
 			return NO_CONVERSION;
 		}
-		
+
 		// Check cache first
 		CacheKey key = new CacheKey(in, output);
 		Conversion tc = cache.get(key);
-		
+
 		if(tc == null)
 		{
 			// If not cached find suitable conversion
@@ -187,13 +187,13 @@ public class DefaultTypeConverter
 					tc = NULL;
 				}
 			}
-			
+
 			cache.put(key, tc);
 		}
-		
+
 		return tc == NULL ? null : tc;
 	}
-	
+
 	@Override
 	public <I, O> NonGenericConversion<I, O> getConversion(Class<I> in, Class<O> out)
 	{
@@ -203,10 +203,10 @@ public class DefaultTypeConverter
 		{
 			throw new ConversionException("Can not convert between " + in + " and " + out);
 		}
-		
+
 		return (NonGenericConversion<I, O>) toNonGeneric(c);
 	}
-	
+
 	@Override
 	public <I, O> NonGenericConversion<Object, O> getDynamicConversion(Class<I> in, Class<O> out)
 	{
@@ -214,20 +214,20 @@ public class DefaultTypeConverter
 		{
 			return (NonGenericConversion<Object, O>) getConversion(in, out);
 		}
-		
+
 		if(canBeDynamic(in))
 		{
 			return createDynamicConversionTo(out);
 		}
-		
+
 		throw new ConversionException("Unable to find a conversion between " + in + " and " + out);
 	}
-	
+
 	private boolean canBeDynamic(Class<?> in)
 	{
 		return in == Object.class;
 	}
-	
+
 	@Override
 	public <T> NonGenericConversion<Object, T> createDynamicConversionTo(final Class<T> out)
 	{
@@ -238,13 +238,13 @@ public class DefaultTypeConverter
 			{
 				return Object.class;
 			}
-			
+
 			@Override
 			public Class<T> getOutput()
 			{
 				return out;
 			}
-			
+
 			@Override
 			public T convert(Object in)
 			{
@@ -252,13 +252,13 @@ public class DefaultTypeConverter
 			}
 		};
 	}
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T convert(Object in, Class<T> output)
 	{
 		Class<?> type = getType(in == null ? null : in.getClass(), output);
-		
+
 		// Check if it is assignable
 		if(type == null)
 		{
@@ -269,23 +269,23 @@ public class DefaultTypeConverter
 		{
 			return (T) in;
 		}
-		
+
 		Conversion tc = getConversion0(type, output);
 		if(tc == null)
 		{
 			throw new ConversionException("Unable to find suitable conversion between " + type + " and " + output);
 		}
-		
+
 		return (T) tc.convert(in);
 	}
-	
+
 	@Override
 	public boolean canConvertBetween(Class<?> in, Class<?> out)
 	{
 		Class<?> type = getType(in, out);
 		return getConversion0(type, out) != null;
 	}
-	
+
 	@Override
 	public boolean canConvertBetween(Object in, Class<?> out)
 	{
@@ -294,7 +294,7 @@ public class DefaultTypeConverter
 
 	/**
 	 * Find the conversion to use for converting {@code in} to {@code out}.
-	 * 
+	 *
 	 * @param <I>
 	 * 		in type
 	 * @param <O>
@@ -311,7 +311,7 @@ public class DefaultTypeConverter
 	{
 		in = Primitives.wrap(in);
 		out = Primitives.wrap(out);
-		
+
 		Set<Conversion<I, O>> tested = new HashSet<Conversion<I, O>>();
 		PriorityQueue<NonGenericConversion<I, O>> queue = new PriorityQueue<NonGenericConversion<I, O>>(
 			10,
@@ -322,10 +322,10 @@ public class DefaultTypeConverter
 				{
 					int c1 = count(o1);
 					int c2 = count(o2);
-					
+
 					return (c1<c2 ? -1 : (c1==c2 ? 0 : 1));
 				}
-				
+
 				private int count(NonGenericConversion n)
 				{
 					if(n instanceof CompoundTypeConversion)
@@ -340,83 +340,83 @@ public class DefaultTypeConverter
 				}
 			}
 		);
-		
+
 		// Add initial conversions that should be checked
 		for(Class<?> c : getInheritance(in))
 		{
 			List<Conversion<?, ?>> list = getListFor(c);
-			
+
 			queue.addAll((Collection) list);
 			tested.addAll((Collection) list);
 		}
-		
+
 		while(false == queue.isEmpty())
 		{
 			NonGenericConversion tc = queue.poll();
-		
+
 			// check if this is ok
 			if(out.isAssignableFrom(tc.getOutput()))
 			{
 				return tc;
 			}
-			
+
 			// otherwise continue
 			for(Class<?> c : getInheritance(tc.getOutput()))
 			{
 				List<Conversion<?, ?>> list = getListFor(c);
-				
+
 				for(Conversion<?, ?> possible : list)
 				{
 					if(tested.contains(possible))
 					{
 						continue;
 					}
-					
+
 					CompoundTypeConversion ctc = new CompoundTypeConversion(
 						tc, (NonGenericConversion<Object, Object>) possible
 					);
-					
+
 					queue.add((NonGenericConversion<I, O>) ctc);
 					tested.add((NonGenericConversion<I, O>) possible);
 				};
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	private static Set<Class<?>> getInheritance(Class<?> in)
 	{
 		LinkedHashSet<Class<?>> result = new LinkedHashSet<Class<?>>();
-		
+
 		result.add(in);
 		getInheritance(in, result);
-		
+
 		return result;
 	}
-	
+
 	/**
 	 * Get inheritance of type.
-	 * 
+	 *
 	 * @param in
 	 * @param result
 	 */
 	private static void getInheritance(Class<?> in, Set<Class<?>> result)
 	{
 		Class<?> superclass = getSuperclass(in);
-		
+
 		if(superclass != null)
 		{
 			result.add(superclass);
 			getInheritance(superclass, result);
 		}
-		
+
 		getInterfaceInheritance(in, result);
 	}
-	
+
 	/**
 	 * Get interfaces that the type inherits from.
-	 * 
+	 *
 	 * @param in
 	 * @param result
 	 */
@@ -425,14 +425,14 @@ public class DefaultTypeConverter
 		for(Class<?> c : in.getInterfaces())
 		{
 			result.add(c);
-			
+
 			getInterfaceInheritance(c, result);
 		}
 	}
-	
+
 	/**
 	 * Get superclass of class.
-	 * 
+	 *
 	 * @param in
 	 * @return
 	 */
@@ -442,40 +442,40 @@ public class DefaultTypeConverter
 		{
 			return null;
 		}
-		
+
 		if(in.isArray() && in != Object[].class)
 		{
 			Class<?> type = in.getComponentType();
-			
+
 			while(type.isArray())
 			{
 				type = type.getComponentType();
 			}
-			
+
 			return type;
 		}
-		
+
 		return in.getSuperclass();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public <I, O> Conversion<I, O> nullConversion()
 	{
 		return (Conversion<I, O>) NULL;
 	}
-	
+
 	private static class CacheKey
 	{
 		private Class<?> in;
 		private Class<?> out;
-		
+
 		public CacheKey(Class<?> in, Class<?> out)
 		{
 			this.in = in;
 			this.out = out;
 		}
-		
+
 		@Override
 		public boolean equals(Object obj)
 		{
@@ -484,19 +484,19 @@ public class DefaultTypeConverter
 				CacheKey key = (CacheKey) obj;
 				return in.equals(key.in) && out.equals(key.out);
 			}
-			
+
 			return false;
 		}
-		
+
 		@Override
 		public int hashCode()
 		{
 			int c = 37;
-			int t = 17; 
-			
+			int t = 17;
+
 			t = t * c + in.hashCode();
 			t = t * c + out.hashCode();
-			
+
 			return t;
 		}
 	}

@@ -23,7 +23,7 @@ public class AttributesMixin
 			encounter.raiseError("`attributes` must have the value merge");
 			return;
 		}
-		
+
 		encounter.wrap(new ElementWrapper()
 		{
 			@Override
@@ -32,14 +32,14 @@ public class AttributesMixin
 			{
 				RenderingContext ctx = encounter.getContext();
 				Object data = encounter.getObject();
-				
+
 				Attribute<String>[] extras = encounter.getContext().getValue("dust:extraAttributes");
 				for(Attribute<String> a : extras)
 				{
 					encounter.pushAttribute(a.getName(), a.get(ctx, data));
 				}
 			}
-			
+
 			@Override
 			public void afterElement(ElementEncounter encounter)
 				throws IOException

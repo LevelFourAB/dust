@@ -14,7 +14,7 @@ import com.google.inject.Inject;
 
 /**
  * A {@link ParamConverterProvider} that ties into {@link TypeConverter}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -41,7 +41,7 @@ public class ConversionParamProvider
 			// Primitives and String are not handled, nor are types that we can't convert both ways
 			return null;
 		}
-		
+
 		NonGenericConversion<T, String> toString = converter.getConversion(rawType, String.class);
 		NonGenericConversion<String, T> fromString = converter.getConversion(String.class, rawType);
 		return new ParamConverterImpl<T>(toString, fromString);
@@ -58,13 +58,13 @@ public class ConversionParamProvider
 			this.toString = toString;
 			this.fromString = fromString;
 		}
-		
+
 		@Override
 		public T fromString(String value)
 		{
 			return fromString.convert(value);
 		}
-		
+
 		@Override
 		public String toString(T value)
 		{

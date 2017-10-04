@@ -11,7 +11,7 @@ import se.l4.dust.api.messages.MessageCollection;
 /**
  * Implementation of {@link MessageCollection} that delegates everything to other
  * implementations.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -36,10 +36,10 @@ public class DelegatingMessages
 				return null;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	@Override
 	public Set<String> keys()
 	{
@@ -50,7 +50,7 @@ public class DelegatingMessages
 		}
 		return allKeys;
 	}
-	
+
 	@Override
 	public String toString()
 	{

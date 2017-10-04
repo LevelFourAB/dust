@@ -18,7 +18,7 @@ public class PageDiscoveryHandler
 	implements DiscoveryHandler
 {
 	private static final Logger logger = LoggerFactory.getLogger(PageDiscoveryHandler.class);
-	
+
 	private final JaxrsConfiguration config;
 
 	@Inject
@@ -35,7 +35,7 @@ public class PageDiscoveryHandler
 		{
 			config.addPage(page);
 		}
-		
+
 		logger.debug("{}: Found {} pages", ns.getUri(), pages.size());
 	}
 

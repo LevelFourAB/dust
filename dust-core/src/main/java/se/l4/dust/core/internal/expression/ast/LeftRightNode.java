@@ -2,7 +2,7 @@ package se.l4.dust.core.internal.expression.ast;
 
 /**
  * Abstract implementation of a node that has a left and a right part.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -15,21 +15,21 @@ public abstract class LeftRightNode
 	public LeftRightNode(int line, int position, Node left, Node right)
 	{
 		super(line, position);
-		
+
 		this.left = left;
 		this.right = right;
 	}
-	
+
 	public Node getLeft()
 	{
 		return left;
 	}
-	
+
 	public Node getRight()
 	{
 		return right;
 	}
-	
+
 	@Override
 	public String toString()
 	{

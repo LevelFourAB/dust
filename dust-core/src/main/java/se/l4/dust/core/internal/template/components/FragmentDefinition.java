@@ -6,7 +6,7 @@ import se.l4.dust.api.template.fragment.TemplateFragment;
 
 /**
  * Definition of a fragment.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -16,13 +16,13 @@ public class FragmentDefinition
 	public FragmentDefinition()
 	{
 	}
-	
+
 	@Override
 	public void build(FragmentEncounter encounter)
 	{
 		Attribute attribute = encounter.getAttribute("id", true);
 		String id = attribute.getStringValue();
-		
+
 		encounter.putValue("fragment|" + id, encounter.getBody());
 	}
 }

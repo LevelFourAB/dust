@@ -9,7 +9,7 @@ import com.google.inject.BindingAnnotation;
 
 /**
  * Annotation for binding a namespace in {@link Namespaces}.
- * 
+ *
  * <p>
  * Example:
  * <pre>
@@ -21,7 +21,7 @@ import com.google.inject.BindingAnnotation;
  * 		.add();
  * }
  * </pre>
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -32,7 +32,7 @@ public @interface NamespaceBinding
 {
 	/**
 	 * Define the name of the binding, if needed for ordering.
-	 * 
+	 *
 	 * @return
 	 */
 	String name() default "";

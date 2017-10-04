@@ -7,7 +7,7 @@ import se.l4.dust.api.template.Emittable;
 /**
  * Template root. This class contains information about the full template,
  * such as the DTD, root element and so on.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -27,37 +27,37 @@ public class ParsedTemplate
 		this.root = root;
 		this.id = id;
 	}
-	
+
 	public String getName()
 	{
 		return name;
 	}
-	
+
 	/**
 	 * Get the document type (if any).
-	 * 
+	 *
 	 * @return
 	 */
 	public DocType getDocType()
 	{
 		return doctype;
 	}
-	
+
 	/**
 	 * Get the root element.
-	 * 
+	 *
 	 * @return
 	 */
 	public Emittable getRoot()
 	{
 		return root;
 	}
-	
+
 	public Integer getRawId()
 	{
 		return id;
 	}
-	
+
 	public ResourceLocation getLocation()
 	{
 		return location;

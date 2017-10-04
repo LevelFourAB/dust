@@ -6,7 +6,7 @@ import se.l4.dust.core.internal.expression.ast.Node;
 
 /**
  * Invoker that checks for equality.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -30,7 +30,7 @@ public class EqualsInvoker
 		{
 			return false;
 		}
-		
+
 		return left.equals(right);
 	}
 
@@ -41,12 +41,12 @@ public class EqualsInvoker
 		{
 			return "(" + left.toJavaGetter(errors, compiler, context) + " == " + right.toJavaGetter(errors, compiler, context) + ")";
 		}
-		
-		String l = InvokerMethods.class.getName() + ".equals(" 
+
+		String l = InvokerMethods.class.getName() + ".equals("
 			+ compiler.wrap(left.getReturnClass(), left.toJavaGetter(errors, compiler, context))
 			+ ","
 			+ compiler.wrap(right.getReturnClass(), right.toJavaGetter(errors, compiler, context)) + ")";
-		
+
 		return l;
 	}
 }

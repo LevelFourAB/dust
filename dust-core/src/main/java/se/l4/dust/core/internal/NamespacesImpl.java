@@ -28,16 +28,16 @@ public class NamespacesImpl
 	implements Namespaces
 {
 	private final static SecureRandom random = new SecureRandom();
-	
+
 	private final Injector injector;
 	private final Resources resources;
-	
+
 	private final Map<String, Namespace> packages;
 	private final Map<String, Namespace> prefixes;
 	private final Map<String, Namespace> uris;
-	
+
 	private final List<Namespace> namespaces;
-	
+
 	@Inject
 	public NamespacesImpl(Injector injector, Resources resources)
 	{
@@ -46,24 +46,24 @@ public class NamespacesImpl
 		packages = new ConcurrentHashMap<>();
 		prefixes = new ConcurrentHashMap<>();
 		uris = new ConcurrentHashMap<>();
-		
+
 		namespaces = Lists.newArrayList();
-		
+
 		bind(Dust.NAMESPACE_COMMON).add();
 		bind(Dust.NAMESPACE_PARAMETERS).add();
 	}
-	
+
 	@Override
 	public NamespaceBinder bind(String nsUri)
 	{
 		return new NamespaceBinderImpl(nsUri);
 	}
-	
+
 	protected static final String generateVersion(String ns)
 	{
 		return Long.toHexString(random.nextLong());
 	}
-	
+
 	private void addNamespace(String uri,
 			String prefix,
 			String pkg,
@@ -75,47 +75,47 @@ public class NamespacesImpl
 		Namespace ns = new NamespaceImpl(uri, prefix, pkg, version, resourceReference, loader, resources);
 		namespaces.add(ns);
 		uris.put(uri, ns);
-		
+
 		if(pkg != null)
 		{
 			packages.put(pkg, ns);
 		}
-		
+
 		if(prefix != null)
 		{
 			prefixes.put(prefix, ns);
 		}
-		
+
 		for(NamespacePlugin plugin : plugins)
 		{
 			plugin.register(injector, ns);
 		}
 	}
-	
+
 	@Override
 	public boolean isBound(String ns)
 	{
 		return uris.containsKey(ns);
 	}
-	
+
 	@Override
 	public Namespace getBinding(String pkg)
 	{
 		return packages.get(pkg);
 	}
-	
+
 	@Override
 	public Namespace getNamespaceByPrefix(String prefix)
 	{
 		return prefixes.get(prefix);
 	}
-	
+
 	@Override
 	public Namespace getNamespaceByURI(String uri)
 	{
 		return uris.get(uri);
 	}
-	
+
 	@Override
 	public Namespace findNamespaceFor(Class<?> c)
 	{
@@ -124,20 +124,20 @@ public class NamespacesImpl
 		{
 			Namespace ns = packages.get(pkg);
 			if(ns != null) return ns;
-			
+
 			int idx = pkg.lastIndexOf('.');
 			if(idx == -1) return null;
-			
+
 			pkg = pkg.substring(0, idx);
 		}
 	}
-	
+
 	@Override
 	public Iterable<Namespace> list()
 	{
 		return namespaces;
 	}
-	
+
 	private class NamespaceBinderImpl
 		implements NamespaceBinder
 	{
@@ -149,7 +149,7 @@ public class NamespacesImpl
 		private String resourceReference;
 		private List<NamespacePlugin> plugins;
 		private boolean manual;
-		
+
 		public NamespaceBinderImpl(String uri)
 		{
 			this.uri = uri;
@@ -164,7 +164,7 @@ public class NamespacesImpl
 				// If no loader provides use the context loader
 				loader = Thread.currentThread().getContextClassLoader();
 			}
-			
+
 			this.pkg = pkg;
 			return this;
 		}
@@ -187,7 +187,7 @@ public class NamespacesImpl
 		public NamespaceBinder setVersion(String version)
 		{
 			this.version = version;
-			
+
 			return this;
 		}
 
@@ -195,23 +195,23 @@ public class NamespacesImpl
 		public NamespaceBinder setPrefix(String prefix)
 		{
 			this.prefix = prefix;
-			
+
 			return this;
 		}
-		
+
 		@Override
 		public NamespaceBinder manual()
 		{
 			this.manual = true;
-			
+
 			return this;
 		}
-		
+
 		@Override
 		public NamespaceBinder with(NamespacePlugin plugin)
 		{
 			plugins.add(plugin);
-			
+
 			return this;
 		}
 
@@ -222,12 +222,12 @@ public class NamespacesImpl
 			{
 				version = generateVersion(uri);
 			}
-			
+
 			if(pkg == null && ! manual)
 			{
 				// No package set, try to autodetect
 				StackTraceElement[] trace = new Exception().getStackTrace();
-				
+
 				try
 				{
 					ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -242,12 +242,12 @@ public class NamespacesImpl
 				{
 				}
 			}
-			
+
 			addNamespace(uri, prefix, pkg, version, resourceReference, loader, plugins);
 		}
-		
+
 	}
-	
+
 	private static class NamespaceImpl
 		implements Namespace
 	{
@@ -265,8 +265,8 @@ public class NamespacesImpl
 			this.pkg = pkg;
 			this.version = version;
 			this.resources = resources;
-			
-			locator = loader != null 
+
+			locator = loader != null
 				? new ClassLoaderLocator(loader, pkg, resourceReference)
 				: new FailingLocator(uri);
 		}
@@ -294,28 +294,28 @@ public class NamespacesImpl
 		{
 			return locator.locateResource(resource);
 		}
-		
+
 		@Override
 		public Resource getResource(String resource)
 			throws IOException
 		{
 			return resources.locate(uri, resource);
 		}
-		
+
 		@Override
 		public String getPackage()
 		{
 			return pkg;
 		}
 	}
-	
+
 	private static interface Locator
 	{
 		URL locateResource(String path);
-		
+
 		URI resolveResource(String path);
 	}
-	
+
 	private static class ClassLoaderLocator
 		implements Locator
 	{
@@ -327,7 +327,7 @@ public class NamespacesImpl
 		{
 			this.loader = loader;
 			this.base = base.replace('.', '/');
-			
+
 			if(resourceReference != null)
 			{
 				URL resource = loader.getResource(resolve(this.base, resourceReference));
@@ -352,7 +352,7 @@ public class NamespacesImpl
 				this.reference = null;
 			}
 		}
-		
+
 		private static String resolve(String base, String path)
 		{
 			if(path.startsWith("/"))
@@ -364,20 +364,20 @@ public class NamespacesImpl
 				return base + '/' + path;
 			}
 		}
-		
+
 		@Override
 		public URI resolveResource(String path)
 		{
 			return reference.resolve(path);
 		}
-		
+
 		@Override
 		public URL locateResource(String path)
 		{
 			return loader.getResource(resolve(base, path));
 		}
 	}
-	
+
 	private static class FailingLocator
 		implements Locator
 	{
@@ -387,13 +387,13 @@ public class NamespacesImpl
 		{
 			this.uri = uri;
 		}
-		
+
 		@Override
 		public URI resolveResource(String path)
 		{
 			return null;
 		}
-		
+
 		@Override
 		public URL locateResource(String path)
 		{

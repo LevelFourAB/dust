@@ -6,7 +6,7 @@ public interface NamespacePlugin
 {
 	/**
 	 * Perform registration for the given namespace.
-	 * 
+	 *
 	 * @param ns
 	 */
 	void register(Injector injector, Namespace ns);

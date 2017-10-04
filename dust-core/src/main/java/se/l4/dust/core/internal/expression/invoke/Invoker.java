@@ -9,7 +9,7 @@ import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker within an expression tree.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -18,19 +18,19 @@ public interface Invoker
 	/**
 	 * Get the return class of the invocation, for the generic type use
 	 * {@link #getReturnType()}.
-	 * 
+	 *
 	 * @return
 	 */
 	Class<?> getReturnClass();
-	
+
 	/**
 	 * Get the generic return type of the invocation. This may return
 	 * {@code null} if no generic type is available.
-	 * 
+	 *
 	 * @return
 	 */
 	ResolvedType getReturnType();
-	
+
 	/**
 	 * Invoke in interpreted mode.
 	 * @param context
@@ -39,17 +39,17 @@ public interface Invoker
 	 * @return
 	 */
 	Object get(ErrorHandler errors, Context context, Object root, Object instance);
-	
+
 	/**
 	 * Check if this invoker supports getting values.
-	 * 
+	 *
 	 * @return
 	 */
 	boolean supportsGet();
-	
+
 	/**
 	 * Set the value of this invoker. Not all invokers support setting values.
-	 * 
+	 *
 	 * @param errors
 	 * @param context
 	 * @param root
@@ -57,25 +57,25 @@ public interface Invoker
 	 * @param value
 	 */
 	void set(ErrorHandler errors, Context context, Object root, Object instance, Object value);
-	
+
 	/**
 	 * Check if this invoker supports setting values.
-	 * 
+	 *
 	 * @return
 	 */
 	boolean supportsSet();
-	
+
 	/**
 	 * Get the node of the invoker.
-	 * 
+	 *
 	 * @return
 	 */
 	Node getNode();
 
 	/**
-	 * Get this invoker as a Java expression that can be compiled with 
+	 * Get this invoker as a Java expression that can be compiled with
 	 * Javassist.
-	 * 
+	 *
 	 * @param errors
 	 * @param compiler
 	 * @param context
@@ -83,10 +83,10 @@ public interface Invoker
 	 * @return
 	 */
 	String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context);
-	
+
 	/**
 	 * Get this invoker as Java expression that can be compiled with Javassist.
-	 * 
+	 *
 	 * @param errors
 	 * @param compiler
 	 * @param context

@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 
 /**
  * Console implementation used within {@link JavascriptEnvironment}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -16,12 +16,12 @@ public class JavascriptConsole
 	{
 		this.logger = logger;
 	}
-	
+
 	public void log(String value)
 	{
 		logger.info(value);
 	}
-	
+
 	public void log(String value, Object... values)
 	{
 		logger.info(String.format(value, values));

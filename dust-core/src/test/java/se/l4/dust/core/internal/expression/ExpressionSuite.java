@@ -11,7 +11,7 @@ import se.l4.dust.core.internal.expression.resolver.ResolverTest;
 
 /**
  * Suite for running all expression tests.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -21,7 +21,7 @@ import se.l4.dust.core.internal.expression.resolver.ResolverTest;
 	ResolverTest.class,
 	DebuggerTest.class,
 	CompilerTest.class,
-	
+
 	CommonSourceTest.class,
 	VarPropertySourceTest.class
 })

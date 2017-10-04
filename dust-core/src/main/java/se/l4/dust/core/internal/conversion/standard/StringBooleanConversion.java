@@ -10,7 +10,7 @@ public class StringBooleanConversion
 	public Boolean convert(String in)
 	{
 		in = in.trim().toLowerCase();
-		
+
 		if(in.equals("true") || in.equals("on") || in.equals("1"))
 		{
 			return true;
@@ -19,7 +19,7 @@ public class StringBooleanConversion
 		{
 			return false;
 		}
-		
+
 		throw new ConversionException("Invalid boolean string: " + in);
 	}
 

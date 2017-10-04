@@ -7,7 +7,7 @@ import se.l4.dust.api.template.dom.Content;
 
 /**
  * Content that will use another {@link Content} to fetch its data.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -30,11 +30,11 @@ public class ExpressionWithContext
 		{
 			context = ((Value) context).get(ctx, root);
 		}
-		
+
 		// TODO: Support for more types?
 		return context;
 	}
-	
+
 	@Override
 	public Class<?> getType()
 	{
@@ -46,7 +46,7 @@ public class ExpressionWithContext
 	{
 		return expr.get(ctx, getActualContext(ctx, root));
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
@@ -58,7 +58,7 @@ public class ExpressionWithContext
 	{
 		expr.set(ctx, getActualContext(ctx, root), data);
 	}
-	
+
 	@Override
 	public boolean supportsSet()
 	{

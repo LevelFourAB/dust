@@ -4,11 +4,11 @@ public class AnyMatcher
 	implements Matcher
 {
 	public static final Matcher INSTANCE = new AnyMatcher();
-	
+
 	private AnyMatcher()
 	{
 	}
-	
+
 	@Override
 	public boolean matches(String path)
 	{

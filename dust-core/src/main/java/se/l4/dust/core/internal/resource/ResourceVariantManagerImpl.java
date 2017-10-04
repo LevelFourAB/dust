@@ -37,7 +37,7 @@ import com.google.inject.Singleton;
 
 /**
  * Implementation of {@link ResourceVariantManager}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -49,15 +49,15 @@ public class ResourceVariantManagerImpl
 	private final Lock sourceLock;
 	private final Map<Key, ResourceVariantResolution> cache;
 	private ResourceCallback urlCallback;
-	
+
 	@Inject
 	public ResourceVariantManagerImpl(final Resources resources)
 	{
 		sources = new ResourceVariantSource[0];
 		sourceLock = new ReentrantLock();
-		
+
 		cache = new ConcurrentHashMap<>();
-		
+
 		urlCallback = new ResourceCallback()
 		{
 			@Override
@@ -79,7 +79,7 @@ public class ResourceVariantManagerImpl
 					Closeables.closeQuietly(stream);
 				}
 			}
-			
+
 			@Override
 			public Resource create(String name)
 				throws IOException
@@ -96,7 +96,7 @@ public class ResourceVariantManagerImpl
 			}
 		};
 	}
-	
+
 	@Override
 	public void addSource(ResourceVariantSource source)
 	{
@@ -106,7 +106,7 @@ public class ResourceVariantManagerImpl
 			ResourceVariantSource[] result = new ResourceVariantSource[sources.length + 1];
 			System.arraycopy(sources, 0, result, 0, sources.length);
 			result[sources.length] = source;
-			
+
 			sources = result;
 		}
 		finally
@@ -119,26 +119,26 @@ public class ResourceVariantManagerImpl
 	public List<ResourceVariant> getVariants(Context context)
 	{
 		ResourceVariantSource[] sources = this.sources;
-		
+
 		@SuppressWarnings("unchecked")
 		List<ResourceVariant>[] perSource = new List[sources.length];
-		
+
 		for(int i=0, n=sources.length; i<n; i++)
 		{
 			ResourceVariantSource source = sources[i];
 			perSource[i] = source.getVariants(context);
 		}
-		
+
 		ResourceVariant[] empty = new ResourceVariant[0];
-		
-		List<ResourceVariant> result = new ArrayList<ResourceVariant>(sources.length * sources.length); 
+
+		List<ResourceVariant> result = new ArrayList<ResourceVariant>(sources.length * sources.length);
 
 		for(int i=0, n=sources.length; i<n; i++)
 		{
 			// Go through each initial source creating its chained variants
 			combine(result, perSource, i, empty);
 		}
-		
+
 		return result;
 	}
 
@@ -149,9 +149,9 @@ public class ResourceVariantManagerImpl
 		{
 			ResourceVariant[] combined = Arrays.copyOf(path, path.length + 1);
 			combined[path.length] = v;
-			
+
 			result.add(new MergedResourceVariant(combined));
-			
+
 			if(index < perSource.length - 1)
 			{
 				combine(result, perSource, index + 1, combined);
@@ -165,70 +165,70 @@ public class ResourceVariantManagerImpl
 		List<Context> result = new ArrayList<Context>();
 		result.add(new CacheContext());
 		result.add(new CacheContext().withValue(ResourceVariant.LOCALE, Locale.getDefault()));
-		
+
 		return result;
 	}
-	
+
 	@Override
 	public Object[] getCacheObject(Context context)
 	{
 		Object[] cached = context.getValue("dust:resourceVariant");
 		if(cached != null) return cached;
-		
+
 		ResourceVariantSource[] sources = this.sources;
 		Object[] values = new Object[sources.length];
 		for(int i=0, n=sources.length; i<n; i++)
 		{
 			values[i] = sources[i].getCacheValue(context);
 		}
-		
+
 		context.putValue("dust:resourceVariant", cached);
-		
+
 		return values;
 	}
-	
+
 	@Override
 	public ResourceVariantResolution resolveNoCache(Context context, ResourceLocation location)
 		throws IOException
 	{
 		String original = getInitialName(location);
 		ResourceCallback callback = getCallback(location);
-		
+
 		// Try different variants for the URL
 		int idx = original.lastIndexOf('.');
 		String extension = idx > 0 ? original.substring(idx) : "";
 		String firstPart = idx > 0 ? original.substring(0, idx) : original;
-		
+
 		for(ResourceVariant v : getVariants(context))
 		{
 			String variant = firstPart + "." + v.getIdentifier() + extension;
-			
+
 			if(callback.exists(v, variant))
 			{
 				// This URL exists, use it
 				return new Value(callback.create(variant), variant, v);
 			}
 		}
-		
+
 		return new Value(callback.create(original), original, null);
 	}
-	
+
 	@Override
 	public ResourceVariantResolution resolve(Context context, ResourceLocation location)
 		throws IOException
 	{
 		Key key = new Key(location, getCacheObject(context));
-		
+
 		// Check if this is cached
 		ResourceVariantResolution cached = cache.get(key);
 		if(cached != null) return cached;
-		
+
 		ResourceVariantResolution result = resolveNoCache(context, location);
 		cache.put(key, result);
-		
+
 		return result;
 	}
-	
+
 	@Override
 	public ResourceVariantResolution createCombined(List<ResourceVariantResolution> result, ResourceLocation location)
 	{
@@ -237,7 +237,7 @@ public class ResourceVariantManagerImpl
 		{
 			ResourceVariant v = r.getVariant();
 			if(v == null) continue;
-			
+
 			ResourceVariant current = variants.get(v.getClass());
 			if(current == null || v.isMoreSpecific(current))
 			{
@@ -264,17 +264,17 @@ public class ResourceVariantManagerImpl
 						variantArray[idx++] = rv;
 					}
 				}
-				
+
 				variant = new MergedResourceVariant(variantArray);
 			}
-			
+
 			String name = getInitialName(location);
 			int idx = name.lastIndexOf('.');
 			String extension = idx > 0 ? name.substring(idx) : "";
-			
+
 			location = location.withExtension(variant.getIdentifier() + extension);
 		}
-		
+
 		MergedResource resource = new MergedResource(location, Lists.transform(result, new Function<ResourceVariantResolution, Resource>()
 		{
 			@Override
@@ -285,7 +285,7 @@ public class ResourceVariantManagerImpl
 		}));
 		return new Value(resource, location.getName(), variant);
 	}
-	
+
 	@Override
 	public ResourceVariantResolution createCombined(Context context, ResourceLocation location, Supplier<List<ResourceVariantResolution>> resultSupplier)
 	{
@@ -297,7 +297,7 @@ public class ResourceVariantManagerImpl
 		cache.put(key, result);
 		return result;
 	}
-	
+
 	private ResourceCallback getCallback(ResourceLocation location)
 	{
 		if(location instanceof UrlLocation)
@@ -313,7 +313,7 @@ public class ResourceVariantManagerImpl
 			throw new AssertionError("Unsupported location: " + location);
 		}
 	}
-	
+
 	private String getInitialName(ResourceLocation location)
 	{
 		if(location instanceof UrlLocation)
@@ -329,7 +329,7 @@ public class ResourceVariantManagerImpl
 			throw new AssertionError("Unsupported location: " + location);
 		}
 	}
-	
+
 	private static class Value
 		implements ResourceVariantResolution
 	{
@@ -343,13 +343,13 @@ public class ResourceVariantManagerImpl
 			this.path = path;
 			this.finalVariant = finalVariant;
 		}
-		
+
 		@Override
 		public Resource getResource()
 		{
 			return resource;
 		}
-		
+
 		@Override
 		public String getName()
 		{
@@ -361,25 +361,25 @@ public class ResourceVariantManagerImpl
 		{
 			return finalVariant;
 		}
-		
+
 		@Override
 		public ResourceVariantResolution withResource(Resource resource)
 		{
 			return new Value(resource, path, finalVariant);
 		}
-		
+
 		@Override
 		public String toString()
 		{
 			return getClass().getSimpleName() + "{name=" + path + ", variant=" + finalVariant + ", resource=" + resource + "}";
 		}
 	}
-	
+
 	private static class Key
 	{
 		private final ResourceLocation location;
 		private final Object[] values;
-		
+
 		public Key(ResourceLocation location, Object[] values)
 		{
 			this.location = location;
@@ -418,14 +418,14 @@ public class ResourceVariantManagerImpl
 				return false;
 			return true;
 		}
-		
+
 		@Override
 		public String toString()
 		{
 			return "Key{location=" + location + ", values=" + Arrays.toString(values) + "}";
 		}
 	}
-	
+
 	private static class CacheContext
 		implements Context
 	{
@@ -435,37 +435,37 @@ public class ResourceVariantManagerImpl
 		{
 			values = new HashMap<Object, Object>();
 		}
-		
+
 		@Override
 		@SuppressWarnings("unchecked")
 		public <T> T getValue(Object key)
 		{
 			return (T) values.get(key);
 		}
-		
+
 		@Override
 		public void putValue(Object key, Object value)
 		{
 			values.put(key, value);
 		}
-		
+
 		public CacheContext withValue(Object key, Object value)
 		{
 			values.put(key, value);
-			
+
 			return this;
 		}
 	}
-	
+
 	interface ResourceCallback
 	{
 		boolean exists(ResourceVariant variant, String name)
 			throws IOException;
-		
+
 		Resource create(String name)
 			throws IOException;
 	}
-	
+
 	private static class NamespaceCallback
 		implements ResourceCallback
 	{
@@ -475,14 +475,14 @@ public class ResourceVariantManagerImpl
 		{
 			this.namespace = namespace;
 		}
-		
+
 		@Override
 		public Resource create(String name)
 			throws IOException
 		{
 			return namespace.getResource(name);
 		}
-		
+
 		@Override
 		public boolean exists(ResourceVariant variant, String name)
 			throws IOException

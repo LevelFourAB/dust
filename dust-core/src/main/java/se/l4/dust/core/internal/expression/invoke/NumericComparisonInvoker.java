@@ -21,7 +21,7 @@ public class NumericComparisonInvoker
 		GREATER_OR_EQUAL,
 		EQUALS,
 		NOT_EQUALS;
-		
+
 		public boolean check(Number lv, Number rv)
 		{
 			switch(this)
@@ -39,10 +39,10 @@ public class NumericComparisonInvoker
 				case NOT_EQUALS:
 					return lv.doubleValue() != rv.doubleValue();
 			}
-			
+
 			throw new AssertionError("Unknown comparison type " + this);
 		}
-		
+
 		public String getOperator()
 		{
 			switch(this)
@@ -60,17 +60,17 @@ public class NumericComparisonInvoker
 				case NOT_EQUALS:
 					return "!=";
 			}
-			
+
 			throw new AssertionError("Unknown comparison type " + this);
 		}
 	}
 
 	private final Comparator comparator;
-	
+
 	public NumericComparisonInvoker(Node node, Invoker left, Invoker right)
 	{
 		super(node, left, right);
-		
+
 		if(node instanceof LessNode)
 		{
 			comparator = Comparator.LESS;
@@ -99,15 +99,15 @@ public class NumericComparisonInvoker
 		{
 			throw new RuntimeException("Unknown node: " + node);
 		}
-			
+
 	}
-	
+
 	@Override
 	protected boolean check(ErrorHandler errors, Object left, Object right)
 	{
 		Number lv = castLeftNotNull(errors, left);
 		Number rv = castLeftNotNull(errors, right);
-		
+
 		return comparator.check(lv, rv);
 	}
 
@@ -116,10 +116,10 @@ public class NumericComparisonInvoker
 	{
 		String lj = left.toJavaGetter(errors, compiler, context);
 		String rj = right.toJavaGetter(errors, compiler, context);
-		
-		return "(" + compiler.unwrap(left.getReturnClass(), lj) 
+
+		return "(" + compiler.unwrap(left.getReturnClass(), lj)
 			+ " " + comparator.getOperator() + " " +
-			compiler.unwrap(right.getReturnClass(), rj) 
+			compiler.unwrap(right.getReturnClass(), rj)
 			+ ")";
 	}
 }

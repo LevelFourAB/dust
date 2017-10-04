@@ -54,7 +54,7 @@ import se.l4.dust.core.internal.expression.ast.TernaryNode;
 
 /**
  * Parser for the internal Dust expressions.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -66,7 +66,7 @@ public class ExpressionParser
 
 	/**
 	 * Parse the specified string.
-	 * 
+	 *
 	 * @param in
 	 * @return
 	 * @throws RecognitionException
@@ -91,12 +91,12 @@ public class ExpressionParser
 				ExpressionParser.reportParserError(in, e, getTokenStream());
 			};
 		};
-		
+
 		try
 		{
 			DustExpressionsParser.root_return ret = parser.root();
 			CommonTree tree = (CommonTree) ret.getTree();
-		
+
 			return createNode(tree);
 		}
 		catch(RecognitionException e)
@@ -105,12 +105,12 @@ public class ExpressionParser
 			return null;
 		}
 	}
-	
+
 	private static Node createNode(Tree tree)
 	{
 		int line = tree.getLine();
 		int position = tree.getCharPositionInLine();
-		
+
 		switch(tree.getType())
 		{
 			case TRUE:
@@ -121,135 +121,135 @@ public class ExpressionParser
 				return new KeywordNode(line, position, KeywordNode.Type.NULL);
 			case THIS:
 				return new KeywordNode(line, position, KeywordNode.Type.THIS);
-				
+
 			case LONG:
 			{
 				long v = Long.parseLong(tree.getText());
 				return new LongNode(line, position, v);
 			}
-			
+
 			case DOUBLE:
 			{
 				double v = Double.parseDouble(tree.getText());
 				return new DoubleNode(line, position, v);
 			}
-			
+
 			case STRING:
 			{
 				String v = tree.getText();
 				return new StringNode(line, position, StringNode.decode(v.substring(1, v.length()-1)));
 			}
-			
+
 			case NAMESPACE:
 			{
 				// Id with a namespace.
 				String text = tree.getChild(0).getText();
-				
+
 				int idx = text.indexOf(':');
 				return new IdentifierNode(line, position, text.substring(0, idx), text.substring(idx+1));
 			}
-			
+
 			case ID:
 			{
 				return new IdentifierNode(line, position, null, tree.getChild(0).getText());
 			}
-			
+
 			case INVOKE:
 			{
 				// First child will be the identifier
 				IdentifierNode id = (IdentifierNode) createNode(tree.getChild(0));
-				
+
 				// All the other create the list of parameters
 				List<Node> params = new ArrayList<Node>();
 				for(int i=1, n=tree.getChildCount(); i<n; i++)
 				{
 					params.add(createNode(tree.getChild(i)));
 				}
-				
+
 				return new InvokeNode(line, position, id, params);
 			}
-			
+
 			case TERNARY:
 			{
 				Node test = createNode(tree.getChild(0));
 				Node left = createNode(tree.getChild(1));
-				
-				Node right = tree.getChildCount() >= 3 
-					? createNode(tree.getChild(2)) 
+
+				Node right = tree.getChildCount() >= 3
+					? createNode(tree.getChild(2))
 					: null;
-				
+
 				return new TernaryNode(line, position, test, left, right);
 			}
-			
+
 			case NOT:
 			{
 				Node child = createNode(tree.getChild(0));
 				return new NegateNode(line, position, child);
 			}
-			
+
 			case CHAIN:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
 				return new ChainNode(line, position, left, right);
 			}
-			
+
 			case EQUAL:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
 				return new EqualsNode(line, position, left, right);
 			}
-			
+
 			case NOT_EQUAL:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
 				return new NotEqualsNode(line, position, left, right);
 			}
-			
+
 			case LESS:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
 				return new LessNode(line, position, left, right);
 			}
-			
+
 			case LESS_OR_EQUAL:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
 				return new LessOrEqualNode(line, position, left, right);
 			}
-			
+
 			case MORE:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
 				return new GreaterNode(line, position, left, right);
 			}
-			
+
 			case MORE_OR_EQUAL:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
 				return new GreaterOrEqualNode(line, position, left, right);
 			}
-			
+
 			case OR:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
 				return new OrNode(line, position, left, right);
 			}
-			
+
 			case AND:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
 				return new AndNode(line, position, left, right);
 			}
-			
+
 			case PLUS:
 			{
 				if(tree.getChildCount() == 1)
@@ -259,13 +259,13 @@ public class ExpressionParser
 					 * as: -2 or -id()
 					 */
 					Node child = createNode(tree.getChild(0));
-					
+
 					// Optimization for static numbers
 					if(child instanceof LongNode || child instanceof DoubleNode)
 					{
 						return child;
 					}
-					
+
 					return new SignNode(line, position, false, child);
 				}
 				else
@@ -275,7 +275,7 @@ public class ExpressionParser
 					return new AddNode(line, position, left, right);
 				}
 			}
-			
+
 			case MINUS:
 			{
 				if(tree.getChildCount() == 1)
@@ -285,7 +285,7 @@ public class ExpressionParser
 					 * as: -2 or -id()
 					 */
 					Node child = createNode(tree.getChild(0));
-					
+
 					// Optimization for static numbers
 					if(child instanceof LongNode)
 					{
@@ -295,7 +295,7 @@ public class ExpressionParser
 					{
 						return new DoubleNode(line, position, - ((DoubleNode) child).getValue());
 					}
-					
+
 					return new SignNode(line, position, true, child);
 				}
 				else
@@ -305,28 +305,28 @@ public class ExpressionParser
 					return new SubtractNode(line, position, left, right);
 				}
 			}
-			
+
 			case MULTIPLY:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
 				return new MultiplyNode(line, position, left, right);
 			}
-			
+
 			case DIVIDE:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
 				return new DivideNode(line, position, left, right);
 			}
-			
+
 			case MODULO:
 			{
 				Node left = createNode(tree.getChild(0));
 				Node right = createNode(tree.getChild(1));
 				return new ModuloNode(line, position, left, right);
 			}
-			
+
 			case INDEXED:
 			{
 				Node left = createNode(tree.getChild(0));
@@ -337,7 +337,7 @@ public class ExpressionParser
 				}
 				return new IndexNode(line, position, left, indexes);
 			}
-			
+
 			case ARRAY:
 			{
 				Node[] values = new Node[tree.getChildCount()];
@@ -345,14 +345,14 @@ public class ExpressionParser
 				{
 					values[i] = createNode(tree.getChild(i));
 				}
-				
+
 				return new ArrayNode(line, position, values);
 			}
 		}
-		
+
 		throw new Error("Unknown node with type " + tree.getType());
 	}
-	
+
 	private static void reportLexerError(String source, RecognitionException e)
 	{
 		String msg;
@@ -388,37 +388,37 @@ public class ExpressionParser
 		{
 			msg = "Unknwon error at " + toDisplay(e.c);
 		}
-		
+
 		throw new ExpressionParseException(source, e.line, e.charPositionInLine, msg);
 	}
-	
+
 	private static String toDisplay(int c)
 	{
 		return "'" + (char) c + "'";
 	}
-	
+
 	private static void reportParserError(String source, RecognitionException e, TokenStream tokens)
 	{
 		StringBuilder builder = new StringBuilder();
 		Token token = e.token;
-		
+
 		if(e instanceof NoViableAltException)
 		{
 			NoViableAltException v = (NoViableAltException) e;
-			
+
 			builder.append("Invalid continuation of ");
 			token = findLastKnown(tokens, token);
 			builder.append(getReadableName(token));
-			
+
 			outputAlternatives(builder, token);
 		}
 		else if(e instanceof MissingTokenException)
 		{
 			MissingTokenException mte = (MissingTokenException)e;
-			
+
 			builder.append("Invalid continuation of ");
 			builder.append(getReadableName(token));
-			
+
 			builder.append(". Parser expected ");
 			if(mte.expecting == Token.EOF)
 			{
@@ -428,7 +428,7 @@ public class ExpressionParser
 			{
 				builder.append(getReadableName(mte.expecting));
 			}
-			
+
 			outputAlternatives(builder, token);
 		}
 		else if(e instanceof UnwantedTokenException)
@@ -436,7 +436,7 @@ public class ExpressionParser
 			UnwantedTokenException uw = (UnwantedTokenException) e;
 			builder.append("Dangling ");
 			builder.append(getReadableName(token.getType()));
-			
+
 			builder.append(". Parser expected ");
 			if(uw.expecting == Token.EOF)
 			{
@@ -446,13 +446,13 @@ public class ExpressionParser
 			{
 				builder.append(getReadableName(uw.expecting));
 			}
-			
+
 			outputAlternatives(builder, findLastKnown(tokens, token));
 		}
 		else if(e instanceof MismatchedTokenException)
 		{
 			MismatchedTokenException me = (MismatchedTokenException) e;
-			
+
 			if(token == null)
 			{
 				builder.append("Mismatched token");
@@ -462,7 +462,7 @@ public class ExpressionParser
 				builder.append("Mismatched ");
 				builder.append(getReadableName(token.getType()));
 			}
-			
+
 			builder.append(". Parser expected ");
 			if(me.expecting == Token.EOF)
 			{
@@ -473,11 +473,11 @@ public class ExpressionParser
 				builder.append(getReadableName(me.expecting));
 			}
 		}
-		
+
 		String msg = builder.length() == 0 ? "Unknown error type" : builder.toString();
 		throw new ExpressionParseException(source, e.line, e.charPositionInLine, msg);
 	}
-	
+
 	private static Token findLastKnown(TokenStream stream, Token start)
 	{
 		if(start.getTokenIndex() > 0 && stream != null)
@@ -491,10 +491,10 @@ public class ExpressionParser
 				}
 			}
 		}
-		
+
 		return start;
 	}
-	
+
 	private static void outputAlternatives(StringBuilder builder, Token token)
 	{
 		String[] alts = getAlternativesFor(token.getType());
@@ -504,30 +504,30 @@ public class ExpressionParser
 			for(int i=0, n=alts.length; i<n; i++)
 			{
 				if(i > 0) builder.append(i == n - 1 ? " or " : ", ");
-				
+
 				builder.append(alts[i]);
 			}
 			builder.append("?");
 		}
 	}
-	
+
 	private static String getReadableName(Token t)
 	{
 		if(t.getType() == -1)
 		{
 			return t.getText();
 		}
-		
+
 		return getReadableName(t.getType());
 	}
-	
+
 	private static String getReadableName( int tokenType)
 	{
 		if(tokenType < 0)
 		{
 			return "token";
 		}
-		
+
 		switch(tokenType)
 		{
 			case AND:
@@ -565,17 +565,17 @@ public class ExpressionParser
 			case MODULO:
 				return "modulo";
 		}
-		
+
 		return tokenNames[tokenType];
 	}
-	
+
 	private static String[] getAlternativesFor(int tokenType)
 	{
 		switch(tokenType)
 		{
 			case IDENTIFIER:
 			case CHAIN:
-				return new String[] { 
+				return new String[] {
 					"method call",
 					"property name"
 				};
@@ -596,7 +596,7 @@ public class ExpressionParser
 					"expression to run when test is true"
 				};
 		}
-		
+
 		return null;
 	}
 }

@@ -8,7 +8,7 @@ import java.lang.reflect.WildcardType;
 
 /**
  * Some small utilities for dealing with generic types.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -19,7 +19,7 @@ public class Generics
 	public Generics()
 	{
 	}
-	
+
 	public static Type[] findParameterTypes(Type type)
 	{
 		if(type instanceof ParameterizedType)
@@ -32,10 +32,10 @@ public class Generics
 			return EMTPY_TYPE;
 		}
 	}
-	
+
 	/**
 	 * Find the class of the given type.
-	 * 
+	 *
 	 * @param root
 	 * @param type
 	 * @return
@@ -59,7 +59,7 @@ public class Generics
 				return Object.class;
 //				throw new ConversionException("Could not determine type for " + root + " (on " + type + ")");
 			}
-			
+
 			return findClass(root, lowerBounds[0]);
 		}
 		else if(type instanceof GenericArrayType)
@@ -67,7 +67,7 @@ public class Generics
 			Class c = findClass(root, ((GenericArrayType) type).getGenericComponentType());
 			return Array.newInstance(c, 0).getClass();
 		}
-		
+
 		return Object.class;
 //		throw new ConversionException("Could not determine type for " + root + " (on " + type + ")");
 	}

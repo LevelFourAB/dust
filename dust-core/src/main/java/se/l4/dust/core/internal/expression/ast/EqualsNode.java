@@ -2,7 +2,7 @@ package se.l4.dust.core.internal.expression.ast;
 
 /**
  * Node for an equals operation between a left and right part.
- * 
+ *
  * @author Andreas Holstenson
  *
  */

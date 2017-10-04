@@ -8,11 +8,11 @@ import java.lang.annotation.Target;
 
 /**
  * Indicate that this methods result should be rendered with a template.
- * 
+ *
  * <p>
  * It is possible to override the name of the template by setting the value
  * of {@code #name()} to something else that an empty string.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -23,7 +23,7 @@ public @interface Template
 {
 	/**
 	 * The name of the template, leave empty for default.
-	 * 
+	 *
 	 * @return
 	 */
 	String value() default "";

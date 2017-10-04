@@ -2,7 +2,7 @@ package se.l4.dust.core.internal.expression.ast;
 
 /**
  * Node that negates the result of another node.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -14,10 +14,10 @@ public class NegateNode
 	public NegateNode(int line, int position, Node node)
 	{
 		super(line, position);
-		
+
 		this.node = node;
 	}
-	
+
 	public Node getNode()
 	{
 		return node;

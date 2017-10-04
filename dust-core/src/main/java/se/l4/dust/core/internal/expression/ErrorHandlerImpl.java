@@ -6,7 +6,7 @@ import se.l4.dust.core.internal.expression.ast.Node;
 /**
  * Error handler for expressions. Used throughout the parse process to create
  * errors that are more developer friendly.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -17,26 +17,26 @@ public class ErrorHandlerImpl
 
 	/**
 	 * Create a new error handler.
-	 * 
+	 *
 	 * @param expression
 	 */
 	public ErrorHandlerImpl(String expression)
 	{
 		this.expression = expression;
 	}
-	
+
 	@Override
 	public ExpressionException error(Node node, String message)
 	{
 		return new ExpressionException(expression, node.getLine(), node.getPositionInLine(), message);
 	}
-	
+
 	@Override
 	public ExpressionException error(Node node, String message, Throwable cause)
 	{
 		return new ExpressionException(expression, node.getLine(), node.getPositionInLine(), message, cause);
 	}
-	
+
 	@Override
 	public ExpressionException error(Node node, Throwable cause)
 	{
@@ -47,7 +47,7 @@ public class ErrorHandlerImpl
 			{
 				throw (ExpressionException) cause;
 			}
-			
+
 			message = cause.getMessage();
 		}
 		else
@@ -56,10 +56,10 @@ public class ErrorHandlerImpl
 				? "Failed with " + cause.getClass().getSimpleName()
 				: cause.getClass().getSimpleName() + ": " + cause.getMessage();
 		}
-		
+
 		return new ExpressionException(expression, node.getLine(), node.getPositionInLine(), message, cause);
 	}
-	
+
 	@Override
 	public String toString()
 	{

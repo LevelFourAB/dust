@@ -9,7 +9,7 @@ import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Abstract base class for boolean operations.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -26,45 +26,45 @@ public abstract class AbstractBooleanInvoker
 		this.left = left;
 		this.right = right;
 	}
-	
+
 	@Override
 	public Node getNode()
 	{
 		return node;
 	}
-	
+
 	@Override
 	public Class<?> getReturnClass()
 	{
 		return boolean.class;
 	}
-	
+
 	@Override
 	public ResolvedType getReturnType()
 	{
 		return null;
 	}
-	
+
 	protected <T> T castLeftNotNull(ErrorHandler errors, Object value)
 	{
 		return castNotNull(errors, left.getNode(), value);
 	}
-	
+
 	protected <T> T castRightNotNull(ErrorHandler errors, Object value)
 	{
 		return castNotNull(errors, right.getNode(), value);
 	}
-	
+
 	protected <T> T castNotNull(ErrorHandler errors, Node node, Object value)
 	{
 		if(value == null)
 		{
 			throw errors.error(node, "Result of expression was null");
 		}
-		
+
 		return (T) value;
 	}
-	
+
 	@Override
 	public Object get(ErrorHandler errors, Context context, Object root, Object instance)
 	{
@@ -79,31 +79,31 @@ public abstract class AbstractBooleanInvoker
 			throw errors.error(node, t);
 		}
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
 		return true;
 	}
-	
+
 	@Override
 	public void set(ErrorHandler errors, Context context, Object root,
 			Object instance, Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
 	}
-	
+
 	@Override
 	public boolean supportsSet()
 	{
 		return false;
 	}
-	
+
 	@Override
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		return null;
 	}
-	
+
 	protected abstract boolean check(ErrorHandler errors, Object left, Object right);
 }

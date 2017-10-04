@@ -11,7 +11,7 @@ import se.l4.dust.api.conversion.NonGenericConversion;
 /**
  * Wrapper for {@link Conversion}s that turn them into non-generic dependent
  * variants for internal use.
- * 
+ *
  * @author Andreas Holstenson
  *
  * @param <I>
@@ -27,10 +27,10 @@ public class ConversionWrapper<I, O>
 	public ConversionWrapper(Conversion<I, O> conversion)
 	{
 		this.conversion = conversion;
-		
+
 		Type input = null;
 		Type output = null;
-		
+
 		Class<? extends Conversion> c = conversion.getClass();
 		Type[] genericInterfaces = c.getGenericInterfaces();
 		for(Type t : genericInterfaces)
@@ -47,19 +47,19 @@ public class ConversionWrapper<I, O>
 				}
 			}
 		}
-		
+
 		if(input == null)
 		{
-			throw new ConversionException("Unable to determine types for " 
-				+ conversion + " consider using " 
+			throw new ConversionException("Unable to determine types for "
+				+ conversion + " consider using "
 				+ NonGenericConversion.class.getSimpleName()
 			);
 		}
-		
+
 		this.input = (Class<I>) findClass(conversion, input);
 		this.output = (Class<O>) findClass(conversion, output);
 	}
-	
+
 	private Class<?> findClass(Conversion<I, O> conversion, Type type)
 	{
 		if(type instanceof Class)
@@ -78,23 +78,23 @@ public class ConversionWrapper<I, O>
 			{
 				throw new ConversionException("Could not determine type for " + conversion + " (on " + type + ")");
 			}
-			
+
 			return findClass(conversion, lowerBounds[0]);
 		}
-		
+
 		throw new ConversionException("Could not determine type for " + conversion + " (on " + type + ")");
 	}
-	
+
 	public O convert(I in)
 	{
 		return conversion.convert(in);
 	}
-	
+
 	public Class<I> getInput()
 	{
 		return input;
 	}
-	
+
 	public Class<O> getOutput()
 	{
 		return output;

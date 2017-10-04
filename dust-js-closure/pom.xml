@@ -7,18 +7,18 @@
 		<artifactId>dust-base</artifactId>
 		<version>0.5-SNAPSHOT</version>
 	</parent>
-	
+
 	<artifactId>dust-js-closure</artifactId>
 	<packaging>jar</packaging>
 	<name>${pom.artifactId}</name>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>dust-core</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.google.javascript</groupId>
 			<artifactId>closure-compiler</artifactId>
@@ -48,4 +48,3 @@
 		</dependency>
 	</dependencies>
 </project>
-

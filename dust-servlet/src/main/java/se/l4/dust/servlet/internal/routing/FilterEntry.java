@@ -19,7 +19,7 @@ import com.google.common.collect.Iterators;
  * Filter that should be applied to requests. Matches against a certain
  * pattern which the path of the request must match for this filter to be
  * applied.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -37,12 +37,12 @@ public class FilterEntry
 		this.filter = filter;
 		this.params = params;
 	}
-	
+
 	public Filter getFilter()
 	{
 		return filter;
 	}
-	
+
 	public void init(final ServletContext ctx)
 		throws ServletException
 	{
@@ -52,35 +52,35 @@ public class FilterEntry
 			{
 				return ctx;
 			}
-			
+
 			public Enumeration getInitParameterNames()
 			{
 				return Iterators.asEnumeration(params.keySet().iterator());
 			}
-			
+
 			public String getInitParameter(String name)
 			{
 				return params.get(name);
 			}
-			
+
 			public String getFilterName()
 			{
 				return path;
 			}
 		});
 	}
-	
+
 	public void destroy()
 	{
 		filter.destroy();
 	}
-	
+
 	public boolean matches(String path)
 	{
 		return matcher.matches(path);
 	}
-	
-	public void doFilter(ServletRequest request, ServletResponse response, 
+
+	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain)
 		throws IOException, ServletException
 	{
@@ -89,7 +89,7 @@ public class FilterEntry
 		{
 			path = ((HttpServletRequest) request).getServletPath();
 		}
-		
+
 		if(matches(path))
 		{
 			filter.doFilter(request, response, chain);

@@ -12,7 +12,7 @@ import se.l4.dust.api.resource.Resource;
 
 /**
  * Implementation of {@link Asset}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -24,18 +24,18 @@ public class AssetImpl
 	private final Resource resource;
 	private final String checksum;
 	private final boolean protect;
-	
+
 	public AssetImpl(Namespace ns, String name, Resource resource, boolean protect)
 	{
 		this.ns = ns;
 		this.name = name;
-		
+
 		this.resource = resource;
 		this.protect = protect;
-		
+
 		this.checksum = resource == null ? null : createChecksum();
 	}
-	
+
 	private String createChecksum()
 	{
 		Resource resource = getResource();
@@ -53,12 +53,12 @@ public class AssetImpl
 		catch(IOException e)
 		{
 		}
-		
+
 		throw new RuntimeException("Unable to access resource " + resource);
 	}
-	
+
 	private static final String HEX = "0123456789abcdef";
-	
+
 	private static String toHex(byte[] data)
 	{
 		StringBuilder result = new StringBuilder(data.length * 2);
@@ -68,10 +68,10 @@ public class AssetImpl
 				.append(HEX.charAt((b & 0xF0) >> 4))
 				.append(HEX.charAt(b & 0x0F));
 		}
-		
+
 		return result.toString();
 	}
-	
+
 	private byte[] digest(Resource resource)
 		throws IOException, NoSuchAlgorithmException, DigestException
 	{
@@ -85,7 +85,7 @@ public class AssetImpl
 			{
 				digest.update(buf, 0, len);
 			}
-			
+
 			return digest.digest();
 		}
 		finally
@@ -93,13 +93,13 @@ public class AssetImpl
 			stream.close();
 		}
 	}
-	
+
 	@Override
 	public String getChecksum()
 	{
 		return checksum;
 	}
-	
+
 	@Override
 	public String getName()
 	{
@@ -117,7 +117,7 @@ public class AssetImpl
 	{
 		return resource;
 	}
-	
+
 	@Override
 	public boolean isProtected()
 	{

@@ -8,7 +8,7 @@ import com.google.common.io.ByteStreams;
 
 /**
  * Implementation of {@link Resource} that is stored entirely in memory.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -25,31 +25,31 @@ public class MemoryResource
 	{
 		this(new MemoryLocation("memory"), contentType, contentEncoding, stream);
 	}
-	
+
 	public MemoryResource(ResourceLocation location, String contentType, String contentEncoding, InputStream stream)
 		throws IOException
 	{
 		this(location, contentType, contentEncoding, ByteStreams.toByteArray(stream));
 	}
-	
+
 	public MemoryResource(String contentType, String contentEncoding, byte[] data)
 		throws IOException
 	{
 		this(new MemoryLocation("memory"), contentType, contentEncoding, data);
 	}
-	
+
 	public MemoryResource(ResourceLocation location, String contentType, String contentEncoding, byte[] data)
 		throws IOException
 	{
 		super(location);
-		
+
 		this.contentType = contentType;
 		this.contentEncoding = contentEncoding;
-		
+
 		this.data = data;
 		lastModified = System.currentTimeMillis();
 	}
-	
+
 	@Override
 	public int getContentLength()
 	{
@@ -61,13 +61,13 @@ public class MemoryResource
 	{
 		return contentType;
 	}
-	
+
 	@Override
 	public String getContentEncoding()
 	{
 		return contentEncoding;
 	}
-	
+
 	@Override
 	public long getLastModified()
 	{

@@ -11,7 +11,7 @@ import com.google.inject.ScopeAnnotation;
 /**
  * Indicate that a class is tied to a HTTP session and that only one instance
  * may exist for any one session.
- * 
+ *
  * @author Andreas Holstenson
  *
  */

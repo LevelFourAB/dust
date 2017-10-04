@@ -17,7 +17,7 @@ import com.google.inject.Inject;
 
 /**
  * Handler that registers components annotated with {@link Component}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -25,7 +25,7 @@ public class ComponentDiscoveryHandler
 	implements DiscoveryHandler
 {
 	private static final Logger logger = LoggerFactory.getLogger(DiscoveryHandler.class);
-	
+
 	private final Templates templates;
 
 	@Inject
@@ -38,22 +38,22 @@ public class ComponentDiscoveryHandler
 	public void handle(Namespace ns, DiscoveryEncounter encounter)
 	{
 		TemplateNamespace ts = templates.getNamespace(ns.getUri());
-		
+
 		Collection<Class<?>> components = encounter.getAnnotatedWith(Component.class);
 		for(Class<?> c : components)
 		{
 			ts.addComponent(c);
 		}
-		
+
 		logger.debug("{}: Found {} components", ns.getUri(), components.size());
-		
+
 		components = encounter.getAnnotatedWith(ComponentOverride.class);
 		for(Class<?> c : components)
 		{
 			ComponentOverride co = c.getAnnotation(ComponentOverride.class);
 			ts.addComponentOverride(co.namespace(), co.component(), c);
 		}
-		
+
 		if(! components.isEmpty())
 		{
 			logger.debug("{}: {} components were overridden", ns.getUri(), components.size());

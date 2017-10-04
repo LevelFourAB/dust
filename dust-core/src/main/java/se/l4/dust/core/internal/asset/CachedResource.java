@@ -14,7 +14,7 @@ public class CachedResource
 	public CachedResource(ResourceLocation location, CacheFormat format)
 	{
 		super(location);
-		
+
 		this.format = format;
 	}
 

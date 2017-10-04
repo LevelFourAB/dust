@@ -14,7 +14,7 @@ import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Utility methods for working with resolving types.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -23,10 +23,10 @@ public class TypeResolving
 	private TypeResolving()
 	{
 	}
-	
+
 	/**
 	 * Find all of the common types for the specified list of types.
-	 * 
+	 *
 	 * @param types
 	 * @return
 	 */
@@ -34,30 +34,30 @@ public class TypeResolving
 	{
 		Set<ResolvedType> allTypes = new HashSet<ResolvedType>();
 		final Map<ResolvedType, Integer> typeCount = new HashMap<ResolvedType, Integer>();
-		
+
 		for(ResolvedType type : types)
 		{
 			while(type != null)
 			{
 				findTypesOf(type, allTypes, typeCount);
-				
+
 				type = type.getParentClass();
 			}
 		}
-		
+
 		for(ResolvedType type : types)
 		{
 			Set<ResolvedType> localTypes = new HashSet<ResolvedType>();
 			while(type != null)
 			{
 				findTypesOf(type, localTypes, null);
-				
+
 				type = type.getParentClass();
 			}
-			
+
 			allTypes.retainAll(localTypes);
 		}
-		
+
 		ArrayList<ResolvedType> result = new ArrayList<ResolvedType>(allTypes);
 		Collections.sort(result, new Comparator<ResolvedType>()
 		{
@@ -69,7 +69,7 @@ public class TypeResolving
 				{
 					return result;
 				}
-				
+
 				if(o1.isInterface() && ! o2.isInterface())
 				{
 					return 1;
@@ -93,10 +93,10 @@ public class TypeResolving
 				}
 			}
 		});
-		
+
 	    return result;
 	}
-	
+
 	private static void findTypesOf(ResolvedType type, Set<ResolvedType> result, Map<ResolvedType, Integer> typeCount)
 	{
 		if(typeCount != null)
@@ -104,13 +104,13 @@ public class TypeResolving
 			Integer count = typeCount.get(type);
 			typeCount.put(type, count == null ? 1 : count + 1);
 		}
-		
+
 		if(type.getErasedType() != Object.class)
 		{
 			// Only add specific types
 			result.add(type);
 		}
-		
+
 		for(ResolvedType rt : type.getImplementedInterfaces())
 		{
 			findTypesOf(rt, result, typeCount);

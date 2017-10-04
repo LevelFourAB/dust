@@ -4,7 +4,7 @@ import se.l4.dust.api.template.dom.Content;
 
 /**
  * Indicate that an error occurred while parsing or processing a template.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -14,7 +14,7 @@ public class TemplateException
 	private String source;
 	private int line;
 	private int column;
-	
+
 	public TemplateException()
 	{
 		super();
@@ -34,7 +34,7 @@ public class TemplateException
 	{
 		super(cause);
 	}
-	
+
 	@Override
 	public String getMessage()
 	{
@@ -42,10 +42,10 @@ public class TemplateException
 		{
 			return source + ":\n  Error on line " + line + ", column " + column + ":\n\n" + super.getMessage();
 		}
-		
+
 		return super.getMessage();
 	}
-	
+
 	public TemplateException withDebugInfo(Object o)
 	{
 		if(o instanceof Content)
@@ -56,18 +56,18 @@ public class TemplateException
 				return withDebugInfo(c.getDebugSource().toString(), c.getLine(), c.getColumn());
 			}
 		}
-		
+
 		return this;
 	}
-	
+
 	public TemplateException withDebugInfo(String source, int line, int column)
 	{
 		if(this.source != null) return this;
-		
+
 		this.source = source;
 		this.line = line;
 		this.column = column;
-		
+
 		return this;
 	}
 }

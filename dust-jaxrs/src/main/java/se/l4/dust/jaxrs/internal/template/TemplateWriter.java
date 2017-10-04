@@ -28,7 +28,7 @@ import com.google.inject.Inject;
 
 /**
  * {@link MessageBodyWriter} that renders the templates.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -52,7 +52,7 @@ public class TemplateWriter
 		this.ctx = ctx;
 		this.requests = requests;
 	}
-	
+
 	@Override
 	public long getSize(Object t, Class<?> type, Type genericType,
 			Annotation[] annotations, MediaType mediaType)
@@ -70,22 +70,22 @@ public class TemplateWriter
 			{
 				return true;
 			}
-			
+
 			type = type.getSuperclass();
 		}
-		
+
 		return false;
 	}
 
 	@Override
 	public void writeTo(
-			Object t, 
-			Class<?> type, 
+			Object t,
+			Class<?> type,
 			Type genericType,
-			Annotation[] annotations, 
+			Annotation[] annotations,
 			MediaType mediaType,
 			MultivaluedMap<String, Object> httpHeaders,
-			OutputStream entityStream) 
+			OutputStream entityStream)
 		throws IOException, WebApplicationException
 	{
 		RenderingContext context = (RenderingContext) ctx.get();
@@ -93,17 +93,17 @@ public class TemplateWriter
 		{
 			((WebRenderingContext) context).setup(requests.get());
 		}
-		
+
 		ParsedTemplate template = cache.getTemplate(context, type);
 
 		// FIXME: Should we really do this?
 		httpHeaders.putSingle("Content-Type", "text/html; charset=utf-8");
-		
+
 		if(! httpHeaders.containsKey("Expires"))
 		{
 			httpHeaders.putSingle("Expires", -1);
 		}
-		
+
 		TemplateOutputStream out = new HtmlTemplateOutput(entityStream);
 		renderer.render(context, template, t, out);
 		out.close();

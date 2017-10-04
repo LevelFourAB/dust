@@ -13,7 +13,7 @@ import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker that runs methods.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -38,7 +38,7 @@ public class MethodInvoker
 	{
 		return type.getErasedType();
 	}
-	
+
 	@Override
 	public ResolvedType getReturnType()
 	{
@@ -52,7 +52,7 @@ public class MethodInvoker
 		{
 			throw errors.error(node, "Object is null, can't invoke a method on a null object");
 		}
-		
+
 		try
 		{
 			Object[] values = new Object[params.length];
@@ -60,7 +60,7 @@ public class MethodInvoker
 			{
 				values[i] = params[i].get(errors, context, root, root);
 			}
-			
+
 			return method.invoke(instance, values);
 		}
 		catch(InvocationTargetException e)
@@ -72,26 +72,26 @@ public class MethodInvoker
 			throw errors.error(node, e);
 		}
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
 		return true;
 	}
-	
+
 	@Override
 	public void set(ErrorHandler errors, Context context, Object root,
 			Object instance, Object value)
 	{
 		throw errors.error(node, "Can not set value of this expression");
 	}
-	
+
 	@Override
 	public boolean supportsSet()
 	{
 		return false;
 	}
-	
+
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
@@ -102,20 +102,20 @@ public class MethodInvoker
 			.append(" ")
 			.append(context).append(".").append(method.getName())
 			.append("(");
-		
+
 		for(int i=0, n=params.length; i<n; i++)
 		{
 			if(i > 0) builder.append(", ");
-			
+
 			builder.append(
 				params[i].toJavaGetter(errors, compiler, compiler.getRootContext())
 			);
 		}
-		
+
 		builder.append("))");
 		return builder.toString();
 	}
-	
+
 	@Override
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{

@@ -17,7 +17,7 @@ import se.l4.dust.api.template.TemplateException;
 /**
  * Implementation of {@link RenderingContext} that resolves assets correctly
  * for JAX-RS.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -34,14 +34,14 @@ public class WebRenderingContext
 
 	/**
 	 * Setup this rendering request for the given servlet request.
-	 * 
+	 *
 	 * @param request
 	 */
 	public void setup(HttpServletRequest request)
 	{
 		putValue(ResourceVariant.LOCALE, request.getLocale());
 	}
-	
+
 	@Override
 	public URI resolveURI(Object object)
 	{
@@ -49,10 +49,10 @@ public class WebRenderingContext
 		{
 			return resolveAsset((Asset) object);
 		}
-		
+
 		return null;
 	}
-	
+
 	private URI resolveAsset(Asset asset)
 	{
 		Namespace ns = asset.getNamespace();
@@ -66,13 +66,13 @@ public class WebRenderingContext
 				String extension = name.substring(idx + 1);
 				String checksum = asset.getChecksum();
 
-				name = name.substring(0, idx) + "." + checksum + "." + extension; 
+				name = name.substring(0, idx) + "." + checksum + "." + extension;
 			}
-			
+
 			if(stage == Stage.PRODUCTION)
 			{
 				String version = ns.getVersion();
-				
+
 				return URI.create("/asset/" + prefix + "/" + name + "?" + version);
 			}
 			else
@@ -80,7 +80,7 @@ public class WebRenderingContext
 				return URI.create("/asset/" + prefix + "/" + name);
 			}
 		}
-		
+
 		throw new TemplateException("Unable to resolve " + asset);
 	}
 }

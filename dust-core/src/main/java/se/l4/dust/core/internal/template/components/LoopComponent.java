@@ -23,7 +23,7 @@ import com.google.inject.Inject;
 
 /**
  * Component that loops over a source of items.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -37,18 +37,18 @@ public class LoopComponent
 	{
 		this.converter = converter;
 	}
-	
+
 	@Override
 	public void build(FragmentEncounter encounter)
 	{
 		final Attribute<?> source = encounter.getAttribute("source", true);
 		final Attribute<?> value = encounter.getAttribute("value", true);
-		
+
 		if(! value.supportsSet())
 		{
 			encounter.raiseError("The attribute value must be settable");
 		}
-		
+
 		AbstractComponent component;
 		if(source.getType().isArray())
 		{
@@ -68,10 +68,10 @@ public class LoopComponent
 		{
 			component = new DynamicComponent(source, value, encounter.getBody());
 		}
-		
+
 		encounter.replaceWith(component);
 	}
-	
+
 	private abstract class AbstractComponent
 		implements Emittable
 	{
@@ -85,10 +85,10 @@ public class LoopComponent
 			this.value = value;
 			this.contents = contents;
 		}
-		
+
 		protected abstract void emit(TemplateEmitter emitter, TemplateOutputStream out, Object sourceData)
 			throws IOException;
-		
+
 		@Override
 		public void emit(TemplateEmitter emitter, TemplateOutputStream out)
 			throws IOException
@@ -101,21 +101,21 @@ public class LoopComponent
 				// TODO: Proper way to handle null?
 				throw new TemplateException("Can not iterate over nothing (source is null)");
 			}
-			
+
 			emit(emitter, out, sourceData);
 		}
-		
+
 		protected void emitLoopContents(TemplateEmitter emitter,
 				TemplateOutputStream out,
 				Object o)
 			throws IOException
 		{
 			value.set(emitter.getContext(), emitter.getObject(), o);
-			
+
 			emitter.emit(contents);
 		}
 	}
-	
+
 	private class DynamicComponent
 		extends AbstractComponent
 	{
@@ -123,7 +123,7 @@ public class LoopComponent
 		{
 			super(source, value, contents);
 		}
-		
+
 		@Override
 		protected void emit(TemplateEmitter emitter, TemplateOutputStream out, Object sourceData)
 			throws IOException
@@ -144,7 +144,7 @@ public class LoopComponent
 					throw new TemplateException("Unable to convert value of type " + sourceData.getClass() + " to either Iterable or Iterator; Value is: " + sourceData);
 				}
 			}
-			
+
 			if(sourceData instanceof RandomAccess && sourceData instanceof List)
 			{
 				List<Object> list = (List) sourceData;
@@ -156,7 +156,7 @@ public class LoopComponent
 			else if(sourceData instanceof Iterable)
 			{
 				Iterable<Object> items = (Iterable) sourceData;
-				
+
 				for(Object o : items)
 				{
 					emitLoopContents(emitter, out, o);
@@ -165,7 +165,7 @@ public class LoopComponent
 			else if(sourceData instanceof Iterator)
 			{
 				Iterator<Object> it = (Iterator) sourceData;
-				
+
 				while(it.hasNext())
 				{
 					emitLoopContents(emitter, out, it.next());
@@ -182,7 +182,7 @@ public class LoopComponent
 			}
 		}
 	}
-	
+
 	private class IterableComponent
 		extends AbstractComponent
 	{
@@ -196,25 +196,25 @@ public class LoopComponent
 			super(source, value, contents);
 			this.conversion = conversion;
 		}
-		
+
 		@Override
 		protected void emit(TemplateEmitter emitter, TemplateOutputStream out, Object sourceData)
 			throws IOException
 		{
 			Iterable<Object> items = conversion.convert(sourceData);
-				
+
 			for(Object o : items)
 			{
 				emitLoopContents(emitter, out, o);
 			}
 		}
 	}
-	
+
 	private class IteratorComponent
 		extends AbstractComponent
 	{
 		private final Conversion<Object, Iterator<Object>> conversion;
-	
+
 		public IteratorComponent(Attribute<?> source,
 				Attribute<?> value,
 				Emittable[] contents,
@@ -223,7 +223,7 @@ public class LoopComponent
 			super(source, value, contents);
 			this.conversion = conversion;
 		}
-		
+
 		@Override
 		protected void emit(TemplateEmitter emitter, TemplateOutputStream out, Object sourceData)
 			throws IOException
@@ -235,7 +235,7 @@ public class LoopComponent
 			}
 		}
 	}
-	
+
 	private class ArrayComponent
 		extends AbstractComponent
 	{
@@ -245,7 +245,7 @@ public class LoopComponent
 		{
 			super(source, value, contents);
 		}
-		
+
 		@Override
 		protected void emit(TemplateEmitter emitter, TemplateOutputStream out, Object sourceData)
 			throws IOException

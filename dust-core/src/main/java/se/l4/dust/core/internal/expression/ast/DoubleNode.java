@@ -2,7 +2,7 @@ package se.l4.dust.core.internal.expression.ast;
 
 /**
  * Node that holds a double value.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -14,15 +14,15 @@ public class DoubleNode
 	public DoubleNode(int line, int position, double value)
 	{
 		super(line, position);
-		
+
 		this.value = value;
 	}
-	
+
 	public double getValue()
 	{
 		return value;
 	}
-	
+
 	@Override
 	public String toString()
 	{

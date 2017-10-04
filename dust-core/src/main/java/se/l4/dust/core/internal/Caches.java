@@ -22,12 +22,12 @@ public class Caches
 	{
 		this.stage = stage;
 	}
-	
+
 	public <K, V> Cache<K, V> newCache()
 	{
 		return newCache(null);
 	}
-	
+
 	public <K, V> Cache<K, V> newCache(CacheConfig config)
 	{
 		if(stage == Stage.DEVELOPMENT)
@@ -37,21 +37,21 @@ public class Caches
 		else
 		{
 			CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder();
-			
+
 			if(config != null)
 			{
 				config.configure(builder);
 			}
-			
+
 			return builder.build();
 		}
 	}
-	
+
 	public <K, V> LoadingCache<K, V> newLoadingCache(CacheLoader<K, V> loader)
 	{
 		return newLoadingCache(loader, null);
 	}
-	
+
 	public <K, V> LoadingCache<K, V> newLoadingCache(CacheLoader<K, V> loader, CacheConfig config)
 	{
 		if(stage == Stage.DEVELOPMENT)
@@ -61,16 +61,16 @@ public class Caches
 		else
 		{
 			CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder();
-			
+
 			if(config != null)
 			{
 				config.configure(builder);
 			}
-			
+
 			return builder.build(loader);
 		}
 	}
-	
+
 	private static class DevelopmentCache<K, V>
 		extends AbstractLoadingCache<K, V>
 	{
@@ -95,7 +95,7 @@ public class Caches
 				throw new ExecutionException(e);
 			}
 		}
-		
+
 		@Override
 		public void put(K key, V value)
 		{
@@ -107,7 +107,7 @@ public class Caches
 			return null;
 		}
 	}
-	
+
 	public interface CacheConfig
 	{
 		void configure(CacheBuilder<?, ?> build);

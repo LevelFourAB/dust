@@ -29,7 +29,7 @@ public class RepeatMixin
 		{
 			encounter.raiseError("The attribute in must support setting of values");
 		}
-		
+
 		encounter.wrap(new ElementWrapper()
 		{
 			@Override
@@ -38,7 +38,7 @@ public class RepeatMixin
 			{
 				RenderingContext ctx = encounter.getContext();
 				Object object = encounter.getObject();
-				
+
 				Integer value = attribute.get(ctx, object);
 				for(int i=0, n=value; i<n; i++)
 				{
@@ -46,7 +46,7 @@ public class RepeatMixin
 					encounter.emit();
 				}
 			}
-			
+
 			@Override
 			public void afterElement(ElementEncounter encounter)
 			{

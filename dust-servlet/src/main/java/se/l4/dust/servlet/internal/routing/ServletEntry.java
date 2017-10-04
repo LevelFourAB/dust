@@ -28,12 +28,12 @@ public class ServletEntry
 		this.servlet = servlet;
 		this.params = params;
 	}
-	
+
 	public Servlet getServlet()
 	{
 		return servlet;
 	}
-	
+
 	public void init(final ServletContext ctx)
 		throws ServletException
 	{
@@ -43,34 +43,34 @@ public class ServletEntry
 			{
 				return path;
 			}
-			
+
 			public ServletContext getServletContext()
 			{
 				return ctx;
 			}
-			
+
 			public Enumeration getInitParameterNames()
 			{
 				return Iterators.asEnumeration(params.keySet().iterator());
 			}
-			
+
 			public String getInitParameter(String name)
 			{
 				return params.get(name);
 			}
 		});
 	}
-	
+
 	public void destroy()
 	{
 		servlet.destroy();
 	}
-	
+
 	public boolean matches(String path)
 	{
 		return matcher.matches(path);
 	}
-	
+
 	public void service(ServletRequest request, ServletResponse response, ServletChain chain)
 		throws IOException, ServletException
 	{
@@ -79,7 +79,7 @@ public class ServletEntry
 		{
 			path = ((HttpServletRequest) request).getServletPath();
 		}
-		
+
 		if(matches(path))
 		{
 			servlet.service(request, response);

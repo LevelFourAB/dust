@@ -8,7 +8,7 @@ import java.net.URLConnection;
 /**
  * Implementation of {@link Resource} built on top of {@link URL}. Uses the URL
  * to determine content type, length and encoding.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -25,14 +25,14 @@ public class UrlResource
 		throws IOException
 	{
 		super(location);
-		
+
 		this.url = url;
-		
+
 		URLConnection conn = url.openConnection();
 		try
 		{
 			conn.connect();
-			
+
 			contentLength = conn.getContentLength();
 			contentType = findContentType(conn.getContentType(), url);
 			contentEncoding = conn.getContentEncoding();
@@ -43,7 +43,7 @@ public class UrlResource
 			conn.getInputStream().close();
 		}
 	}
-	
+
 	private String findContentType(String contentType, URL url)
 	{
 		String textual = url.toExternalForm();
@@ -72,7 +72,7 @@ public class UrlResource
 				return "application/octet-stream";
 			}
 		}
-		
+
 		return contentType;
 	}
 
@@ -81,19 +81,19 @@ public class UrlResource
 	{
 		return contentType;
 	}
-	
+
 	@Override
 	public int getContentLength()
 	{
 		return contentLength;
 	}
-	
+
 	@Override
 	public String getContentEncoding()
 	{
 		return contentEncoding;
 	}
-	
+
 	@Override
 	public long getLastModified()
 	{

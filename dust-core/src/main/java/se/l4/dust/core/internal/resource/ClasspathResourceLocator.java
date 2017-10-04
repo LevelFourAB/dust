@@ -14,9 +14,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 /**
- * Asset source that resolves from the classpath via the use of 
+ * Asset source that resolves from the classpath via the use of
  * {@link Namespaces}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */

@@ -30,12 +30,12 @@ public class SettersMixin
 			{
 				encounter.raiseError("The attribute " + name + " must exist and be settable");
 			}
-			
+
 			Attribute<?> getter = encounter.getAttribute(Dust.NAMESPACE_SETTERS, name, setter.getType());
-			
+
 			setterPairs.add(new ValuePair(setter, getter));
 		}
-		
+
 		final ValuePair<?>[] setters = setterPairs.toArray(new ValuePair[setterPairs.size()]);
 		encounter.wrap(new ElementWrapper()
 		{
@@ -50,7 +50,7 @@ public class SettersMixin
 					p.set(context, data);
 				}
 			}
-			
+
 			@Override
 			public void afterElement(ElementEncounter encounter)
 				throws IOException
@@ -58,18 +58,18 @@ public class SettersMixin
 			}
 		});
 	}
-	
+
 	private static class ValuePair<T>
 	{
 		private final Value<T> setter;
 		private final Value<? extends T> getter;
-		
+
 		public ValuePair(Value<T> setter, Value<? extends T> getter)
 		{
 			this.setter = setter;
 			this.getter = getter;
 		}
-		
+
 		public void set(Context ctx, Object data)
 		{
 			T value = getter.get(ctx, data);

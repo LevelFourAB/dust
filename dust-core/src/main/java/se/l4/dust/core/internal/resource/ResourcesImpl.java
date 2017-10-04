@@ -20,12 +20,12 @@ public class ResourcesImpl
 	implements Resources
 {
 	private final List<ResourceLocator> sources;
-	
+
 	public ResourcesImpl()
 	{
 		sources = new CopyOnWriteArrayList<>();
 	}
-	
+
 	@Override
 	public void addLocator(ResourceLocator source)
 	{
@@ -41,10 +41,10 @@ public class ResourcesImpl
 			Resource resource = locator.locate(namespace, file);
 			if(resource != null) return resource;
 		}
-		
+
 		return null;
 	}
-	
+
 	@Override
 	public Resource locate(URL url)
 		throws IOException
@@ -58,7 +58,7 @@ public class ResourcesImpl
 			return null;
 		}
 	}
-	
+
 	@Override
 	public Resource locate(ResourceLocation location)
 		throws IOException
@@ -72,7 +72,7 @@ public class ResourcesImpl
 		{
 			return locate(((UrlLocation) location).getUrl());
 		}
-		
+
 		return null;
 	}
 }

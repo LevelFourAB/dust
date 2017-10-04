@@ -24,7 +24,7 @@ import se.l4.dust.core.internal.Caches;
 
 /**
  * Source of property based messages.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -33,7 +33,7 @@ public class PropertyMessagesSource
 {
 	private static final Charset ISO88591 = Charset.forName("ISO-8859-1");
 	private static final Charset UTF8 = Charset.forName("UTF-8");
-	
+
 	private final ResourceVariantManager variants;
 	private final Cache<ResourceLocation, MessageCollection> cache;
 
@@ -43,7 +43,7 @@ public class PropertyMessagesSource
 		this.variants = variants;
 		this.cache = caches.newCache();
 	}
-	
+
 	@Override
 	public MessageCollection load(Context context, ResourceLocation resource)
 		throws IOException
@@ -51,11 +51,11 @@ public class PropertyMessagesSource
 		ResourceLocation location = resource.withExtension("properties");
 		ResourceVariantResolution variant = variants.resolve(context, location);
 		if(variant.getResource() == null) return null;
-		
+
 		Resource toLoad = variant.getResource();
 		MessageCollection collection = cache.getIfPresent(toLoad.getLocation());
 		if(collection != null) return collection;
-		
+
 		MessageCollection result = load(toLoad);
 		cache.put(toLoad.getLocation(), result);
 		return result;
@@ -70,7 +70,7 @@ public class PropertyMessagesSource
 		{
 			Properties props = new Properties();
 			props.load(stream);
-			
+
 			PropertyMessages messages = new PropertyMessages(props);
 			return messages;
 		}
@@ -94,13 +94,13 @@ public class PropertyMessagesSource
 			}
 			this.messages = messages;
 		}
-		
+
 		@Override
 		public String get(String property)
 		{
 			return messages.get(property);
 		}
-		
+
 		@Override
 		public Set<String> keys()
 		{

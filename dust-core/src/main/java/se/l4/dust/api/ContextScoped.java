@@ -10,7 +10,7 @@ import com.google.inject.ScopeAnnotation;
 
 /**
  * Specifies that a class should be scoped to the current {@link Context}.
- * 
+ *
  * @author Andreas Holstenson
  *
  */

@@ -21,7 +21,7 @@ import com.google.inject.Stage;
 
 /**
  * Configuration for Resteasy.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -33,9 +33,9 @@ public class ResteasyConfiguration
 	private final Registry registry;
 	private final ResteasyProviderFactory factory;
 	private final boolean dev;
-	
+
 	private ServletContext servletContext;
-	
+
 	@Inject
 	public ResteasyConfiguration(
 			Injector injector,
@@ -46,7 +46,7 @@ public class ResteasyConfiguration
 		this.injector = injector;
 		this.registry = registry;
 		this.factory = factory;
-		
+
 		dev = stage == Stage.DEVELOPMENT;
 	}
 
@@ -70,7 +70,7 @@ public class ResteasyConfiguration
 		{
 			provider = (Provider<Object>) injector.getProvider(typeAnnotatedWithPath);
 		}
-		
+
 		registry.addResourceFactory(new PageResourceFactory(provider, typeAnnotatedWithPath));
 	}
 	@Override
@@ -78,25 +78,25 @@ public class ResteasyConfiguration
 	{
 		factory.register(reader);
 	}
-	
+
 	@Override
 	public void addMessageBodyWriter(MessageBodyWriter<?> writer)
 	{
 		factory.register(writer);
 	}
-	
+
 	@Override
 	public void addExceptionMapper(ExceptionMapper<?> mapper)
 	{
 		factory.register(mapper);
 	}
-	
+
 	@Override
 	public void addParamConverterProvider(ParamConverterProvider provider)
 	{
 		factory.register(provider);
 	}
-	
+
 	public ServletContext getServletContext()
 	{
 		return servletContext;

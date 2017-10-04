@@ -8,7 +8,7 @@ public interface ErrorHandler
 
 	/**
 	 * Report a fatal error.
-	 * 
+	 *
 	 * @param node
 	 * @param message
 	 * @return
@@ -17,7 +17,7 @@ public interface ErrorHandler
 
 	/**
 	 * Report a fatal error.
-	 * 
+	 *
 	 * @param node
 	 * @param message
 	 * @return
@@ -26,7 +26,7 @@ public interface ErrorHandler
 
 	/**
 	 * Report a fatal error.
-	 * 
+	 *
 	 * @param node
 	 * @param message
 	 * @return

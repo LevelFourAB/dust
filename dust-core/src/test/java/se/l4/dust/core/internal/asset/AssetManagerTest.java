@@ -33,14 +33,14 @@ import com.google.inject.Injector;
 
 /**
  * Tests for asset management.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
 public class AssetManagerTest
 {
 	private AssetsImpl instance;
-	
+
 	/**
 	 * Setup the tests. Creates an {@link Injector} containing the core
 	 * module. It registers the package of the class as a namespace allowing
@@ -51,64 +51,64 @@ public class AssetManagerTest
 	public void before()
 	{
 		Injector injector = Guice.createInjector(new CoreModule());
-		
+
 		injector.getInstance(Namespaces.class)
 			.bind("dust:test")
 			.setPackageFromClass(getClass())
 			.add();
-		
+
 		instance = injector.getInstance(AssetsImpl.class);
 		injector.getInstance(Resources.class).addLocator(injector.getInstance(ClasspathResourceLocator.class));
-		
+
 		injector.getInstance(ResourceVariantManager.class)
 			.addSource(new LocaleVariantSource());
 	}
-	
+
 	@Test
 	public void testNoVariant()
 	{
 		Context ctx = new DefaultContext();
 		Asset asset = instance.locate(ctx, "dust:test", "file.txt");
-		
+
 		Assert.assertNotNull("no asset found", asset);
 		Assert.assertEquals("file.txt", asset.getName());
 	}
-	
+
 	@Test
 	public void testVariantNoLocale()
 	{
 		Context ctx = new DefaultContext();
 		Asset asset = instance.locate(ctx, "dust:test", "variant/file.txt");
-		
+
 		Assert.assertNotNull("no asset found", asset);
 		Assert.assertEquals("variant/file.txt", asset.getName());
 	}
-	
+
 	@Test
 	public void testVariantSwedishLocale()
 	{
 		Context ctx = new DefaultContext();
 		ctx.putValue(ResourceVariant.LOCALE, new Locale("sv"));
 		Asset asset = instance.locate(ctx, "dust:test", "variant/file.txt");
-		
+
 		Assert.assertNotNull("no asset found", asset);
 		Assert.assertEquals("variant/file.sv.txt", asset.getName());
 	}
-	
+
 	@Test
 	public void testNoVariantMerged()
 	{
 		instance.define("dust:test", "merged.txt")
 			.add("file.txt")
 			.create();
-		
+
 		Context ctx = new DefaultContext();
 		Asset asset = instance.locate(ctx, "dust:test", "merged.txt");
-		
+
 		Assert.assertNotNull("no asset found", asset);
 		Assert.assertEquals("merged.txt", asset.getName());
 	}
-	
+
 	@Test
 	public void testVariantMergedNoLocale()
 	{
@@ -116,14 +116,14 @@ public class AssetManagerTest
 			.add("file.txt")
 			.add("variant/file.txt")
 			.create();
-		
+
 		Context ctx = new DefaultContext();
 		Asset asset = instance.locate(ctx, "dust:test", "merged.txt");
-		
+
 		Assert.assertNotNull("no asset found", asset);
 		Assert.assertEquals("merged.txt", asset.getName());
 	}
-	
+
 	@Test
 	public void testVariantMergedSwedishLocale()
 	{
@@ -131,15 +131,15 @@ public class AssetManagerTest
 			.add("file.txt")
 			.add("variant/file.txt")
 			.create();
-		
+
 		Context ctx = new DefaultContext();
 		ctx.putValue(ResourceVariant.LOCALE, new Locale("sv"));
 		Asset asset = instance.locate(ctx, "dust:test", "merged.txt");
-		
+
 		Assert.assertNotNull("no asset found", asset);
 		Assert.assertEquals("merged.sv.txt", asset.getName());
 	}
-	
+
 	@Test
 	public void testNoVariantMergedWithPipeline()
 		throws IOException
@@ -147,10 +147,10 @@ public class AssetManagerTest
 		instance.define("dust:test", "merged-rev.txt")
 			.add("file.txt", instance.pipeline(new ReverseStringProcessor()))
 			.create();
-		
+
 		Context ctx = new DefaultContext();
 		Asset asset = instance.locate(ctx, "dust:test", "merged-rev.txt");
-		
+
 		Assert.assertNotNull("no asset found", asset);
 		Assert.assertEquals("merged-rev.txt", asset.getName());
 		try(InputStream in = asset.getResource().openStream())
@@ -159,7 +159,7 @@ public class AssetManagerTest
 			assertThat(actual, is("elif"));
 		}
 	}
-	
+
 
 	@Test
 	public void testVariantMergedSwedishLocalteWithPipeline()
@@ -169,11 +169,11 @@ public class AssetManagerTest
 			.add("file.txt", instance.pipeline(new ReverseStringProcessor()))
 			.add("variant/file.txt")
 			.create();
-		
+
 		Context ctx = new DefaultContext();
 		ctx.putValue(ResourceVariant.LOCALE, new Locale("sv"));
 		Asset asset = instance.locate(ctx, "dust:test", "merged-rev.txt");
-		
+
 		Assert.assertNotNull("no asset found", asset);
 		Assert.assertEquals("merged-rev.sv.txt", asset.getName());
 		try(InputStream in = asset.getResource().openStream())
@@ -182,7 +182,7 @@ public class AssetManagerTest
 			assertThat(actual, is("elifsv"));
 		}
 	}
-	
+
 	private class ReverseStringProcessor
 		implements AssetProcessor
 	{
@@ -199,7 +199,7 @@ public class AssetManagerTest
 					bytes[i] = bytes[t - i - 1];
 					bytes[t -  i - 1] = b;
 				}
-				
+
 				encounter.replaceWith(new MemoryResource(encounter.getLocation(), "text/plain", "UTF-8", bytes));
 			}
 		}

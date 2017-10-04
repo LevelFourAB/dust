@@ -6,7 +6,7 @@ import se.l4.dust.core.internal.expression.ExpressionParser;
 /**
  * Simple class with main method for running a few invalid expressions. These
  * should all fail and produce somewhat understandable error messages.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -31,7 +31,7 @@ public class ParserFailures
 		test(".2e");
 		test("2.kaka");
 	}
-	
+
 	private static void test(String text)
 	{
 		try
@@ -43,7 +43,7 @@ public class ParserFailures
 		{
 			System.out.println(e.getMessage());
 		}
-		
+
 		System.out.println("==================");
 	}
 }

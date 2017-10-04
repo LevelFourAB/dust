@@ -12,7 +12,7 @@ import com.google.inject.Key;
 
 /**
  * Abstract bootstrap for setting up a default installation.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -26,18 +26,18 @@ public abstract class AbstractBootstrap
 	public void contextInitialized(ServletContextEvent sce)
 	{
 		ServletContext ctx = sce.getServletContext();
-		Injector i = getInjector(ctx); 
+		Injector i = getInjector(ctx);
 		ctx.setAttribute(Injector.class.getName(), i);
 
 		// Pass the context along
 		WebScopes.setContext(ctx);
-		
+
 		// Setup the rest of the context
 		Contributions contextContributions = i.getInstance(
 			Key.get(Contributions.class, ContextContribution.class)
 		);
 		contextContributions.run();
-		
+
 		try
 		{
 			i.getInstance(NamespaceDiscovery.class).performDiscovery();;

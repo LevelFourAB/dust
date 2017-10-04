@@ -4,7 +4,7 @@ public class MemoryLocation
 	implements ResourceLocation
 {
 	private final String name;
-	
+
 	public MemoryLocation(String name)
 	{
 		this.name = name;
@@ -15,7 +15,7 @@ public class MemoryLocation
 	{
 		return null;
 	}
-	
+
 	@Override
 	public ResourceLocation resolve(String path)
 	{

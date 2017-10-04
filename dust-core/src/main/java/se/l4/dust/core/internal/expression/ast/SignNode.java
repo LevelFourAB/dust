@@ -2,7 +2,7 @@ package se.l4.dust.core.internal.expression.ast;
 
 /**
  * Node that changes the sign of a result.
- * 
+ *
  * @author Andreas Holstenson
  *
  */
@@ -15,21 +15,21 @@ public class SignNode
 	public SignNode(int line, int position, boolean negative, Node node)
 	{
 		super(line, position);
-		
+
 		this.negative = negative;
 		this.node = node;
 	}
-	
+
 	public boolean isNegative()
 	{
 		return negative;
 	}
-	
+
 	public Node getNode()
 	{
 		return node;
 	}
-	
+
 	@Override
 	public String toString()
 	{

@@ -48,21 +48,21 @@ public class AssetsImpl
 	implements Assets
 {
 	private static final Asset NULL_ASSET = new AssetImpl(null, null, null, false);
-	
+
 	private final LoadingCache<String, AssetNamespace> cache;
 	private final Namespaces manager;
 	private final Resources resources;
 	private final ResourceVariantManager variants;
-	
+
 	private final boolean production;
-	
+
 	private final Set<String> protectedExtensions;
-	
+
 	private final Injector injector;
 	private final BuiltAssetLocator builtAssetLocator;
 
 	private volatile AssetCache assetCache;
-	
+
 	@Inject
 	public AssetsImpl(Namespaces namespaces0,
 			Resources resources,
@@ -76,9 +76,9 @@ public class AssetsImpl
 		this.variants = variants;
 		this.builtAssetLocator = builtAssetLocator;
 		this.injector = injector;
-		
+
 		protectedExtensions = Sets.newHashSet();
-		
+
 		CacheLoader<String, AssetNamespace> f;
 		if(stage == Stage.DEVELOPMENT)
 		{
@@ -90,7 +90,7 @@ public class AssetsImpl
 					return new DevAssetNamespace(manager.getNamespaceByURI(from));
 				}
 			};
-			
+
 			production = false;
 		}
 		else
@@ -103,21 +103,21 @@ public class AssetsImpl
 					return new AssetNamespace(manager.getNamespaceByURI(from));
 				}
 			};
-				
+
 			production = true;
 		}
-		
+
 		cache = CacheBuilder
 			.newBuilder()
 			.build(f);
 	}
-	
+
 	@Inject(optional=true)
 	public void setAssetCache(AssetCache cache)
 	{
 		this.assetCache = cache;
 	}
-	
+
 	private AssetNamespace get(String ns)
 	{
 		try
@@ -129,13 +129,13 @@ public class AssetsImpl
 			throw Throwables.propagate(e.getCause());
 		}
 	}
-	
+
 	@Override
 	public Asset locate(Context context, String ns, String file)
 	{
 		AssetNamespace ans = get(ns);
 		Asset a = ans.get(context, file);
-		
+
 		return a == NULL_ASSET ? null: a;
 	}
 
@@ -144,32 +144,32 @@ public class AssetsImpl
 	{
 		protectedExtensions.add(extension);
 	}
-	
+
 	@Override
 	public boolean isProtectedExtension(String extension)
 	{
 		return protectedExtensions.contains(extension);
 	}
-	
+
 	@Override
 	public void addTemporaryAsset(String ns, String path, Resource resource)
 	{
 		builtAssetLocator.add(ns, path, resource);
 	}
-	
+
 	@Override
 	public AssetBuilder define(String namespace, String pathToFile)
 	{
 		AssetNamespace parent = get(namespace);
 		return new AssetBuilderImpl(parent, namespace, pathToFile);
 	}
-	
+
 	@Override
 	public AssetPipeline pipeline(AssetProcessor... processors)
 	{
 		return new AssetPipelineImpl(processors);
 	}
-	
+
 	@Override
 	public AssetPipelineBuilder newPipeline()
 	{
@@ -181,7 +181,7 @@ public class AssetsImpl
 			{
 				return new AssetPipelineImpl(processors.toArray(new AssetProcessor[processors.size()]));
 			}
-			
+
 			@Override
 			public AssetPipelineBuilder add(AssetProcessor processor)
 			{
@@ -190,10 +190,10 @@ public class AssetsImpl
 			}
 		};
 	}
-	
+
 	/**
 	 * Builder implementation for defining combined assets.
-	 * 
+	 *
 	 * @author Andreas Holstenson
 	 *
 	 */
@@ -201,10 +201,10 @@ public class AssetsImpl
 		implements AssetBuilder
 	{
 		private final AssetNamespace parent;
-		
+
 		private final String namespace;
 		private final String pathToFile;
-		
+
 		private final List<ResourceDef> resources;
 		private final List<AssetProcessor> processors;
 
@@ -213,7 +213,7 @@ public class AssetsImpl
 			this.parent = parent;
 			this.namespace = namespace;
 			this.pathToFile = pathToFile;
-			
+
 			resources = Lists.newArrayList();
 			processors = Lists.newArrayList();
 		}
@@ -223,7 +223,7 @@ public class AssetsImpl
 		{
 			return add(namespace, pathToFile);
 		}
-		
+
 		@Override
 		public AssetBuilder add(String pathToFile, AssetPipeline pipeline)
 		{
@@ -235,19 +235,19 @@ public class AssetsImpl
 		{
 			return add(ns, pathToFile, null);
 		}
-		
+
 		@Override
 		public AssetBuilder add(String ns, String pathToFile, AssetPipeline pipeline)
 		{
 			return add(new NamespaceLocation(manager.getNamespaceByURI(ns), pathToFile), pipeline);
 		}
-		
+
 		@Override
 		public AssetBuilder add(ResourceLocation location)
 		{
 			return add(location, null);
 		}
-		
+
 		@Override
 		public AssetBuilder add(ResourceLocation location, AssetPipeline pipeline)
 		{
@@ -259,7 +259,7 @@ public class AssetsImpl
 		public AssetBuilder process(AssetProcessor processor)
 		{
 			processors.add(processor);
-			
+
 			return this;
 		}
 
@@ -269,13 +269,13 @@ public class AssetsImpl
 			parent.defineResource(pathToFile, resources, processors);
 		}
 	}
-	
+
 	private static class AssetDef
 	{
 		private final List<ResourceDef> resources;
 		private final List<ResourceLocation> locations;
 		private final AssetPipeline pipeline;
-		
+
 		public AssetDef(List<ResourceDef> resources, AssetPipeline pipeline)
 		{
 			this.resources = resources;
@@ -290,23 +290,23 @@ public class AssetsImpl
 			});
 		}
 	}
-	
+
 	private static class ResourceDef
 	{
 		private final ResourceLocation location;
 		private final AssetPipeline pipeline;
-		
+
 		public ResourceDef(ResourceLocation location, AssetPipeline pipeline)
 		{
 			this.location = location;
 			this.pipeline = pipeline;
 		}
 	}
-	
+
 	/**
 	 * Default encapsulation of a namespace associated with assets. This class
 	 * handles retrieval and creation of assets.
-	 * 
+	 *
 	 * @author Andreas Holstenson
 	 *
 	 */
@@ -314,21 +314,21 @@ public class AssetsImpl
 	{
 		protected final Namespace namespace;
 		protected final Map<String, AssetDef> builtAssets;
-		
+
 		public AssetNamespace(Namespace namespace)
 		{
 			this.namespace = namespace;
-			
+
 			builtAssets = Maps.newHashMap();
 		}
-		
+
 		/**
 		 * Define a new resource for this namespace.
-		 * 
+		 *
 		 * @param pathToFile
 		 * @param assets
 		 * @param processors
-		 * @throws IOException 
+		 * @throws IOException
 		 */
 		public void defineResource(String pathToFile,
 				List<ResourceDef> resourceLocations,
@@ -347,7 +347,7 @@ public class AssetsImpl
 					{
 						throw new AssetException("Unable to define " + pathToFile + " in " + namespace.getUri() + "; Resource " + location + " does not exist");
 					}
-					resolvedResources[idx++] = def.pipeline == null 
+					resolvedResources[idx++] = def.pipeline == null
 						? wrapResource(resource)
 						: process(resource, def.pipeline);
 				}
@@ -356,11 +356,11 @@ public class AssetsImpl
 					throw new AssetException("Unable to define " + pathToFile + " in " + namespace.getUri() + "; Resource " + location + " could not be read; " + e.getMessage(), e);
 				}
 			}
-			
+
 			AssetPipeline pipeline = new AssetPipelineImpl(processors.toArray(new AssetProcessor[processors.size()]));
 			AssetDef def = new AssetDef(resourceLocations, pipeline);
 			builtAssets.put(pathToFile, def);
-			
+
 			try
 			{
 				MergedResource merged = new MergedResource(
@@ -374,14 +374,14 @@ public class AssetsImpl
 				throw new AssetException("Unable to define " + pathToFile + " in " + namespace.getUri() + "; " + e.getMessage(), e);
 			}
 		}
-		
+
 		public Asset get(Context context, String path)
 		{
 			if(path == null)
 			{
 				throw new IllegalArgumentException("Path can not be null");
 			}
-			
+
 			try
 			{
 				// Check if the resource has been defined
@@ -393,7 +393,7 @@ public class AssetsImpl
 				// Attempt to resolve the correct variant of the asset
 				ResourceVariantResolution result = variants.resolve(context, new NamespaceLocation(namespace, path));
 				if(result == null) return null;
-				
+
 				return createAsset(result.getName(), result.getResource());
 			}
 			catch(IOException e)
@@ -405,7 +405,7 @@ public class AssetsImpl
 				throw e.withLocation(new NamespaceLocation(namespace, path));
 			}
 		}
-		
+
 		private Asset handleBuiltAsset(final Context context, final String path)
 			throws IOException
 		{
@@ -418,7 +418,7 @@ public class AssetsImpl
 					try
 					{
 						List<ResourceDef> defs = builtAssets.get(path).resources;
-						
+
 						List<ResourceVariantResolution> actualResources = Lists.newArrayListWithCapacity(defs.size());
 						for(ResourceDef def : defs)
 						{
@@ -429,7 +429,7 @@ public class AssetsImpl
 							}
 							actualResources.add(resolved);
 						}
-						
+
 						return actualResources;
 					}
 					catch(IOException e)
@@ -438,21 +438,21 @@ public class AssetsImpl
 					}
 				}
 			});
-			
+
 			Resource resource = builtAssetLocator.locate(namespace.getUri(), result.getName());
 			if(resource == null)
 			{
 				resource = processAndRegister(result.getName(), result.getResource(), builtAssets.get(path).pipeline);
 			}
-			
+
 			return createAsset(result.getName(), resource);
 		}
-		
+
 		protected Resource wrapResource(Resource resource)
 		{
 			return resource;
 		}
-		
+
 		protected Resource processAndRegister(String pathToFile, Resource resource, AssetPipeline pipeline)
 			throws IOException
 		{
@@ -460,7 +460,7 @@ public class AssetsImpl
 			builtAssetLocator.add(namespace.getUri(), pathToFile, resource);
 			return resource;
 		}
-		
+
 		protected Resource process(Resource in, AssetPipeline pipeline)
 			throws IOException
 		{
@@ -473,17 +473,17 @@ public class AssetsImpl
 				throw e.withLocation(in.getLocation());
 			}
 		}
-		
+
 		public Asset createAsset(String name, Resource resource)
 			throws IOException
 		{
 			int idx = name.lastIndexOf('.');
 			boolean protect = idx == -1 ? false
 				: isProtectedExtension(name.substring(idx+1));
-			
+
 			return createAsset(name, resource, protect);
 		}
-		
+
 		protected Asset createAsset(String name, Resource resource, boolean protect)
 		{
 			return new AssetImpl(namespace, name, resource, protect);
@@ -495,11 +495,11 @@ public class AssetsImpl
 			return resources.locate(location);
 		}
 	}
-	
+
 	/**
 	 * Asset namespace that checks if the asset has been modified and if so
 	 * reloads it.
-	 * 
+	 *
 	 * @author Andreas Holstenson
 	 *
 	 */
@@ -510,13 +510,13 @@ public class AssetsImpl
 		{
 			super(namespace);
 		}
-		
+
 		protected Resource process0(Resource in, AssetPipeline pipeline)
 			throws IOException
 		{
 			return super.process(in, pipeline);
 		}
-		
+
 		@Override
 		protected Resource wrapResource(final Resource resource)
 		{
@@ -528,7 +528,7 @@ public class AssetsImpl
 			{
 				return resource;
 			}
-			
+
 			Supplier<Resource> original = new Supplier<Resource>()
 			{
 				@Override
@@ -544,15 +544,15 @@ public class AssetsImpl
 					}
 				}
 			};
-			
+
 			return new ReloadingResource(resource, original, Functions.<Resource>identity());
 		}
-		
+
 		@Override
 		protected Asset createAsset(final String name, Resource resource, boolean protect)
 		{
 			resource = wrapResource(resource);
-			
+
 			return new AssetImpl(namespace, name, resource, protect)
 			{
 				@Override
@@ -571,7 +571,7 @@ public class AssetsImpl
 				}
 			};
 		}
-		
+
 		@Override
 		protected Resource process(Resource in, final AssetPipeline pipeline)
 			throws IOException
@@ -593,13 +593,13 @@ public class AssetsImpl
 			});
 		}
 	}
-	
+
 	private class ReloadingResource
 		extends AbstractResource
 	{
 		private final Function<Resource, Resource> reloader;
 		private final Supplier<Resource> original;
-		
+
 		private Resource current;
 		private boolean first;
 
@@ -608,58 +608,58 @@ public class AssetsImpl
 				Function<Resource, Resource> reloader)
 		{
 			super(null);
-			
+
 			first = true;
-			
+
 			this.original = original;
 			this.current = resource;
 			this.reloader = reloader;
 		}
-		
+
 		@Override
 		public String getContentEncoding()
 		{
 			return current.getContentEncoding();
 		}
-		
+
 		@Override
 		public int getContentLength()
 		{
 			return current.getContentLength();
 		}
-		
+
 		@Override
 		public String getContentType()
 		{
 			return current.getContentType();
 		}
-		
+
 		@Override
 		public long getLastModified()
 		{
 			return current.getLastModified();
 		}
-		
+
 		@Override
 		public InputStream openStream()
 			throws IOException
 		{
 			return current.openStream();
 		}
-		
+
 		public synchronized void maybeReload()
 			throws IOException
 		{
 			Resource resource = original.get();
 			maybeReload(resource);
-			
+
 			if(first || resource.getLastModified() > current.getLastModified())
 			{
 				first = false;
 				this.current = reloader.apply(resource);
 			}
 		}
-		
+
 		private void maybeReload(Resource resource)
 			throws IOException
 		{
@@ -679,42 +679,42 @@ public class AssetsImpl
 				}
 			}
 		}
-		
+
 		@Override
 		public String toString()
 		{
 			return "Reloading{current=" + current + ", original=" + original + "}";
 		}
 	}
-	
+
 	private class AssetPipelineImpl
 		implements AssetPipeline
 	{
 		private final AssetProcessor[] processors;
-		
+
 		public AssetPipelineImpl(AssetProcessor[] processors)
 		{
 			this.processors = processors;
 		}
-		
+
 		@Override
 		public Resource process(Resource in)
 			throws IOException
 		{
 			Resource current = in;
-			
+
 			for(AssetProcessor processor : processors)
 			{
 				AssetEncounterImpl encounter = new AssetEncounterImpl(production, current, assetCache);
-				
+
 				processor.process(encounter);
-				
+
 				if(encounter.isReplaced())
 				{
 					current = encounter.getReplacedWith();
 				}
 			}
-			
+
 			return current;
 		}
 	}

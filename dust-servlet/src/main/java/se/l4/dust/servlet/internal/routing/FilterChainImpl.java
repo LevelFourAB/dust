@@ -18,15 +18,15 @@ public class FilterChainImpl
 	{
 		this.entries = entries;
 		this.fallback = fallback;
-		
+
 		index = -1;
 	}
-	
+
 	public void doFilter(ServletRequest request, ServletResponse response)
 		throws IOException, ServletException
 	{
 		index++;
-		
+
 		if(index < entries.length)
 		{
 			FilterEntry entry = entries[index];

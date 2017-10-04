@@ -37,7 +37,7 @@ public class LongToIntInvoker
 		Object value = input.get(errors, context, root, instance);
 		return ((Number) value).intValue();
 	}
-	
+
 	@Override
 	public boolean supportsGet()
 	{
@@ -49,20 +49,20 @@ public class LongToIntInvoker
 	{
 		throw errors.error(node, "Can not set value of this expression");
 	}
-	
+
 	@Override
 	public boolean supportsSet()
 	{
 		return false;
 	}
-	
+
 	@Override
 	public String toJavaGetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{
 		String value = input.toJavaGetter(errors, compiler, context);
 		return "((int) " + value + ")";
 	}
-	
+
 	@Override
 	public String toJavaSetter(ErrorHandler errors, ExpressionCompiler compiler, String context)
 	{

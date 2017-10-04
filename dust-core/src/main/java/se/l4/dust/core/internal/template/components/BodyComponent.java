@@ -16,7 +16,7 @@ public class BodyComponent
 	public BodyComponent()
 	{
 	}
-	
+
 	@Override
 	public void build(FragmentEncounter encounter)
 	{
@@ -30,14 +30,14 @@ public class BodyComponent
 			encounter.replaceWith(new ParameterEmitter(param));
 		}
 	}
-	
+
 	private static class SimpleBodyEmitter
 		implements Emittable
 	{
 		public SimpleBodyEmitter()
 		{
 		}
-		
+
 		@Override
 		public void emit(TemplateEmitter emitter, TemplateOutputStream output)
 			throws IOException
@@ -45,11 +45,11 @@ public class BodyComponent
 			TemplateEmitterImpl emitterImpl = (TemplateEmitterImpl) emitter;
 			Emittable e = emitterImpl.getCurrentComponent();
 			if(e == null) return;
-			
+
 			emitter.emit(e);
 		}
 	}
-	
+
 	private static class ParameterEmitter
 		implements Emittable
 	{
@@ -59,7 +59,7 @@ public class BodyComponent
 		{
 			this.name = name;
 		}
-		
+
 		@Override
 		public void emit(TemplateEmitter emitter, TemplateOutputStream output)
 			throws IOException

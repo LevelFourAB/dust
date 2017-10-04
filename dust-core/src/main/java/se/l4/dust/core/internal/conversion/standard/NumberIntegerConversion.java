@@ -4,7 +4,7 @@ import se.l4.dust.api.conversion.Conversion;
 
 /**
  * Conversion between a number and an integer.
- * 
+ *
  * @author Andreas Holstenson
  *
  */

@@ -23,7 +23,7 @@ import com.google.inject.Stage;
 
 /**
  * {@link MessageBodyWriter} for {@link Asset}.
- * 
+ *
  * @author Andreas Holstenson
  */
 @Provider
@@ -33,20 +33,20 @@ public class AssetWriter
 {
 	private final boolean development;
 	private final long maxAge;
-	
+
 	@Inject
 	public AssetWriter(Stage stage)
 	{
 		development = stage == Stage.DEVELOPMENT;
-		
+
 		long time = System.currentTimeMillis();
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.YEAR, 1);
 		c.add(Calendar.DAY_OF_MONTH, -1);
-		
+
 		maxAge = c.getTimeInMillis() - time;
 	}
-	
+
 	@Override
 	public long getSize(Asset t, Class<?> type, Type genericType,
 			Annotation[] annotations, MediaType mediaType)
@@ -70,27 +70,27 @@ public class AssetWriter
 		throws IOException, WebApplicationException
 	{
 		Resource resource = t.getResource();
-		
+
 		if(false == development)
 		{
 			httpHeaders.putSingle("Cache-Control", "public, max-age=" + maxAge);
 			httpHeaders.putSingle("Date", new Date());
 			httpHeaders.putSingle("Expires", new Date(System.currentTimeMillis() + maxAge));
 		}
-		
+
 		String contentType = getMimeType(t);
 		httpHeaders.putSingle("Last-Modified", new Date(resource.getLastModified()));
-		
+
 		if(contentType != null)
 		{
 			httpHeaders.putSingle("Content-Type", contentType);
 		}
-		
+
 		InputStream stream = null;
 		try
 		{
 			stream = resource.openStream();
-			
+
 			byte[] buffer = new byte[1024];
 			int l;
 			while((l = stream.read(buffer)) != -1)
@@ -114,10 +114,10 @@ public class AssetWriter
 		{
 			contentType = getLazyMimeType(asset);
 		}
-		
+
 		return contentType;
 	}
-	
+
 	private static String getLazyMimeType(Asset asset)
 	{
 		String name = asset.getName();
