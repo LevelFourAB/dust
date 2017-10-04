@@ -13,6 +13,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.google.common.base.Function;
+import com.google.common.base.Supplier;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.Closeables;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.resource.MergedResource;
@@ -26,14 +34,6 @@ import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.api.resource.variant.ResourceVariantResolution;
 import se.l4.dust.api.resource.variant.ResourceVariantSource;
-
-import com.google.common.base.Function;
-import com.google.common.base.Supplier;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.Closeables;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * Implementation of {@link ResourceVariantManager}.

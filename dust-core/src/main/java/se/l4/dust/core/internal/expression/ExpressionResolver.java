@@ -8,6 +8,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.classmate.MemberResolver;
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.ResolvedTypeWithMembers;
+import com.fasterxml.classmate.TypeResolver;
+import com.fasterxml.classmate.members.ResolvedField;
+import com.fasterxml.classmate.members.ResolvedMethod;
+import com.fasterxml.classmate.types.ResolvedRecursiveType;
+import com.google.common.base.CaseFormat;
+import com.google.common.primitives.Primitives;
+
 import se.l4.dust.api.conversion.NonGenericConversion;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.DynamicMethod;
@@ -66,16 +76,6 @@ import se.l4.dust.core.internal.expression.invoke.StringConcatInvoker;
 import se.l4.dust.core.internal.expression.invoke.TernaryInvoker;
 import se.l4.dust.core.internal.expression.invoke.ThisInvoker;
 import se.l4.dust.core.internal.expression.invoke.TypeResolving;
-
-import com.fasterxml.classmate.MemberResolver;
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.ResolvedTypeWithMembers;
-import com.fasterxml.classmate.TypeResolver;
-import com.fasterxml.classmate.members.ResolvedField;
-import com.fasterxml.classmate.members.ResolvedMethod;
-import com.fasterxml.classmate.types.ResolvedRecursiveType;
-import com.google.common.base.CaseFormat;
-import com.google.common.primitives.Primitives;
 
 /**
  * Resolver for expressions, turns the AST into an invocation chain.

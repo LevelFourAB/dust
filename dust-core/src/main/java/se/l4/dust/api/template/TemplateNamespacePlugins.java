@@ -1,5 +1,8 @@
 package se.l4.dust.api.template;
 
+import com.google.inject.Injector;
+import com.google.inject.Stage;
+
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.NamespacePlugin;
 import se.l4.dust.api.Namespaces;
@@ -9,9 +12,6 @@ import se.l4.dust.api.expression.Expressions;
 import se.l4.dust.api.messages.Messages;
 import se.l4.dust.core.internal.asset.AssetExpressionSource;
 import se.l4.dust.core.internal.messages.NamespaceMessagesExpressionSource;
-
-import com.google.inject.Injector;
-import com.google.inject.Stage;
 
 /**
  * A collection of plugins for {@link Namespaces.NamespaceBinder} that

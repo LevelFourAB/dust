@@ -6,6 +6,9 @@ import java.net.URL;
 
 import javax.servlet.ServletContext;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 import se.l4.dust.Dust;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.resource.NamespaceLocation;
@@ -13,9 +16,6 @@ import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.ResourceLocator;
 import se.l4.dust.api.resource.UrlResource;
 import se.l4.dust.api.template.TemplateException;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 /**
  * Asset source that works on the {@link ServletContext}.

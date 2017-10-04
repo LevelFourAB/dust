@@ -3,12 +3,12 @@ package se.l4.dust.core.internal.expression.invoke;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
+import com.fasterxml.classmate.ResolvedType;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
-
-import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker that will create an array.

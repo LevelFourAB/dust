@@ -10,10 +10,10 @@ import java.util.List;
 
 import org.junit.Test;
 
-import se.l4.dust.core.internal.expression.invoke.TypeResolving;
-
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
+
+import se.l4.dust.core.internal.expression.invoke.TypeResolving;
 
 /**
  * Tests for type resolving.

@@ -2,6 +2,9 @@ package se.l4.dust.core.internal.template;
 
 import java.io.IOException;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.api.Scopes;
 import se.l4.dust.api.resource.ResourceLocation;
@@ -12,9 +15,6 @@ import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.TemplateRenderer;
 import se.l4.dust.api.template.dom.ParsedTemplate;
-
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * Renderer of templates, delegates most of its work to {@link TemplateEmitterImpl}.

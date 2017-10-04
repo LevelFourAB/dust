@@ -6,18 +6,16 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.ParamConverterProvider;
 
-import org.jboss.resteasy.core.Dispatcher;
 import org.jboss.resteasy.spi.Registry;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
-
-import se.l4.dust.jaxrs.JaxrsConfiguration;
-import se.l4.dust.servlet.ServletBinder;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
+
+import se.l4.dust.jaxrs.JaxrsConfiguration;
 
 /**
  * Configuration for Resteasy.

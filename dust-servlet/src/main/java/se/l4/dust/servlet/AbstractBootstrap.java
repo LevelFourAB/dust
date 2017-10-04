@@ -4,11 +4,11 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import se.l4.crayon.Contributions;
-import se.l4.dust.api.discovery.NamespaceDiscovery;
-
 import com.google.inject.Injector;
 import com.google.inject.Key;
+
+import se.l4.crayon.Contributions;
+import se.l4.dust.api.discovery.NamespaceDiscovery;
 
 /**
  * Abstract bootstrap for setting up a default installation.

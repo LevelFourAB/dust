@@ -5,6 +5,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.google.inject.Singleton;
+
 import se.l4.dust.api.resource.NamespaceLocation;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.ResourceLocation;
@@ -12,8 +14,6 @@ import se.l4.dust.api.resource.ResourceLocator;
 import se.l4.dust.api.resource.Resources;
 import se.l4.dust.api.resource.UrlLocation;
 import se.l4.dust.api.resource.UrlResource;
-
-import com.google.inject.Singleton;
 
 @Singleton
 public class ResourcesImpl

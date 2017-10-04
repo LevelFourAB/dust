@@ -12,15 +12,15 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import se.l4.dust.api.conversion.Conversion;
-import se.l4.dust.api.conversion.ConversionException;
-import se.l4.dust.api.conversion.NonGenericConversion;
-import se.l4.dust.api.conversion.TypeConverter;
-
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.primitives.Primitives;
+
+import se.l4.dust.api.conversion.Conversion;
+import se.l4.dust.api.conversion.ConversionException;
+import se.l4.dust.api.conversion.NonGenericConversion;
+import se.l4.dust.api.conversion.TypeConverter;
 
 /**
  * Implementation of {@link TypeConverter}, supports chaining of conversions

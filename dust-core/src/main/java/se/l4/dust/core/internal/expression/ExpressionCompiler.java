@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.google.common.primitives.Primitives;
+
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -16,8 +18,6 @@ import javassist.CtNewMethod;
 import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.expression.ExpressionException;
 import se.l4.dust.core.internal.expression.invoke.Invoker;
-
-import com.google.common.primitives.Primitives;
 
 /**
  * Compiler for expressions. Will take a tree of {@link Invoker}s and compile

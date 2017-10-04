@@ -8,12 +8,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
-import se.l4.dust.servlet.ServletBinder;
-
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+
+import se.l4.dust.servlet.ServletBinder;
 
 @Singleton
 public class ServletBinderImpl

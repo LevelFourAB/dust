@@ -8,14 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.l4.dust.api.discovery.NamespaceDiscovery;
-import se.l4.dust.api.template.Component;
-import se.l4.dust.api.template.ComponentException;
-import se.l4.dust.api.template.Templates;
-import se.l4.dust.api.template.fragment.TemplateFragment;
-import se.l4.dust.api.template.mixin.TemplateMixin;
-import se.l4.dust.core.internal.template.components.ComponentTemplateFragment;
-
 import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -24,6 +16,14 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
+
+import se.l4.dust.api.discovery.NamespaceDiscovery;
+import se.l4.dust.api.template.Component;
+import se.l4.dust.api.template.ComponentException;
+import se.l4.dust.api.template.Templates;
+import se.l4.dust.api.template.fragment.TemplateFragment;
+import se.l4.dust.api.template.mixin.TemplateMixin;
+import se.l4.dust.core.internal.template.components.ComponentTemplateFragment;
 
 /**
  * Implementation of {@link Templates}. The implementation keeps track

@@ -5,9 +5,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import se.l4.dust.api.template.Emittable;
-
 import com.google.common.collect.Maps;
+
+import se.l4.dust.api.template.Emittable;
 
 /**
  * Element abstraction. This is used to represent tags and components in the

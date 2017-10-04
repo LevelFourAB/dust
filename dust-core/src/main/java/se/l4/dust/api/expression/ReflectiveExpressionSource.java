@@ -12,13 +12,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import se.l4.dust.api.Context;
-
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.google.inject.Stage;
+
+import se.l4.dust.api.Context;
 
 /**
  * Expression source that works by using reflection to find methods on its

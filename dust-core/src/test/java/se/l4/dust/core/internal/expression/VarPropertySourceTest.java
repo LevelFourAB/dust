@@ -1,9 +1,8 @@
 package se.l4.dust.core.internal.expression;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 
+import junit.framework.Assert;
 import se.l4.dust.api.Context;
 import se.l4.dust.api.DefaultContext;
 import se.l4.dust.api.expression.Expression;

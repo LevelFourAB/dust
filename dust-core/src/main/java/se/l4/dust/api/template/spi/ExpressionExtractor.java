@@ -2,13 +2,13 @@ package se.l4.dust.api.template.spi;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import se.l4.dust.api.Value;
 import se.l4.dust.api.Values;
 import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.TemplateBuilder;
 import se.l4.dust.core.internal.expression.ExpressionDebugger;
-
-import com.google.common.collect.Lists;
 
 /**
  * Extractor of expressions within a larger text mass. This is used by template

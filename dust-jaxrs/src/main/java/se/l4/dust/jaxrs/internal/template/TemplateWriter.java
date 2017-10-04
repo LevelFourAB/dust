@@ -13,6 +13,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import com.google.inject.Inject;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.api.template.Component;
 import se.l4.dust.api.template.RenderingContext;
@@ -23,8 +25,6 @@ import se.l4.dust.api.template.TemplateRenderer;
 import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.core.template.html.HtmlTemplateOutput;
 import se.l4.dust.servlet.WebRenderingContext;
-
-import com.google.inject.Inject;
 
 /**
  * {@link MessageBodyWriter} that renders the templates.

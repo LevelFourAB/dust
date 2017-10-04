@@ -1,13 +1,13 @@
 package se.l4.dust.core.internal.template.mixins;
 
+import com.google.inject.Inject;
+
 import se.l4.dust.Dust;
 import se.l4.dust.api.Value;
 import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.mixin.MixinEncounter;
 import se.l4.dust.api.template.mixin.TemplateMixin;
-
-import com.google.inject.Inject;
 
 public class IfMixin
 	implements TemplateMixin

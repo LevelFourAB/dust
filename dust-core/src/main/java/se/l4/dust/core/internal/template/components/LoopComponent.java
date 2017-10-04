@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.RandomAccess;
 
+import com.google.inject.Inject;
+
 import se.l4.dust.api.conversion.Conversion;
 import se.l4.dust.api.conversion.NonGenericConversion;
 import se.l4.dust.api.conversion.TypeConverter;
@@ -17,8 +19,6 @@ import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.api.template.fragment.FragmentEncounter;
 import se.l4.dust.api.template.fragment.TemplateFragment;
-
-import com.google.inject.Inject;
 
 
 /**

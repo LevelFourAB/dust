@@ -2,9 +2,9 @@ package se.l4.dust.core.internal.resource;
 
 import java.util.Arrays;
 
-import se.l4.dust.api.resource.variant.ResourceVariant;
-
 import com.google.common.base.Objects;
+
+import se.l4.dust.api.resource.variant.ResourceVariant;
 
 /**
  * Merged resource variant.

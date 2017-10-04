@@ -11,15 +11,15 @@ import org.apache.bval.jsr303.ConfigurationImpl;
 import org.apache.bval.jsr303.DefaultMessageInterpolator;
 import org.apache.bval.jsr303.resolver.DefaultTraversableResolver;
 
+import com.google.inject.Injector;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+
 import se.l4.crayon.CrayonModule;
 import se.l4.dust.api.NamespaceBinding;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.expression.Expressions;
 import se.l4.dust.api.template.Templates;
-
-import com.google.inject.Injector;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
 
 /**
  * Module for validation support. When this module is included it is possible

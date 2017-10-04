@@ -6,6 +6,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.hash.Hasher;
+import com.google.common.hash.Hashing;
+import com.google.common.io.Closeables;
+
 import se.l4.dust.api.asset.AssetCache;
 import se.l4.dust.api.asset.AssetEncounter;
 import se.l4.dust.api.asset.AssetException;
@@ -13,10 +17,6 @@ import se.l4.dust.api.resource.MemoryLocation;
 import se.l4.dust.api.resource.MergedResource;
 import se.l4.dust.api.resource.Resource;
 import se.l4.dust.api.resource.ResourceLocation;
-
-import com.google.common.hash.Hasher;
-import com.google.common.hash.Hashing;
-import com.google.common.io.Closeables;
 
 /**
  * Implementation of {@link AssetEncounter}.

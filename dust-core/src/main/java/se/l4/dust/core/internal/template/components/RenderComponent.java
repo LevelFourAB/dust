@@ -2,6 +2,8 @@ package se.l4.dust.core.internal.template.components;
 
 import java.io.IOException;
 
+import com.google.inject.Inject;
+
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateCache;
@@ -13,8 +15,6 @@ import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.fragment.FragmentEncounter;
 import se.l4.dust.api.template.fragment.TemplateFragment;
 import se.l4.dust.core.internal.template.TemplateEmitterImpl;
-
-import com.google.inject.Inject;
 
 public class RenderComponent
 	implements TemplateFragment

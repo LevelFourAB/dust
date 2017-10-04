@@ -5,11 +5,11 @@ import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.Path;
 
-import se.l4.dust.api.Context;
-import se.l4.dust.api.expression.ReflectiveExpressionSource;
-
 import com.google.inject.Inject;
 import com.google.inject.Stage;
+
+import se.l4.dust.api.Context;
+import se.l4.dust.api.expression.ReflectiveExpressionSource;
 
 /**
  * Source of properties and methods that can be used together with the

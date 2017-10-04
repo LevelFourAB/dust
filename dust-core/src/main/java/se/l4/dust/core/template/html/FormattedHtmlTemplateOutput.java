@@ -6,10 +6,10 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Set;
 
-import se.l4.dust.api.template.HTML;
-
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
+
+import se.l4.dust.api.template.HTML;
 
 /**
  * Template output that will output its contents as HTML.

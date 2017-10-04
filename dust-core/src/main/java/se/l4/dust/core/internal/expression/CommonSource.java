@@ -1,13 +1,13 @@
 package se.l4.dust.core.internal.expression;
 
-import se.l4.dust.api.expression.ReflectiveExpressionSource;
-import se.l4.dust.api.template.dom.Attribute;
-
 import com.google.common.escape.Escaper;
 import com.google.common.html.HtmlEscapers;
 import com.google.common.net.UrlEscapers;
 import com.google.inject.Inject;
 import com.google.inject.Stage;
+
+import se.l4.dust.api.expression.ReflectiveExpressionSource;
+import se.l4.dust.api.template.dom.Attribute;
 
 /**
  * Source of common properties and methods used within expressions.

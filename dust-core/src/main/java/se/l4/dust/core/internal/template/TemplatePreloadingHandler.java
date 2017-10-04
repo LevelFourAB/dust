@@ -6,6 +6,8 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.api.DefaultContext;
 import se.l4.dust.api.Namespace;
@@ -16,8 +18,6 @@ import se.l4.dust.api.template.Template;
 import se.l4.dust.api.template.TemplateCache;
 import se.l4.dust.api.template.TemplateException;
 import se.l4.dust.api.template.fragment.TemplateFragment;
-
-import com.google.inject.Inject;
 
 public class TemplatePreloadingHandler
 	implements DiscoveryHandler

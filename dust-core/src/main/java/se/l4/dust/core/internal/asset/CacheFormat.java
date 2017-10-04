@@ -5,12 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import se.l4.dust.api.asset.AssetCache;
-import se.l4.dust.api.resource.Resource;
-
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 import com.google.common.io.CountingInputStream;
+
+import se.l4.dust.api.asset.AssetCache;
+import se.l4.dust.api.resource.Resource;
 
 /**
  * Encapsulation of resources in cached form.

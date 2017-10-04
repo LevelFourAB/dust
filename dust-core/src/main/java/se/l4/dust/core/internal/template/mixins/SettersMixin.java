@@ -3,6 +3,8 @@ package se.l4.dust.core.internal.template.mixins;
 import java.io.IOException;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import se.l4.dust.Dust;
 import se.l4.dust.api.Context;
 import se.l4.dust.api.Value;
@@ -12,8 +14,6 @@ import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
 import se.l4.dust.api.template.mixin.MixinEncounter;
 import se.l4.dust.api.template.mixin.TemplateMixin;
-
-import com.google.common.collect.Lists;
 
 public class SettersMixin
 	implements TemplateMixin

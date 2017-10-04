@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
+
 import se.l4.dust.api.template.Emittable;
 import se.l4.dust.api.template.RenderingContext;
 import se.l4.dust.api.template.TemplateEmitter;
@@ -17,8 +19,6 @@ import se.l4.dust.api.template.dom.ParsedTemplate;
 import se.l4.dust.api.template.dom.WrappedElement;
 import se.l4.dust.api.template.mixin.ElementEncounter;
 import se.l4.dust.api.template.mixin.ElementWrapper;
-
-import com.google.common.collect.Maps;
 
 /**
  * Emitter of templates. Takes a {@link ParsedTemplate} and processes it

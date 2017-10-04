@@ -3,14 +3,14 @@ package se.l4.dust.core.internal.expression.invoke;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
+import com.fasterxml.classmate.ResolvedType;
+import com.google.common.primitives.Primitives;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.api.expression.ExpressionException;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
 import se.l4.dust.core.internal.expression.ast.Node;
-
-import com.fasterxml.classmate.ResolvedType;
-import com.google.common.primitives.Primitives;
 
 public class FieldPropertyInvoker
 	implements Invoker

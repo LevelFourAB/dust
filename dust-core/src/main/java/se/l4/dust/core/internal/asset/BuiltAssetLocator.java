@@ -2,13 +2,13 @@ package se.l4.dust.core.internal.asset;
 
 import java.io.IOException;
 
-import se.l4.dust.api.resource.Resource;
-import se.l4.dust.api.resource.ResourceLocator;
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import se.l4.dust.api.resource.Resource;
+import se.l4.dust.api.resource.ResourceLocator;
 
 @Singleton
 public class BuiltAssetLocator

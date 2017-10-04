@@ -15,11 +15,11 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
-import se.l4.dust.api.asset.Asset;
-import se.l4.dust.api.resource.Resource;
-
 import com.google.inject.Inject;
 import com.google.inject.Stage;
+
+import se.l4.dust.api.asset.Asset;
+import se.l4.dust.api.resource.Resource;
 
 /**
  * {@link MessageBodyWriter} for {@link Asset}.

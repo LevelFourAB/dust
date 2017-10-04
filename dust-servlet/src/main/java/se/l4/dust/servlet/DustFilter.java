@@ -14,6 +14,11 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Provider;
+import com.google.inject.Stage;
+
 import se.l4.dust.api.Scopes;
 import se.l4.dust.api.discovery.NamespaceDiscovery;
 import se.l4.dust.api.template.RenderingContext;
@@ -22,11 +27,6 @@ import se.l4.dust.servlet.internal.routing.FilterEntry;
 import se.l4.dust.servlet.internal.routing.ServletBinderImpl;
 import se.l4.dust.servlet.internal.routing.ServletChain;
 import se.l4.dust.servlet.internal.routing.ServletEntry;
-
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Provider;
-import com.google.inject.Stage;
 
 /**
  * Filter that performs serving via the registered filters and servlets in

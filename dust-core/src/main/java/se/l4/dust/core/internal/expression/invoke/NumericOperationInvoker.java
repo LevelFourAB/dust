@@ -1,5 +1,7 @@
 package se.l4.dust.core.internal.expression.invoke;
 
+import com.fasterxml.classmate.ResolvedType;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ExpressionCompiler;
@@ -9,8 +11,6 @@ import se.l4.dust.core.internal.expression.ast.ModuloNode;
 import se.l4.dust.core.internal.expression.ast.MultiplyNode;
 import se.l4.dust.core.internal.expression.ast.Node;
 import se.l4.dust.core.internal.expression.ast.SubtractNode;
-
-import com.fasterxml.classmate.ResolvedType;
 
 /**
  * Invoker for numeric operations.

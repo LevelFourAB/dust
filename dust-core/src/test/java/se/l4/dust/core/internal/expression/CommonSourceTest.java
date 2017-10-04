@@ -3,11 +3,11 @@ package se.l4.dust.core.internal.expression;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.google.inject.Stage;
+
 import se.l4.dust.api.expression.ExpressionSource;
 import se.l4.dust.api.template.dom.Attribute;
 import se.l4.dust.core.internal.expression.model.Person;
-
-import com.google.inject.Stage;
 
 /**
  * Test for {@link CommonSource}.

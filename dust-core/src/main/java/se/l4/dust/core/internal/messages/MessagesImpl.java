@@ -5,14 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.google.inject.Singleton;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.api.messages.MessageCollection;
 import se.l4.dust.api.messages.MessageSource;
 import se.l4.dust.api.messages.Messages;
 import se.l4.dust.api.resource.ResourceLocation;
 import se.l4.dust.api.template.TemplateException;
-
-import com.google.inject.Singleton;
 
 /**
  * Implementation of {@link Messages}.

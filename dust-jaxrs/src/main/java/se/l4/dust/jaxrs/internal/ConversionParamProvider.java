@@ -6,11 +6,11 @@ import java.lang.reflect.Type;
 import javax.ws.rs.ext.ParamConverter;
 import javax.ws.rs.ext.ParamConverterProvider;
 
-import se.l4.dust.api.conversion.NonGenericConversion;
-import se.l4.dust.api.conversion.TypeConverter;
-
 import com.google.common.primitives.Primitives;
 import com.google.inject.Inject;
+
+import se.l4.dust.api.conversion.NonGenericConversion;
+import se.l4.dust.api.conversion.TypeConverter;
 
 /**
  * A {@link ParamConverterProvider} that ties into {@link TypeConverter}.

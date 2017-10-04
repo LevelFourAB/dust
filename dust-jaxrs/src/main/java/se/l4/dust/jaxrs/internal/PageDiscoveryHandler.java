@@ -7,12 +7,12 @@ import javax.ws.rs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
+
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.discovery.DiscoveryEncounter;
 import se.l4.dust.api.discovery.DiscoveryHandler;
 import se.l4.dust.jaxrs.JaxrsConfiguration;
-
-import com.google.inject.Inject;
 
 public class PageDiscoveryHandler
 	implements DiscoveryHandler

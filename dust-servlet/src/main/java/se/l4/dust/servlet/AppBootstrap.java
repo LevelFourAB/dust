@@ -3,11 +3,11 @@ package se.l4.dust.servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
-import se.l4.crayon.Configurator;
-import se.l4.dust.Dust;
-
 import com.google.inject.Injector;
 import com.google.inject.Stage;
+
+import se.l4.crayon.Configurator;
+import se.l4.dust.Dust;
 
 /**
  * Bootstrap that delegates to a {@link Configurator}.

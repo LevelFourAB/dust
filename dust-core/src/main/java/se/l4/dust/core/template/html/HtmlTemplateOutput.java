@@ -7,10 +7,10 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Charsets;
+
 import se.l4.dust.api.template.TemplateOutputStream;
 import se.l4.dust.api.template.dom.AttributeImpl;
-
-import com.google.common.base.Charsets;
 
 /**
  * Template output that will output its contents as HTML.

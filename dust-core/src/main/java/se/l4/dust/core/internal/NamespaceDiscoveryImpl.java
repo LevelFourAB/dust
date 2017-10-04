@@ -13,18 +13,18 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
-import se.l4.dust.api.Namespace;
-import se.l4.dust.api.Namespaces;
-import se.l4.dust.api.discovery.DiscoveryEncounter;
-import se.l4.dust.api.discovery.DiscoveryHandler;
-import se.l4.dust.api.discovery.NamespaceDiscovery;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import se.l4.dust.api.Namespace;
+import se.l4.dust.api.Namespaces;
+import se.l4.dust.api.discovery.DiscoveryEncounter;
+import se.l4.dust.api.discovery.DiscoveryHandler;
+import se.l4.dust.api.discovery.NamespaceDiscovery;
 
 @Singleton
 public class NamespaceDiscoveryImpl

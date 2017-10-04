@@ -5,11 +5,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import com.google.common.base.Objects;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.api.resource.variant.ResourceVariant;
 import se.l4.dust.api.resource.variant.ResourceVariantSource;
-
-import com.google.common.base.Objects;
 
 /**
  * Source of variants based on locale. This will produce variants that may be

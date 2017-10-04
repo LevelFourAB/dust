@@ -7,11 +7,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 
-import junit.framework.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.ByteStreams;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
+import junit.framework.Assert;
 import se.l4.dust.api.Context;
 import se.l4.dust.api.DefaultContext;
 import se.l4.dust.api.Namespaces;
@@ -25,11 +29,6 @@ import se.l4.dust.api.resource.variant.ResourceVariantManager;
 import se.l4.dust.core.CoreModule;
 import se.l4.dust.core.internal.resource.ClasspathResourceLocator;
 import se.l4.dust.core.internal.resource.LocaleVariantSource;
-
-import com.google.common.base.Charsets;
-import com.google.common.io.ByteStreams;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 
 /**
  * Tests for asset management.

@@ -3,10 +3,10 @@ package se.l4.dust.api.resource.variant;
 import java.io.IOException;
 import java.util.List;
 
+import com.google.common.base.Supplier;
+
 import se.l4.dust.api.Context;
 import se.l4.dust.api.resource.ResourceLocation;
-
-import com.google.common.base.Supplier;
 
 /**
  * Manager for working with resource variants.

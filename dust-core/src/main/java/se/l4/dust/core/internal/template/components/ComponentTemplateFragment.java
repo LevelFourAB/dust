@@ -10,6 +10,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
+import com.google.inject.Binding;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.Provider;
+import com.google.inject.Stage;
+import com.google.inject.TypeLiteral;
+
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.template.AfterRender;
 import se.l4.dust.api.template.Emittable;
@@ -28,14 +36,6 @@ import se.l4.dust.api.template.dom.WrappedElement;
 import se.l4.dust.api.template.fragment.FragmentEncounter;
 import se.l4.dust.api.template.fragment.TemplateFragment;
 import se.l4.dust.core.internal.template.TemplateEmitterImpl;
-
-import com.google.common.collect.Sets;
-import com.google.inject.Binding;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.Provider;
-import com.google.inject.Stage;
-import com.google.inject.TypeLiteral;
 
 public class ComponentTemplateFragment
 	implements TemplateFragment
