@@ -169,7 +169,7 @@ public class ResolverTest
 		test("t:emit.format('kaka')", Person.class, new ChainInvoker(
 			null,
 			new DynamicPropertyInvoker(null, new Property("emit")),
-			new DynamicMethodInvoker(null, new TestMethod("format"), new Invoker[] {
+			new DynamicMethodInvoker(null, new TestMethod("format"), Person.class, new Invoker[] {
 				new ConstantInvoker(null, "kaka")
 			})
 		));
@@ -185,7 +185,7 @@ public class ResolverTest
 			new ChainInvoker(
 				null,
 				new DynamicPropertyInvoker(null, new Property("sub")),
-				new DynamicMethodInvoker(null, new TestMethod("format"), new Invoker[] {
+				new DynamicMethodInvoker(null, new TestMethod("format"), Person.class, new Invoker[] {
 					new ConstantInvoker(null, "kaka")
 				})
 			)

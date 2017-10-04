@@ -18,6 +18,7 @@ import junit.framework.Assert;
 import se.l4.crayon.Crayon;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.Expression;
+import se.l4.dust.api.expression.ReflectiveExpressionSource;
 import se.l4.dust.core.internal.conversion.ConversionModule;
 import se.l4.dust.core.internal.expression.ErrorHandler;
 import se.l4.dust.core.internal.expression.ErrorHandlerImpl;
@@ -50,7 +51,10 @@ public class CompilerTest
 		injector.getInstance(Crayon.class).start();
 		tc = injector.getInstance(TypeConverter.class);
 		expressions = new ExpressionsImpl(tc, Stage.DEVELOPMENT);
+		expressions.addSource("dust:test", new ExpressionSourceImpl());
+
 		namespaces = new HashMap<>();
+		namespaces.put("t", "dust:test");
 	}
 
 	@Test
@@ -457,6 +461,17 @@ public class CompilerTest
 		assertThat(expr.getType(), is((Object) String.class));
 	}
 
+	@Test
+	public void testExpressionSourceIntegerAsContext()
+	{
+
+		Person p = new Person();
+		p.setAge(29);
+
+		Object o = compileAndRun("age.t:format()", p);
+		Assert.assertEquals("29", o);
+	}
+
 
 	private Object compileAndRun(String expr, Object in)
 	{
@@ -508,6 +523,22 @@ public class CompilerTest
 		public int get(double d)
 		{
 			return (int) d;
+		}
+	}
+
+	public static class ExpressionSourceImpl
+		extends ReflectiveExpressionSource
+	{
+
+		public ExpressionSourceImpl()
+		{
+			super(Stage.PRODUCTION);
+		}
+
+		@Method
+		public String format(@Instance int d)
+		{
+			return String.valueOf(d);
 		}
 	}
 }

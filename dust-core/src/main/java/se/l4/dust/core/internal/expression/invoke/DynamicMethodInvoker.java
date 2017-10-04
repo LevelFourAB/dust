@@ -21,12 +21,14 @@ public class DynamicMethodInvoker
 {
 	private final Node node;
 	private final DynamicMethod method;
+	private final Class<?> context;
 	private final Invoker[] params;
 
-	public DynamicMethodInvoker(Node node, DynamicMethod method, Invoker[] params)
+	public DynamicMethodInvoker(Node node, DynamicMethod method, Class<?> context, Invoker[] params)
 	{
 		this.node = node;
 		this.method = method;
+		this.context = context;
 		this.params = params;
 	}
 
@@ -101,7 +103,7 @@ public class DynamicMethodInvoker
 			.append(" ")
 			.append(in)
 			.append(".invoke($1, ")
-			.append(context);
+			.append(compiler.wrap(this.context, context));
 
 		if(params.length == 0)
 		{

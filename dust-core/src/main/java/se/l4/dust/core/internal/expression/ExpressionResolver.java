@@ -373,7 +373,7 @@ public class ExpressionResolver
 					throw errors.error(node, "There is no method named " + id.getIdentifier() + " in namespace " + ns + "; Used " + source + " for lookup");
 				}
 
-				return createDynamicMethodInvoker(node, method, actualParams);
+				return createDynamicMethodInvoker(node, method, context, actualParams);
 			}
 			else
 			{
@@ -389,7 +389,7 @@ public class ExpressionResolver
 					DynamicMethod method = leftProperty.getMethod(encounter, id.getIdentifier(), actualParamTypes);
 					if(method != null)
 					{
-						return createDynamicMethodInvoker(node, method, actualParams);
+						return createDynamicMethodInvoker(node, method, context, actualParams);
 					}
 				}
 
@@ -519,7 +519,7 @@ public class ExpressionResolver
 		throw errors.error(node, "Unknown node of type: " + node.getClass());
 	}
 
-	private Invoker createDynamicMethodInvoker(Node node, DynamicMethod method, Invoker[] actualParams)
+	private Invoker createDynamicMethodInvoker(Node node, DynamicMethod method, Class<?> context, Invoker[] actualParams)
 	{
 		Invoker[] params = createInvokers(actualParams, method.getParametersType());
 		if(params == null)
@@ -527,7 +527,7 @@ public class ExpressionResolver
 			throw errors.error(node, "Could not convert parameters into " + Arrays.toString(method.getParametersType()));
 		}
 
-		return new DynamicMethodInvoker(node, method, params);
+		return new DynamicMethodInvoker(node, method, context, params);
 	}
 
 	private Invoker toConverting(Invoker invoker, Class<?> output)
