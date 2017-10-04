@@ -23,15 +23,6 @@
 		<module>dust-jaxrs-resteasy</module>
 
 		<module>dust-validation</module>
-
-		<module>dust-js-env</module>
-		<module>dust-js-uglify</module>
-		<module>dust-js-closure</module>
-		<module>dust-js-coffeescript</module>
-
-		<module>dust-css-less</module>
-
-		<module>dust-yui</module>
 	</modules>
 
 	<build>
