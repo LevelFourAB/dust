@@ -60,7 +60,7 @@ public class MethodPropertyInvoker
 		}
 		catch(InvocationTargetException e)
 		{
-			throw errors.error(node, "Exception caught while executing getter: " + e.getMessage(), e);
+			throw errors.error(node, "Exception caught while executing getter: " + e.getCause().getMessage(), e.getCause());
 		}
 		catch(Exception e)
 		{
