@@ -7,6 +7,7 @@ public class StringBooleanConversion
 	implements NonGenericConversion<String, Boolean>
 {
 
+	@Override
 	public Boolean convert(String in)
 	{
 		in = in.trim().toLowerCase();
@@ -23,11 +24,13 @@ public class StringBooleanConversion
 		throw new ConversionException("Invalid boolean string: " + in);
 	}
 
+	@Override
 	public Class<String> getInput()
 	{
 		return String.class;
 	}
 
+	@Override
 	public Class<Boolean> getOutput()
 	{
 		return Boolean.class;

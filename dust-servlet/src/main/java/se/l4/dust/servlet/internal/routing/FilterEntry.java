@@ -48,21 +48,25 @@ public class FilterEntry
 	{
 		filter.init(new FilterConfig()
 		{
+			@Override
 			public ServletContext getServletContext()
 			{
 				return ctx;
 			}
 
+			@Override
 			public Enumeration getInitParameterNames()
 			{
 				return Iterators.asEnumeration(params.keySet().iterator());
 			}
 
+			@Override
 			public String getInitParameter(String name)
 			{
 				return params.get(name);
 			}
 
+			@Override
 			public String getFilterName()
 			{
 				return path;

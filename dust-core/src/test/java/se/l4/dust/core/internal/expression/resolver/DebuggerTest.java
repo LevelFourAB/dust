@@ -324,7 +324,7 @@ public class DebuggerTest
 	{
 		public Map<String, String> getMap()
 		{
-			Map<String, String> result = new HashMap<String, String>();
+			Map<String, String> result = new HashMap<>();
 			result.put("test", "one");
 			return result;
 		}
@@ -348,7 +348,7 @@ public class DebuggerTest
 
 		public Map<String, List<String>> getMultiStep()
 		{
-			Map<String, List<String>> result = new HashMap<String, List<String>>();
+			Map<String, List<String>> result = new HashMap<>();
 			result.put("key", Arrays.asList("entry"));
 			return result;
 		}

@@ -44,7 +44,7 @@ public class ConversionParamProvider
 
 		NonGenericConversion<T, String> toString = converter.getConversion(rawType, String.class);
 		NonGenericConversion<String, T> fromString = converter.getConversion(String.class, rawType);
-		return new ParamConverterImpl<T>(toString, fromString);
+		return new ParamConverterImpl<>(toString, fromString);
 	}
 
 	private static class ParamConverterImpl<T>

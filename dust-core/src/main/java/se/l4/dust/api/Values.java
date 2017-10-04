@@ -9,7 +9,7 @@ public class Values
 
 	public static <T> Value<T> of(T value)
 	{
-		return new StaticValue<T>(value);
+		return new StaticValue<>(value);
 	}
 
 	public static class StaticValue<T>

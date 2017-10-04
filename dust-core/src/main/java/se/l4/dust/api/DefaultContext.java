@@ -10,7 +10,7 @@ public class DefaultContext
 
 	public DefaultContext()
 	{
-		values = new HashMap<Object, Object>();
+		values = new HashMap<>();
 	}
 
 	@Override

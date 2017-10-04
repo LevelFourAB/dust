@@ -7,6 +7,7 @@ public class StringDoubleConversion
 	implements NonGenericConversion<String, Double>
 {
 
+	@Override
 	public Double convert(String in)
 	{
 		try
@@ -19,11 +20,13 @@ public class StringDoubleConversion
 		}
 	}
 
+	@Override
 	public Class<String> getInput()
 	{
 		return String.class;
 	}
 
+	@Override
 	public Class<Double> getOutput()
 	{
 		return Double.class;

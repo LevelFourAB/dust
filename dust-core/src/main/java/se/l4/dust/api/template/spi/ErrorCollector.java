@@ -21,7 +21,7 @@ public class ErrorCollector
 	public ErrorCollector(ResourceLocation source)
 	{
 		this.source = source;
-		errors = new ArrayList<String>();
+		errors = new ArrayList<>();
 	}
 
 	public ResourceLocation getSource()

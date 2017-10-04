@@ -101,7 +101,7 @@ public class CacheFormat
 		while(shift < 32)
 		{
 			final byte b = (byte) stream.read();
-			result |= (int) (b & 0x7F) << shift;
+			result |= (b & 0x7F) << shift;
 			if((b & 0x80) == 0) return result;
 
 			shift += 7;

@@ -39,7 +39,7 @@ public class ExpressionsImpl
 	{
 		this.converter = converter;
 		production = stage != Stage.DEVELOPMENT;
-		sources = new ConcurrentHashMap<String, ExpressionSource>();
+		sources = new ConcurrentHashMap<>();
 
 		cachedExpressions = CacheBuilder.newBuilder()
 			.build();

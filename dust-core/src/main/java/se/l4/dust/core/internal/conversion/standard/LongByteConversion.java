@@ -6,16 +6,19 @@ public class LongByteConversion
 	implements NonGenericConversion<Long, Byte>
 {
 
+	@Override
 	public Byte convert(Long in)
 	{
 		return in.byteValue();
 	}
 
+	@Override
 	public Class<Long> getInput()
 	{
 		return Long.class;
 	}
 
+	@Override
 	public Class<Byte> getOutput()
 	{
 		return Byte.class;

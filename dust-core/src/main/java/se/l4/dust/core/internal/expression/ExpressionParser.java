@@ -194,7 +194,7 @@ public class ExpressionParser
 				IdentifierNode id = (IdentifierNode) createNode(tree.getChild(0));
 
 				// All the other create the list of parameters
-				List<Node> params = new ArrayList<Node>();
+				List<Node> params = new ArrayList<>();
 				for(int i=1, n=tree.getChildCount(); i<n; i++)
 				{
 					params.add(createNode(tree.getChild(i)));

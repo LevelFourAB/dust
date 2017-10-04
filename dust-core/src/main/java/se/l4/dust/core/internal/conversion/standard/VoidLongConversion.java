@@ -6,16 +6,19 @@ public class VoidLongConversion
 	implements NonGenericConversion<Void, Long>
 {
 
+	@Override
 	public Long convert(Void in)
 	{
 		return 0l;
 	}
 
+	@Override
 	public Class<Void> getInput()
 	{
 		return void.class;
 	}
 
+	@Override
 	public Class<Long> getOutput()
 	{
 		return Long.class;

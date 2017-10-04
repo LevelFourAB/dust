@@ -30,6 +30,7 @@ public class PageResourceFactory
 		this.type = type;
 	}
 
+	@Override
 	public Object createResource(HttpRequest request, HttpResponse response,
 			ResteasyProviderFactory factory)
 	{
@@ -41,20 +42,24 @@ public class PageResourceFactory
 		return o;
 	}
 
+	@Override
 	public Class<?> getScannableClass()
 	{
 		return type;
 	}
 
+	@Override
 	public void registered(ResteasyProviderFactory factory)
 	{
 		this.propertyInjector = factory.getInjectorFactory().createPropertyInjector(type, factory);
 	}
 
+	@Override
 	public void requestFinished(HttpRequest request, HttpResponse response, Object resource)
 	{
 	}
 
+	@Override
 	public void unregistered()
 	{
 	}

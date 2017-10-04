@@ -88,7 +88,7 @@ public class TypeResolvingTest
 	{
 		List<Class<?>> resolved = resolveCommonNonGeneric(types);
 
-		List<Class<?>> actuallyExpected = new ArrayList<Class<?>>();
+		List<Class<?>> actuallyExpected = new ArrayList<>();
 		for(Class<?> c : expected) actuallyExpected.add(c);
 
 		Collections.sort(resolved, COMPARATOR);
@@ -99,7 +99,7 @@ public class TypeResolvingTest
 
 	private List<ResolvedType> resolveCommon(Class<?>... types)
 	{
-		List<ResolvedType> input = new ArrayList<ResolvedType>();
+		List<ResolvedType> input = new ArrayList<>();
 		for(Class<?> c : types)
 		{
 			input.add(resolver.resolve(c));
@@ -111,7 +111,7 @@ public class TypeResolvingTest
 	private List<Class<?>> resolveCommonNonGeneric(Class<?>... types)
 	{
 		List<ResolvedType> items = resolveCommon(types);
-		List<Class<?>> result = new ArrayList<Class<?>>();
+		List<Class<?>> result = new ArrayList<>();
 
 		for(ResolvedType rt : items)
 		{

@@ -17,7 +17,7 @@ public class InternalContributions
 
 	static
 	{
-		tracked = new CopyOnWriteArrayList<Contributions>();
+		tracked = new CopyOnWriteArrayList<>();
 	}
 
 	private InternalContributions()

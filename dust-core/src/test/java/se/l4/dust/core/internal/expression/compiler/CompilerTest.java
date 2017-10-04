@@ -50,7 +50,7 @@ public class CompilerTest
 		injector.getInstance(Crayon.class).start();
 		tc = injector.getInstance(TypeConverter.class);
 		expressions = new ExpressionsImpl(tc, Stage.DEVELOPMENT);
-		namespaces = new HashMap<String, String>();
+		namespaces = new HashMap<>();
 	}
 
 	@Test

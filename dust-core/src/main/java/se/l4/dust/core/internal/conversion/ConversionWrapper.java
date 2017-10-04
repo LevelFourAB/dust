@@ -85,16 +85,19 @@ public class ConversionWrapper<I, O>
 		throw new ConversionException("Could not determine type for " + conversion + " (on " + type + ")");
 	}
 
+	@Override
 	public O convert(I in)
 	{
 		return conversion.convert(in);
 	}
 
+	@Override
 	public Class<I> getInput()
 	{
 		return input;
 	}
 
+	@Override
 	public Class<O> getOutput()
 	{
 		return output;

@@ -39,7 +39,7 @@ public abstract class AbstractSourceTest
 		expressions = new ExpressionsImpl(tc, Stage.DEVELOPMENT);
 		expressions.addSource("dust:test", createSource());
 
-		namespaces = new HashMap<String, String>();
+		namespaces = new HashMap<>();
 		namespaces.put("t", "dust:test");
 	}
 

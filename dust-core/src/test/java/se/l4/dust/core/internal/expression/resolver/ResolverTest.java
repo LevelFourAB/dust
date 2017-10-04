@@ -61,7 +61,7 @@ public class ResolverTest
 		expressions = new ExpressionsImpl(tc, Stage.DEVELOPMENT);
 		expressions.addSource("dust:test", new TestSource());
 
-		namespaces = new HashMap<String, String>();
+		namespaces = new HashMap<>();
 		namespaces.put("t", "dust:test");
 	}
 

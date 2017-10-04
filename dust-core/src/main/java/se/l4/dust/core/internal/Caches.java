@@ -32,7 +32,7 @@ public class Caches
 	{
 		if(stage == Stage.DEVELOPMENT)
 		{
-			return new DevelopmentCache<K, V>(null);
+			return new DevelopmentCache<>(null);
 		}
 		else
 		{
@@ -56,7 +56,7 @@ public class Caches
 	{
 		if(stage == Stage.DEVELOPMENT)
 		{
-			return new DevelopmentCache<K, V>(loader);
+			return new DevelopmentCache<>(loader);
 		}
 		else
 		{

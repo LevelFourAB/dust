@@ -497,7 +497,7 @@ public class ExpressionResolver
 			Node[] nodes = array.getValues();
 
 			Invoker[] invokers = new Invoker[nodes.length];
-			List<ResolvedType> types = new ArrayList<ResolvedType>();
+			List<ResolvedType> types = new ArrayList<>();
 
 			for(int i=0, n=invokers.length; i<n; i++)
 			{

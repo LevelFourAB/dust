@@ -38,6 +38,7 @@ public class NormalMatcher
 		}
 	}
 
+	@Override
 	public boolean matches(String path)
 	{
 		switch(match)

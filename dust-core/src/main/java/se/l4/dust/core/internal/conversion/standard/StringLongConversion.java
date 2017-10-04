@@ -7,6 +7,7 @@ public class StringLongConversion
 	implements NonGenericConversion<String, Long>
 {
 
+	@Override
 	public Long convert(String in)
 	{
 		if(in == null)
@@ -25,11 +26,13 @@ public class StringLongConversion
 		}
 	}
 
+	@Override
 	public Class<String> getInput()
 	{
 		return String.class;
 	}
 
+	@Override
 	public Class<Long> getOutput()
 	{
 		return Long.class;

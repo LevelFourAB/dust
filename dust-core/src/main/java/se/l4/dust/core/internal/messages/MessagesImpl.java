@@ -28,7 +28,7 @@ public class MessagesImpl
 
 	public MessagesImpl()
 	{
-		sources = new CopyOnWriteArrayList<MessageSource>();
+		sources = new CopyOnWriteArrayList<>();
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class MessagesImpl
 			return msgs;
 		}
 
-		List<MessageCollection> messages = new ArrayList<MessageCollection>();
+		List<MessageCollection> messages = new ArrayList<>();
 		for(MessageSource s : sources)
 		{
 			try

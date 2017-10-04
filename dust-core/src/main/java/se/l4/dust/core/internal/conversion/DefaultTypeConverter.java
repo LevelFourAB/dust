@@ -71,11 +71,11 @@ public class DefaultTypeConverter
 				public List<Conversion<?, ?>> load(Class<?> key)
 					throws Exception
 				{
-					return new CopyOnWriteArrayList<Conversion<?,?>>();
+					return new CopyOnWriteArrayList<>();
 				}
 			});
 
-		cache = new ConcurrentHashMap<CacheKey, Conversion<?,?>>();
+		cache = new ConcurrentHashMap<>();
 	}
 
 	private List<Conversion<?, ?>> getListFor(Class<?> c)
@@ -85,7 +85,7 @@ public class DefaultTypeConverter
 			List<Conversion<?, ?>> list = conversions.getUnchecked(c);
 			if(list == null)
 			{
-				list = new LinkedList<Conversion<?,?>>();
+				list = new LinkedList<>();
 				conversions.put(c, list);
 			}
 
@@ -133,7 +133,7 @@ public class DefaultTypeConverter
 			return (NonGenericConversion<I, O>) conversion;
 		}
 
-		return new ConversionWrapper<I, O>(conversion);
+		return new ConversionWrapper<>(conversion);
 	}
 
 	private Class<?> getType(Class<?> in, Class<?> output)
@@ -312,8 +312,8 @@ public class DefaultTypeConverter
 		in = Primitives.wrap(in);
 		out = Primitives.wrap(out);
 
-		Set<Conversion<I, O>> tested = new HashSet<Conversion<I, O>>();
-		PriorityQueue<NonGenericConversion<I, O>> queue = new PriorityQueue<NonGenericConversion<I, O>>(
+		Set<Conversion<I, O>> tested = new HashSet<>();
+		PriorityQueue<NonGenericConversion<I, O>> queue = new PriorityQueue<>(
 			10,
 			new Comparator<NonGenericConversion<I, O>>()
 			{
@@ -387,7 +387,7 @@ public class DefaultTypeConverter
 
 	private static Set<Class<?>> getInheritance(Class<?> in)
 	{
-		LinkedHashSet<Class<?>> result = new LinkedHashSet<Class<?>>();
+		LinkedHashSet<Class<?>> result = new LinkedHashSet<>();
 
 		result.add(in);
 		getInheritance(in, result);

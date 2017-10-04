@@ -51,10 +51,12 @@ public class WebScopes
 
 	public static final Scope REQUEST = new Scope()
 	{
+		@Override
 		public <T> Provider<T> scope(final Key<T> key, final Provider<T> p)
 		{
 			return new Provider<T>()
 			{
+				@Override
 				@SuppressWarnings("unchecked")
 				public T get()
 				{
@@ -91,10 +93,12 @@ public class WebScopes
 
 	public static final Scope SESSION = new Scope()
 	{
+		@Override
 		public <T> Provider<T> scope(final Key<T> key, final Provider<T> p)
 		{
 			return new Provider<T>()
 			{
+				@Override
 				@SuppressWarnings("unchecked")
 				public T get()
 				{

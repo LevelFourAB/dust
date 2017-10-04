@@ -47,17 +47,20 @@ public class CompoundTypeConversion
 		return out;
 	}
 
+	@Override
 	public Object convert(Object in)
 	{
 		Object firstPass = this.in.convert(in);
 		return out.convert(firstPass);
 	}
 
+	@Override
 	public Class<Object> getInput()
 	{
 		return in.getInput();
 	}
 
+	@Override
 	public Class<Object> getOutput()
 	{
 		return out.getOutput();

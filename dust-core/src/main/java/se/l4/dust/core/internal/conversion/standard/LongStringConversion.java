@@ -6,16 +6,19 @@ public class LongStringConversion
 	implements NonGenericConversion<Long, String>
 {
 
+	@Override
 	public String convert(Long in)
 	{
 		return in.toString();
 	}
 
+	@Override
 	public Class<Long> getInput()
 	{
 		return Long.class;
 	}
 
+	@Override
 	public Class<String> getOutput()
 	{
 		return String.class;

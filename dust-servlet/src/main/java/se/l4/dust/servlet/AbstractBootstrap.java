@@ -19,10 +19,12 @@ import se.l4.dust.api.discovery.NamespaceDiscovery;
 public abstract class AbstractBootstrap
 	implements ServletContextListener
 {
+	@Override
 	public void contextDestroyed(ServletContextEvent sce)
 	{
 	}
 
+	@Override
 	public void contextInitialized(ServletContextEvent sce)
 	{
 		ServletContext ctx = sce.getServletContext();

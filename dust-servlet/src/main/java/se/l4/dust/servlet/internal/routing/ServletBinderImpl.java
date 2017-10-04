@@ -96,7 +96,7 @@ public class ServletBinderImpl
 		{
 			this.path = path;
 
-			params = new HashMap<String, String>();
+			params = new HashMap<>();
 		}
 
 		public FilterBuilder regex()
@@ -171,7 +171,7 @@ public class ServletBinderImpl
 		{
 			this.path = path;
 
-			params = new HashMap<String, String>();
+			params = new HashMap<>();
 		}
 
 		public ServletBuilder regex()

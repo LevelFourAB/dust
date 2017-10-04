@@ -131,7 +131,7 @@ public class ResourceVariantManagerImpl
 
 		ResourceVariant[] empty = new ResourceVariant[0];
 
-		List<ResourceVariant> result = new ArrayList<ResourceVariant>(sources.length * sources.length);
+		List<ResourceVariant> result = new ArrayList<>(sources.length * sources.length);
 
 		for(int i=0, n=sources.length; i<n; i++)
 		{
@@ -162,7 +162,7 @@ public class ResourceVariantManagerImpl
 	@Override
 	public List<Context> getInitialContexts()
 	{
-		List<Context> result = new ArrayList<Context>();
+		List<Context> result = new ArrayList<>();
 		result.add(new CacheContext());
 		result.add(new CacheContext().withValue(ResourceVariant.LOCALE, Locale.getDefault()));
 
@@ -433,7 +433,7 @@ public class ResourceVariantManagerImpl
 
 		public CacheContext()
 		{
-			values = new HashMap<Object, Object>();
+			values = new HashMap<>();
 		}
 
 		@Override

@@ -6,16 +6,19 @@ public class DoubleLongConversion
 	implements NonGenericConversion<Double, Long>
 {
 
+	@Override
 	public Long convert(Double in)
 	{
 		return in.longValue();
 	}
 
+	@Override
 	public Class<Double> getInput()
 	{
 		return Double.class;
 	}
 
+	@Override
 	public Class<Long> getOutput()
 	{
 		return Long.class;

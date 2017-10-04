@@ -108,7 +108,7 @@ public class TemplatesImpl
 
 			fragments = new ConcurrentHashMap<>();
 
-			mixins = new ConcurrentHashMap<String, TemplateMixin>();
+			mixins = new ConcurrentHashMap<>();
 		}
 
 		@Override

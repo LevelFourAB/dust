@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 import se.l4.dust.api.Context;
 import se.l4.dust.api.resource.variant.ResourceVariant;
@@ -29,7 +29,7 @@ public class LocaleVariantSource
 		{
 			Locale locale = (Locale) value;
 
-			List<ResourceVariant> result = new ArrayList<ResourceVariant>(3);
+			List<ResourceVariant> result = new ArrayList<>(3);
 
 			// With variant (three parts)
 			if(locale.getVariant() != null && ! locale.getVariant().isEmpty())
@@ -145,7 +145,7 @@ public class LocaleVariantSource
 		@Override
 		public String toString()
 		{
-			return Objects.toStringHelper(this)
+			return MoreObjects.toStringHelper(this)
 				.add("id", identifier)
 				.add("locale", locale)
 				.toString();

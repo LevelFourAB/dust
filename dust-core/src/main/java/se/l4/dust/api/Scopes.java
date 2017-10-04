@@ -17,7 +17,7 @@ public class Scopes
 
 	static
 	{
-		context = new ThreadLocal<Context>();
+		context = new ThreadLocal<>();
 	}
 
 	private Scopes() {}

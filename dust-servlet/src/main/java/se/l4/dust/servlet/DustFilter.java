@@ -47,6 +47,7 @@ public class DustFilter
 	{
 	}
 
+	@Override
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain)
 		throws IOException, ServletException
@@ -54,6 +55,7 @@ public class DustFilter
 		impl.doFilter(request, response, chain);
 	}
 
+	@Override
 	public void init(FilterConfig filterConfig)
 		throws ServletException
 	{
@@ -63,12 +65,14 @@ public class DustFilter
 
 		// Create the real implementation
 		Stage stage = injector.getInstance(Stage.class);
-		impl = injector.getInstance(stage == Stage.PRODUCTION ? Production.class : Development.class);
+		Class<? extends Production> type = stage == Stage.PRODUCTION ? Production.class : Development.class;
+		impl = injector.getInstance(type);
 
 		// Initialize all filters and servlets
 		impl.doInit();
 	}
 
+	@Override
 	public void destroy()
 	{
 		impl.destroy();
@@ -129,7 +133,7 @@ public class DustFilter
 
 		public void destroy()
 		{
-			Set<Object> destroyed = new HashSet<Object>();
+			Set<Object> destroyed = new HashSet<>();
 
 			for(FilterEntry e : binder.getFilters())
 			{
@@ -151,7 +155,7 @@ public class DustFilter
 		public void doInit()
 			throws ServletException
 		{
-			Set<Object> inited = new HashSet<Object>();
+			Set<Object> inited = new HashSet<>();
 
 			for(FilterEntry e : binder.getFilters())
 			{

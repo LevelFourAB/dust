@@ -37,7 +37,7 @@ public class HtmlTemplateOutput
 	public HtmlTemplateOutput(Writer writer)
 	{
 		this.writer = writer;
-		preserveWhitespace = new ArrayList<Boolean>(20);
+		preserveWhitespace = new ArrayList<>(20);
 		lastWhitespace = false;
 	}
 

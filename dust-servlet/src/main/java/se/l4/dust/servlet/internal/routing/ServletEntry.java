@@ -39,21 +39,25 @@ public class ServletEntry
 	{
 		servlet.init(new ServletConfig()
 		{
+			@Override
 			public String getServletName()
 			{
 				return path;
 			}
 
+			@Override
 			public ServletContext getServletContext()
 			{
 				return ctx;
 			}
 
+			@Override
 			public Enumeration getInitParameterNames()
 			{
 				return Iterators.asEnumeration(params.keySet().iterator());
 			}
 
+			@Override
 			public String getInitParameter(String name)
 			{
 				return params.get(name);

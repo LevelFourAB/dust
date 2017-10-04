@@ -160,7 +160,7 @@ public class AttributeImpl
 			? converter.getDynamicConversion(output, getType())
 			: null;
 
-		return (Attribute<T>) new BoundAttribute<T>(name, values, output, get, set);
+		return (Attribute<T>) new BoundAttribute<>(name, values, output, get, set);
 	}
 
 	@Override

@@ -32,8 +32,8 @@ public class TypeResolving
 	 */
 	public static List<ResolvedType> findCommonTypes(Collection<ResolvedType> types)
 	{
-		Set<ResolvedType> allTypes = new HashSet<ResolvedType>();
-		final Map<ResolvedType, Integer> typeCount = new HashMap<ResolvedType, Integer>();
+		Set<ResolvedType> allTypes = new HashSet<>();
+		final Map<ResolvedType, Integer> typeCount = new HashMap<>();
 
 		for(ResolvedType type : types)
 		{
@@ -47,7 +47,7 @@ public class TypeResolving
 
 		for(ResolvedType type : types)
 		{
-			Set<ResolvedType> localTypes = new HashSet<ResolvedType>();
+			Set<ResolvedType> localTypes = new HashSet<>();
 			while(type != null)
 			{
 				findTypesOf(type, localTypes, null);
@@ -58,7 +58,7 @@ public class TypeResolving
 			allTypes.retainAll(localTypes);
 		}
 
-		ArrayList<ResolvedType> result = new ArrayList<ResolvedType>(allTypes);
+		ArrayList<ResolvedType> result = new ArrayList<>(allTypes);
 		Collections.sort(result, new Comparator<ResolvedType>()
 		{
 			@Override

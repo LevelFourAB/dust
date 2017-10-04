@@ -18,6 +18,7 @@ public class RegexMatcher
 		pattern = Pattern.compile(regex);
 	}
 
+	@Override
 	public boolean matches(String path)
 	{
 		return pattern.matcher(path).matches();

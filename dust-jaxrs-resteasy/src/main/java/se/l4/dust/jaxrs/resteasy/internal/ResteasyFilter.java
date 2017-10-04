@@ -45,6 +45,7 @@ public class ResteasyFilter
 	{
 	}
 
+	@Override
 	public void init(FilterConfig filterConfig)
 		throws ServletException
 	{
@@ -56,6 +57,7 @@ public class ResteasyFilter
 		servletContainerDispatcher.getDispatcher().getDefaultContextObjects().put(FilterConfig.class, filterConfig);
 	}
 
+	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 		throws IOException, ServletException
 	{
@@ -74,20 +76,23 @@ public class ResteasyFilter
 		}
 	}
 
+	@Override
 	public void destroy()
 	{
 		servletContainerDispatcher.destroy();
 	}
 
+	@Override
 	public HttpRequest createResteasyHttpRequest(String httpMethod,
 			HttpServletRequest request, ResteasyHttpHeaders headers,
 			ResteasyUriInfo uriInfo, HttpResponse theResponse,
 			HttpServletResponse response) {
 		return new HttpServletInputMessage(request, response, servletContext,
 				theResponse, headers, uriInfo, httpMethod.toUpperCase(),
-				(SynchronousDispatcher) dispatcher());
+				dispatcher());
 	}
 
+	@Override
 	public HttpResponse createResteasyHttpResponse(HttpServletResponse response) {
 		return new HttpServletResponseWrapper(response, dispatcher()
 				.getProviderFactory());

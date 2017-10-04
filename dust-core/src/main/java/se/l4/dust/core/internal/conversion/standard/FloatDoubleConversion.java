@@ -6,16 +6,19 @@ public class FloatDoubleConversion
 	implements NonGenericConversion<Float, Double>
 {
 
+	@Override
 	public Double convert(Float in)
 	{
 		return in.doubleValue();
 	}
 
+	@Override
 	public Class<Float> getInput()
 	{
 		return Float.class;
 	}
 
+	@Override
 	public Class<Double> getOutput()
 	{
 		return Double.class;

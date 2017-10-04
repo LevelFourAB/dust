@@ -24,7 +24,7 @@ public class DefaultRenderingContext
 	@Inject
 	public DefaultRenderingContext()
 	{
-		values = new HashMap<Object, Object>();
+		values = new HashMap<>();
 	}
 
 	@Override

@@ -6,16 +6,19 @@ public class BooleanStringConversion
 	implements NonGenericConversion<Boolean, String>
 {
 
+	@Override
 	public String convert(Boolean in)
 	{
 		return in.toString();
 	}
 
+	@Override
 	public Class<Boolean> getInput()
 	{
 		return Boolean.class;
 	}
 
+	@Override
 	public Class<String> getOutput()
 	{
 		return String.class;

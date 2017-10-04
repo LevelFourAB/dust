@@ -29,6 +29,7 @@ public interface Expression
 	 * 		instance to execute on
 	 * @return
 	 */
+	@Override
 	Object get(Context context, Object instance);
 
 	/**
@@ -38,6 +39,7 @@ public interface Expression
 	 * @param instance
 	 * @param value
 	 */
+	@Override
 	void set(Context context, Object instance, Object value);
 
 	/**

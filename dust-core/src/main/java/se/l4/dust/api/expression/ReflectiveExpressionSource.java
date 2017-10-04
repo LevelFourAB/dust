@@ -181,7 +181,7 @@ public abstract class ReflectiveExpressionSource
 			Class<?>[] parameterTypes = method.getParameterTypes();
 			Annotation[][] annotations = method.getParameterAnnotations();
 			Provider[] providers = new Provider[annotations.length];
-			List<Class<?>> providerTypes = new ArrayList<Class<?>>();
+			List<Class<?>> providerTypes = new ArrayList<>();
 
 			Class<?> instance = null;
 			for(int i=0, n=parameterTypes.length; i<n; i++)

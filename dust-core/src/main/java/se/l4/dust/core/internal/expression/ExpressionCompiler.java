@@ -54,7 +54,7 @@ public class ExpressionCompiler
 
 		rootContext = "((" + context.getName() + ") $2)";
 
-		items = new ArrayList<DeclaredItem>();
+		items = new ArrayList<>();
 	}
 
 	public Expression compile()

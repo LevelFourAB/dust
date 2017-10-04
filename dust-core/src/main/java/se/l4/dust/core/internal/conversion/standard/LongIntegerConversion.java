@@ -6,16 +6,19 @@ public class LongIntegerConversion
 	implements NonGenericConversion<Long, Integer>
 {
 
+	@Override
 	public Integer convert(Long in)
 	{
 		return in.intValue();
 	}
 
+	@Override
 	public Class<Long> getInput()
 	{
 		return Long.class;
 	}
 
+	@Override
 	public Class<Integer> getOutput()
 	{
 		return Integer.class;

@@ -2,7 +2,7 @@ package se.l4.dust.core.internal.resource;
 
 import java.util.Arrays;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 import se.l4.dust.api.resource.variant.ResourceVariant;
 
@@ -114,7 +114,7 @@ public class MergedResourceVariant
 	@Override
 	public String toString()
 	{
-		return Objects.toStringHelper(this)
+		return MoreObjects.toStringHelper(this)
 			.add("id", id)
 			.add("variants", Arrays.toString(variants))
 			.toString();
