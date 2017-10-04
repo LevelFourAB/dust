@@ -14,6 +14,7 @@ import se.l4.dust.api.Namespace;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.Value;
 import se.l4.dust.api.Values;
+import se.l4.dust.api.conversion.ConversionException;
 import se.l4.dust.api.conversion.TypeConverter;
 import se.l4.dust.api.expression.Expression;
 import se.l4.dust.api.expression.Expressions;
@@ -447,7 +448,14 @@ public class TemplateBuilderImpl
 		Attribute<?> attr = new AttributeImpl(name, value);
 		if(HtmlElement.class.isAssignableFrom(current.getClass()))
 		{
-			attr = attr.bindVia(converter, String.class);
+			try
+			{
+				attr = attr.bindVia(converter, String.class);
+			}
+			catch(ConversionException e)
+			{
+				throw raiseError("Unable to find suitable conversion  for attribute `" + name + "`, need to be able to convert from " + attr.getType() + " to String");
+			}
 		}
 		current.addAttribute(attr);
 		
