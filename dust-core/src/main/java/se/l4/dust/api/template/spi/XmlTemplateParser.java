@@ -286,6 +286,7 @@ public class XmlTemplateParser
 					value
 				);
 				
+				builder.addDebugHint(locator.getLineNumber(), locator.getColumnNumber());
 				builder.setAttribute(name, contents);
 			}
 		}
