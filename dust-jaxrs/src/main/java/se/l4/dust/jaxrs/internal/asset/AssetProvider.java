@@ -17,6 +17,7 @@ import se.l4.dust.api.Context;
 import se.l4.dust.api.Namespace;
 import se.l4.dust.api.Namespaces;
 import se.l4.dust.api.asset.Asset;
+import se.l4.dust.api.asset.AssetException;
 import se.l4.dust.api.asset.Assets;
 import se.l4.dust.api.resource.Resource;
 
@@ -107,22 +108,29 @@ public class AssetProvider
 			}
 		}
 
-		Asset a = manager.locate(context, ns.getUri(), path);
-		if(a == null)
+		try
+		{
+			Asset a = manager.locate(context, ns.getUri(), path);
+			if(a == null)
+			{
+				return Response.status(404).build();
+			}
+
+			if(checksum != null && false == checksum.equals(a.getChecksum()))
+			{
+				return Response.status(404).build();
+			}
+
+			if(ifModifiedSince != null && ifModifiedSince.getTime() > a.getResource().getLastModified())
+			{
+				return Response.status(304).build();
+			}
+
+			return a;
+		}
+		catch(AssetException e)
 		{
 			return Response.status(404).build();
 		}
-
-		if(checksum != null && false == checksum.equals(a.getChecksum()))
-		{
-			return Response.status(404).build();
-		}
-
-		if(ifModifiedSince != null && ifModifiedSince.getTime() > a.getResource().getLastModified())
-		{
-			return Response.status(304).build();
-		}
-
-		return a;
 	}
 }
