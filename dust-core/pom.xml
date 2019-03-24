@@ -24,9 +24,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>23.1-jre</version>
+			<groupId>se.l4.commons</groupId>
+			<artifactId>commons-types</artifactId>
+			<version>1.1.0</version>
 		</dependency>
 
 		<dependency>
@@ -42,32 +42,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.reflections</groupId>
-			<artifactId>reflections</artifactId>
-			<version>0.9.11</version>
-
-			<exclusions>
-				<exclusion>
-					<groupId>javassist</groupId>
-					<artifactId>javassist</artifactId>
-				</exclusion>
-
-				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-	
-		<dependency>
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
-		</dependency>
-	
-		<dependency>
-			<groupId>com.fasterxml</groupId>
-			<artifactId>classmate</artifactId>
-			<version>1.3.4</version>
 			<version>3.24.1-GA</version>
 		</dependency>
 
