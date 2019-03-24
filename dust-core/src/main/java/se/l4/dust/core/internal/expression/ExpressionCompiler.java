@@ -57,6 +57,7 @@ public class ExpressionCompiler
 		items = new ArrayList<>();
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Expression compile()
 	{
 		String expressionBeingCompiled = null;
@@ -155,7 +156,7 @@ public class ExpressionCompiler
 			impl.setBody("return " + root.supportsSet() + ";");
 			type.addMethod(impl);
 
-			Class<? extends Expression> c = type.toClass();
+			Class<? extends Expression> c = (Class) type.toClass();
 
 			Constructor<? extends Expression> ct = c.getConstructor(typed);
 			return ct.newInstance(values);

@@ -5,12 +5,12 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
+
+import org.junit.Before;
+import org.junit.Test;
 
 import junit.framework.Assert;
 import se.l4.crayon.Crayon;
@@ -141,6 +141,30 @@ public class ResolverTest
 				new Invoker[0]
 			),
 			new MethodPropertyInvoker(null, null, m2, null)
+		));
+	}
+
+	@Test
+	public void testMethodChainOnProperty()
+		throws Exception
+	{
+		Method m1 = Container.class.getMethod("getLd");
+		Method m2 = LongToDouble.class.getMethod("get", double.class);
+		test("ld.get(10.0)", Container.class, new ChainInvoker(null,
+			new MethodPropertyInvoker(
+				null,
+				null,
+				m1,
+				null
+			),
+			new MethodInvoker(
+				null,
+				null,
+				m2,
+				new Invoker[] {
+					new ConstantInvoker(null, 10.0)
+				}
+			)
 		));
 	}
 
@@ -489,6 +513,29 @@ public class ResolverTest
 		public String toString()
 		{
 			return "TestMethod{name=" + name + "}";
+		}
+	}
+
+	public static class Container
+	{
+		private LongToDouble longToDouble;
+
+		public Container()
+		{
+			longToDouble = new LongToDouble();
+		}
+
+		public LongToDouble getLd()
+		{
+			return longToDouble;
+		}
+	}
+
+	public static class LongToDouble
+	{
+		public int get(double d)
+		{
+			return (int) d;
 		}
 	}
 }

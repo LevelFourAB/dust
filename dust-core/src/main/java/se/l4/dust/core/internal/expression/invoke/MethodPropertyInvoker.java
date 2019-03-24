@@ -148,6 +148,12 @@ public class MethodPropertyInvoker
 	}
 
 	@Override
+	public String toString()
+	{
+		return getClass().getSimpleName() + "{getter=" + getter + ", setter=" + setter + "}";
+	}
+
+	@Override
 	public int hashCode()
 	{
 		final int prime = 31;

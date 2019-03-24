@@ -129,6 +129,13 @@ public class MethodInvoker
 	}
 
 	@Override
+	public String toString()
+	{
+		return MethodInvoker.class.getSimpleName() + "{method=" + method
+			+ ", params=" + Arrays.toString(params) + "}";
+	}
+
+	@Override
 	public int hashCode()
 	{
 		final int prime = 31;

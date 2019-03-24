@@ -161,6 +161,17 @@ public class AstTest
 	}
 
 	@Test
+	public void testChainedMethodWithParams3()
+	{
+		test("chain.method(12)", chain(id(null, "chain"), invoke(
+			id(null, "method"),
+			Arrays.<Node>asList(
+				longNode(12)
+			)
+		)));
+	}
+
+	@Test
 	public void testChainedMethodWithMultiProperties()
 	{
 		test("prop1.prop2.action()", chain(
@@ -204,6 +215,9 @@ public class AstTest
 	@Test
 	public void testSignNegative()
 	{
+		test("-10", longNode(-10));
+		test("-10.0", doubleNode(-10.0));
+
 		test("-id", sign(true, id(null, "id")));
 		test("-ns:id", sign(true, id("ns", "id")));
 
@@ -356,6 +370,16 @@ public class AstTest
 		test("2 + 20 + 4", add(
 			add(longNode(2), longNode(20)),
 			longNode(4)
+		));
+
+		test("- 2 + 20 + 4", add(
+			add(longNode(-2), longNode(20)),
+			longNode(4)
+		));
+
+		test("2 + 20 / - 4", add(
+			longNode(2),
+			divide(longNode(20), longNode(-4))
 		));
 	}
 
@@ -526,7 +550,6 @@ public class AstTest
 	@Test
 	public void testMultipleIndexes()
 	{
-		System.out.println("f");
 		test("test[0]['red']", index(id(null, "test"), longNode(0), string("red")));
 	}
 
